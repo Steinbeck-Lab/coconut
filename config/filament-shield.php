@@ -16,8 +16,6 @@ return [
         'fqcn' => 'App\\Models\\User',
     ],
 
-    'nav.group' => 'Filament Shield',
-
     'super_admin' => [
         'enabled' => true,
         'name' => 'super_admin',
