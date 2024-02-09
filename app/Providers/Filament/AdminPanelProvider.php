@@ -20,6 +20,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use BezhanSalleh\FilamentExceptions\FilamentExceptionsPlugin;
 use Stephenjude\FilamentDebugger\DebuggerPlugin;
+use ShuvroRoy\FilamentSpatieLaravelBackup\FilamentSpatieLaravelBackupPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -47,6 +48,7 @@ class AdminPanelProvider extends PanelProvider
                 FilamentShieldPlugin::make(),
                 FilamentExceptionsPlugin::make(),
                 DebuggerPlugin::make(),
+                FilamentSpatieLaravelBackupPlugin::make()
             ])
             ->middleware([
                 EncryptCookies::class,
