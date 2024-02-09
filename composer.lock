@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "207ae14cd6ebb908ab900514d57b551d",
+    "content-hash": "c07743e7b41df4ee63d802d7c6b4413a",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -2739,6 +2739,84 @@
             "time": "2024-01-30T16:25:02+00:00"
         },
         {
+            "name": "laravel/horizon",
+            "version": "v5.22.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/horizon.git",
+                "reference": "8618d65fad70308b8a5e438c4cfc0a1c6c14eea6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel/horizon/zipball/8618d65fad70308b8a5e438c4cfc0a1c6c14eea6",
+                "reference": "8618d65fad70308b8a5e438c4cfc0a1c6c14eea6",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-pcntl": "*",
+                "ext-posix": "*",
+                "illuminate/contracts": "^8.17|^9.0|^10.0|^11.0",
+                "illuminate/queue": "^8.17|^9.0|^10.0|^11.0",
+                "illuminate/support": "^8.17|^9.0|^10.0|^11.0",
+                "nesbot/carbon": "^2.17|^3.0",
+                "php": "^7.3|^8.0",
+                "ramsey/uuid": "^4.0",
+                "symfony/error-handler": "^5.0|^6.0|^7.0",
+                "symfony/process": "^5.0|^6.0|^7.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.0",
+                "orchestra/testbench": "^6.0|^7.0|^8.0|^9.0",
+                "phpstan/phpstan": "^1.10",
+                "phpunit/phpunit": "^9.0|^10.4",
+                "predis/predis": "^1.1|^2.0"
+            },
+            "suggest": {
+                "ext-redis": "Required to use the Redis PHP driver.",
+                "predis/predis": "Required when not using the Redis PHP driver (^1.1|^2.0)."
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "5.x-dev"
+                },
+                "laravel": {
+                    "providers": [
+                        "Laravel\\Horizon\\HorizonServiceProvider"
+                    ],
+                    "aliases": {
+                        "Horizon": "Laravel\\Horizon\\Horizon"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Laravel\\Horizon\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                }
+            ],
+            "description": "Dashboard and code-driven configuration for Laravel queues.",
+            "keywords": [
+                "laravel",
+                "queue"
+            ],
+            "support": {
+                "issues": "https://github.com/laravel/horizon/issues",
+                "source": "https://github.com/laravel/horizon/tree/v5.22.1"
+            },
+            "time": "2024-01-30T03:04:51+00:00"
+        },
+        {
             "name": "laravel/jetstream",
             "version": "v4.2.2",
             "source": {
@@ -2989,6 +3067,77 @@
                 "source": "https://github.com/laravel/serializable-closure"
             },
             "time": "2023-11-08T14:08:06+00:00"
+        },
+        {
+            "name": "laravel/telescope",
+            "version": "v4.17.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/telescope.git",
+                "reference": "2c5295261d1459e4f9b157c407a663a6685f3ddf"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel/telescope/zipball/2c5295261d1459e4f9b157c407a663a6685f3ddf",
+                "reference": "2c5295261d1459e4f9b157c407a663a6685f3ddf",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "laravel/framework": "^8.37|^9.0|^10.0",
+                "php": "^8.0",
+                "symfony/var-dumper": "^5.0|^6.0"
+            },
+            "require-dev": {
+                "ext-gd": "*",
+                "guzzlehttp/guzzle": "^6.0|^7.0",
+                "laravel/octane": "^1.4",
+                "orchestra/testbench": "^6.0|^7.0|^8.0",
+                "phpstan/phpstan": "^1.10",
+                "phpunit/phpunit": "^9.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.x-dev"
+                },
+                "laravel": {
+                    "providers": [
+                        "Laravel\\Telescope\\TelescopeServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Laravel\\Telescope\\": "src/",
+                    "Laravel\\Telescope\\Database\\Factories\\": "database/factories/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                },
+                {
+                    "name": "Mohamed Said",
+                    "email": "mohamed@laravel.com"
+                }
+            ],
+            "description": "An elegant debug assistant for the Laravel framework.",
+            "keywords": [
+                "debugging",
+                "laravel",
+                "monitoring"
+            ],
+            "support": {
+                "issues": "https://github.com/laravel/telescope/issues",
+                "source": "https://github.com/laravel/telescope/tree/v4.17.5"
+            },
+            "time": "2024-01-30T15:41:45+00:00"
         },
         {
             "name": "laravel/tinker",
@@ -6114,6 +6263,73 @@
                 }
             ],
             "time": "2023-12-24T06:58:02+00:00"
+        },
+        {
+            "name": "stephenjude/filament-debugger",
+            "version": "2.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/stephenjude/filament-debugger.git",
+                "reference": "b905de05e51dc45c4c080c469e4ad65ec4294646"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/stephenjude/filament-debugger/zipball/b905de05e51dc45c4c080c469e4ad65ec4294646",
+                "reference": "b905de05e51dc45c4c080c469e4ad65ec4294646",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^3.0",
+                "illuminate/contracts": "^10.0",
+                "laravel/horizon": "^5.21",
+                "laravel/telescope": "^4.16",
+                "php": "^8.1",
+                "spatie/laravel-package-tools": "^1.9.2"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.13",
+                "nunomaduro/collision": "^7.0",
+                "orchestra/testbench": "^8.0",
+                "pestphp/pest": "^2.24",
+                "pestphp/pest-plugin-laravel": "^2.2",
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Stephenjude\\FilamentDebugger\\DebuggerServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Stephenjude\\FilamentDebugger\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "stephenjude",
+                    "email": "stephenjudesuccess@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "About",
+            "homepage": "https://github.com/stephenjude/filament-debugger",
+            "keywords": [
+                "filament-debugger",
+                "laravel",
+                "stephenjude"
+            ],
+            "support": {
+                "issues": "https://github.com/stephenjude/filament-debugger/issues",
+                "source": "https://github.com/stephenjude/filament-debugger/tree/2.0.2"
+            },
+            "time": "2023-11-18T19:13:18+00:00"
         },
         {
             "name": "symfony/console",

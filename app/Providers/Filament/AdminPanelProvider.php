@@ -19,6 +19,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use BezhanSalleh\FilamentExceptions\FilamentExceptionsPlugin;
+use Stephenjude\FilamentDebugger\DebuggerPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -44,7 +45,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 FilamentShieldPlugin::make(),
-                FilamentExceptionsPlugin::make()
+                FilamentExceptionsPlugin::make(),
+                DebuggerPlugin::make(),
             ])
             ->middleware([
                 EncryptCookies::class,
