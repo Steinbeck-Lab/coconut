@@ -250,7 +250,7 @@ return [
      * UnHealthyBackupWasFound event will be fired.
      */
     'monitor_backups' => [
-        
+
         [
             'name' => env('APP_NAME', 'laravel-backup'),
             'disks' => ['s3'],

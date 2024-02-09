@@ -2,10 +2,9 @@
 
 namespace App\Exceptions;
 
+use BezhanSalleh\FilamentExceptions\FilamentExceptions;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
-
-use BezhanSalleh\FilamentExceptions\FilamentExceptions;
 
 class Handler extends ExceptionHandler
 {

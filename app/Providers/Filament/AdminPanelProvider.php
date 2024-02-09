@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use BezhanSalleh\FilamentExceptions\FilamentExceptionsPlugin;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -17,11 +19,9 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
-use BezhanSalleh\FilamentExceptions\FilamentExceptionsPlugin;
-use Stephenjude\FilamentDebugger\DebuggerPlugin;
-use ShuvroRoy\FilamentSpatieLaravelBackup\FilamentSpatieLaravelBackupPlugin;
 use pxlrbt\FilamentEnvironmentIndicator\EnvironmentIndicatorPlugin;
+use ShuvroRoy\FilamentSpatieLaravelBackup\FilamentSpatieLaravelBackupPlugin;
+use Stephenjude\FilamentDebugger\DebuggerPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -50,11 +50,11 @@ class AdminPanelProvider extends PanelProvider
                 DebuggerPlugin::make(),
                 FilamentSpatieLaravelBackupPlugin::make(),
                 EnvironmentIndicatorPlugin::make()
-                ->color(fn () => match (app()->environment()) {
-                    'production' => null,
-                    'staging' => Color::Orange,
-                    default => Color::Red,
-                })
+                    ->color(fn () => match (app()->environment()) {
+                        'production' => null,
+                        'staging' => Color::Orange,
+                        default => Color::Red,
+                    }),
             ])
             ->middleware([
                 EncryptCookies::class,
