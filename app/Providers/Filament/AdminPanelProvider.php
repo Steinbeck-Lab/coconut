@@ -30,7 +30,6 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
             ->colors([
                 'primary' => Color::Teal,
             ])
@@ -63,6 +62,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->brandLogo(asset('img/logo.png'))
+            ->sidebarCollapsibleOnDesktop();
     }
 }

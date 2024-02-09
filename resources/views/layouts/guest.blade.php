@@ -18,6 +18,7 @@
         @livewireStyles
     </head>
     <body>
+        <x-impersonate::banner style='light'/>
         <div class="font-sans text-gray-900 antialiased">
             {{ $slot }}
         </div>
