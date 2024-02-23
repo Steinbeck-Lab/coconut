@@ -1,7 +1,7 @@
 services:
     laravel.test:
         build:
-            context: ./vendor/laravel/sail/runtimes/8.3
+            context: ./docker/8.3
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
@@ -28,8 +28,23 @@ services:
             - minio
             - mailpit
             - selenium
+            - cm
+    cm:
+        image: "nfdi4chem/cheminformatics-microservice:dev-latest"
+        environment:
+            HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
+        ports:
+            - "81:80"
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:81/latest/chem/health"]
+            interval: 1m30s
+            timeout: 10s
+            retries: 20
+            start_period: 60s
+        networks:
+            - sail
     pgsql:
-        image: 'postgres:15'
+        image: "informaticsmatters/rdkit-cartridge-debian:latest"
         ports:
             - '${FORWARD_DB_PORT:-5432}:5432'
         environment:
@@ -39,7 +54,7 @@ services:
             POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
         volumes:
             - 'sail-pgsql:/var/lib/postgresql/data'
-            - './vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
+            - './docker/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
         networks:
             - sail
         healthcheck:

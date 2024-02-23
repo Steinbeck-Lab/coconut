@@ -70,6 +70,7 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->databaseNotifications()
             ->brandLogo(asset('img/logo.png'))
             ->sidebarCollapsibleOnDesktop();
     }
