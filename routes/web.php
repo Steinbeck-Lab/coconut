@@ -1,5 +1,9 @@
 <?php
 
+use App\Livewire\Guides;
+use App\Livewire\Policy;
+use App\Livewire\Terms;
+use App\Livewire\Welcome;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,9 +17,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', Welcome::class);
+Route::get('/policy', Policy::class);
+Route::get('/terms', Terms::class);
+Route::get('/guidelines', Guides::class);
 
 Route::middleware([
     'auth:sanctum',

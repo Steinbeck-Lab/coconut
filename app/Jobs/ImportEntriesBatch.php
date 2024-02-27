@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Entry;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

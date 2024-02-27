@@ -51,10 +51,10 @@ class ProcessEntries extends Command
                 ->dispatch();
         }
 
-        $unprocessedEntriesCollections = Entry::whereStatus('SUBMITTED')->get()->groupBy('collection_id');
-        foreach ($unprocessedEntriesCollections as $entriesCollection) {
+        // $unprocessedEntriesCollections = Entry::whereStatus('SUBMITTED')->get()->groupBy('collection_id');
+        // foreach ($unprocessedEntriesCollections as $entriesCollection) {
 
-        }
+        // }
 
     }
 }

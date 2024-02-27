@@ -39,7 +39,8 @@
         </div>
 
         @stack('modals')
-
         @livewireScripts
+        @include('cookie-consent::index')
+        <x-support-bubble />
     </body>
 </html>

@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,6 +13,60 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+*/
+
+Route::supportBubble();
+
+// User authentication
+Route::prefix('auth')->group(function () {
+    Route::post('/login', [LoginController::class, 'login']);
+    Route::post('/register', [RegisterController::class, 'register']);
+
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::get('/logout', [LoginController::class, 'logout']);
+        Route::get('/user/info', [UserController::class, 'info']);
+
+        Route::get('/email/verify/{id}', [VerificationController::class, 'verify']);
+        Route::get('/email/resend', [VerificationController::class, 'resend']);
+    });
+});
+
+Route::prefix('v1')->group(function () {
+
+    // Search
+    Route::post('/search/{smiles?}', [SearchController::class, 'search']);
+
+    // Compounds and details
+    Route::get('/compounds', [CompoundController::class, 'list'])->name('compounds.list');
+    Route::get('/compounds/{id}/{property?}/{key?}', [CompoundController::class, 'id'])->name('compound.property');
+    Route::get('/compounds/{id}/toggleBookmark', [CompoundController::class, 'toggleBookmark'])
+        ->name('compound.toggle-bookmark');
+
+    // Schemas
+    Route::get('/compounds', [CompoundController::class, 'list']);
+    Route::prefix('schemas')->group(function () {
+        Route::prefix('bioschema')->group(function () {
+            Route::get('/{id}', [MolecularEntityController::class, 'moleculeSchema']);
+        });
+    });
+
+    // Submissions
+    Route::middleware([
+        'auth:sanctum',
+    ])->group(function () {
+        Route::delete('/compounds', [SubmissionController::class, 'report'])->name('submission.report');
+    });
+
+    // Compounds and details
+    Route::get('/{id}/report', function ($id) {
+        return redirect('compounds/'.$id.'/report');
+    })->name('compound.report');
+
+    Route::post('/compounds', [SubmissionAPIController::class, 'submission'])->name('compound.submission');
+    Route::get('/download', [DownloadController::class, 'getDataDumpURL'])->name('downloadDataDump');
 });

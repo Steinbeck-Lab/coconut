@@ -1,0 +1,330 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "COCONUT",
+        "version": "1.0"
+    },
+    "paths": {
+        "/api/auth/login": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Sign in",
+                "description": "Login by email and password",
+                "operationId": "authLogin",
+                "requestBody": {
+                    "description": "Pass user credentials",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user1@mail.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "PassWord12345"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string",
+                                            "example": "4|2Y40Nmo5bGSlEeluQv7wYIKtG3OLw91cjU7Gx4F323"
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Wrong Credentials Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid login details"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/logout": {
+            "get": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Sign out",
+                "operationId": "bb179b35112b2c8080588c87953175f7",
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/register": {
+            "post": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Register",
+                "description": "Register by providing details.",
+                "operationId": "authRegister",
+                "requestBody": {
+                    "description": "Pass registration details.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "first_name",
+                                    "last_name",
+                                    "email",
+                                    "password",
+                                    "username"
+                                ],
+                                "properties": {
+                                    "first_name": {
+                                        "type": "string",
+                                        "format": "first_name",
+                                        "example": "Marie"
+                                    },
+                                    "last_name": {
+                                        "type": "string",
+                                        "format": "last_name",
+                                        "example": "Warren"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "marie.warren@email.com"
+                                    },
+                                    "username": {
+                                        "type": "string",
+                                        "format": "username",
+                                        "example": "marie123"
+                                    },
+                                    "orcid_id": {
+                                        "type": "string",
+                                        "format": "orcid_id",
+                                        "example": "0000-0003-2433-4341"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret1234"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Operation"
+                    },
+                    "422": {
+                        "description": "Unprocessable Content"
+                    }
+                }
+            }
+        },
+        "/api/auth/user/info": {
+            "get": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "User info",
+                "operationId": "a76271ca4e85fa6e7470052cbe6c4429",
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/email/resend": {
+            "get": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Resend verification email",
+                "operationId": "c8b11569af83c4d423af040f6c0cd2fa",
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/compounds/{id}": {
+            "get": {
+                "tags": [
+                    "search"
+                ],
+                "summary": "Get compound details by COCONUT id.",
+                "description": "Get compound details by COCONUT id.",
+                "operationId": "getCompoundById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "COCONUT id",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Operation"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        },
+        "/api/v1/compounds": {
+            "get": {
+                "tags": [
+                    "search"
+                ],
+                "summary": "Get the list of all compounds",
+                "description": "Get compounds list from COCONUT",
+                "operationId": "getCompounds",
+                "responses": {
+                    "200": {
+                        "description": "Successful Operation"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        },
+        "/api/v1/schemas/bioschema/{id}": {
+            "get": {
+                "tags": [
+                    "schemas"
+                ],
+                "summary": "Get bioschema schema details by COCONUT id.",
+                "description": "Get bioschema schema details by COCONUT id.",
+                "operationId": "moleculeSchema",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "COCONUT id - bioschema",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Operation"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        },
+        "/api/v1/search": {
+            "post": {
+                "tags": [
+                    "search"
+                ],
+                "summary": "Get compound details by Compound name, SMILES, InChi & InChiKey.",
+                "description": "Get compound details by Compound name, SMILES, InChi & InChiKey.",
+                "operationId": "search",
+                "requestBody": {
+                    "description": "Pass search query and type such as InChiKey, InChi, SMILES & text",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "query",
+                                    "type"
+                                ],
+                                "properties": {
+                                    "query": {
+                                        "type": "string",
+                                        "format": "query",
+                                        "example": "AAAAWQOPBUPWEV-UHFFFAOYSA-N"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "format": "type",
+                                        "example": "InChiKey"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Operation"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        }
+    }
+}
