@@ -7,6 +7,7 @@ use App\Models\Molecule;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
 
 class MoleculeResource extends Resource
@@ -30,8 +31,19 @@ class MoleculeResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('identifier')
             ->columns([
-                //
+                ImageColumn::make('structure')->square()
+                    ->label('Structure')
+                    ->state(function ($record) {
+                        return env('CM_API', 'https://dev.api.naturalproducts.net/latest/') . 'depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=false&toolkit=cdk';
+                    })
+                    ->width(200)
+                    ->height(200)
+                    ->ring(5)
+                    ->defaultImageUrl(url('/images/placeholder.png')),
+                Tables\Columns\TextColumn::make('identifier')->searchable(),
+                Tables\Columns\TextColumn::make('status'),
             ])
             ->filters([
                 //

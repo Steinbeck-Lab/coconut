@@ -82,21 +82,21 @@ class EntriesRelationManager extends RelationManager
                     ])
                     ->schema([
                         ImageEntry::make('parent_canonical_smiles')->state(function ($record) {
-                            return 'https://api.naturalproducts.net/v1/depict/2D?smiles='.urlencode($record->parent_canonical_smiles).'&height=300&width=300&CIP=false&toolkit=cdk';
+                            return env('CM_API', 'https://dev.api.naturalproducts.net/latest/') . 'depict/2D?smiles='.urlencode($record->parent_canonical_smiles).'&height=300&width=300&CIP=false&toolkit=cdk';
                         })
                             ->width(200)
                             ->height(200)
                             ->ring(5)
                             ->defaultImageUrl(url('/images/placeholder.png')),
                         ImageEntry::make('canonical_smiles')->state(function ($record) {
-                            return 'https://api.naturalproducts.net/v1/depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=false&toolkit=cdk';
+                            return env('CM_API', 'https://dev.api.naturalproducts.net/latest/') . 'depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=false&toolkit=cdk';
                         })
                             ->width(200)
                             ->height(200)
                             ->ring(5)
                             ->defaultImageUrl(url('/images/placeholder.png')),
                         ImageEntry::make('standardized_canonical_smiles')->state(function ($record) {
-                            return 'https://api.naturalproducts.net/v1/depict/2D?smiles='.urlencode($record->standardized_canonical_smiles).'&height=300&width=300&CIP=false&toolkit=cdk';
+                            return env('CM_API', 'https://dev.api.naturalproducts.net/latest/') . 'depict/2D?smiles='.urlencode($record->standardized_canonical_smiles).'&height=300&width=300&CIP=false&toolkit=cdk';
                         })
                             ->width(200)
                             ->height(200)
@@ -116,7 +116,7 @@ class EntriesRelationManager extends RelationManager
                 ImageColumn::make('structure')->square()
                     ->label('Structure')
                     ->state(function ($record) {
-                        return 'https://api.naturalproducts.net/v1/depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=false&toolkit=cdk';
+                        return 'v1/depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=false&toolkit=cdk';
                     })
                     ->width(200)
                     ->height(200)

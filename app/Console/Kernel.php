@@ -13,7 +13,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('entries:process')->everyTenSeconds()->withoutOverlapping();
+        $schedule->command('entries:process')->everyMinute()->withoutOverlapping();
+        $schedule->command('entries:import')->everyMinute()->withoutOverlapping();
     }
 
     /**

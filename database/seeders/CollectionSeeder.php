@@ -1,7 +1,7 @@
 <?php
 
 namespace Database\Seeders;
-
+ 
 use App\Models\Collection;
 use App\Models\License;
 use Illuminate\Database\Seeder;

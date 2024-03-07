@@ -7,6 +7,7 @@ use App\Models\Entry;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
+use Artisan;
 
 class ProcessEntries extends Command
 {
@@ -39,22 +40,18 @@ class ProcessEntries extends Command
                 $i = $i + 1;
             });
             $batch = Bus::batch($batchJobs)->then(function (Batch $batch) {
-                // All jobs completed successfully...
             })->catch(function (Batch $batch, Throwable $e) {
-                // First batch job failure detected...
-            })->finally(function (Batch $batch) {
-                // The batch has finished executing...
+            })->finally(function (Batch $batch) use ($collectionId) {
+
+                Artisan::call('entries:import', [
+                    'collection_id' => $collectionId['collection_id']
+                ]);
+
             })->name('Process Entries '.$collectionId['collection_id'])
                 ->allowFailures(false)
                 ->onConnection('redis')
                 ->onQueue('default')
                 ->dispatch();
         }
-
-        // $unprocessedEntriesCollections = Entry::whereStatus('SUBMITTED')->get()->groupBy('collection_id');
-        // foreach ($unprocessedEntriesCollections as $entriesCollection) {
-
-        // }
-
     }
 }

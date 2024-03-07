@@ -16,7 +16,7 @@ class ImportEntries extends Command
      *
      * @var string
      */
-    protected $signature = 'entries:import';
+    protected $signature = 'entries:import {collection_id}';
 
     /**
      * The console command description.
@@ -30,7 +30,16 @@ class ImportEntries extends Command
      */
     public function handle()
     {
-        $collections = Collection::where('status', 'PUBLISHED')->get();
+        $collection_id = $this->argument('collection_id');
+
+        echo("Command called: " . $collection_id);
+
+        if( !is_null($collection_id)){
+            $collections = Collection::where('id', $collection_id)->get();
+        }else{
+            $collections = Collection::where('status', 'PUBLISHED')->get();
+        }
+
         foreach ($collections as $collection) {
             $batchJobs = [];
             $i = 0;
@@ -39,11 +48,8 @@ class ImportEntries extends Command
                 $i = $i + 1;
             });
             $batch = Bus::batch($batchJobs)->then(function (Batch $batch) {
-                // All jobs completed successfully...
             })->catch(function (Batch $batch, Throwable $e) {
-                // First batch job failure detected...
             })->finally(function (Batch $batch) {
-                // The batch has finished executing...
             })->name('Import Entries '.$collection->id)
                 ->allowFailures(false)
                 ->onConnection('redis')

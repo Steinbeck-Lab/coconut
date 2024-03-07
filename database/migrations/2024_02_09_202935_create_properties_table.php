@@ -22,7 +22,7 @@ return new class extends Migration
             $table->float('molecular_weight')->default(0)->nullable();
             $table->float('exact_molecular_weight')->default(0)->nullable();
 
-            $table->longText('molecular_formula');
+            $table->longText('molecular_formula')->nullable();
 
             $table->decimal('alogp')->default(0)->nullable();
             $table->decimal('topological_polar_surface_area')->default(0)->nullable();

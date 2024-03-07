@@ -30,7 +30,7 @@ return new class extends Migration
 
             $table->integer('name_trust_level')->default(0)->nullable();
             $table->integer('annotation_level')->default(0)->nullable();
-            $table->integer('parent_id')->nullable;
+            $table->integer('parent_id')->nullable();
             $table->integer('variants_count')->default(0);
 
             $table->enum('status', ['DRAFT', 'APPROVED', 'REVOKED', 'INREVIEW'])->default('DRAFT');

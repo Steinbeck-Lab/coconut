@@ -18,11 +18,8 @@ class CitationFactory extends Factory
     public function definition()
     {
         $keywords = [
-            'Phytochemicals',
             'Herbal medicine',
             'Secondary metabolites',
-            'Bioactive compounds',
-            'Plant extracts',
             'Natural product chemistry',
             'Medicinal plants',
             'Ethnobotany',
@@ -32,7 +29,6 @@ class CitationFactory extends Factory
             'Marine natural products',
             'Bioprospecting',
             'Natural product synthesis',
-            'Biodiversity',
         ];
 
         $randomKeyword = $keywords[array_rand($keywords)];
@@ -51,7 +47,11 @@ class CitationFactory extends Factory
         $doi = $citationData['doi'] ?? null;
 
         while (! $doi) {
-            $randomIndex = rand(0, 10);
+            if ($randomIndex == 0) {
+                $randomIndex = 10;
+            } else {
+                $randomIndex -= 1;
+            }
             $citationData = $response->json('resultList.result.'.$randomIndex);
             $doi = $citationData['doi'] ?? null;
         }
