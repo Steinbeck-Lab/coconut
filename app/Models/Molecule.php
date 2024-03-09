@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\Tags\HasTags;
 
 class Molecule extends Model implements Auditable
 {
     use HasFactory;
+    use HasTags;
     use \OwenIt\Auditing\Auditable;
 
     /**

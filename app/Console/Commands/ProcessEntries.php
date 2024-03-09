@@ -4,10 +4,10 @@ namespace App\Console\Commands;
 
 use App\Jobs\LoadEntriesBatch;
 use App\Models\Entry;
+use Artisan;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
-use Artisan;
 
 class ProcessEntries extends Command
 {
@@ -44,7 +44,7 @@ class ProcessEntries extends Command
             })->finally(function (Batch $batch) use ($collectionId) {
 
                 Artisan::call('entries:import', [
-                    'collection_id' => $collectionId['collection_id']
+                    'collection_id' => $collectionId['collection_id'],
                 ]);
 
             })->name('Process Entries '.$collectionId['collection_id'])

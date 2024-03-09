@@ -21,7 +21,7 @@ class TagFactory extends Factory
 
         return [
             'name' => $name,
-            'slug' => $slug
+            'slug' => $slug,
         ];
     }
 }

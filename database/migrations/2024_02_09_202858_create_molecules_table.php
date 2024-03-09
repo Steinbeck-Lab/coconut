@@ -33,6 +33,8 @@ return new class extends Migration
             $table->integer('parent_id')->nullable();
             $table->integer('variants_count')->default(0);
 
+            $table->integer('ticker')->default(0);
+
             $table->enum('status', ['DRAFT', 'APPROVED', 'REVOKED', 'INREVIEW'])->default('DRAFT');
 
             $table->boolean('active')->default(0);

@@ -32,11 +32,9 @@ class ImportEntries extends Command
     {
         $collection_id = $this->argument('collection_id');
 
-        echo("Command called: " . $collection_id);
-
-        if( !is_null($collection_id)){
+        if (! is_null($collection_id)) {
             $collections = Collection::where('id', $collection_id)->get();
-        }else{
+        } else {
             $collections = Collection::where('status', 'PUBLISHED')->get();
         }
 

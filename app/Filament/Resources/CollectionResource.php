@@ -46,20 +46,20 @@ class CollectionResource extends Resource
                                 ->type('collections'),
                             TextInput::make('identifier'),
                         ]),
-                    Section::make('Status')
+                    Section::make('Distribution')
                         ->schema([
                             Select::make('license')
                                 ->relationship('license', 'title')
                                 ->preload()
                                 ->searchable(),
-                            ToggleButtons::make('status')
-                                ->options([
-                                    'DRAFT' => 'Draft',
-                                    'REVIEW' => 'Review',
-                                    'EMBARGO' => 'Embargo',
-                                    'PUBLISHED' => 'Published',
-                                    'REJECTED' => 'Rejected',
-                                ])->inline(),
+                            // ToggleButtons::make('status')
+                            //     ->options([
+                            //         'DRAFT' => 'Draft',
+                            //         'REVIEW' => 'Review',
+                            //         'EMBARGO' => 'Embargo',
+                            //         'PUBLISHED' => 'Published',
+                            //         'REJECTED' => 'Rejected',
+                            //     ])->inline(),
                         ]),
                 ]
             )->columns(1);

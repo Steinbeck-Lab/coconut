@@ -34,7 +34,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         if ($this->entry->status == 'PASSED') {
             if ($this->entry->has_stereocenters) {
                 $data = $this->getRepresentations('parent');
-                $parent = Molecule::firstOrCreate(['standard_inchi' => $data['standard_inchi']]);
+                $parent = Molecule::firstOrCreate(['standard_inchi' => $data['standard_inchi'], 'standard_inchi_key' => $data['standard_inchikey']]);
                 $parent->is_parent = true;
                 $parent->has_variants = true;
                 $parent->identifier = $this->entry->coconut_id;
@@ -44,16 +44,18 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $this->attachProperties('parent', $parent);
 
                 $data = $this->getRepresentations('standardized');
-                $molecule = Molecule::firstOrCreate(['standard_inchi' => $data['standard_inchi']]);
+                $molecule = Molecule::firstOrCreate(['standard_inchi' => $data['standard_inchi'], 'standard_inchi_key' => $data['standard_inchikey']]);
                 $molecule->has_stereo = true;
                 $molecule->parent_id = $parent->id;
-                // $molecule->identifier = $this->entry->coconut_id;
+                $parent->ticker = $parent->ticker + 1;
+                $molecule->identifier = $this->entry->coconut_id.'.'.$parent->ticker;
                 $parent = $this->assignData($molecule, $data);
+                $parent->save();
                 $molecule->save();
                 $this->attachProperties('standardized', $molecule);
             } else {
                 $data = $this->getRepresentations('standardized');
-                $molecule = Molecule::firstOrCreate(['standard_inchi' => $data['standard_inchi']]);
+                $molecule = Molecule::firstOrCreate(['standard_inchi' => $data['standard_inchi'], 'standard_inchi_key' => $data['standard_inchikey']]);
                 $parent = $this->assignData($molecule, $data);
                 $molecule->identifier = $this->entry->coconut_id;
                 $molecule->save();
