@@ -1,3 +1,8 @@
 <div>
-    {{-- Care about people's approval and you will be their prisoner. --}}
+    <iframe
+        width="{{$this->width}}"
+        height="{{$this->height}}"
+        src="{{$this->source}}"
+        frameborder="0"
+    ></iframe>
 </div>

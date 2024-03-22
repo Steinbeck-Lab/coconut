@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Tags\HasTags;
 
@@ -45,10 +46,19 @@ class Molecule extends Model implements Auditable
         'is_placeholder'];
 
     /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'synonyms' => 'array',
+    ];
+
+    /**
      * Get the properties associated with the molecule.
      */
     public function properties(): HasOne
     {
-        return $this->hasOne(Properies::class);
+        return $this->hasOne(Properties::class);
     }
 }

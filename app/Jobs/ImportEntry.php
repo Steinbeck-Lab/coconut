@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Http;
 
 class ImportEntry implements ShouldBeUnique, ShouldQueue
 {
@@ -41,6 +42,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $parent->variants_count += $parent->variants_count;
                 $parent = $this->assignData($parent, $data);
                 $parent->save();
+                $this->fetchIUPACNameFromPubChem($parent);
                 $this->attachProperties('parent', $parent);
 
                 $data = $this->getRepresentations('standardized');
@@ -50,8 +52,11 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $parent->ticker = $parent->ticker + 1;
                 $molecule->identifier = $this->entry->coconut_id.'.'.$parent->ticker;
                 $parent = $this->assignData($molecule, $data);
+                $this->entry->molecule_id = $molecule->id;
+                $this->entry->save();
                 $parent->save();
                 $molecule->save();
+                $this->fetchIUPACNameFromPubChem($molecule);
                 $this->attachProperties('standardized', $molecule);
             } else {
                 $data = $this->getRepresentations('standardized');
@@ -59,7 +64,52 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $parent = $this->assignData($molecule, $data);
                 $molecule->identifier = $this->entry->coconut_id;
                 $molecule->save();
+                $this->entry->molecule_id = $molecule->id;
+                $this->entry->save();
+                $this->fetchIUPACNameFromPubChem($molecule);
                 $this->attachProperties('standardized', $molecule);
+            }
+        }
+    }
+
+    public function fetchSynonymsCASFromPubChem($cid, $molecule)
+    {
+        if ($cid && $cid != 0) {
+            $synonymsURL = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/'.trim(preg_replace('/\s+/', ' ', $cid)).'/synonyms/txt';
+            $data = Http::get($synonymsURL)->body();
+            $synonyms = preg_split("/\r\n|\n|\r/", $data);
+            if ($synonyms && count($synonyms) > 0) {
+                if ($synonyms[0] != 'Status: 404') {
+                    $pattern = "~\d{2,7}\p{Pd}\d{2}\p{Pd}\d~u";
+                    $casIds = preg_grep($pattern, $synonyms);
+                    $molecule->synonyms = json_encode($synonyms);
+                    $molecule->cas = json_encode($casIds);
+                    $molecule->name = $synonyms[0];
+                    $molecule->save();
+                }
+            }
+        }
+    }
+
+    public function fetchIUPACNameFromPubChem($molecule)
+    {
+        $inchiUrl = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/inchi/cids/TXT?inchi='.urlencode($molecule->standard_inchi);
+        $cid = Http::get($inchiUrl)->body();
+
+        if ($cid && $cid != 0) {
+            $cidPropsURL = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/'.trim(preg_replace('/\s+/', ' ', $cid)).'/json';
+            $data = Http::get($cidPropsURL)->json();
+            $props = $data['PC_Compounds'][0]['props'];
+            $IUPACName = null;
+            foreach ($props as $prop) {
+                if ($prop['urn']['label'] == 'IUPAC Name' && $prop['urn']['name'] == 'Preferred') {
+                    $IUPACName = $prop['value']['sval'];
+                }
+            }
+            $this->fetchSynonymsCASFromPubChem($cid, $molecule);
+            if ($IUPACName) {
+                $molecule->iupac_name = $IUPACName;
+                $molecule->save();
             }
         }
     }

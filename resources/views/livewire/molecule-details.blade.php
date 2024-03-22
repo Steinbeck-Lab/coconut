@@ -1,405 +1,674 @@
-<div>
-<main class="pt-10 sm:pt-16 mt-16">
-      <nav aria-label="Breadcrumb">
-        <ol role="list" class="mx-auto flex max-w-2xl items-center space-x-2 px-4 sm:px-6 lg:max-w-7xl lg:px-8">
-          <li>
-              <div class="flex items-center">
-                <a href="#" class="mr-2 text-sm font-medium text-gray-900">Men</a>
-                <svg width="16" height="20" viewBox="0 0 16 20" fill="currentColor" aria-hidden="true" class="h-5 w-4 text-gray-300">
-                  <path d="M5.697 4.34L8.98 16.532h1.327L7.025 4.341H5.697z"></path>
-                </svg>
-              </div>
-            </li>
-          <li>
-              <div class="flex items-center">
-                <a href="#" class="mr-2 text-sm font-medium text-gray-900">Clothing</a>
-                <svg width="16" height="20" viewBox="0 0 16 20" fill="currentColor" aria-hidden="true" class="h-5 w-4 text-gray-300">
-                  <path d="M5.697 4.34L8.98 16.532h1.327L7.025 4.341H5.697z"></path>
-                </svg>
-              </div>
-            </li>
-          
-          <li class="text-sm">
-            <a href="#" aria-current="page" class="font-medium text-gray-500 hover:text-gray-600">Basic Tee 6-Pack</a>
-          </li>
-        </ol>
-      </nav>
-
-      <!-- Image gallery -->
-      <div class="mx-auto mt-6 max-w-2xl sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:gap-x-8 lg:px-8">
-        <div class="aspect-h-4 aspect-w-3 hidden overflow-hidden rounded-lg lg:block">
-          <img src="https://tailwindui.com/img/ecommerce-images/product-page-02-secondary-product-shot.jpg" alt="Two each of gray, white, and black shirts laying flat." class="h-full w-full object-cover object-center">
-        </div>
-        <div class="hidden lg:grid lg:grid-cols-1 lg:gap-y-8">
-          <div class="aspect-h-2 aspect-w-3 overflow-hidden rounded-lg">
-            <img src="https://tailwindui.com/img/ecommerce-images/product-page-02-tertiary-product-shot-01.jpg" alt="Model wearing plain black basic tee." class="h-full w-full object-cover object-center">
-          </div>
-          <div class="aspect-h-2 aspect-w-3 overflow-hidden rounded-lg">
-            <img src="https://tailwindui.com/img/ecommerce-images/product-page-02-tertiary-product-shot-02.jpg" alt="Model wearing plain gray basic tee." class="h-full w-full object-cover object-center">
-          </div>
-        </div>
-        <div class="aspect-h-5 aspect-w-4 lg:aspect-h-4 lg:aspect-w-3 sm:overflow-hidden sm:rounded-lg">
-          <img src="https://tailwindui.com/img/ecommerce-images/product-page-02-featured-product-shot.jpg" alt="Model wearing plain white basic tee." class="h-full w-full object-cover object-center">
-        </div>
-      </div>
-
-      <!-- Product info -->
-      <div class="mx-auto max-w-2xl px-4 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pt-16">
-        <div class="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
-          <h1 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Basic Tee 6-Pack</h1>
-        </div>
-
-        <!-- Options -->
-        <div class="mt-4 lg:row-span-3 lg:mt-0">
-          <h2 class="sr-only">Product information</h2>
-          <p class="text-3xl tracking-tight text-gray-900">$192</p>
-
-          <!-- Reviews -->
-          <div class="mt-6">
-            <h3 class="sr-only">Reviews</h3>
-            <div class="flex items-center">
-              <div class="flex items-center">
-                <svg class="text-gray-900 h-5 w-5 flex-shrink-0" x-state:on="Active" x-state:off="Default" x-state-description="Active: &quot;text-gray-900&quot;, Default: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                <svg class="text-gray-900 h-5 w-5 flex-shrink-0" x-state-description="undefined: &quot;text-gray-900&quot;, undefined: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                <svg class="text-gray-900 h-5 w-5 flex-shrink-0" x-state-description="undefined: &quot;text-gray-900&quot;, undefined: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                <svg class="text-gray-900 h-5 w-5 flex-shrink-0" x-state-description="undefined: &quot;text-gray-900&quot;, undefined: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                <svg class="text-gray-200 h-5 w-5 flex-shrink-0" x-state-description="undefined: &quot;text-gray-900&quot;, undefined: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                
-              </div>
-              <p class="sr-only">4 out of 5 stars</p>
-              <a href="#" class="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500">117 reviews</a>
-            </div>
-          </div>
-
-          <form class="mt-10">
-            <!-- Colors -->
-            <div>
-              <h3 class="text-sm font-medium text-gray-900">Color</h3>
-
-              <fieldset x-data="window.Components.radioGroup({ initialCheckedIndex: 0 })" x-init="init()" class="mt-4">
-                <legend class="sr-only">Choose a color</legend>
-                <div class="flex items-center space-x-3">
-                  <label x-radio-group-option="" class="relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none ring-gray-400 ring-2" x-description="Active and Checked: &quot;ring ring-offset-1&quot;	Not Active and Checked: &quot;ring-2&quot;" :class="{ 'ring ring-offset-1': (active === 'White') &amp;&amp; (value === 'White'), 'undefined': !(active === 'White') || !(value === 'White'), 'ring-2': !(active === 'White') &amp;&amp; (value === 'White'), 'undefined': (active === 'White') || !(value === 'White') }">
-<input type="radio" x-model="value" name="color-choice" value="White" class="sr-only" aria-labelledby="color-choice-0-label">
-                      <span id="color-choice-0-label" class="sr-only">White</span>
-                      <span aria-hidden="true" class="h-8 w-8 bg-white rounded-full border border-black border-opacity-10"></span>
-                    </label>
-                  <label x-radio-group-option="" class="relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none ring-gray-400 undefined" x-description="Active and Checked: &quot;ring ring-offset-1&quot;	Not Active and Checked: &quot;ring-2&quot;" :class="{ 'ring ring-offset-1': (active === 'Gray') &amp;&amp; (value === 'Gray'), 'undefined': !(active === 'Gray') || !(value === 'Gray'), 'ring-2': !(active === 'Gray') &amp;&amp; (value === 'Gray'), 'undefined': (active === 'Gray') || !(value === 'Gray') }">
-<input type="radio" x-model="value" name="color-choice" value="Gray" class="sr-only" aria-labelledby="color-choice-1-label">
-                      <span id="color-choice-1-label" class="sr-only">Gray</span>
-                      <span aria-hidden="true" class="h-8 w-8 bg-gray-200 rounded-full border border-black border-opacity-10"></span>
-                    </label>
-                  <label x-radio-group-option="" class="relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none ring-gray-900 undefined" x-description="Active and Checked: &quot;ring ring-offset-1&quot;	Not Active and Checked: &quot;ring-2&quot;" :class="{ 'ring ring-offset-1': (active === 'Black') &amp;&amp; (value === 'Black'), 'undefined': !(active === 'Black') || !(value === 'Black'), 'ring-2': !(active === 'Black') &amp;&amp; (value === 'Black'), 'undefined': (active === 'Black') || !(value === 'Black') }">
-<input type="radio" x-model="value" name="color-choice" value="Black" class="sr-only" aria-labelledby="color-choice-2-label">
-                      <span id="color-choice-2-label" class="sr-only">Black</span>
-                      <span aria-hidden="true" class="h-8 w-8 bg-gray-900 rounded-full border border-black border-opacity-10"></span>
-                    </label>
-                  
+<div class="mx-auto max-w-3xl lg:max-w-5xl">
+    <div class="py-10 bg-white mt-32 rounded-lg shadow-md">
+        <div
+            class="mx-auto max-w-3xl px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-7xl lg:px-8">
+            <div class="flex items-center space-x-5">
+                <div>
+                    <p class="text-secondary-dark text-lg my-0">{{ $molecule->identifier }}</p>
+                    <h2
+                        class="text-2xl break-all font-bold leading-7 break-words text-gray-900 sm:text-3xl sm:tracking-tight">
+                        {{ $molecule->name }}
+                    </h2>
+                    <p class="text-sm font-medium text-gray-500">Created on <time
+                            datetime="{{ $molecule->created_at }}">{{ $molecule->created_at }}</time> &middot; Last
+                        update on <time datetime="{{ $molecule->updated_at }}">{{ $molecule->updated_at }}</time></p>
                 </div>
-              </fieldset>
             </div>
-
-            <!-- Sizes -->
-            <div class="mt-10">
-              <div class="flex items-center justify-between">
-                <h3 class="text-sm font-medium text-gray-900">Size</h3>
-                <a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">Size guide</a>
-              </div>
-
-              <fieldset x-data="window.Components.radioGroup({ initialCheckedIndex: 2 })" x-init="init()" class="mt-4">
-                <legend class="sr-only">Choose a size</legend>
-                <div class="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4">
-                  <label x-radio-group-option="" class="group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 sm:py-6 cursor-not-allowed bg-gray-50 text-gray-200 undefined" x-state:on:size.instock="In Stock" x-state:off:size.instock="Out of Stock" x-description="Active: &quot;ring-2 ring-indigo-500&quot;" :class="{ 'ring-2 ring-indigo-500': (active === 'XXS'), 'undefined': !(active === 'XXS') }">
-<input type="radio" x-model="value" name="size-choice" value="XXS" disabled="" class="sr-only" aria-labelledby="size-choice-0-label">
-                      <span id="size-choice-0-label">XXS</span>
-                      <span aria-hidden="true" class="pointer-events-none absolute -inset-px rounded-md border-2 border-gray-200">
-                          <svg class="absolute inset-0 h-full w-full stroke-2 text-gray-200" viewBox="0 0 100 100" preserveAspectRatio="none" stroke="currentColor">
-                            <line x1="0" y1="100" x2="100" y2="0" vector-effect="non-scaling-stroke"></line>
-                          </svg>
-                        </span>
-                      </label>
-                  <label x-radio-group-option="" class="group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 sm:py-6 cursor-pointer bg-white text-gray-900 shadow-sm undefined" x-state:on:size.instock="In Stock" x-state:off:size.instock="Out of Stock" x-description="Active: &quot;ring-2 ring-indigo-500&quot;" :class="{ 'ring-2 ring-indigo-500': (active === 'XS'), 'undefined': !(active === 'XS') }">
-<input type="radio" x-model="value" name="size-choice" value="XS" class="sr-only" aria-labelledby="size-choice-1-label">
-                      <span id="size-choice-1-label">XS</span>
-                      <span class="pointer-events-none absolute -inset-px rounded-md border-2 border-transparent" aria-hidden="true" x-description="Active: &quot;border&quot;, Not Active: &quot;border-2&quot;	Checked: &quot;border-indigo-500&quot;, Not Checked: &quot;border-transparent&quot;" :class="{ 'border': (active === 'XS'), 'border-2': !(active === 'XS'), 'border-indigo-500': (value === 'XS'), 'border-transparent': !(value === 'XS') }"></span>
-                      </label>
-                  <label x-radio-group-option="" class="group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 sm:py-6 cursor-pointer bg-white text-gray-900 shadow-sm undefined" x-state:on:size.instock="In Stock" x-state:off:size.instock="Out of Stock" x-description="Active: &quot;ring-2 ring-indigo-500&quot;" :class="{ 'ring-2 ring-indigo-500': (active === 'S'), 'undefined': !(active === 'S') }">
-<input type="radio" x-model="value" name="size-choice" value="S" class="sr-only" aria-labelledby="size-choice-2-label">
-                      <span id="size-choice-2-label">S</span>
-                      <span class="pointer-events-none absolute -inset-px rounded-md border-2 border-indigo-500" aria-hidden="true" x-description="Active: &quot;border&quot;, Not Active: &quot;border-2&quot;	Checked: &quot;border-indigo-500&quot;, Not Checked: &quot;border-transparent&quot;" :class="{ 'border': (active === 'S'), 'border-2': !(active === 'S'), 'border-indigo-500': (value === 'S'), 'border-transparent': !(value === 'S') }"></span>
-                      </label>
-                  <label x-radio-group-option="" class="group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 sm:py-6 cursor-pointer bg-white text-gray-900 shadow-sm undefined" x-state:on:size.instock="In Stock" x-state:off:size.instock="Out of Stock" x-description="Active: &quot;ring-2 ring-indigo-500&quot;" :class="{ 'ring-2 ring-indigo-500': (active === 'M'), 'undefined': !(active === 'M') }">
-<input type="radio" x-model="value" name="size-choice" value="M" class="sr-only" aria-labelledby="size-choice-3-label">
-                      <span id="size-choice-3-label">M</span>
-                      <span class="pointer-events-none absolute -inset-px rounded-md border-2 border-transparent" aria-hidden="true" x-description="Active: &quot;border&quot;, Not Active: &quot;border-2&quot;	Checked: &quot;border-indigo-500&quot;, Not Checked: &quot;border-transparent&quot;" :class="{ 'border': (active === 'M'), 'border-2': !(active === 'M'), 'border-indigo-500': (value === 'M'), 'border-transparent': !(value === 'M') }"></span>
-                      </label>
-                  <label x-radio-group-option="" class="group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 sm:py-6 cursor-pointer bg-white text-gray-900 shadow-sm undefined" x-state:on:size.instock="In Stock" x-state:off:size.instock="Out of Stock" x-description="Active: &quot;ring-2 ring-indigo-500&quot;" :class="{ 'ring-2 ring-indigo-500': (active === 'L'), 'undefined': !(active === 'L') }">
-<input type="radio" x-model="value" name="size-choice" value="L" class="sr-only" aria-labelledby="size-choice-4-label">
-                      <span id="size-choice-4-label">L</span>
-                      <span class="pointer-events-none absolute -inset-px rounded-md border-2 border-transparent" aria-hidden="true" x-description="Active: &quot;border&quot;, Not Active: &quot;border-2&quot;	Checked: &quot;border-indigo-500&quot;, Not Checked: &quot;border-transparent&quot;" :class="{ 'border': (active === 'L'), 'border-2': !(active === 'L'), 'border-indigo-500': (value === 'L'), 'border-transparent': !(value === 'L') }"></span>
-                      </label>
-                  <label x-radio-group-option="" class="group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 sm:py-6 cursor-pointer bg-white text-gray-900 shadow-sm undefined" x-state:on:size.instock="In Stock" x-state:off:size.instock="Out of Stock" x-description="Active: &quot;ring-2 ring-indigo-500&quot;" :class="{ 'ring-2 ring-indigo-500': (active === 'XL'), 'undefined': !(active === 'XL') }">
-<input type="radio" x-model="value" name="size-choice" value="XL" class="sr-only" aria-labelledby="size-choice-5-label">
-                      <span id="size-choice-5-label">XL</span>
-                      <span class="pointer-events-none absolute -inset-px rounded-md border-2 border-transparent" aria-hidden="true" x-description="Active: &quot;border&quot;, Not Active: &quot;border-2&quot;	Checked: &quot;border-indigo-500&quot;, Not Checked: &quot;border-transparent&quot;" :class="{ 'border': (active === 'XL'), 'border-2': !(active === 'XL'), 'border-indigo-500': (value === 'XL'), 'border-transparent': !(value === 'XL') }"></span>
-                      </label>
-                  <label x-radio-group-option="" class="group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 sm:py-6 cursor-pointer bg-white text-gray-900 shadow-sm undefined" x-state:on:size.instock="In Stock" x-state:off:size.instock="Out of Stock" x-description="Active: &quot;ring-2 ring-indigo-500&quot;" :class="{ 'ring-2 ring-indigo-500': (active === '2XL'), 'undefined': !(active === '2XL') }">
-<input type="radio" x-model="value" name="size-choice" value="2XL" class="sr-only" aria-labelledby="size-choice-6-label">
-                      <span id="size-choice-6-label">2XL</span>
-                      <span class="pointer-events-none absolute -inset-px rounded-md border-2 border-transparent" aria-hidden="true" x-description="Active: &quot;border&quot;, Not Active: &quot;border-2&quot;	Checked: &quot;border-indigo-500&quot;, Not Checked: &quot;border-transparent&quot;" :class="{ 'border': (active === '2XL'), 'border-2': !(active === '2XL'), 'border-indigo-500': (value === '2XL'), 'border-transparent': !(value === '2XL') }"></span>
-                      </label>
-                  <label x-radio-group-option="" class="group relative flex items-center justify-center rounded-md border py-3 px-4 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none sm:flex-1 sm:py-6 cursor-pointer bg-white text-gray-900 shadow-sm undefined" x-state:on:size.instock="In Stock" x-state:off:size.instock="Out of Stock" x-description="Active: &quot;ring-2 ring-indigo-500&quot;" :class="{ 'ring-2 ring-indigo-500': (active === '3XL'), 'undefined': !(active === '3XL') }">
-<input type="radio" x-model="value" name="size-choice" value="3XL" class="sr-only" aria-labelledby="size-choice-7-label">
-                      <span id="size-choice-7-label">3XL</span>
-                      <span class="pointer-events-none absolute -inset-px rounded-md border-2 border-transparent" aria-hidden="true" x-description="Active: &quot;border&quot;, Not Active: &quot;border-2&quot;	Checked: &quot;border-indigo-500&quot;, Not Checked: &quot;border-transparent&quot;" :class="{ 'border': (active === '3XL'), 'border-2': !(active === '3XL'), 'border-indigo-500': (value === '3XL'), 'border-transparent': !(value === '3XL') }"></span>
-                      </label>
-                  
-                </div>
-              </fieldset>
-            </div>
-
-            <button type="submit" class="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Add to bag</button>
-          </form>
         </div>
-
-        <div class="py-10 lg:col-span-2 lg:col-start-1 lg:border-r lg:border-gray-200 lg:pb-16 lg:pr-8 lg:pt-6">
-          <!-- Description and details -->
-          <div>
-            <h3 class="sr-only">Description</h3>
-
-            <div class="space-y-6">
-              <p class="text-base text-gray-900">The Basic Tee 6-Pack allows you to fully express your vibrant personality with three grayscale options. Feeling adventurous? Put on a heather gray tee. Want to be a trendsetter? Try our exclusive colorway: "Black". Need to add an extra pop of color to your outfit? Our white tee has you covered.</p>
-            </div>
-          </div>
-
-          <div class="mt-10">
-            <h3 class="text-sm font-medium text-gray-900">Highlights</h3>
-
-            <div class="mt-4">
-              <ul role="list" class="list-disc space-y-2 pl-4 text-sm">
-                <li class="text-gray-400"><span class="text-gray-600">Hand cut and sewn locally</span></li>
-                <li class="text-gray-400"><span class="text-gray-600">Dyed with our proprietary colors</span></li>
-                <li class="text-gray-400"><span class="text-gray-600">Pre-washed &amp; pre-shrunk</span></li>
-                <li class="text-gray-400"><span class="text-gray-600">Ultra-soft 100% cotton</span></li>
-                
-              </ul>
-            </div>
-          </div>
-
-          <section aria-labelledby="shipping-heading" class="mt-10">
-            <h2 id="shipping-heading" class="text-sm font-medium text-gray-900">Details</h2>
-
-            <div class="mt-4 space-y-6">
-              <p class="text-sm text-gray-600">The 6-Pack includes two black, two white, and two heather gray Basic Tees. Sign up for our subscription service and be the first to get new, exciting colors, like our upcoming "Charcoal Gray" limited release.</p>
-            </div>
-          </section>
-        </div>
-
-        <div class="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
-          <!-- Reviews -->
-          <section aria-labelledby="reviews-heading" class="border-t border-gray-200 pt-10 lg:pt-16">
-            <h2 id="reviews-heading" class="sr-only">Reviews</h2>
-
-            <div class="space-y-10">
-              <div class="flex flex-col sm:flex-row">
-                  <div class="order-2 mt-6 sm:ml-16 sm:mt-0">
-                    <h3 class="text-sm font-medium text-gray-900">This is the best white t-shirt out there</h3>
-                    <p class="sr-only">5 out of 5 stars</p>
-
-                    <div class="mt-3 space-y-6 text-sm text-gray-600">
-            <p>I've searched my entire life for a t-shirt that reflects every color in the visible spectrum. Scientists said it couldn't be done, but when I look at this shirt, I see white light bouncing right back into my eyes. Incredible!</p>
-          </div>
-                  </div>
-
-                  <div class="order-1 flex items-center sm:flex-col sm:items-start">
-                    <img src="https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&amp;ixqx=oilqXxSqey&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=2&amp;w=256&amp;h=256&amp;q=80" alt="Mark Edwards." class="h-12 w-12 rounded-full">
-
-                    <div class="ml-4 sm:ml-0 sm:mt-4">
-                      <p class="text-sm font-medium text-gray-900">Mark Edwards</p>
-                      <div class="mt-2 flex items-center">
-                        <svg class="text-gray-900 h-5 w-5 flex-shrink-0" x-state:on="Active" x-state:off="Default" x-state-description="Active: &quot;text-gray-900&quot;, Default: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                        <svg class="text-gray-900 h-5 w-5 flex-shrink-0" x-state-description="undefined: &quot;text-gray-900&quot;, undefined: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                        <svg class="text-gray-900 h-5 w-5 flex-shrink-0" x-state-description="undefined: &quot;text-gray-900&quot;, undefined: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                        <svg class="text-gray-900 h-5 w-5 flex-shrink-0" x-state-description="undefined: &quot;text-gray-900&quot;, undefined: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                        <svg class="text-gray-900 h-5 w-5 flex-shrink-0" x-state-description="undefined: &quot;text-gray-900&quot;, undefined: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                        
-                      </div>
+        <div class="border-b mt-8 border-b-gray-900/10 lg:border-t lg:border-t-gray-900/5">
+            <dl class="mx-auto grid max-w-7xl grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:px-2 xl:px-0">
+                <div
+                    class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-10 sm:px-6 lg:border-t-0 xl:px-8 ">
+                    <dt class="font-medium text-gray-500"> NPLikeness <svg xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
+                            class="h-5 w-5 -mt-1 inline cursor-pointer">
+                            <path fill-rule="evenodd"
+                                d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                clip-rule="evenodd"></path>
+                        </svg></dt>
+                    <div data-v-5784ed69="" class="inline-block"
+                        style="border: 30px solid transparent; margin: -30px; --c81fc0a4: 9999;">
+                        <div data-v-5784ed69=""><span data-v-5784ed69-s="">
+                                <div class="wrap">
+                                    @foreach (range(0, ceil(npScore($molecule->properties->np_likeness))) as $i)
+                                        <div></div>
+                                    @endforeach
+                                </div>
+                                <span class="ml-1 text-sm font-bold">{{ $molecule->properties->np_likeness }}</span>
+                            </span></div>
                     </div>
-                  </div>
+
                 </div>
-              <div class="flex flex-col sm:flex-row">
-                  <div class="order-2 mt-6 sm:ml-16 sm:mt-0">
-                    <h3 class="text-sm font-medium text-gray-900">Adds the perfect variety to my wardrobe</h3>
-                    <p class="sr-only">4 out of 5 stars</p>
-
-                    <div class="mt-3 space-y-6 text-sm text-gray-600">
-            <p>I used to be one of those unbearable minimalists who only wore the same black v-necks every day. Now, I have expanded my wardrobe with three new crewneck options! Leaving off one star only because I wish the heather gray was more gray.</p>
-          </div>
-                  </div>
-
-                  <div class="order-1 flex items-center sm:flex-col sm:items-start">
-                    <img src="https://images.unsplash.com/photo-1520785643438-5bf77931f493?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=2.5&amp;w=256&amp;h=256&amp;q=80" alt="Blake Reid." class="h-12 w-12 rounded-full">
-
-                    <div class="ml-4 sm:ml-0 sm:mt-4">
-                      <p class="text-sm font-medium text-gray-900">Blake Reid</p>
-                      <div class="mt-2 flex items-center">
-                        <svg class="text-gray-900 h-5 w-5 flex-shrink-0" x-state:on="Active" x-state:off="Default" x-state-description="Active: &quot;text-gray-900&quot;, Default: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                        <svg class="text-gray-900 h-5 w-5 flex-shrink-0" x-state-description="undefined: &quot;text-gray-900&quot;, undefined: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                        <svg class="text-gray-900 h-5 w-5 flex-shrink-0" x-state-description="undefined: &quot;text-gray-900&quot;, undefined: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                        <svg class="text-gray-900 h-5 w-5 flex-shrink-0" x-state-description="undefined: &quot;text-gray-900&quot;, undefined: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                        <svg class="text-gray-200 h-5 w-5 flex-shrink-0" x-state-description="undefined: &quot;text-gray-900&quot;, undefined: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                        
-                      </div>
+                <div
+                    class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-10 sm:px-6 lg:border-t-0 xl:px-8 sm:border-l">
+                    <div>
+                        <dt class="font-medium text-gray-500"> Annotation Level</dt>
+                        <div class="flex items-center">
+                            <div class="flex items-center">
+                                @if ($molecule->annotation_level > 0)
+                                    @foreach (range(0, $molecule->annotation_level) as $i)
+                                        <svg :key="index" v-for="index in molecule.annotation_level"
+                                            class="inline text-yellow-400 h-5 w-5 flex-shrink-0" x-state:on="Active"
+                                            x-state:off="Inactive"
+                                            x-state-description='Active: "text-yellow-400", Inactive: "text-gray-200"'
+                                            x-description="Heroicon name: mini/star" xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                            <path fill-rule="evenodd"
+                                                d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                    @endforeach
+                                @endif
+                                @foreach (range(1, 5 - $molecule->annotation_level) as $j)
+                                    <svg :key="index" v-for="index in 5 - molecule.annotation_level"
+                                        class="inline text-gray-200 h-5 w-5 flex-shrink-0"
+                                        x-state-description='undefined: "text-yellow-400", undefined: "text-gray-200"'
+                                        x-description="Heroicon name: mini/star" xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd"
+                                            d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                @endforeach
+                            </div>
+                        </div>
                     </div>
-                  </div>
                 </div>
-              <div class="flex flex-col sm:flex-row">
-                  <div class="order-2 mt-6 sm:ml-16 sm:mt-0">
-                    <h3 class="text-sm font-medium text-gray-900">All good things come in 6-Packs</h3>
-                    <p class="sr-only">5 out of 5 stars</p>
-
-                    <div class="mt-3 space-y-6 text-sm text-gray-600">
-            <p>Tasty beverages, strong abs that will never be seen due to aforementioned tasty beverages, and these Basic Tees!</p>
-          </div>
-                  </div>
-
-                  <div class="order-1 flex items-center sm:flex-col sm:items-start">
-                    <img src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=2&amp;w=256&amp;h=256&amp;q=80" alt="Ben Russel." class="h-12 w-12 rounded-full">
-
-                    <div class="ml-4 sm:ml-0 sm:mt-4">
-                      <p class="text-sm font-medium text-gray-900">Ben Russel</p>
-                      <div class="mt-2 flex items-center">
-                        <svg class="text-gray-900 h-5 w-5 flex-shrink-0" x-state:on="Active" x-state:off="Default" x-state-description="Active: &quot;text-gray-900&quot;, Default: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                        <svg class="text-gray-900 h-5 w-5 flex-shrink-0" x-state-description="undefined: &quot;text-gray-900&quot;, undefined: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                        <svg class="text-gray-900 h-5 w-5 flex-shrink-0" x-state-description="undefined: &quot;text-gray-900&quot;, undefined: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                        <svg class="text-gray-900 h-5 w-5 flex-shrink-0" x-state-description="undefined: &quot;text-gray-900&quot;, undefined: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                        <svg class="text-gray-900 h-5 w-5 flex-shrink-0" x-state-description="undefined: &quot;text-gray-900&quot;, undefined: &quot;text-gray-200&quot;" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-  <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd"></path>
-</svg>
-                        
-                      </div>
+                <div
+                    class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-10 sm:px-6 lg:border-t-0 xl:px-8 lg:border-l">
+                    <div>
+                        <dt class="font-medium text-gray-500 text-gray-500"> Mol. Weight </dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ $molecule->properties->molecular_weight }}</dd>
                     </div>
-                  </div>
                 </div>
-              
+                <div
+                    class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-10 sm:px-6 lg:border-t-0 xl:px-8 sm:border-l">
+                    <div>
+                        <dt class="font-medium text-gray-500 text-gray-500"> Mol. Formula </dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ $molecule->properties->molecular_formula }}</dd>
+                    </div>
+                </div>
+            </dl>
+        </div>
+
+
+        <div
+            class="mx-auto mt-8 grid max-w-3xl grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3">
+            <div class="space-y-6 lg:col-span-2 lg:col-start-1">
+                <section>
+                    <div class="bg-white border shadow sm:rounded-lg">
+                        <div class="px-4 py-5 sm:px-6">
+                            <h2 id="applicant-information-title" class="text-lg font-medium leading-6 text-gray-900">
+                                Representations</h2>
+                            <p class="mt-1 max-w-2xl text-sm text-gray-500">Molecular details</p>
+                        </div>
+                        <div class="border-t border-gray-200">
+                            <div class="no-scrollbar px-4 lg:px-8 min-w-0">
+                                <article>
+                                    <div class="">
+                                        <section id="representations" class="my-4">
+                                            <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                                <dt
+                                                    class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
+                                                    COCONUT id
+                                                </dt>
+                                                <div class="mt-1 break-all text-sm text-gray-900">
+                                                    {{ $molecule->identifier }}</div>
+                                            </div>
+                                            <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                                <dt
+                                                    class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
+                                                    Name
+                                                </dt>
+                                                <div class="mt-1 break-all text-sm text-gray-900">
+                                                    {{ $molecule->name }}
+                                                </div>
+                                            </div>
+                                            <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                                <dt
+                                                    class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
+                                                    IUPAC name
+                                                </dt>
+                                                <div class="mt-1 break-all text-sm text-gray-900">
+                                                    {{ $molecule->iupac_name }}
+                                                </div>
+                                            </div>
+                                            <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                                <dt
+                                                    class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
+                                                    InChI
+                                                </dt>
+                                                <div class="mt-1 break-all text-sm text-gray-900">
+                                                    {{ $molecule->standard_inchi }}
+                                                </div>
+                                            </div>
+                                            <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                                <dt
+                                                    class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
+                                                    InChIKey
+                                                </dt>
+                                                <div class="mt-1 break-all text-sm text-gray-900">
+                                                    {{ $molecule->standard_inchi_key }}</div>
+                                            </div>
+                                            <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                                <dt
+                                                    class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
+                                                    Canonical SMILES (CDK)
+                                                </dt>
+                                                <div class="mt-1 break-all text-sm text-gray-900">
+                                                    {{ $molecule->canonical_smiles }}
+                                                </div>
+                                            </div>
+                                            <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                                <div class="sm:flex sm:justify-between">
+                                                    <div class="text-sm font-medium text-gray-500"> Murcko Framework
+                                                    </div>
+                                                </div>
+                                                <div class="mt-1 break-all text-sm text-gray-900">
+                                                    {{ $molecule->properties->murko_framework }}
+                                                </div>
+                                            </div>
+                                        </section>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section aria-labelledby="notes-title">
+                    <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
+                        <div class="divide-y divide-gray-200">
+                            <div class="px-4 py-5 sm:px-6">
+                                <h2 id="notes-title" class="text-lg font-medium text-gray-900">Synonyms</h2>
+                            </div>
+                            <div class="px-4 py-6 sm:px-6">
+                                <div class="not-prose flex gap-3">
+                                    @if (count($molecule->synonyms) > 0)
+                                        <ul role="list" class="mt-2 leading-8">
+                                            @foreach ($molecule->synonyms as $synonym)
+                                                @if ($synonym != '')
+                                                    <li class="inline"><a
+                                                            class="text-sm relative mr-2 inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
+                                                            target="_blank">
+                                                            {{ $synonym }}
+                                                        </a>
+                                                    </li>
+                                                @endif
+                                            @endforeach
+                                        </ul>
+                                    @else
+                                        <span> No synonyms or alternative names were found for this compound </span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section aria-labelledby="notes-title">
+                    <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
+                        <div class="divide-y divide-gray-200">
+                            <div class="px-4 py-5 sm:px-6">
+                                <h2 id="notes-title" class="text-lg font-medium text-gray-900">Molecular Properties
+                                </h2>
+                            </div>
+                            <div class="px-4 py-6 sm:px-6">
+                                <div>
+                                    <ul role="list" class="px-0">
+                                        <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Total
+                                                atom number : {{ $molecule->properties->total_atom_count }}</span></li>
+                                        <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Heavy
+                                                atom number :
+                                                {{ $molecule->properties->heavy_atom_count }}</span></li>
+                                        <li class="py-5 flex md:py-0"><span
+                                                class="ml-3 text-base text-gray-500">Aromatic Ring Count :
+                                                {{ $molecule->properties->aromatic_rings_count }}</span></li>
+                                        <li class="py-5 flex md:py-0"><span
+                                                class="ml-3 text-base text-gray-500">Rotatable Bond count :
+                                                {{ $molecule->properties->rotatable_bond_count }}</span></li>
+                                        <li class="py-5 flex md:py-0"><span
+                                                class="ml-3 text-base text-gray-500">Minimal number of rings
+                                                : {{ $molecule->properties->number_of_minimal_rings }}</span></li>
+                                        <li class="py-5 flex md:py-0"><span
+                                                class="ml-3 text-base text-gray-500">Formal Charge :
+                                                {{ $molecule->properties->total_atom_count }}</span></li>
+                                        <li class="py-5 flex md:py-0"><span
+                                                class="ml-3 text-base text-gray-500">Contains Sugar :
+                                                {{ $molecule->properties->contains_sugar }}</span></li>
+                                        <li class="py-5 flex md:py-0"><span
+                                                class="ml-3 text-base text-gray-500">Contains Ring Sugars :
+                                                {{ $molecule->properties->contains_ring_sugars }}</span></li>
+                                        <li class="py-5 flex md:py-0"><span
+                                                class="ml-3 text-base text-gray-500">Contains Linear Sugars
+                                                : {{ $molecule->properties->contains_linear_sugars }}</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section aria-labelledby="notes-title">
+                    <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
+                        <div class="divide-y divide-gray-200">
+                            <div class="px-4 py-5 sm:px-6">
+                                <h2 id="notes-title" class="text-lg font-medium text-gray-900">Molecular Descriptors
+                                </h2>
+                            </div>
+                            <div class="px-4 py-6 sm:px-6">
+                                <ul role="list" class="">
+                                    <li class="py-5 flex md:py-0"><span
+                                            class="ml-3 text-base text-gray-500">NP-likeness scores :
+                                            {{ $molecule->properties->np_likeness }}</span></li>
+                                    <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Alogp :
+                                            {{ $molecule->properties->alogp }}</span></li>
+                                    <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">TopoPSA :
+                                            {{ $molecule->properties->topological_polar_surface_area }}</span></li>
+                                    <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Fsp3 :
+                                            {{ $molecule->properties->total_atom_count }}</span></li>
+                                    <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Hydrogen
+                                            Bond Acceptor Count
+                                            : {{ $molecule->properties->hydrogen_bond_acceptors }}</span></li>
+                                    <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Hydrogen
+                                            Bond Donor Count : {{ $molecule->properties->hydrogen_bond_donors }}</span>
+                                    </li>
+                                    <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Lipinski
+                                            Hydrogen Bond
+                                            Acceptor Count :
+                                            {{ $molecule->properties->hydrogen_bond_acceptors_lipinski }}</span></li>
+                                    <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Lipinski
+                                            Hydrogen Bond Donor
+                                            Count : {{ $molecule->properties->hydrogen_bond_donors_lipinski }}</span>
+                                    </li>
+                                    <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Lipinski
+                                            RO5 Violations :
+                                            {{ $molecule->properties->lipinski_rule_of_five_violations }}</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section aria-labelledby="notes-title">
+                    <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
+                        <div class="divide-y divide-gray-200">
+                            <div class="px-4 py-5 sm:px-6">
+                                <h2 id="notes-title" class="text-lg font-medium text-gray-900">References (Citations &
+                                    Collections)</h2>
+                            </div>
+                            <div class="px-4 py-6 sm:px-6">
+                                <div class="not-prose grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                    <div class="group relative rounded-xl border border-slate-200">
+                                        <div
+                                            class="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 [background:linear-gradient(var(--quick-links-hover-bg,theme(colors.sky.50)),var(--quick-links-hover-bg,theme(colors.sky.50)))_padding-box,linear-gradient(to_top,theme(colors.indigo.400),theme(colors.cyan.400),theme(colors.sky.500))_border-box] group-hover:opacity-100">
+                                        </div>
+                                        <div class="relative overflow-hidden rounded-xl p-6"><svg aria-hidden="true"
+                                                viewBox="0 0 32 32" fill="none"
+                                                class="h-8 w-8 [--icon-foreground:theme(colors.slate.900)] [--icon-background:theme(colors.white)]">
+                                                <defs>
+                                                    <radialGradient cx="0" cy="0" r="1"
+                                                        gradientUnits="userSpaceOnUse" id=":R1k19n6:-gradient"
+                                                        gradientTransform="matrix(0 21 -21 0 12 11)">
+                                                        <stop stop-color="#0EA5E9"></stop>
+                                                        <stop stop-color="#22D3EE" offset=".527"></stop>
+                                                        <stop stop-color="#818CF8" offset="1"></stop>
+                                                    </radialGradient>
+                                                    <radialGradient cx="0" cy="0" r="1"
+                                                        gradientUnits="userSpaceOnUse" id=":R1k19n6:-gradient-dark"
+                                                        gradientTransform="matrix(0 24.5 -24.5 0 16 5.5)">
+                                                        <stop stop-color="#0EA5E9"></stop>
+                                                        <stop stop-color="#22D3EE" offset=".527"></stop>
+                                                        <stop stop-color="#818CF8" offset="1"></stop>
+                                                    </radialGradient>
+                                                </defs>
+                                                <g class="">
+                                                    <circle cx="12" cy="20" r="12"
+                                                        fill="url(#:R1k19n6:-gradient)"></circle>
+                                                    <path d="M27 12.13 19.87 5 13 11.87v14.26l14-14Z"
+                                                        class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
+                                                        fill-opacity="0.5" stroke-width="2" stroke-linecap="round"
+                                                        stroke-linejoin="round"></path>
+                                                    <path d="M3 3h10v22a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V3Z"
+                                                        class="fill-[var(--icon-background)]" fill-opacity="0.5">
+                                                    </path>
+                                                    <path
+                                                        d="M3 9v16a4 4 0 0 0 4 4h2a4 4 0 0 0 4-4V9M3 9V3h10v6M3 9h10M3 15h10M3 21h10"
+                                                        class="stroke-[color:var(--icon-foreground)]" stroke-width="2"
+                                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                                    <path d="M29 29V19h-8.5L13 26c0 1.5-2.5 3-5 3h21Z"
+                                                        fill-opacity="0.5"
+                                                        class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
+                                                        stroke-width="2" stroke-linecap="round"
+                                                        stroke-linejoin="round"></path>
+                                                </g>
+                                                <g class="hidden">
+                                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                                        d="M3 2a1 1 0 0 0-1 1v21a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H3Zm16.752 3.293a1 1 0 0 0-1.593.244l-1.045 2A1 1 0 0 0 17 8v13a1 1 0 0 0 1.71.705l7.999-8.045a1 1 0 0 0-.002-1.412l-6.955-6.955ZM26 18a1 1 0 0 0-.707.293l-10 10A1 1 0 0 0 16 30h13a1 1 0 0 0 1-1V19a1 1 0 0 0-1-1h-3ZM5 18a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H5Zm-1-5a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1Zm1-7a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2H5Z"
+                                                        fill="url(#:R1k19n6:-gradient-dark)"></path>
+                                                </g>
+                                            </svg>
+                                            <h2 class="mt-2 font-display text-base text-slate-900"><a target="_blank"
+                                                    href="http://bioinf-applied.charite.de/supernatural_new/index.php?site=compound_search&amp;id=SN00071235"><span
+                                                        class="absolute -inset-px rounded-xl"></span>supernatural2:
+                                                    SN00071235</a></h2>
+                                        </div>
+                                    </div>
+                                    <div class="group relative rounded-xl border border-slate-200">
+                                        <div
+                                            class="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 [background:linear-gradient(var(--quick-links-hover-bg,theme(colors.sky.50)),var(--quick-links-hover-bg,theme(colors.sky.50)))_padding-box,linear-gradient(to_top,theme(colors.indigo.400),theme(colors.cyan.400),theme(colors.sky.500))_border-box] group-hover:opacity-100">
+                                        </div>
+                                        <div class="relative overflow-hidden rounded-xl p-6"><svg aria-hidden="true"
+                                                viewBox="0 0 32 32" fill="none"
+                                                class="h-8 w-8 [--icon-foreground:theme(colors.slate.900)] [--icon-background:theme(colors.white)]">
+                                                <defs>
+                                                    <radialGradient cx="0" cy="0" r="1"
+                                                        gradientUnits="userSpaceOnUse" id=":R1k19n6:-gradient"
+                                                        gradientTransform="matrix(0 21 -21 0 12 11)">
+                                                        <stop stop-color="#0EA5E9"></stop>
+                                                        <stop stop-color="#22D3EE" offset=".527"></stop>
+                                                        <stop stop-color="#818CF8" offset="1"></stop>
+                                                    </radialGradient>
+                                                    <radialGradient cx="0" cy="0" r="1"
+                                                        gradientUnits="userSpaceOnUse" id=":R1k19n6:-gradient-dark"
+                                                        gradientTransform="matrix(0 24.5 -24.5 0 16 5.5)">
+                                                        <stop stop-color="#0EA5E9"></stop>
+                                                        <stop stop-color="#22D3EE" offset=".527"></stop>
+                                                        <stop stop-color="#818CF8" offset="1"></stop>
+                                                    </radialGradient>
+                                                </defs>
+                                                <g class="">
+                                                    <circle cx="12" cy="20" r="12"
+                                                        fill="url(#:R1k19n6:-gradient)"></circle>
+                                                    <path d="M27 12.13 19.87 5 13 11.87v14.26l14-14Z"
+                                                        class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
+                                                        fill-opacity="0.5" stroke-width="2" stroke-linecap="round"
+                                                        stroke-linejoin="round"></path>
+                                                    <path d="M3 3h10v22a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V3Z"
+                                                        class="fill-[var(--icon-background)]" fill-opacity="0.5">
+                                                    </path>
+                                                    <path
+                                                        d="M3 9v16a4 4 0 0 0 4 4h2a4 4 0 0 0 4-4V9M3 9V3h10v6M3 9h10M3 15h10M3 21h10"
+                                                        class="stroke-[color:var(--icon-foreground)]" stroke-width="2"
+                                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                                    <path d="M29 29V19h-8.5L13 26c0 1.5-2.5 3-5 3h21Z"
+                                                        fill-opacity="0.5"
+                                                        class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
+                                                        stroke-width="2" stroke-linecap="round"
+                                                        stroke-linejoin="round"></path>
+                                                </g>
+                                                <g class="hidden">
+                                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                                        d="M3 2a1 1 0 0 0-1 1v21a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H3Zm16.752 3.293a1 1 0 0 0-1.593.244l-1.045 2A1 1 0 0 0 17 8v13a1 1 0 0 0 1.71.705l7.999-8.045a1 1 0 0 0-.002-1.412l-6.955-6.955ZM26 18a1 1 0 0 0-.707.293l-10 10A1 1 0 0 0 16 30h13a1 1 0 0 0 1-1V19a1 1 0 0 0-1-1h-3ZM5 18a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H5Zm-1-5a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1Zm1-7a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2H5Z"
+                                                        fill="url(#:R1k19n6:-gradient-dark)"></path>
+                                                </g>
+                                            </svg>
+                                            <h2 class="mt-2 font-display text-base text-slate-900"><a target="_blank"
+                                                    href="http://bioinf-applied.charite.de/supernatural_new/index.php?site=compound_search&amp;id=SN00071572"><span
+                                                        class="absolute -inset-px rounded-xl"></span>supernatural2:
+                                                    SN00071572</a></h2>
+                                        </div>
+                                    </div>
+                                    <div class="group relative rounded-xl border border-slate-200">
+                                        <div
+                                            class="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 [background:linear-gradient(var(--quick-links-hover-bg,theme(colors.sky.50)),var(--quick-links-hover-bg,theme(colors.sky.50)))_padding-box,linear-gradient(to_top,theme(colors.indigo.400),theme(colors.cyan.400),theme(colors.sky.500))_border-box] group-hover:opacity-100">
+                                        </div>
+                                        <div class="relative overflow-hidden rounded-xl p-6"><svg aria-hidden="true"
+                                                viewBox="0 0 32 32" fill="none"
+                                                class="h-8 w-8 [--icon-foreground:theme(colors.slate.900)] [--icon-background:theme(colors.white)]">
+                                                <defs>
+                                                    <radialGradient cx="0" cy="0" r="1"
+                                                        gradientUnits="userSpaceOnUse" id=":R1k19n6:-gradient"
+                                                        gradientTransform="matrix(0 21 -21 0 12 11)">
+                                                        <stop stop-color="#0EA5E9"></stop>
+                                                        <stop stop-color="#22D3EE" offset=".527"></stop>
+                                                        <stop stop-color="#818CF8" offset="1"></stop>
+                                                    </radialGradient>
+                                                    <radialGradient cx="0" cy="0" r="1"
+                                                        gradientUnits="userSpaceOnUse" id=":R1k19n6:-gradient-dark"
+                                                        gradientTransform="matrix(0 24.5 -24.5 0 16 5.5)">
+                                                        <stop stop-color="#0EA5E9"></stop>
+                                                        <stop stop-color="#22D3EE" offset=".527"></stop>
+                                                        <stop stop-color="#818CF8" offset="1"></stop>
+                                                    </radialGradient>
+                                                </defs>
+                                                <g class="">
+                                                    <circle cx="12" cy="20" r="12"
+                                                        fill="url(#:R1k19n6:-gradient)"></circle>
+                                                    <path d="M27 12.13 19.87 5 13 11.87v14.26l14-14Z"
+                                                        class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
+                                                        fill-opacity="0.5" stroke-width="2" stroke-linecap="round"
+                                                        stroke-linejoin="round"></path>
+                                                    <path d="M3 3h10v22a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V3Z"
+                                                        class="fill-[var(--icon-background)]" fill-opacity="0.5">
+                                                    </path>
+                                                    <path
+                                                        d="M3 9v16a4 4 0 0 0 4 4h2a4 4 0 0 0 4-4V9M3 9V3h10v6M3 9h10M3 15h10M3 21h10"
+                                                        class="stroke-[color:var(--icon-foreground)]" stroke-width="2"
+                                                        stroke-linecap="round" stroke-linejoin="round"></path>
+                                                    <path d="M29 29V19h-8.5L13 26c0 1.5-2.5 3-5 3h21Z"
+                                                        fill-opacity="0.5"
+                                                        class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
+                                                        stroke-width="2" stroke-linecap="round"
+                                                        stroke-linejoin="round"></path>
+                                                </g>
+                                                <g class="hidden">
+                                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                                        d="M3 2a1 1 0 0 0-1 1v21a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H3Zm16.752 3.293a1 1 0 0 0-1.593.244l-1.045 2A1 1 0 0 0 17 8v13a1 1 0 0 0 1.71.705l7.999-8.045a1 1 0 0 0-.002-1.412l-6.955-6.955ZM26 18a1 1 0 0 0-.707.293l-10 10A1 1 0 0 0 16 30h13a1 1 0 0 0 1-1V19a1 1 0 0 0-1-1h-3ZM5 18a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H5Zm-1-5a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1Zm1-7a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2H5Z"
+                                                        fill="url(#:R1k19n6:-gradient-dark)"></path>
+                                                </g>
+                                            </svg>
+                                            <h2 class="mt-2 font-display text-base text-slate-900"><a target="_blank"
+                                                    href="https://pubchem.ncbi.nlm.nih.gov/compound/4564575"><span
+                                                        class="absolute -inset-px rounded-xl"></span>pubchem_tested_np:
+                                                    4564575</a></h2>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section aria-labelledby="notes-title">
+                    <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
+                        <div class="divide-y divide-gray-200">
+                            <div class="px-4 py-5 sm:px-6">
+                                <h2 id="notes-title" class="text-lg font-medium text-gray-900">Chemical classification
+                                </h2>
+                            </div>
+                            <div class="px-4 py-6 sm:px-6">
+                                <ul role="list" class="px-0">
+                                    <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Super
+                                            class: {{ $molecule->properties->chemical_super_class }}</span></li>
+                                    <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Class:
+                                            {{ $molecule->properties->chemical_class }}</span></li>
+                                    <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Sub
+                                            class: {{ $molecule->properties->chemical_sub_class }}</span></li>
+                                    <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Direct
+                                            parent: {{ $molecule->properties->direct_parent_classification }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
-          </section>
-        </div>
-      </div>
-      <section aria-labelledby="related-products-heading" class="bg-white">
-        <div class="mx-auto max-w-2xl px-4 py-24">
-          <h2 id="related-products-heading" class="text-xl font-bold tracking-tight text-gray-900">Customers also purchased</h2>
 
-          <div class="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
-            <div class="group relative">
-                <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
-                  <img src="https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-01.jpg" alt="Front of men's Basic Tee in black." class="h-full w-full object-cover object-center lg:h-full lg:w-full">
+            <section aria-labelledby="timeline-title" class="lg:col-span-1 lg:col-start-3">
+                <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg bg-white mb-2">
+                    <livewire:molecule-depict2d :height="300" :smiles="$molecule->canonical_smiles">
                 </div>
-                <div class="mt-4 flex justify-between">
-                  <div>
-                    <h3 class="text-sm text-gray-700">
-                      <a href="#">
-                        <span aria-hidden="true" class="absolute inset-0"></span>
-                        Basic Tee
-                      </a>
-                    </h3>
-                    <p class="mt-1 text-sm text-gray-500">Black</p>
-                  </div>
-                  <p class="text-sm font-medium text-gray-900">$35</p>
+                <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg mb-2">
+                    <livewire:molecule-depict3d :height="300" :smiles="$molecule->canonical_smiles">
                 </div>
-              </div>
-            <div class="group relative">
-                <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
-                  <img src="https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-02.jpg" alt="Front of men's Basic Tee in white." class="h-full w-full object-cover object-center lg:h-full lg:w-full">
+                <div class="bg-white px-4 py-5 shadow sm:rounded-lg sm:px-6">
+                    <h2 id="timeline-title" class="text-lg font-medium text-gray-900">Timeline</h2>
+
+                    <!-- Activity Feed -->
+                    <div class="mt-6 flow-root">
+                        <ul role="list" class="-mb-8">
+                            <li>
+                                <div class="relative pb-8">
+                                    <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200"
+                                        aria-hidden="true"></span>
+                                    <div class="relative flex space-x-3">
+                                        <div>
+                                            <span
+                                                class="h-8 w-8 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white">
+                                                <svg class="h-5 w-5 text-white" viewBox="0 0 20 20"
+                                                    fill="currentColor" aria-hidden="true">
+                                                    <path
+                                                        d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 00-13.074.003z">
+                                                    </path>
+                                                </svg>
+                                            </span>
+                                        </div>
+                                        <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+                                            <div>
+                                                <p class="text-sm text-gray-500">Applied to <a href="#"
+                                                        class="font-medium text-gray-900">Front End Developer</a></p>
+                                            </div>
+                                            <div class="whitespace-nowrap text-right text-sm text-gray-500">
+                                                <time datetime="2020-09-20">Sep 20</time>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="relative pb-8">
+                                    <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200"
+                                        aria-hidden="true"></span>
+                                    <div class="relative flex space-x-3">
+                                        <div>
+                                            <span
+                                                class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
+                                                <svg class="h-5 w-5 text-white" viewBox="0 0 20 20"
+                                                    fill="currentColor" aria-hidden="true">
+                                                    <path
+                                                        d="M1 8.25a1.25 1.25 0 112.5 0v7.5a1.25 1.25 0 11-2.5 0v-7.5zM11 3V1.7c0-.268.14-.526.395-.607A2 2 0 0114 3c0 .995-.182 1.948-.514 2.826-.204.54.166 1.174.744 1.174h2.52c1.243 0 2.261 1.01 2.146 2.247a23.864 23.864 0 01-1.341 5.974C17.153 16.323 16.072 17 14.9 17h-3.192a3 3 0 01-1.341-.317l-2.734-1.366A3 3 0 006.292 15H5V8h.963c.685 0 1.258-.483 1.612-1.068a4.011 4.011 0 012.166-1.73c.432-.143.853-.386 1.011-.814.16-.432.248-.9.248-1.388z">
+                                                    </path>
+                                                </svg>
+                                            </span>
+                                        </div>
+                                        <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+                                            <div>
+                                                <p class="text-sm text-gray-500">Advanced to phone screening by <a
+                                                        href="#" class="font-medium text-gray-900">Bethany
+                                                        Blake</a></p>
+                                            </div>
+                                            <div class="whitespace-nowrap text-right text-sm text-gray-500">
+                                                <time datetime="2020-09-22">Sep 22</time>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="relative pb-8">
+                                    <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200"
+                                        aria-hidden="true"></span>
+                                    <div class="relative flex space-x-3">
+                                        <div>
+                                            <span
+                                                class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white">
+                                                <svg class="h-5 w-5 text-white" viewBox="0 0 20 20"
+                                                    fill="currentColor" aria-hidden="true">
+                                                    <path fill-rule="evenodd"
+                                                        d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                                                        clip-rule="evenodd"></path>
+                                                </svg>
+                                            </span>
+                                        </div>
+                                        <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+                                            <div>
+                                                <p class="text-sm text-gray-500">Completed phone screening with <a
+                                                        href="#" class="font-medium text-gray-900">Martha
+                                                        Gardner</a></p>
+                                            </div>
+                                            <div class="whitespace-nowrap text-right text-sm text-gray-500">
+                                                <time datetime="2020-09-28">Sep 28</time>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="relative pb-8">
+                                    <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200"
+                                        aria-hidden="true"></span>
+                                    <div class="relative flex space-x-3">
+                                        <div>
+                                            <span
+                                                class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
+                                                <svg class="h-5 w-5 text-white" viewBox="0 0 20 20"
+                                                    fill="currentColor" aria-hidden="true">
+                                                    <path
+                                                        d="M1 8.25a1.25 1.25 0 112.5 0v7.5a1.25 1.25 0 11-2.5 0v-7.5zM11 3V1.7c0-.268.14-.526.395-.607A2 2 0 0114 3c0 .995-.182 1.948-.514 2.826-.204.54.166 1.174.744 1.174h2.52c1.243 0 2.261 1.01 2.146 2.247a23.864 23.864 0 01-1.341 5.974C17.153 16.323 16.072 17 14.9 17h-3.192a3 3 0 01-1.341-.317l-2.734-1.366A3 3 0 006.292 15H5V8h.963c.685 0 1.258-.483 1.612-1.068a4.011 4.011 0 012.166-1.73c.432-.143.853-.386 1.011-.814.16-.432.248-.9.248-1.388z">
+                                                    </path>
+                                                </svg>
+                                            </span>
+                                        </div>
+                                        <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+                                            <div>
+                                                <p class="text-sm text-gray-500">Advanced to interview by <a
+                                                        href="#" class="font-medium text-gray-900">Bethany
+                                                        Blake</a></p>
+                                            </div>
+                                            <div class="whitespace-nowrap text-right text-sm text-gray-500">
+                                                <time datetime="2020-09-30">Sep 30</time>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="relative pb-8">
+                                    <div class="relative flex space-x-3">
+                                        <div>
+                                            <span
+                                                class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white">
+                                                <svg class="h-5 w-5 text-white" viewBox="0 0 20 20"
+                                                    fill="currentColor" aria-hidden="true">
+                                                    <path fill-rule="evenodd"
+                                                        d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                                                        clip-rule="evenodd"></path>
+                                                </svg>
+                                            </span>
+                                        </div>
+                                        <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+                                            <div>
+                                                <p class="text-sm text-gray-500">Completed interview with <a
+                                                        href="#" class="font-medium text-gray-900">Katherine
+                                                        Snyder</a></p>
+                                            </div>
+                                            <div class="whitespace-nowrap text-right text-sm text-gray-500">
+                                                <time datetime="2020-10-04">Oct 4</time>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+
+                        </ul>
+                    </div>
+                    <div class="mt-6 flex flex-col justify-stretch">
+                        <button type="button"
+                            class="inline-flex items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">Advance
+                            to offer</button>
+                    </div>
                 </div>
-                <div class="mt-4 flex justify-between">
-                  <div>
-                    <h3 class="text-sm text-gray-700">
-                      <a href="#">
-                        <span aria-hidden="true" class="absolute inset-0"></span>
-                        Basic Tee
-                      </a>
-                    </h3>
-                    <p class="mt-1 text-sm text-gray-500">Aspen White</p>
-                  </div>
-                  <p class="text-sm font-medium text-gray-900">$35</p>
-                </div>
-              </div>
-            <div class="group relative">
-                <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
-                  <img src="https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-03.jpg" alt="Front of men's Basic Tee in dark gray." class="h-full w-full object-cover object-center lg:h-full lg:w-full">
-                </div>
-                <div class="mt-4 flex justify-between">
-                  <div>
-                    <h3 class="text-sm text-gray-700">
-                      <a href="#">
-                        <span aria-hidden="true" class="absolute inset-0"></span>
-                        Basic Tee
-                      </a>
-                    </h3>
-                    <p class="mt-1 text-sm text-gray-500">Charcoal</p>
-                  </div>
-                  <p class="text-sm font-medium text-gray-900">$35</p>
-                </div>
-              </div>
-            <div class="group relative">
-                <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80">
-                  <img src="https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-04.jpg" alt="Front of men's Artwork Tee in peach with white and brown dots forming an isometric cube." class="h-full w-full object-cover object-center lg:h-full lg:w-full">
-                </div>
-                <div class="mt-4 flex justify-between">
-                  <div>
-                    <h3 class="text-sm text-gray-700">
-                      <a href="#">
-                        <span aria-hidden="true" class="absolute inset-0"></span>
-                        Artwork Tee
-                      </a>
-                    </h3>
-                    <p class="mt-1 text-sm text-gray-500">Iso Dots</p>
-                  </div>
-                  <p class="text-sm font-medium text-gray-900">$35</p>
-                </div>
-              </div>
-            
-          </div>
+
+                <dl class="mt-5 flex w-full">
+                    <div class="text-center md:text-left">
+                        <dd class="mt-1"><a class="text-base font-semibold text-text-dark hover:text-slate-600"
+                                href="https://dev.coconut.naturalproducts.net/compounds/CNP0220816/report">
+                                Report this compound <span aria-hidden="true">→</span></a></dd>
+                        <dd class="mt-1"><a class="text-base font-semibold text-text-dark hover:text-slate-600"
+                                href="https://dev.coconut.naturalproducts.net/compounds/CNP0220816/update">Request
+                                changes to this page <span aria-hidden="true">→</span></a></dd>
+                    </div>
+                </dl>
+            </section>
         </div>
-      </section>
-    </main>
+    </div>
 </div>
