@@ -16,5 +16,8 @@
         "prettier": "^3.2.5",
         "tailwindcss": "^3.1.0",
         "vite": "^5.0.0"
+    },
+    "dependencies": {
+        "openchemlib": "^8.9.0"
     }
 }

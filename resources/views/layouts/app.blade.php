@@ -10,9 +10,14 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
+        <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css" />
+        
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <script src="https://cdn.jsdelivr.net/npm/jsme@2017.2.26/jsme/jsme.nocache.min.js"></script>
+
+        <link href="https://cdn.jsdelivr.net/npm/jsme@2017.2.26/jsme/jsa.min.css" rel="stylesheet">
 
         <!-- Styles -->
         @livewireStyles

@@ -72,7 +72,7 @@ class CitationFactory extends Factory
         }
 
         return [
-            'doi' => $doi.rand(0, 100),
+            'doi' => $doi.'~'.rand(0, 100),
             'title' => $title,
             'authors' => $authors,
             'citation_text' => $citationText,

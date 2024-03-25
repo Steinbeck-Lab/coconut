@@ -23,7 +23,7 @@ return new class extends Migration
             $table->longText('identifier')->nullable()->unique();
             $table->longText('name')->nullable();
             $table->longText('cas')->nullable();
-            $table->longText('synonyms')->nullable();
+            $table->json('synonyms')->nullable();
             $table->longText('iupac_name')->nullable();
             $table->longText('murko_framework')->nullable();
             $table->longText('structural_comments')->nullable();

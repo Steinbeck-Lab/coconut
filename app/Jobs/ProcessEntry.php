@@ -36,6 +36,7 @@ class ProcessEntry implements ShouldQueue
         $status = 'SUBMITTED';
         $standardized_smiles = null;
         $parent_canonical_smiles = null;
+        $molecular_formula = null;
         $data = null;
         $has_stereocenters = false;
         $error_code = -1;
@@ -67,6 +68,7 @@ class ProcessEntry implements ShouldQueue
                 }
                 if (array_key_exists('standardized', $data)) {
                     $standardized_smiles = $data['standardized']['representations']['canonical_smiles'];
+                    $molecular_formula = preg_split('#/#', $data['parent']['representations']['standard_inchi'])[1];
                 }
                 if (array_key_exists('parent', $data)) {
                     $parent_canonical_smiles = $data['parent']['representations']['canonical_smiles'];
@@ -106,6 +108,7 @@ class ProcessEntry implements ShouldQueue
         $this->entry->errors = $errors;
         $this->entry->standardized_canonical_smiles = $standardized_smiles;
         $this->entry->parent_canonical_smiles = $parent_canonical_smiles;
+        $this->entry->molecular_formula = $molecular_formula;
         $this->entry->status = $status;
         $this->entry->cm_data = $data;
         $this->entry->has_stereocenters = $has_stereocenters;

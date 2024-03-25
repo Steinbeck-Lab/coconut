@@ -30,13 +30,14 @@ class Entry extends Model
         'errors',
         'standardized_canonical_smiles',
         'parent_canonical_smiles',
+        'molecular_formula',
         'has_stereocenters',
         'is_invalid',
         'cm_data',
     ];
 
     /**
-     * Get the license of the project.
+     * Get the Collection this entry is associated with
      */
     public function collection(): BelongsTo
     {

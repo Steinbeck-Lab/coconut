@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Citation;
 use App\Models\Molecule;
 use App\Models\Properties;
 use Illuminate\Bus\Batchable;
@@ -44,6 +45,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $parent->save();
                 $this->fetchIUPACNameFromPubChem($parent);
                 $this->attachProperties('parent', $parent);
+                $this->attachCollection($parent);
 
                 $data = $this->getRepresentations('standardized');
                 $molecule = Molecule::firstOrCreate(['standard_inchi' => $data['standard_inchi'], 'standard_inchi_key' => $data['standard_inchikey']]);
@@ -58,6 +60,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $molecule->save();
                 $this->fetchIUPACNameFromPubChem($molecule);
                 $this->attachProperties('standardized', $molecule);
+                $this->attachCollection($molecule);
             } else {
                 $data = $this->getRepresentations('standardized');
                 $molecule = Molecule::firstOrCreate(['standard_inchi' => $data['standard_inchi'], 'standard_inchi_key' => $data['standard_inchikey']]);
@@ -68,8 +71,150 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $this->entry->save();
                 $this->fetchIUPACNameFromPubChem($molecule);
                 $this->attachProperties('standardized', $molecule);
+                $this->attachCollection($molecule);
+            }
+
+            if ($this->entry->doi && $this->entry->doi != '') {
+                $this->fetchCitation($this->entry->doi, $molecule);
             }
         }
+    }
+
+    public function fetchCitation($doi, $molecule)
+    {
+        $citation = null;
+
+        // check if the doi is valid
+        $isDOI = preg_match('/\b(10[.][0-9]{4,}(?:[.][0-9]+)*)\b/', $doi);
+
+        if ($isDOI) {
+
+            //check if citation already exists
+
+            $citation = Citation::where('doi', $doi)->first();
+
+            if (! $citation) {
+                // fetch citation from EuropePMC
+                $europemcUrl = env('EUROPEPMC_WS_API');
+                $europemcParams = [
+                    'query' => 'DOI:'.$doi,
+                    'format' => 'json',
+                    'pageSize' => '1',
+                    'resulttype' => 'core',
+                    'synonym' => 'true',
+                ];
+                $europemcResponse = $this->makeRequest($europemcUrl, $europemcParams);
+
+                if ($europemcResponse && isset($europemcResponse['resultList']['result']) && count($europemcResponse['resultList']['result']) > 0) {
+                    $citationResponse = $this->formatCitationResponse($europemcResponse['resultList']['result'][0], 'europemc');
+                } else {
+
+                    // fetch citation from CrossRef
+                    $crossrefUrl = ''.$doi;
+                    $crossrefResponse = $this->makeRequest($crossrefUrl);
+
+                    if ($crossrefResponse && isset($crossrefResponse['message'])) {
+                        $citationResponse = $this->formatCitationResponse($crossrefResponse['message'], 'crossref');
+                    } else {
+
+                        // fetch citation from DataCite
+                        $dataciteUrl = ''.$doi;
+                        $dataciteResponse = $this->makeRequest($dataciteUrl);
+
+                        if ($dataciteResponse && isset($dataciteResponse['data'])) {
+                            $citationResponse = $this->formatCitationResponse($dataciteResponse['data'], 'datacite');
+                        }
+                    }
+                }
+
+                if ($citationResponse) {
+                    if (! Citation::where('doi', $citationResponse['doi'])->exists()) {
+                        $citation = Citation::create($citationResponse);
+                        $citation->save();
+                    }
+                }
+            }
+
+            // attach citation
+            $molecule->citations()->syncWithoutDetaching($citation);
+        }
+    }
+
+    public function makeRequest($url, $params = [])
+    {
+        try {
+            $response = Http::get($url, $params);
+            if ($response->successful()) {
+                return $response->json();
+            } else {
+                return null; // Handle error here
+            }
+        } catch (Exception $e) {
+            return null; // Handle exception here
+        }
+    }
+
+    public function formatCitationResponse($obj, $apiType)
+    {
+        $journalTitle = '';
+        $yearofPublication = '';
+        $volume = '';
+        $issue = '';
+        $pageInfo = '';
+        $formattedCitationRes = [];
+
+        if ($obj) {
+            switch ($apiType) {
+                case 'europemc':
+                    $journalTitle = isset($obj['journalInfo']['journal']['title']) ? $obj['journalInfo']['journal']['title'] : '';
+                    $yearofPublication = isset($obj['journalInfo']['yearOfPublication']) ? $obj['journalInfo']['yearOfPublication'] : '';
+                    $volume = isset($obj['journalInfo']['volume']) ? $obj['journalInfo']['volume'] : '';
+                    $issue = isset($obj['journalInfo']['issue']) ? $obj['journalInfo']['issue'] : '';
+                    $pageInfo = isset($obj['pageInfo']) ? $obj['pageInfo'] : '';
+                    $formattedCitationRes['title'] = isset($obj['title']) ? $obj['title'] : '';
+                    $formattedCitationRes['authors'] = isset($obj['authorString']) ? $obj['authorString'] : '';
+                    $formattedCitationRes['citation_text'] = $journalTitle.' '.$yearofPublication.' '.$volume.' ( '.$issue.' ) '.$pageInfo;
+                    $formattedCitationRes['doi'] = isset($obj['doi']) ? $obj['doi'] : '';
+                    break;
+                case 'datacite':
+                    $journalTitle = isset($obj['attributes']['titles'][0]['title']) ? $obj['attributes']['titles'][0]['title'] : '';
+                    $yearofPublication = isset($obj['attributes']['publicationYear']) ? $obj['attributes']['publicationYear'] : null;
+                    $volume = isset($obj['attributes']['volume']) ? $obj['attributes']['volume'] : '';
+                    $issue = isset($obj['attributes']['issue']) ? $obj['attributes']['issue'] : '';
+                    $pageInfo = isset($obj['attributes']['page']) ? $obj['attributes']['page'] : '';
+                    $formattedCitationRes['title'] = $journalTitle;
+                    if (isset($obj['attributes']['creators'])) {
+                        $formattedCitationRes['authors'] = implode(', ', array_map(function ($author) {
+                            return $author['name'];
+                        }, $obj['attributes']['creators']));
+                    }
+                    $formattedCitationRes['citation_text'] = $journalTitle.' '.$yearofPublication;
+                    $formattedCitationRes['doi'] = isset($obj['attributes']['doi']) ? $obj['attributes']['doi'] : '';
+                    break;
+                case 'crossref':
+                    $journalTitle = $obj['title'][0];
+                    $yearofPublication = isset($obj['published-online']['date-parts'][0][0]) ? $obj['published-online']['date-parts'][0][0] : '';
+                    $volume = isset($obj['volume']) ? $obj['volume'] : '';
+                    $issue = isset($obj['issue']) ? $obj['issue'] : '';
+                    $pageInfo = isset($obj['page']) ? $obj['page'] : '';
+                    $formattedCitationRes['title'] = $journalTitle;
+                    if (isset($obj['author'])) {
+                        $formattedCitationRes['authors'] = implode(', ', array_map(function ($author) {
+                            return $author['given'].' '.$author['family'];
+                        }, $obj['author']));
+                    }
+                    $formattedCitationRes['citation_text'] = $journalTitle.' '.$yearofPublication.' '.$volume.' ( '.$issue.' ) '.$pageInfo;
+                    $formattedCitationRes['doi'] = isset($obj['DOI']) ? $obj['DOI'] : '';
+                    break;
+            }
+        }
+
+        return $formattedCitationRes;
+    }
+
+    public function attachCollection($molecule)
+    {
+        $molecule->collections()->syncWithoutDetaching($this->entry->collection);
     }
 
     public function fetchSynonymsCASFromPubChem($cid, $molecule)
@@ -80,10 +225,10 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
             $synonyms = preg_split("/\r\n|\n|\r/", $data);
             if ($synonyms && count($synonyms) > 0) {
                 if ($synonyms[0] != 'Status: 404') {
-                    $pattern = "~\d{2,7}\p{Pd}\d{2}\p{Pd}\d~u";
+                    $pattern = "/\b[1-9][0-9]{1,5}-\d{2}-\d\b/";
                     $casIds = preg_grep($pattern, $synonyms);
-                    $molecule->synonyms = json_encode($synonyms);
-                    $molecule->cas = json_encode($casIds);
+                    $molecule->synonyms = $synonyms;
+                    $molecule->cas = array_values($casIds);
                     $molecule->name = $synonyms[0];
                     $molecule->save();
                 }
@@ -130,6 +275,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         $properties->total_atom_count = $descriptors['atom_count'];
         $properties->heavy_atom_count = $descriptors['heavy_atom_count'];
         $properties->molecular_weight = $descriptors['molecular_weight'];
+        $properties->molecular_formula = $this->entry->molecular_formula;
         $properties->exact_molecular_weight = $descriptors['exactmolecular_weight'];
         $properties->alogp = $descriptors['alogp'];
         $properties->rotatable_bond_count = $descriptors['rotatable_bond_count'];

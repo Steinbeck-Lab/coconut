@@ -19,16 +19,19 @@
             <dl class="mx-auto grid max-w-7xl grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:px-2 xl:px-0">
                 <div
                     class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-10 sm:px-6 lg:border-t-0 xl:px-8 ">
-                    <dt class="font-medium text-gray-500"> NPLikeness <svg xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
-                            class="h-5 w-5 -mt-1 inline cursor-pointer">
-                            <path fill-rule="evenodd"
-                                d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
-                                clip-rule="evenodd"></path>
-                        </svg></dt>
+                    <dt class="font-medium text-gray-500"> NPLikeness
+                        <div class="tooltip"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                fill="currentColor" aria-hidden="true" class="h-5 w-5 -mt-1 inline cursor-pointer">
+                                <path fill-rule="evenodd"
+                                    d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="tooltiptext">NP Likeness Score: The likelihood of the compound to be a natural product, ranges from -5 (less likely) to 5 (very likely).</span>
+                        </div>
+                    </dt>
                     <div data-v-5784ed69="" class="inline-block"
                         style="border: 30px solid transparent; margin: -30px; --c81fc0a4: 9999;">
-                        <div data-v-5784ed69=""><span data-v-5784ed69-s="">
+                        <div data-v-5784ed69=""><span>
                                 <div class="wrap">
                                     @foreach (range(0, ceil(npScore($molecule->properties->np_likeness))) as $i)
                                         <div></div>
@@ -188,7 +191,7 @@
                                             @foreach ($molecule->synonyms as $synonym)
                                                 @if ($synonym != '')
                                                     <li class="inline"><a
-                                                            class="text-sm relative mr-2 inline-flex items-center rounded-full border border-gray-300 px-3 py-0.5"
+                                                            class="text-sm relative mr-2 inline-flex items-center rounded-md border border-gray-300 px-3 py-0.5"
                                                             target="_blank">
                                                             {{ $synonym }}
                                                         </a>
@@ -198,6 +201,23 @@
                                         </ul>
                                     @else
                                         <span> No synonyms or alternative names were found for this compound </span>
+                                    @endif
+                                </div>
+                                <div class="gap-3 mt-4">
+                                    @if (count($molecule->cas) > 0)
+                                        <h2 id="notes-title" class="text-md font-medium text-gray-900">CAS</h2>
+                                        <ul role="list" class="mt-2 leading-8">
+                                            @foreach ($molecule->cas as $cas)
+                                                @if ($cas != '')
+                                                    <li class="inline"><a
+                                                            class="text-sm relative mr-2 inline-flex items-center rounded-md border border-gray-300 px-3 py-0.5"
+                                                            target="_blank">
+                                                            {{ $cas }}
+                                                        </a>
+                                                    </li>
+                                                @endif
+                                            @endforeach
+                                        </ul>
                                     @endif
                                 </div>
                             </div>
@@ -292,11 +312,80 @@
                     <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
                         <div class="divide-y divide-gray-200">
                             <div class="px-4 py-5 sm:px-6">
-                                <h2 id="notes-title" class="text-lg font-medium text-gray-900">References (Citations &
-                                    Collections)</h2>
+                                <h2 id="notes-title" class="text-lg font-medium text-gray-900">References</h2>
                             </div>
                             <div class="px-4 py-6 sm:px-6">
-                                <div class="not-prose grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                <h2 id="notes-title" class="mb-2 text-lg font-medium text-gray-900">Citations</h2>
+                                 @if(count($molecule->citations) > 0)
+                                    <div class="not-prose grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                        @foreach ($molecule->citations as $citation)
+                                        <div class="group relative rounded-xl border border-slate-200">
+                                            <div
+                                                class="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 [background:linear-gradient(var(--quick-links-hover-bg,theme(colors.sky.50)),var(--quick-links-hover-bg,theme(colors.sky.50)))_padding-box,linear-gradient(to_top,theme(colors.indigo.400),theme(colors.cyan.400),theme(colors.sky.500))_border-box] group-hover:opacity-100">
+                                            </div>
+                                            <div class="relative overflow-hidden rounded-xl p-6"><svg aria-hidden="true"
+                                                    viewBox="0 0 32 32" fill="none"
+                                                    class="h-8 w-8 [--icon-foreground:theme(colors.slate.900)] [--icon-background:theme(colors.white)]">
+                                                    <defs>
+                                                        <radialGradient cx="0" cy="0" r="1"
+                                                            gradientUnits="userSpaceOnUse" id=":R1k19n6:-gradient"
+                                                            gradientTransform="matrix(0 21 -21 0 12 11)">
+                                                            <stop stop-color="#0EA5E9"></stop>
+                                                            <stop stop-color="#22D3EE" offset=".527"></stop>
+                                                            <stop stop-color="#818CF8" offset="1"></stop>
+                                                        </radialGradient>
+                                                        <radialGradient cx="0" cy="0" r="1"
+                                                            gradientUnits="userSpaceOnUse" id=":R1k19n6:-gradient-dark"
+                                                            gradientTransform="matrix(0 24.5 -24.5 0 16 5.5)">
+                                                            <stop stop-color="#0EA5E9"></stop>
+                                                            <stop stop-color="#22D3EE" offset=".527"></stop>
+                                                            <stop stop-color="#818CF8" offset="1"></stop>
+                                                        </radialGradient>
+                                                    </defs>
+                                                    <g class="">
+                                                        <circle cx="12" cy="20" r="12"
+                                                            fill="url(#:R1k19n6:-gradient)"></circle>
+                                                        <path d="M27 12.13 19.87 5 13 11.87v14.26l14-14Z"
+                                                            class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
+                                                            fill-opacity="0.5" stroke-width="2" stroke-linecap="round"
+                                                            stroke-linejoin="round"></path>
+                                                        <path d="M3 3h10v22a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V3Z"
+                                                            class="fill-[var(--icon-background)]" fill-opacity="0.5">
+                                                        </path>
+                                                        <path
+                                                            d="M3 9v16a4 4 0 0 0 4 4h2a4 4 0 0 0 4-4V9M3 9V3h10v6M3 9h10M3 15h10M3 21h10"
+                                                            class="stroke-[color:var(--icon-foreground)]" stroke-width="2"
+                                                            stroke-linecap="round" stroke-linejoin="round"></path>
+                                                        <path d="M29 29V19h-8.5L13 26c0 1.5-2.5 3-5 3h21Z"
+                                                            fill-opacity="0.5"
+                                                            class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
+                                                            stroke-width="2" stroke-linecap="round"
+                                                            stroke-linejoin="round"></path>
+                                                    </g>
+                                                    <g class="hidden">
+                                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                                            d="M3 2a1 1 0 0 0-1 1v21a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H3Zm16.752 3.293a1 1 0 0 0-1.593.244l-1.045 2A1 1 0 0 0 17 8v13a1 1 0 0 0 1.71.705l7.999-8.045a1 1 0 0 0-.002-1.412l-6.955-6.955ZM26 18a1 1 0 0 0-.707.293l-10 10A1 1 0 0 0 16 30h13a1 1 0 0 0 1-1V19a1 1 0 0 0-1-1h-3ZM5 18a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H5Zm-1-5a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1Zm1-7a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2H5Z"
+                                                            fill="url(#:R1k19n6:-gradient-dark)"></path>
+                                                    </g>
+                                                </svg>
+                                                <h2 class="mt-2 font-bold text-base text-gray-900"><a target="_blank"
+                                                        href="https://doi.org/{{ $citation->doi }}"><span class="absolute -inset-px rounded-xl"></span>{{ $citation->title }}</a></h2>
+                                                <h2 class="mt-2 font-display text-base text-slate-900"><a target="_blank"
+                                                        href="https://doi.org/{{ $citation->doi }}"><span class="absolute -inset-px rounded-xl"></span>{{ $citation->authors }}</a></h2>
+                                                <h2 class="mt-2 font-display text-base text-slate-900"><a target="_blank"
+                                                        href="https://doi.org/{{ $citation->doi }}"><span class="absolute -inset-px rounded-xl"></span>{{ $citation->doi }}</a></h2>
+                                            </div>
+                                        </div>
+                                        @endforeach    
+                                    </div>
+                                @else
+                                    <p class="text-gray-400">No citations</p>
+                                @endif
+                                
+
+                                <h2 id="notes-title" class="mb-2 mt-4 text-lg font-medium text-gray-900">Collections</h2>
+                                <div class="not-prose grid grid-cols-1 gap-6 sm:grid-cols-1">
+                                 @foreach ($molecule->collections as $collection)
                                     <div class="group relative rounded-xl border border-slate-200">
                                         <div
                                             class="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 [background:linear-gradient(var(--quick-links-hover-bg,theme(colors.sky.50)),var(--quick-links-hover-bg,theme(colors.sky.50)))_padding-box,linear-gradient(to_top,theme(colors.indigo.400),theme(colors.cyan.400),theme(colors.sky.500))_border-box] group-hover:opacity-100">
@@ -346,122 +435,15 @@
                                                         fill="url(#:R1k19n6:-gradient-dark)"></path>
                                                 </g>
                                             </svg>
+                                            <h2 class="mt-2 font-bold text-base text-gray-900"><a target="_blank"
+                                                    href="https://doi.org/{{ $collection->doi }}"><span class="absolute -inset-px rounded-xl"></span>{{ $collection->title }}</a></h2>
                                             <h2 class="mt-2 font-display text-base text-slate-900"><a target="_blank"
-                                                    href="http://bioinf-applied.charite.de/supernatural_new/index.php?site=compound_search&amp;id=SN00071235"><span
-                                                        class="absolute -inset-px rounded-xl"></span>supernatural2:
-                                                    SN00071235</a></h2>
+                                                    href="https://doi.org/{{ $collection->doi }}"><span class="absolute -inset-px rounded-xl"></span>{{ $collection->description }}</a></h2>
+                                            <h2 class="mt-2 font-display text-base text-slate-900"><a target="_blank"
+                                                    href="https://doi.org/{{ $collection->doi }}"><span class="absolute -inset-px rounded-xl"></span>{{ $collection->doi }}</a></h2>
                                         </div>
                                     </div>
-                                    <div class="group relative rounded-xl border border-slate-200">
-                                        <div
-                                            class="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 [background:linear-gradient(var(--quick-links-hover-bg,theme(colors.sky.50)),var(--quick-links-hover-bg,theme(colors.sky.50)))_padding-box,linear-gradient(to_top,theme(colors.indigo.400),theme(colors.cyan.400),theme(colors.sky.500))_border-box] group-hover:opacity-100">
-                                        </div>
-                                        <div class="relative overflow-hidden rounded-xl p-6"><svg aria-hidden="true"
-                                                viewBox="0 0 32 32" fill="none"
-                                                class="h-8 w-8 [--icon-foreground:theme(colors.slate.900)] [--icon-background:theme(colors.white)]">
-                                                <defs>
-                                                    <radialGradient cx="0" cy="0" r="1"
-                                                        gradientUnits="userSpaceOnUse" id=":R1k19n6:-gradient"
-                                                        gradientTransform="matrix(0 21 -21 0 12 11)">
-                                                        <stop stop-color="#0EA5E9"></stop>
-                                                        <stop stop-color="#22D3EE" offset=".527"></stop>
-                                                        <stop stop-color="#818CF8" offset="1"></stop>
-                                                    </radialGradient>
-                                                    <radialGradient cx="0" cy="0" r="1"
-                                                        gradientUnits="userSpaceOnUse" id=":R1k19n6:-gradient-dark"
-                                                        gradientTransform="matrix(0 24.5 -24.5 0 16 5.5)">
-                                                        <stop stop-color="#0EA5E9"></stop>
-                                                        <stop stop-color="#22D3EE" offset=".527"></stop>
-                                                        <stop stop-color="#818CF8" offset="1"></stop>
-                                                    </radialGradient>
-                                                </defs>
-                                                <g class="">
-                                                    <circle cx="12" cy="20" r="12"
-                                                        fill="url(#:R1k19n6:-gradient)"></circle>
-                                                    <path d="M27 12.13 19.87 5 13 11.87v14.26l14-14Z"
-                                                        class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
-                                                        fill-opacity="0.5" stroke-width="2" stroke-linecap="round"
-                                                        stroke-linejoin="round"></path>
-                                                    <path d="M3 3h10v22a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V3Z"
-                                                        class="fill-[var(--icon-background)]" fill-opacity="0.5">
-                                                    </path>
-                                                    <path
-                                                        d="M3 9v16a4 4 0 0 0 4 4h2a4 4 0 0 0 4-4V9M3 9V3h10v6M3 9h10M3 15h10M3 21h10"
-                                                        class="stroke-[color:var(--icon-foreground)]" stroke-width="2"
-                                                        stroke-linecap="round" stroke-linejoin="round"></path>
-                                                    <path d="M29 29V19h-8.5L13 26c0 1.5-2.5 3-5 3h21Z"
-                                                        fill-opacity="0.5"
-                                                        class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
-                                                        stroke-width="2" stroke-linecap="round"
-                                                        stroke-linejoin="round"></path>
-                                                </g>
-                                                <g class="hidden">
-                                                    <path fill-rule="evenodd" clip-rule="evenodd"
-                                                        d="M3 2a1 1 0 0 0-1 1v21a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H3Zm16.752 3.293a1 1 0 0 0-1.593.244l-1.045 2A1 1 0 0 0 17 8v13a1 1 0 0 0 1.71.705l7.999-8.045a1 1 0 0 0-.002-1.412l-6.955-6.955ZM26 18a1 1 0 0 0-.707.293l-10 10A1 1 0 0 0 16 30h13a1 1 0 0 0 1-1V19a1 1 0 0 0-1-1h-3ZM5 18a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H5Zm-1-5a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1Zm1-7a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2H5Z"
-                                                        fill="url(#:R1k19n6:-gradient-dark)"></path>
-                                                </g>
-                                            </svg>
-                                            <h2 class="mt-2 font-display text-base text-slate-900"><a target="_blank"
-                                                    href="http://bioinf-applied.charite.de/supernatural_new/index.php?site=compound_search&amp;id=SN00071572"><span
-                                                        class="absolute -inset-px rounded-xl"></span>supernatural2:
-                                                    SN00071572</a></h2>
-                                        </div>
-                                    </div>
-                                    <div class="group relative rounded-xl border border-slate-200">
-                                        <div
-                                            class="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 [background:linear-gradient(var(--quick-links-hover-bg,theme(colors.sky.50)),var(--quick-links-hover-bg,theme(colors.sky.50)))_padding-box,linear-gradient(to_top,theme(colors.indigo.400),theme(colors.cyan.400),theme(colors.sky.500))_border-box] group-hover:opacity-100">
-                                        </div>
-                                        <div class="relative overflow-hidden rounded-xl p-6"><svg aria-hidden="true"
-                                                viewBox="0 0 32 32" fill="none"
-                                                class="h-8 w-8 [--icon-foreground:theme(colors.slate.900)] [--icon-background:theme(colors.white)]">
-                                                <defs>
-                                                    <radialGradient cx="0" cy="0" r="1"
-                                                        gradientUnits="userSpaceOnUse" id=":R1k19n6:-gradient"
-                                                        gradientTransform="matrix(0 21 -21 0 12 11)">
-                                                        <stop stop-color="#0EA5E9"></stop>
-                                                        <stop stop-color="#22D3EE" offset=".527"></stop>
-                                                        <stop stop-color="#818CF8" offset="1"></stop>
-                                                    </radialGradient>
-                                                    <radialGradient cx="0" cy="0" r="1"
-                                                        gradientUnits="userSpaceOnUse" id=":R1k19n6:-gradient-dark"
-                                                        gradientTransform="matrix(0 24.5 -24.5 0 16 5.5)">
-                                                        <stop stop-color="#0EA5E9"></stop>
-                                                        <stop stop-color="#22D3EE" offset=".527"></stop>
-                                                        <stop stop-color="#818CF8" offset="1"></stop>
-                                                    </radialGradient>
-                                                </defs>
-                                                <g class="">
-                                                    <circle cx="12" cy="20" r="12"
-                                                        fill="url(#:R1k19n6:-gradient)"></circle>
-                                                    <path d="M27 12.13 19.87 5 13 11.87v14.26l14-14Z"
-                                                        class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
-                                                        fill-opacity="0.5" stroke-width="2" stroke-linecap="round"
-                                                        stroke-linejoin="round"></path>
-                                                    <path d="M3 3h10v22a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V3Z"
-                                                        class="fill-[var(--icon-background)]" fill-opacity="0.5">
-                                                    </path>
-                                                    <path
-                                                        d="M3 9v16a4 4 0 0 0 4 4h2a4 4 0 0 0 4-4V9M3 9V3h10v6M3 9h10M3 15h10M3 21h10"
-                                                        class="stroke-[color:var(--icon-foreground)]" stroke-width="2"
-                                                        stroke-linecap="round" stroke-linejoin="round"></path>
-                                                    <path d="M29 29V19h-8.5L13 26c0 1.5-2.5 3-5 3h21Z"
-                                                        fill-opacity="0.5"
-                                                        class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
-                                                        stroke-width="2" stroke-linecap="round"
-                                                        stroke-linejoin="round"></path>
-                                                </g>
-                                                <g class="hidden">
-                                                    <path fill-rule="evenodd" clip-rule="evenodd"
-                                                        d="M3 2a1 1 0 0 0-1 1v21a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H3Zm16.752 3.293a1 1 0 0 0-1.593.244l-1.045 2A1 1 0 0 0 17 8v13a1 1 0 0 0 1.71.705l7.999-8.045a1 1 0 0 0-.002-1.412l-6.955-6.955ZM26 18a1 1 0 0 0-.707.293l-10 10A1 1 0 0 0 16 30h13a1 1 0 0 0 1-1V19a1 1 0 0 0-1-1h-3ZM5 18a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H5Zm-1-5a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1Zm1-7a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2H5Z"
-                                                        fill="url(#:R1k19n6:-gradient-dark)"></path>
-                                                </g>
-                                            </svg>
-                                            <h2 class="mt-2 font-display text-base text-slate-900"><a target="_blank"
-                                                    href="https://pubchem.ncbi.nlm.nih.gov/compound/4564575"><span
-                                                        class="absolute -inset-px rounded-xl"></span>pubchem_tested_np:
-                                                    4564575</a></h2>
-                                        </div>
-                                    </div>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
@@ -500,7 +482,7 @@
                 <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg mb-2">
                     <livewire:molecule-depict3d :height="300" :smiles="$molecule->canonical_smiles">
                 </div>
-                <div class="bg-white px-4 py-5 shadow sm:rounded-lg sm:px-6">
+                <div class="bg-white px-4 py-5 shadow sm:rounded-lg sm:px-6 border">
                     <h2 id="timeline-title" class="text-lg font-medium text-gray-900">Timeline</h2>
 
                     <!-- Activity Feed -->
@@ -653,8 +635,8 @@
                     </div>
                     <div class="mt-6 flex flex-col justify-stretch">
                         <button type="button"
-                            class="inline-flex items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">Advance
-                            to offer</button>
+                            class="inline-flex items-center justify-center rounded-md bg-gray-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">View
+                            complete history</button>
                     </div>
                 </div>
 

@@ -4,7 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Tags\HasTags;
 
@@ -26,6 +28,7 @@ class Molecule extends Model implements Auditable
         'standard_inchi_key',
         'canonical_smiles',
         'sugar_free_smiles',
+        'molecular_formula',
         'identifier',
         'name',
         'cas',
@@ -52,7 +55,16 @@ class Molecule extends Model implements Auditable
      */
     protected $casts = [
         'synonyms' => 'array',
+        'cas' => 'array',
     ];
+
+    /**
+     * Get all of the citations for the collection.
+     */
+    public function citations(): MorphToMany
+    {
+        return $this->morphToMany(Citation::class, 'citable');
+    }
 
     /**
      * Get the properties associated with the molecule.
@@ -60,5 +72,13 @@ class Molecule extends Model implements Auditable
     public function properties(): HasOne
     {
         return $this->hasOne(Properties::class);
+    }
+
+    /**
+     * Get the collections associated with the molecule.
+     */
+    public function collections(): BelongsToMany
+    {
+        return $this->belongsToMany(Collection::class);
     }
 }

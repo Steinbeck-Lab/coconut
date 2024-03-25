@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -55,5 +56,13 @@ class Collection extends Model implements Auditable
     public function entries(): HasMany
     {
         return $this->hasMany(Entry::class);
+    }
+
+    /**
+     * Get the molecules associated with the collection.
+     */
+    public function molecules(): BelongsToMany
+    {
+        return $this->belongsToMany(Molecule::class);
     }
 }

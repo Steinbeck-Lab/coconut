@@ -11,10 +11,30 @@ class Citation extends Model
     use HasFactory;
 
     /**
-     * Get all of the posts that are assigned this tag.
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'doi',
+        'title',
+        'authors',
+        'citation_text',
+    ];
+
+    /**
+     * Get all of the collections that are assigned this citation.
      */
     public function collections(): MorphToMany
     {
         return $this->morphedByMany(Collection::class, 'citable');
+    }
+
+    /**
+     * Get all of the molecules that are assigned this citation.
+     */
+    public function molecules(): MorphToMany
+    {
+        return $this->morphedByMany(Molecule::class, 'citable');
     }
 }
