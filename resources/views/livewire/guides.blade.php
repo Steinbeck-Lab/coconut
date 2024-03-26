@@ -1,7 +1,7 @@
 <div>
-    <div class="py-24 bg-gray-100">
+    <div class="py-24">
         <div class="min-h-screen flex flex-col items-center pt-6 sm:pt-0">
-            <div class="mt-6 p-6 bg-white shadow-md overflow-hidden sm:rounded-lg prose">
+            <div class="max-w-6xl border mt-6 p-6 bg-white shadow-md overflow-hidden sm:rounded-lg">
                 <div class="p-12">
                     <div class="gap-y-6 space-y-8 sm:grid-cols-6 sm:gap-x-6">
                         <div class="rounded-lg bg-gray-50 p-6 shadow-lg border">
@@ -35,7 +35,7 @@
                             locate the original source of the data you use.
                         </h3>
                         <div class="rounded-lg bg-gray-50 p-6 border shadow-lg">
-                            <p class="text-xl leading-6 text-gray-700">
+                            <p class="text-md leading-6 text-gray-700">
                                 Sorokina, M., Merseburger, P., Rajan, K. et al.
                                 <span class="italic">COCONUT online: Collection of Open Natural Products
                                     database.</span>
@@ -158,7 +158,8 @@
                                 <li class="flex gap-x-3">
                                     <svg class="mt-1 h-5 w-5 flex-none text-indigo-600" viewBox="0 0 20 20"
                                         fill="currentColor" aria-hidden="true">
-                                        <circle cx="12" cy="12" r="10" fill="none" stroke="#000" />
+                                        <circle cx="12" cy="12" r="10" fill="none"
+                                            stroke="#000" />
                                         <path d="M15.5 15.5L19 19" stroke="#000" stroke-width="2" />
                                         <path d="M9 12a3 3 0 1 1 6 0 3 3 0 0 1-6 0zm0 0" fill="#000"
                                             fill-rule="evenodd" />

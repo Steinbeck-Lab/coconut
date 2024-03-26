@@ -7,7 +7,7 @@
         </div>
     </div>
     <div class="bg-white">
-        <div class="px-8 pt-5">
+        <div class="px-8">
             <div class="flex h-16 flex-shrink-0 bg-white">
                 <div class="flex flex-1 justify-between px-4 md:px-0">
                     <div class="flex border-b border-zinc-900/5 border-b-2 flex-1">

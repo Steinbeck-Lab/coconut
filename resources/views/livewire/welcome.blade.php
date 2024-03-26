@@ -13,7 +13,7 @@
                     NPs. </p>
                 <div class="mt-10 flex items-center gap-x-6"><a href="/search"
                         class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Browse</a>
-                    or <a href="/submit" class="text-base font-semibold leading-7 text-gray-900">Submit data <span
+                    or <a href="/admin/collections/create" class="text-base font-semibold leading-7 text-gray-900">Submit data <span
                             aria-hidden="true">→</span></a></div>
                 <p class="mt-12 text-sm flex items-baseline gap-x-2 text-[0.8125rem]/6 text-gray-500"> Report bugs: <a
                         class="group relative isolate flex items-center rounded-lg px-2 py-0.5 text-[0.8125rem]/6 font-medium text-dark/30 transition-colors hover:text-sky-900 gap-x-2"

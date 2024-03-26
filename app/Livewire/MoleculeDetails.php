@@ -12,7 +12,7 @@ class MoleculeDetails extends Component
 
     public function mount($id)
     {
-        $this->molecule = Molecule::with('properties', 'citations', 'collections')->where('identifier', $id)->first();
+        $this->molecule = Molecule::with('properties', 'citations', 'collections', 'audits', 'variants')->where('identifier', $id)->first();
     }
 
     #[Layout('layouts.guest')]

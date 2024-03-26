@@ -26,7 +26,8 @@
                                     d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
                                     clip-rule="evenodd"></path>
                             </svg>
-                            <span class="tooltiptext">NP Likeness Score: The likelihood of the compound to be a natural product, ranges from -5 (less likely) to 5 (very likely).</span>
+                            <span class="tooltiptext">NP Likeness Score: The likelihood of the compound to be a natural
+                                product, ranges from -5 (less likely) to 5 (very likely).</span>
                         </div>
                     </dt>
                     <div data-v-5784ed69="" class="inline-block"
@@ -316,15 +317,95 @@
                             </div>
                             <div class="px-4 py-6 sm:px-6">
                                 <h2 id="notes-title" class="mb-2 text-lg font-medium text-gray-900">Citations</h2>
-                                 @if(count($molecule->citations) > 0)
+                                @if (count($molecule->citations) > 0)
                                     <div class="not-prose grid grid-cols-1 gap-6 sm:grid-cols-2">
                                         @foreach ($molecule->citations as $citation)
+                                            <div class="group relative rounded-xl border border-slate-200">
+                                                <div
+                                                    class="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 [background:linear-gradient(var(--quick-links-hover-bg,theme(colors.sky.50)),var(--quick-links-hover-bg,theme(colors.sky.50)))_padding-box,linear-gradient(to_top,theme(colors.indigo.400),theme(colors.cyan.400),theme(colors.sky.500))_border-box] group-hover:opacity-100">
+                                                </div>
+                                                <div class="relative overflow-hidden rounded-xl p-6"><svg
+                                                        aria-hidden="true" viewBox="0 0 32 32" fill="none"
+                                                        class="h-8 w-8 [--icon-foreground:theme(colors.slate.900)] [--icon-background:theme(colors.white)]">
+                                                        <defs>
+                                                            <radialGradient cx="0" cy="0" r="1"
+                                                                gradientUnits="userSpaceOnUse" id=":R1k19n6:-gradient"
+                                                                gradientTransform="matrix(0 21 -21 0 12 11)">
+                                                                <stop stop-color="#0EA5E9"></stop>
+                                                                <stop stop-color="#22D3EE" offset=".527"></stop>
+                                                                <stop stop-color="#818CF8" offset="1"></stop>
+                                                            </radialGradient>
+                                                            <radialGradient cx="0" cy="0" r="1"
+                                                                gradientUnits="userSpaceOnUse"
+                                                                id=":R1k19n6:-gradient-dark"
+                                                                gradientTransform="matrix(0 24.5 -24.5 0 16 5.5)">
+                                                                <stop stop-color="#0EA5E9"></stop>
+                                                                <stop stop-color="#22D3EE" offset=".527"></stop>
+                                                                <stop stop-color="#818CF8" offset="1"></stop>
+                                                            </radialGradient>
+                                                        </defs>
+                                                        <g class="">
+                                                            <circle cx="12" cy="20" r="12"
+                                                                fill="url(#:R1k19n6:-gradient)"></circle>
+                                                            <path d="M27 12.13 19.87 5 13 11.87v14.26l14-14Z"
+                                                                class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
+                                                                fill-opacity="0.5" stroke-width="2"
+                                                                stroke-linecap="round" stroke-linejoin="round"></path>
+                                                            <path d="M3 3h10v22a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V3Z"
+                                                                class="fill-[var(--icon-background)]"
+                                                                fill-opacity="0.5">
+                                                            </path>
+                                                            <path
+                                                                d="M3 9v16a4 4 0 0 0 4 4h2a4 4 0 0 0 4-4V9M3 9V3h10v6M3 9h10M3 15h10M3 21h10"
+                                                                class="stroke-[color:var(--icon-foreground)]"
+                                                                stroke-width="2" stroke-linecap="round"
+                                                                stroke-linejoin="round"></path>
+                                                            <path d="M29 29V19h-8.5L13 26c0 1.5-2.5 3-5 3h21Z"
+                                                                fill-opacity="0.5"
+                                                                class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
+                                                                stroke-width="2" stroke-linecap="round"
+                                                                stroke-linejoin="round"></path>
+                                                        </g>
+                                                        <g class="hidden">
+                                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                d="M3 2a1 1 0 0 0-1 1v21a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H3Zm16.752 3.293a1 1 0 0 0-1.593.244l-1.045 2A1 1 0 0 0 17 8v13a1 1 0 0 0 1.71.705l7.999-8.045a1 1 0 0 0-.002-1.412l-6.955-6.955ZM26 18a1 1 0 0 0-.707.293l-10 10A1 1 0 0 0 16 30h13a1 1 0 0 0 1-1V19a1 1 0 0 0-1-1h-3ZM5 18a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H5Zm-1-5a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1Zm1-7a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2H5Z"
+                                                                fill="url(#:R1k19n6:-gradient-dark)"></path>
+                                                        </g>
+                                                    </svg>
+                                                    <h2 class="mt-2 font-bold text-base text-gray-900"><a
+                                                            target="_blank"
+                                                            href="https://doi.org/{{ $citation->doi }}"><span
+                                                                class="absolute -inset-px rounded-xl"></span>{{ $citation->title }}</a>
+                                                    </h2>
+                                                    <h2 class="mt-2 font-display text-base text-slate-900"><a
+                                                            target="_blank"
+                                                            href="https://doi.org/{{ $citation->doi }}"><span
+                                                                class="absolute -inset-px rounded-xl"></span>{{ $citation->authors }}</a>
+                                                    </h2>
+                                                    <h2 class="mt-2 font-display text-base text-slate-900"><a
+                                                            target="_blank"
+                                                            href="https://doi.org/{{ $citation->doi }}"><span
+                                                                class="absolute -inset-px rounded-xl"></span>{{ $citation->doi }}</a>
+                                                    </h2>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <p class="text-gray-400">No citations</p>
+                                @endif
+
+
+                                <h2 id="notes-title" class="mb-2 mt-4 text-lg font-medium text-gray-900">Collections
+                                </h2>
+                                <div class="not-prose grid grid-cols-1 gap-6 sm:grid-cols-1">
+                                    @foreach ($molecule->collections as $collection)
                                         <div class="group relative rounded-xl border border-slate-200">
                                             <div
                                                 class="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 [background:linear-gradient(var(--quick-links-hover-bg,theme(colors.sky.50)),var(--quick-links-hover-bg,theme(colors.sky.50)))_padding-box,linear-gradient(to_top,theme(colors.indigo.400),theme(colors.cyan.400),theme(colors.sky.500))_border-box] group-hover:opacity-100">
                                             </div>
-                                            <div class="relative overflow-hidden rounded-xl p-6"><svg aria-hidden="true"
-                                                    viewBox="0 0 32 32" fill="none"
+                                            <div class="relative overflow-hidden rounded-xl p-6"><svg
+                                                    aria-hidden="true" viewBox="0 0 32 32" fill="none"
                                                     class="h-8 w-8 [--icon-foreground:theme(colors.slate.900)] [--icon-background:theme(colors.white)]">
                                                     <defs>
                                                         <radialGradient cx="0" cy="0" r="1"
@@ -335,7 +416,8 @@
                                                             <stop stop-color="#818CF8" offset="1"></stop>
                                                         </radialGradient>
                                                         <radialGradient cx="0" cy="0" r="1"
-                                                            gradientUnits="userSpaceOnUse" id=":R1k19n6:-gradient-dark"
+                                                            gradientUnits="userSpaceOnUse"
+                                                            id=":R1k19n6:-gradient-dark"
                                                             gradientTransform="matrix(0 24.5 -24.5 0 16 5.5)">
                                                             <stop stop-color="#0EA5E9"></stop>
                                                             <stop stop-color="#22D3EE" offset=".527"></stop>
@@ -347,15 +429,16 @@
                                                             fill="url(#:R1k19n6:-gradient)"></circle>
                                                         <path d="M27 12.13 19.87 5 13 11.87v14.26l14-14Z"
                                                             class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
-                                                            fill-opacity="0.5" stroke-width="2" stroke-linecap="round"
-                                                            stroke-linejoin="round"></path>
+                                                            fill-opacity="0.5" stroke-width="2"
+                                                            stroke-linecap="round" stroke-linejoin="round"></path>
                                                         <path d="M3 3h10v22a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V3Z"
                                                             class="fill-[var(--icon-background)]" fill-opacity="0.5">
                                                         </path>
                                                         <path
                                                             d="M3 9v16a4 4 0 0 0 4 4h2a4 4 0 0 0 4-4V9M3 9V3h10v6M3 9h10M3 15h10M3 21h10"
-                                                            class="stroke-[color:var(--icon-foreground)]" stroke-width="2"
-                                                            stroke-linecap="round" stroke-linejoin="round"></path>
+                                                            class="stroke-[color:var(--icon-foreground)]"
+                                                            stroke-width="2" stroke-linecap="round"
+                                                            stroke-linejoin="round"></path>
                                                         <path d="M29 29V19h-8.5L13 26c0 1.5-2.5 3-5 3h21Z"
                                                             fill-opacity="0.5"
                                                             class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
@@ -369,80 +452,21 @@
                                                     </g>
                                                 </svg>
                                                 <h2 class="mt-2 font-bold text-base text-gray-900"><a target="_blank"
-                                                        href="https://doi.org/{{ $citation->doi }}"><span class="absolute -inset-px rounded-xl"></span>{{ $citation->title }}</a></h2>
-                                                <h2 class="mt-2 font-display text-base text-slate-900"><a target="_blank"
-                                                        href="https://doi.org/{{ $citation->doi }}"><span class="absolute -inset-px rounded-xl"></span>{{ $citation->authors }}</a></h2>
-                                                <h2 class="mt-2 font-display text-base text-slate-900"><a target="_blank"
-                                                        href="https://doi.org/{{ $citation->doi }}"><span class="absolute -inset-px rounded-xl"></span>{{ $citation->doi }}</a></h2>
+                                                        href="https://doi.org/{{ $collection->doi }}"><span
+                                                            class="absolute -inset-px rounded-xl"></span>{{ $collection->title }}</a>
+                                                </h2>
+                                                <h2 class="mt-2 font-display text-base text-slate-900"><a
+                                                        target="_blank"
+                                                        href="https://doi.org/{{ $collection->doi }}"><span
+                                                            class="absolute -inset-px rounded-xl"></span>{{ $collection->description }}</a>
+                                                </h2>
+                                                <h2 class="mt-2 font-display text-base text-slate-900"><a
+                                                        target="_blank"
+                                                        href="https://doi.org/{{ $collection->doi }}"><span
+                                                            class="absolute -inset-px rounded-xl"></span>{{ $collection->doi }}</a>
+                                                </h2>
                                             </div>
                                         </div>
-                                        @endforeach    
-                                    </div>
-                                @else
-                                    <p class="text-gray-400">No citations</p>
-                                @endif
-                                
-
-                                <h2 id="notes-title" class="mb-2 mt-4 text-lg font-medium text-gray-900">Collections</h2>
-                                <div class="not-prose grid grid-cols-1 gap-6 sm:grid-cols-1">
-                                 @foreach ($molecule->collections as $collection)
-                                    <div class="group relative rounded-xl border border-slate-200">
-                                        <div
-                                            class="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 [background:linear-gradient(var(--quick-links-hover-bg,theme(colors.sky.50)),var(--quick-links-hover-bg,theme(colors.sky.50)))_padding-box,linear-gradient(to_top,theme(colors.indigo.400),theme(colors.cyan.400),theme(colors.sky.500))_border-box] group-hover:opacity-100">
-                                        </div>
-                                        <div class="relative overflow-hidden rounded-xl p-6"><svg aria-hidden="true"
-                                                viewBox="0 0 32 32" fill="none"
-                                                class="h-8 w-8 [--icon-foreground:theme(colors.slate.900)] [--icon-background:theme(colors.white)]">
-                                                <defs>
-                                                    <radialGradient cx="0" cy="0" r="1"
-                                                        gradientUnits="userSpaceOnUse" id=":R1k19n6:-gradient"
-                                                        gradientTransform="matrix(0 21 -21 0 12 11)">
-                                                        <stop stop-color="#0EA5E9"></stop>
-                                                        <stop stop-color="#22D3EE" offset=".527"></stop>
-                                                        <stop stop-color="#818CF8" offset="1"></stop>
-                                                    </radialGradient>
-                                                    <radialGradient cx="0" cy="0" r="1"
-                                                        gradientUnits="userSpaceOnUse" id=":R1k19n6:-gradient-dark"
-                                                        gradientTransform="matrix(0 24.5 -24.5 0 16 5.5)">
-                                                        <stop stop-color="#0EA5E9"></stop>
-                                                        <stop stop-color="#22D3EE" offset=".527"></stop>
-                                                        <stop stop-color="#818CF8" offset="1"></stop>
-                                                    </radialGradient>
-                                                </defs>
-                                                <g class="">
-                                                    <circle cx="12" cy="20" r="12"
-                                                        fill="url(#:R1k19n6:-gradient)"></circle>
-                                                    <path d="M27 12.13 19.87 5 13 11.87v14.26l14-14Z"
-                                                        class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
-                                                        fill-opacity="0.5" stroke-width="2" stroke-linecap="round"
-                                                        stroke-linejoin="round"></path>
-                                                    <path d="M3 3h10v22a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V3Z"
-                                                        class="fill-[var(--icon-background)]" fill-opacity="0.5">
-                                                    </path>
-                                                    <path
-                                                        d="M3 9v16a4 4 0 0 0 4 4h2a4 4 0 0 0 4-4V9M3 9V3h10v6M3 9h10M3 15h10M3 21h10"
-                                                        class="stroke-[color:var(--icon-foreground)]" stroke-width="2"
-                                                        stroke-linecap="round" stroke-linejoin="round"></path>
-                                                    <path d="M29 29V19h-8.5L13 26c0 1.5-2.5 3-5 3h21Z"
-                                                        fill-opacity="0.5"
-                                                        class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
-                                                        stroke-width="2" stroke-linecap="round"
-                                                        stroke-linejoin="round"></path>
-                                                </g>
-                                                <g class="hidden">
-                                                    <path fill-rule="evenodd" clip-rule="evenodd"
-                                                        d="M3 2a1 1 0 0 0-1 1v21a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H3Zm16.752 3.293a1 1 0 0 0-1.593.244l-1.045 2A1 1 0 0 0 17 8v13a1 1 0 0 0 1.71.705l7.999-8.045a1 1 0 0 0-.002-1.412l-6.955-6.955ZM26 18a1 1 0 0 0-.707.293l-10 10A1 1 0 0 0 16 30h13a1 1 0 0 0 1-1V19a1 1 0 0 0-1-1h-3ZM5 18a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H5Zm-1-5a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1Zm1-7a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2H5Z"
-                                                        fill="url(#:R1k19n6:-gradient-dark)"></path>
-                                                </g>
-                                            </svg>
-                                            <h2 class="mt-2 font-bold text-base text-gray-900"><a target="_blank"
-                                                    href="https://doi.org/{{ $collection->doi }}"><span class="absolute -inset-px rounded-xl"></span>{{ $collection->title }}</a></h2>
-                                            <h2 class="mt-2 font-display text-base text-slate-900"><a target="_blank"
-                                                    href="https://doi.org/{{ $collection->doi }}"><span class="absolute -inset-px rounded-xl"></span>{{ $collection->description }}</a></h2>
-                                            <h2 class="mt-2 font-display text-base text-slate-900"><a target="_blank"
-                                                    href="https://doi.org/{{ $collection->doi }}"><span class="absolute -inset-px rounded-xl"></span>{{ $collection->doi }}</a></h2>
-                                        </div>
-                                    </div>
                                     @endforeach
                                 </div>
                             </div>
@@ -459,20 +483,70 @@
                             </div>
                             <div class="px-4 py-6 sm:px-6">
                                 <ul role="list" class="px-0">
-                                    <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Super
-                                            class: {{ $molecule->properties->chemical_super_class }}</span></li>
+                                    <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">
+                                            <b>Super class</b>:
+                                            {{ $molecule->properties['chemical_super_class']['name'] }} </span>
+                                    </li> <br />
                                     <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Class:
-                                            {{ $molecule->properties->chemical_class }}</span></li>
+                                            {{ $molecule->properties['chemical_class']['name'] }}</span>
+                                    </li> <br />
                                     <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Sub
-                                            class: {{ $molecule->properties->chemical_sub_class }}</span></li>
+                                            class: {{ $molecule->properties['chemical_sub_class']['name'] }} </span>
+                                    </li> <br />
                                     <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Direct
-                                            parent: {{ $molecule->properties->direct_parent_classification }}</span>
+                                            parent:
+                                            {{ $molecule->properties['direct_parent_classification'] ? $molecule->properties['direct_parent_classification']['name'] : '-' }}
+                                        </span>
                                     </li>
                                 </ul>
                             </div>
                         </div>
                     </div>
                 </section>
+
+                @if ($molecule->is_parent)
+                    <section aria-labelledby="notes-title">
+                        <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
+                            <div class="divide-y divide-gray-200">
+                                <div class="px-4 py-5 sm:px-6">
+                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">Stereochemical
+                                        Variants
+                                    </h2>
+                                </div>
+                                <div class="px-4 pb-5 sm:px-6">
+                                    <div class="mx-auto grid mt-6 gap-5 lg:max-w-none md:grid-cols-3 lg:grid-cols-2">
+                                        @foreach ($molecule->variants as $variant)
+                                            <div class="rounded-lg hover:shadow-lg shadow border">
+                                                <livewire:molecule-card :molecule="json_encode($variant)" />
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                @endif
+
+                @if ($molecule->parent_id != null)
+                    <section aria-labelledby="notes-title">
+                        <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
+                            <div class="divide-y divide-gray-200">
+                                <div class="px-4 py-5 sm:px-6">
+                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">Parent
+                                    </h2>
+                                </div>
+                                <div class="px-4 pb-5 sm:px-6">
+                                    <div class="mx-auto grid mt-6 gap-5 lg:max-w-none md:grid-cols-3 lg:grid-cols-2">
+                                        <div class="rounded-lg hover:shadow-lg shadow border">
+                                            <livewire:molecule-card :molecule="json_encode($molecule->parent)" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                @endif
+
             </div>
 
             <section aria-labelledby="timeline-title" class="lg:col-span-1 lg:col-start-3">
@@ -485,70 +559,10 @@
                 <div class="bg-white px-4 py-5 shadow sm:rounded-lg sm:px-6 border">
                     <h2 id="timeline-title" class="text-lg font-medium text-gray-900">Timeline</h2>
 
-                    <!-- Activity Feed -->
                     <div class="mt-6 flow-root">
                         <ul role="list" class="-mb-8">
                             <li>
                                 <div class="relative pb-8">
-                                    <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200"
-                                        aria-hidden="true"></span>
-                                    <div class="relative flex space-x-3">
-                                        <div>
-                                            <span
-                                                class="h-8 w-8 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white">
-                                                <svg class="h-5 w-5 text-white" viewBox="0 0 20 20"
-                                                    fill="currentColor" aria-hidden="true">
-                                                    <path
-                                                        d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 00-13.074.003z">
-                                                    </path>
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
-                                            <div>
-                                                <p class="text-sm text-gray-500">Applied to <a href="#"
-                                                        class="font-medium text-gray-900">Front End Developer</a></p>
-                                            </div>
-                                            <div class="whitespace-nowrap text-right text-sm text-gray-500">
-                                                <time datetime="2020-09-20">Sep 20</time>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="relative pb-8">
-                                    <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200"
-                                        aria-hidden="true"></span>
-                                    <div class="relative flex space-x-3">
-                                        <div>
-                                            <span
-                                                class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
-                                                <svg class="h-5 w-5 text-white" viewBox="0 0 20 20"
-                                                    fill="currentColor" aria-hidden="true">
-                                                    <path
-                                                        d="M1 8.25a1.25 1.25 0 112.5 0v7.5a1.25 1.25 0 11-2.5 0v-7.5zM11 3V1.7c0-.268.14-.526.395-.607A2 2 0 0114 3c0 .995-.182 1.948-.514 2.826-.204.54.166 1.174.744 1.174h2.52c1.243 0 2.261 1.01 2.146 2.247a23.864 23.864 0 01-1.341 5.974C17.153 16.323 16.072 17 14.9 17h-3.192a3 3 0 01-1.341-.317l-2.734-1.366A3 3 0 006.292 15H5V8h.963c.685 0 1.258-.483 1.612-1.068a4.011 4.011 0 012.166-1.73c.432-.143.853-.386 1.011-.814.16-.432.248-.9.248-1.388z">
-                                                    </path>
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
-                                            <div>
-                                                <p class="text-sm text-gray-500">Advanced to phone screening by <a
-                                                        href="#" class="font-medium text-gray-900">Bethany
-                                                        Blake</a></p>
-                                            </div>
-                                            <div class="whitespace-nowrap text-right text-sm text-gray-500">
-                                                <time datetime="2020-09-22">Sep 22</time>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="relative pb-8">
-                                    <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200"
-                                        aria-hidden="true"></span>
                                     <div class="relative flex space-x-3">
                                         <div>
                                             <span
@@ -563,68 +577,10 @@
                                         </div>
                                         <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
                                             <div>
-                                                <p class="text-sm text-gray-500">Completed phone screening with <a
-                                                        href="#" class="font-medium text-gray-900">Martha
-                                                        Gardner</a></p>
-                                            </div>
-                                            <div class="whitespace-nowrap text-right text-sm text-gray-500">
-                                                <time datetime="2020-09-28">Sep 28</time>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="relative pb-8">
-                                    <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200"
-                                        aria-hidden="true"></span>
-                                    <div class="relative flex space-x-3">
-                                        <div>
-                                            <span
-                                                class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
-                                                <svg class="h-5 w-5 text-white" viewBox="0 0 20 20"
-                                                    fill="currentColor" aria-hidden="true">
-                                                    <path
-                                                        d="M1 8.25a1.25 1.25 0 112.5 0v7.5a1.25 1.25 0 11-2.5 0v-7.5zM11 3V1.7c0-.268.14-.526.395-.607A2 2 0 0114 3c0 .995-.182 1.948-.514 2.826-.204.54.166 1.174.744 1.174h2.52c1.243 0 2.261 1.01 2.146 2.247a23.864 23.864 0 01-1.341 5.974C17.153 16.323 16.072 17 14.9 17h-3.192a3 3 0 01-1.341-.317l-2.734-1.366A3 3 0 006.292 15H5V8h.963c.685 0 1.258-.483 1.612-1.068a4.011 4.011 0 012.166-1.73c.432-.143.853-.386 1.011-.814.16-.432.248-.9.248-1.388z">
-                                                    </path>
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
-                                            <div>
-                                                <p class="text-sm text-gray-500">Advanced to interview by <a
-                                                        href="#" class="font-medium text-gray-900">Bethany
-                                                        Blake</a></p>
-                                            </div>
-                                            <div class="whitespace-nowrap text-right text-sm text-gray-500">
-                                                <time datetime="2020-09-30">Sep 30</time>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="relative pb-8">
-                                    <div class="relative flex space-x-3">
-                                        <div>
-                                            <span
-                                                class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white">
-                                                <svg class="h-5 w-5 text-white" viewBox="0 0 20 20"
-                                                    fill="currentColor" aria-hidden="true">
-                                                    <path fill-rule="evenodd"
-                                                        d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                                                        clip-rule="evenodd"></path>
-                                                </svg>
-                                            </span>
-                                        </div>
-                                        <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
-                                            <div>
-                                                <p class="text-sm text-gray-500">Completed interview with <a
-                                                        href="#" class="font-medium text-gray-900">Katherine
-                                                        Snyder</a></p>
-                                            </div>
-                                            <div class="whitespace-nowrap text-right text-sm text-gray-500">
-                                                <time datetime="2020-10-04">Oct 4</time>
+                                                <p class="text-sm text-gray-500">Created at <a href="#"
+                                                        class="font-medium text-gray-900"></a></p>
+                                                <time
+                                                    datetime="{{ $molecule->created_at }}">{{ $molecule->created_at }}</time>
                                             </div>
                                         </div>
                                     </div>

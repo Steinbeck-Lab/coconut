@@ -1,7 +1,7 @@
 <div>
     <div class="my-10">
-        <h1 class="font-medium text-2xl max-w-xl mx-auto pt-10 pb-4">Frequently asked questions</h1>
-        <div class="bg-white max-w-xl mx-auto">
+        <h1 class="font-medium text-2xl max-w-3xl mx-auto pt-10 pb-4">Frequently asked questions</h1>
+        <div class="bg-white max-w-3xl mx-auto">
             <ul class="shadow-box">
                 @foreach ($faqs as $question => $answer)
                     <li class="relative border-b border-gray-200" x-data="{ selected: null }">

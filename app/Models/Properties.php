@@ -49,6 +49,18 @@ class Properties extends Model
     ];
 
     /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'chemical_class' => 'array',
+        'chemical_sub_class' => 'array',
+        'chemical_super_class' => 'array',
+        'direct_parent_classification' => 'array',
+    ];
+
+    /**
      * Get the molecule.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

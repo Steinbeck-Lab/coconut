@@ -4,7 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -72,6 +74,22 @@ class Molecule extends Model implements Auditable
     public function properties(): HasOne
     {
         return $this->hasOne(Properties::class);
+    }
+
+    /**
+     * Get the variants associated with the molecule.
+     */
+    public function variants(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id');
+    }
+
+    /**
+     * Get the variants associated with the molecule.
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class);
     }
 
     /**

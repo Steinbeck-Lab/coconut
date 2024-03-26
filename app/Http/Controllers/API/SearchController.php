@@ -187,8 +187,12 @@ class SearchController extends Controller
                     ' offset '.
                     $offset;
             } elseif ($queryType == 'tags') {
-                $results = Molecule::withAnyTags([$query], $tagType)->paginate($limit)->items();
-                $count = Molecule::withAnyTags([$query], $tagType)->count();
+                if ($tagType == 'dataSource') {
+
+                } else {
+                    $results = Molecule::withAnyTags([$query], $tagType)->paginate($limit)->items();
+                    $count = Molecule::withAnyTags([$query], $tagType)->count();
+                }
             } elseif ($queryType == 'filters') {
                 $orConditions = explode('OR', $query);
                 $isORInitial = true;

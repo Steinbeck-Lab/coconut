@@ -54,10 +54,10 @@ return new class extends Migration
             $table->longText('murko_framework')->nullable();
             $table->decimal('np_likeness')->nullable();
 
-            $table->longText('chemical_class')->nullable();
-            $table->longText('chemical_sub_class')->nullable();
-            $table->longText('chemical_super_class')->nullable();
-            $table->longText('direct_parent_classification')->nullable();
+            $table->jsonb('chemical_class')->nullable();
+            $table->jsonb('chemical_sub_class')->nullable();
+            $table->jsonb('chemical_super_class')->nullable();
+            $table->jsonb('direct_parent_classification')->nullable();
 
             $table->timestamps();
         });

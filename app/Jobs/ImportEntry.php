@@ -13,6 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ImportEntry implements ShouldBeUnique, ShouldQueue
 {
@@ -46,6 +47,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $this->fetchIUPACNameFromPubChem($parent);
                 $this->attachProperties('parent', $parent);
                 $this->attachCollection($parent);
+                $this->classify($parent);
 
                 $data = $this->getRepresentations('standardized');
                 $molecule = Molecule::firstOrCreate(['standard_inchi' => $data['standard_inchi'], 'standard_inchi_key' => $data['standard_inchikey']]);
@@ -61,6 +63,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $this->fetchIUPACNameFromPubChem($molecule);
                 $this->attachProperties('standardized', $molecule);
                 $this->attachCollection($molecule);
+                $this->classify($molecule);
             } else {
                 $data = $this->getRepresentations('standardized');
                 $molecule = Molecule::firstOrCreate(['standard_inchi' => $data['standard_inchi'], 'standard_inchi_key' => $data['standard_inchikey']]);
@@ -72,12 +75,66 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $this->fetchIUPACNameFromPubChem($molecule);
                 $this->attachProperties('standardized', $molecule);
                 $this->attachCollection($molecule);
+                $this->classify($molecule);
             }
 
             if ($this->entry->doi && $this->entry->doi != '') {
                 $this->fetchCitation($this->entry->doi, $molecule);
             }
         }
+    }
+
+    public function classify($molecule)
+    {
+
+        $properties = $molecule->properties;
+
+        if ($properties->chemical_class == null || $properties->chemical_sub_class == null || $properties->chemical_super_class == null || $properties->direct_parent_classification == null) {
+            $API_URL = env('API_URL', 'https://dev.api.naturalproducts.net/latest/');
+            $ENDPOINT = $API_URL.'chem/classyfire/classify?smiles='.urlencode($molecule->canonical_smiles);
+
+            try {
+                $response = Http::timeout(600)->get($ENDPOINT);
+                if ($response->successful()) {
+                    $data = $response->json();
+                    if (array_key_exists('id', $data)) {
+                        $id = $data['id'];
+                        sleep(5);
+                        // fetch results
+                        $RESULT_ENDPOINT = $API_URL.'chem/classyfire/'.$id.'/result';
+                        $status = null;
+                        while ($status == null) {
+                            $response = Http::timeout(600)->get($RESULT_ENDPOINT);
+                            if ($response->successful()) {
+                                $data = $response->json();
+                                if (array_key_exists('classification_status', $data)) {
+                                    $status = $data['classification_status'];
+                                    if ($status == 'Done') {
+                                        $elements = $data['number_of_elements'];
+                                        if ($elements > 0) {
+                                            $entities = $data['entities'][0];
+                                            $properties->direct_parent_classification = $entities['direct_parent'];
+                                            $properties->chemical_sub_class = $entities['subclass'];
+                                            $properties->chemical_class = $entities['class'];
+                                            $properties->chemical_super_class = $entities['superclass'];
+                                            $properties->save();
+                                        }
+
+                                    }
+                                }
+
+                            }
+                            sleep(5);
+                        }
+                    }
+                }
+            } catch (RequestException $e) {
+                Log::error('Classifyre: Request Exception occurred: '.$e->getMessage().' - '.$molecule->id, ['code' => $e->getCode()]);
+            } catch (\Exception $e) {
+                Log::error('Classifyre: An unexpected exception occurred: '.$e->getMessage().' - '.$molecule->id);
+            }
+        }
+
     }
 
     public function fetchCitation($doi, $molecule)
@@ -90,7 +147,6 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         if ($isDOI) {
 
             //check if citation already exists
-
             $citation = Citation::where('doi', $doi)->first();
 
             if (! $citation) {
@@ -110,7 +166,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 } else {
 
                     // fetch citation from CrossRef
-                    $crossrefUrl = ''.$doi;
+                    $crossrefUrl = env('CROSSREF_WS_API').$doi;
                     $crossrefResponse = $this->makeRequest($crossrefUrl);
 
                     if ($crossrefResponse && isset($crossrefResponse['message'])) {
@@ -118,7 +174,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                     } else {
 
                         // fetch citation from DataCite
-                        $dataciteUrl = ''.$doi;
+                        $dataciteUrl = env('DATACITE_WS_API').$doi;
                         $dataciteResponse = $this->makeRequest($dataciteUrl);
 
                         if ($dataciteResponse && isset($dataciteResponse['data'])) {
