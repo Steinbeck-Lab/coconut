@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Http\Resources\MoleculeResource;
+use App\Models\Collection;
 use App\Models\Molecule;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -33,6 +34,13 @@ class Search extends Component
     #[Url()]
     public $tagType = null;
 
+    public $collection = null;
+
+    public function gotoPage($page)
+    {
+        $this->page = $page;
+    }
+
     #[Layout('layouts.guest')]
     public function render()
     {
@@ -42,6 +50,11 @@ class Search extends Component
 
             $queryType = 'text';
             $results = [];
+
+            if ($this->query == '') {
+                $this->type = '';
+                $this->tagType = '';
+            }
 
             $offset =
                 (($this->page != null && $this->page != 'null' && $this->page != 0 ? $this->page : 1) -
@@ -158,8 +171,13 @@ class Search extends Component
                     ' offset '.
                     $offset;
             } elseif ($queryType == 'tags') {
-                $results = Molecule::withAnyTags([$this->query], $this->tagType)->paginate($this->size)->items();
-                $count = Molecule::withAnyTags([$this->query], $this->tagType)->count();
+                if ($this->tagType == 'dataSource') {
+                    $this->collection = Collection::where('title', $this->query)->first();
+                    $results = $this->collection->molecules()->paginate($this->size);
+                } else {
+                    $results = Molecule::withAnyTags([$this->query], $this->tagType)->paginate($this->size);
+                }
+
             } elseif ($queryType == 'filters') {
                 $orConditions = explode('OR', $this->query);
                 $isORInitial = true;
@@ -280,20 +298,22 @@ class Search extends Component
                     $string = $expression->getValue(
                         DB::connection()->getQueryGrammar()
                     );
-                    $results = DB::select($string);
+                    $results = new LengthAwarePaginator(
+                        DB::select($string),
+                        $count,
+                        $this->size,
+                        $this->page
+                    );
                 } else {
-                    $results = [];
-                    $count = 0;
+                    $results = new LengthAwarePaginator(
+                        [],
+                        0,
+                        $this->size,
+                        $this->page
+                    );
                 }
             }
-            $pagination = new LengthAwarePaginator(
-                $results,
-                $count,
-                $this->size,
-                $this->page
-            );
 
-            // dd($pagination);
             return view('livewire.search', [
                 'molecules' => $results,
             ]);

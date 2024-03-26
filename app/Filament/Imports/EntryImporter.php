@@ -16,7 +16,7 @@ class EntryImporter extends Importer
     {
         return [
             ImportColumn::make('canonical_smiles'),
-            ImportColumn::make('identifier'),
+            ImportColumn::make('reference_id'),
             ImportColumn::make('doi'),
             ImportColumn::make('link'),
             ImportColumn::make('organism'),
@@ -24,6 +24,8 @@ class EntryImporter extends Importer
             ImportColumn::make('coconut_id'),
             ImportColumn::make('mol_filename'),
             ImportColumn::make('structural_comments'),
+            ImportColumn::make('geo_location'),
+            ImportColumn::make('location'),
         ];
     }
 

@@ -15,9 +15,7 @@
             <div class="px-4">
                 <div class="mx-auto grid mt-6 gap-5 lg:max-w-none md:grid-cols-3 lg:grid-cols-5">
                     @foreach ($molecules as $molecule)
-                        <div class="rounded-lg hover:shadow-lg shadow border">
-                            <livewire:molecule-card :molecule="json_encode($molecule)" />
-                        </div>
+                        <livewire:molecule-card :molecule="json_encode($molecule)" />
                     @endforeach
                 </div>
             </div>

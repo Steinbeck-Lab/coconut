@@ -6,7 +6,7 @@
         </div>
         @foreach ($parentClasses as $class)
             <span>
-                <a target="_blank" href="search?query=parent%3A{{ $class }}&amp;page=1&amp;type=filters"><span
+                <a target="_blank" href="search?q=parent%3A{{ $class }}&amp;page=1&amp;type=filters"><span
                         class="mr-1 mb-1 inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-sm font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">{{ $class }}</span>
                 </a>
             </span>

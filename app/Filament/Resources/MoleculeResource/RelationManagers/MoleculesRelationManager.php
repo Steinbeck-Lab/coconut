@@ -1,29 +1,28 @@
 <?php
 
-namespace App\Filament\Resources\CollectionResource\RelationManagers;
+namespace App\Filament\Resources\MoleculeResource\RelationManagers;
 
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class CitationsRelationManager extends RelationManager
+class MoleculesRelationManager extends RelationManager
 {
-    protected static string $relationship = 'citations';
+    protected static string $relationship = 'variants';
 
     public function form(Form $form): Form
     {
         return $form
-            ->schema([
-            ]);
+            ->schema([]);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('title')
+            ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('title')->wrap(),
+                Tables\Columns\TextColumn::make('name'),
             ])
             ->filters([
                 //
@@ -33,12 +32,10 @@ class CitationsRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DetachAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DetachBulkAction::make(),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);

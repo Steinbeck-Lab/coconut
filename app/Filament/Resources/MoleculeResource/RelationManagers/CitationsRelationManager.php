@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\CollectionResource\RelationManagers;
+namespace App\Filament\Resources\MoleculeResource\RelationManagers;
 
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -14,8 +14,7 @@ class CitationsRelationManager extends RelationManager
     public function form(Form $form): Form
     {
         return $form
-            ->schema([
-            ]);
+            ->schema([]);
     }
 
     public function table(Table $table): Table
@@ -23,7 +22,7 @@ class CitationsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('title')
             ->columns([
-                Tables\Columns\TextColumn::make('title')->wrap(),
+                Tables\Columns\TextColumn::make('title'),
             ])
             ->filters([
                 //
@@ -33,12 +32,10 @@ class CitationsRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DetachAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DetachBulkAction::make(),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);

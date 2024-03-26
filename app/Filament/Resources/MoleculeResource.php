@@ -3,12 +3,19 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\MoleculeResource\Pages;
+use App\Filament\Resources\MoleculeResource\RelationManagers\CitationsRelationManager;
+use App\Filament\Resources\MoleculeResource\RelationManagers\CollectionsRelationManager;
+use App\Filament\Resources\MoleculeResource\RelationManagers\MoleculesRelationManager;
+use App\Filament\Resources\MoleculeResource\RelationManagers\PropertiesRelationManager;
 use App\Models\Molecule;
+use Filament\Forms\Components\TextArea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
+use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class MoleculeResource extends Resource
 {
@@ -24,7 +31,15 @@ class MoleculeResource extends Resource
     {
         return $form
             ->schema([
-                //
+                TextInput::make('name'),
+                TextInput::make('identifier'),
+                TextInput::make('iupac_name'),
+                TextInput::make('standard_inchi'),
+                TextInput::make('standard_inchi_key'),
+                TextArea::make('iupac_name'),
+                TextInput::make('canonical_smiles'),
+                TextInput::make('murko_framework'),
+                TextArea::make('synonyms'),
             ]);
     }
 
@@ -61,7 +76,11 @@ class MoleculeResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            PropertiesRelationManager::class,
+            CollectionsRelationManager::class,
+            CitationsRelationManager::class,
+            MoleculesRelationManager::class,
+            AuditsRelationManager::class,
         ];
     }
 

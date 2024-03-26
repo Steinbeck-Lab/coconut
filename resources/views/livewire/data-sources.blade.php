@@ -26,7 +26,7 @@
                             <div
                                 class="space-x-8 px-4 sm:px-6 lg:px-8 xl:relative xl:grid xl:grid-cols-5 xl:gap-x-8 xl:space-x-0 xl:px-0">
                                 @foreach ($collections as $collection)
-                                    <a href="search?type=tags&amp;query={{ $collection }}&amp;tagType=dataSource"
+                                    <a href="search?type=tags&amp;q={{ $collection }}&amp;tagType=dataSource"
                                         class="relative border mb-5 flex h-80 w-56 flex-col overflow-hidden rounded-lg p-6 hover:opacity-75 xl:w-auto">
                                         <span aria-hidden="true" class="absolute inset-0">
                                         </span>

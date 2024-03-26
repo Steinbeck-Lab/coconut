@@ -3,6 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CitationResource\Pages;
+use App\Filament\Resources\CitationResource\RelationManagers\CollectionRelationManager;
+use App\Filament\Resources\CitationResource\RelationManagers\MoleculeRelationManager;
 use App\Models\Citation;
 use Filament\Forms\Components\TextArea;
 use Filament\Forms\Components\TextInput;
@@ -56,7 +58,8 @@ class CitationResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            CollectionRelationManager::class,
+            MoleculeRelationManager::class,
         ];
     }
 

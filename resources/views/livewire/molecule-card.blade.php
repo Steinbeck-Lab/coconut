@@ -1,7 +1,7 @@
-<div>
+<div class="bg-white rounded-lg hover:shadow-xl shadow border">
     <a href="{{ route('compound', $molecule->identifier) }}" wire:navigate>
-        <div class="group relative flex flex-col overflow-hidden rounded-t-lg bg-white">
-            <div class="aspect-h-3 aspect-w-3 bg-white sm:aspect-none group-hover:opacity-75 h-56">
+        <div class="group relative flex flex-col overflow-hidden">
+            <div class="aspect-h-3 aspect-w-3 sm:aspect-none group-hover:opacity-75 h-56">
                 <livewire:molecule-depict2d :smiles="$molecule->canonical_smiles">
             </div>
             <div class="flex flex-1 border-t flex-col space-y-2 p-4">

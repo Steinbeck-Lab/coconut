@@ -187,7 +187,7 @@
                             </div>
                             <div class="px-4 py-6 sm:px-6">
                                 <div class="not-prose flex gap-3">
-                                    @if (count($molecule->synonyms) > 0)
+                                    @if ($molecule->synonyms && count($molecule->synonyms) > 0)
                                         <ul role="list" class="mt-2 leading-8">
                                             @foreach ($molecule->synonyms as $synonym)
                                                 @if ($synonym != '')
@@ -205,7 +205,7 @@
                                     @endif
                                 </div>
                                 <div class="gap-3 mt-4">
-                                    @if (count($molecule->cas) > 0)
+                                    @if ($molecule->cas && count($molecule->cas) > 0)
                                         <h2 id="notes-title" class="text-md font-medium text-gray-900">CAS</h2>
                                         <ul role="list" class="mt-2 leading-8">
                                             @foreach ($molecule->cas as $cas)
@@ -400,73 +400,72 @@
                                 </h2>
                                 <div class="not-prose grid grid-cols-1 gap-6 sm:grid-cols-1">
                                     @foreach ($molecule->collections as $collection)
-                                        <div class="group relative rounded-xl border border-slate-200">
-                                            <div
-                                                class="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 [background:linear-gradient(var(--quick-links-hover-bg,theme(colors.sky.50)),var(--quick-links-hover-bg,theme(colors.sky.50)))_padding-box,linear-gradient(to_top,theme(colors.indigo.400),theme(colors.cyan.400),theme(colors.sky.500))_border-box] group-hover:opacity-100">
+                                        <a
+                                            href="/search?type=tags&amp;q={{ $collection->title }}&amp;tagType=dataSource">
+                                            <div class="group relative rounded-xl border border-slate-200">
+                                                <div
+                                                    class="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 [background:linear-gradient(var(--quick-links-hover-bg,theme(colors.sky.50)),var(--quick-links-hover-bg,theme(colors.sky.50)))_padding-box,linear-gradient(to_top,theme(colors.indigo.400),theme(colors.cyan.400),theme(colors.sky.500))_border-box] group-hover:opacity-100">
+                                                </div>
+                                                <div class="relative overflow-hidden rounded-xl p-6"><svg
+                                                        aria-hidden="true" viewBox="0 0 32 32" fill="none"
+                                                        class="h-8 w-8 [--icon-foreground:theme(colors.slate.900)] [--icon-background:theme(colors.white)]">
+                                                        <defs>
+                                                            <radialGradient cx="0" cy="0" r="1"
+                                                                gradientUnits="userSpaceOnUse" id=":R1k19n6:-gradient"
+                                                                gradientTransform="matrix(0 21 -21 0 12 11)">
+                                                                <stop stop-color="#0EA5E9"></stop>
+                                                                <stop stop-color="#22D3EE" offset=".527"></stop>
+                                                                <stop stop-color="#818CF8" offset="1"></stop>
+                                                            </radialGradient>
+                                                            <radialGradient cx="0" cy="0" r="1"
+                                                                gradientUnits="userSpaceOnUse"
+                                                                id=":R1k19n6:-gradient-dark"
+                                                                gradientTransform="matrix(0 24.5 -24.5 0 16 5.5)">
+                                                                <stop stop-color="#0EA5E9"></stop>
+                                                                <stop stop-color="#22D3EE" offset=".527"></stop>
+                                                                <stop stop-color="#818CF8" offset="1"></stop>
+                                                            </radialGradient>
+                                                        </defs>
+                                                        <g class="">
+                                                            <circle cx="12" cy="20" r="12"
+                                                                fill="url(#:R1k19n6:-gradient)"></circle>
+                                                            <path d="M27 12.13 19.87 5 13 11.87v14.26l14-14Z"
+                                                                class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
+                                                                fill-opacity="0.5" stroke-width="2"
+                                                                stroke-linecap="round" stroke-linejoin="round"></path>
+                                                            <path d="M3 3h10v22a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V3Z"
+                                                                class="fill-[var(--icon-background)]"
+                                                                fill-opacity="0.5">
+                                                            </path>
+                                                            <path
+                                                                d="M3 9v16a4 4 0 0 0 4 4h2a4 4 0 0 0 4-4V9M3 9V3h10v6M3 9h10M3 15h10M3 21h10"
+                                                                class="stroke-[color:var(--icon-foreground)]"
+                                                                stroke-width="2" stroke-linecap="round"
+                                                                stroke-linejoin="round"></path>
+                                                            <path d="M29 29V19h-8.5L13 26c0 1.5-2.5 3-5 3h21Z"
+                                                                fill-opacity="0.5"
+                                                                class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
+                                                                stroke-width="2" stroke-linecap="round"
+                                                                stroke-linejoin="round"></path>
+                                                        </g>
+                                                        <g class="hidden">
+                                                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                d="M3 2a1 1 0 0 0-1 1v21a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H3Zm16.752 3.293a1 1 0 0 0-1.593.244l-1.045 2A1 1 0 0 0 17 8v13a1 1 0 0 0 1.71.705l7.999-8.045a1 1 0 0 0-.002-1.412l-6.955-6.955ZM26 18a1 1 0 0 0-.707.293l-10 10A1 1 0 0 0 16 30h13a1 1 0 0 0 1-1V19a1 1 0 0 0-1-1h-3ZM5 18a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H5Zm-1-5a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1Zm1-7a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2H5Z"
+                                                                fill="url(#:R1k19n6:-gradient-dark)"></path>
+                                                        </g>
+                                                    </svg>
+                                                    <h2 class="mt-2 font-bold text-base text-gray-900"><span
+                                                            class="absolute -inset-px rounded-xl"></span>{{ $collection->title }}
+                                                    </h2>
+                                                    <h2 class="mt-2 font-display text-base text-slate-900"><span
+                                                            class="absolute -inset-px rounded-xl"></span>{{ $collection->description }}
+                                                    </h2>
+                                                    <h2 class="mt-2 font-display text-base text-slate-900"><span
+                                                            class="absolute -inset-px rounded-xl"></span>{{ $collection->doi }}
+                                                    </h2>
+                                                </div>
                                             </div>
-                                            <div class="relative overflow-hidden rounded-xl p-6"><svg
-                                                    aria-hidden="true" viewBox="0 0 32 32" fill="none"
-                                                    class="h-8 w-8 [--icon-foreground:theme(colors.slate.900)] [--icon-background:theme(colors.white)]">
-                                                    <defs>
-                                                        <radialGradient cx="0" cy="0" r="1"
-                                                            gradientUnits="userSpaceOnUse" id=":R1k19n6:-gradient"
-                                                            gradientTransform="matrix(0 21 -21 0 12 11)">
-                                                            <stop stop-color="#0EA5E9"></stop>
-                                                            <stop stop-color="#22D3EE" offset=".527"></stop>
-                                                            <stop stop-color="#818CF8" offset="1"></stop>
-                                                        </radialGradient>
-                                                        <radialGradient cx="0" cy="0" r="1"
-                                                            gradientUnits="userSpaceOnUse"
-                                                            id=":R1k19n6:-gradient-dark"
-                                                            gradientTransform="matrix(0 24.5 -24.5 0 16 5.5)">
-                                                            <stop stop-color="#0EA5E9"></stop>
-                                                            <stop stop-color="#22D3EE" offset=".527"></stop>
-                                                            <stop stop-color="#818CF8" offset="1"></stop>
-                                                        </radialGradient>
-                                                    </defs>
-                                                    <g class="">
-                                                        <circle cx="12" cy="20" r="12"
-                                                            fill="url(#:R1k19n6:-gradient)"></circle>
-                                                        <path d="M27 12.13 19.87 5 13 11.87v14.26l14-14Z"
-                                                            class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
-                                                            fill-opacity="0.5" stroke-width="2"
-                                                            stroke-linecap="round" stroke-linejoin="round"></path>
-                                                        <path d="M3 3h10v22a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V3Z"
-                                                            class="fill-[var(--icon-background)]" fill-opacity="0.5">
-                                                        </path>
-                                                        <path
-                                                            d="M3 9v16a4 4 0 0 0 4 4h2a4 4 0 0 0 4-4V9M3 9V3h10v6M3 9h10M3 15h10M3 21h10"
-                                                            class="stroke-[color:var(--icon-foreground)]"
-                                                            stroke-width="2" stroke-linecap="round"
-                                                            stroke-linejoin="round"></path>
-                                                        <path d="M29 29V19h-8.5L13 26c0 1.5-2.5 3-5 3h21Z"
-                                                            fill-opacity="0.5"
-                                                            class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
-                                                            stroke-width="2" stroke-linecap="round"
-                                                            stroke-linejoin="round"></path>
-                                                    </g>
-                                                    <g class="hidden">
-                                                        <path fill-rule="evenodd" clip-rule="evenodd"
-                                                            d="M3 2a1 1 0 0 0-1 1v21a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H3Zm16.752 3.293a1 1 0 0 0-1.593.244l-1.045 2A1 1 0 0 0 17 8v13a1 1 0 0 0 1.71.705l7.999-8.045a1 1 0 0 0-.002-1.412l-6.955-6.955ZM26 18a1 1 0 0 0-.707.293l-10 10A1 1 0 0 0 16 30h13a1 1 0 0 0 1-1V19a1 1 0 0 0-1-1h-3ZM5 18a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H5Zm-1-5a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1Zm1-7a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2H5Z"
-                                                            fill="url(#:R1k19n6:-gradient-dark)"></path>
-                                                    </g>
-                                                </svg>
-                                                <h2 class="mt-2 font-bold text-base text-gray-900"><a target="_blank"
-                                                        href="https://doi.org/{{ $collection->doi }}"><span
-                                                            class="absolute -inset-px rounded-xl"></span>{{ $collection->title }}</a>
-                                                </h2>
-                                                <h2 class="mt-2 font-display text-base text-slate-900"><a
-                                                        target="_blank"
-                                                        href="https://doi.org/{{ $collection->doi }}"><span
-                                                            class="absolute -inset-px rounded-xl"></span>{{ $collection->description }}</a>
-                                                </h2>
-                                                <h2 class="mt-2 font-display text-base text-slate-900"><a
-                                                        target="_blank"
-                                                        href="https://doi.org/{{ $collection->doi }}"><span
-                                                            class="absolute -inset-px rounded-xl"></span>{{ $collection->doi }}</a>
-                                                </h2>
-                                            </div>
-                                        </div>
+                                        </a>
                                     @endforeach
                                 </div>
                             </div>
@@ -474,35 +473,44 @@
                     </div>
                 </section>
 
-                <section aria-labelledby="notes-title">
-                    <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
-                        <div class="divide-y divide-gray-200">
-                            <div class="px-4 py-5 sm:px-6">
-                                <h2 id="notes-title" class="text-lg font-medium text-gray-900">Chemical classification
-                                </h2>
-                            </div>
-                            <div class="px-4 py-6 sm:px-6">
-                                <ul role="list" class="px-0">
-                                    <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">
-                                            <b>Super class</b>:
-                                            {{ $molecule->properties['chemical_super_class']['name'] }} </span>
-                                    </li> <br />
-                                    <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Class:
-                                            {{ $molecule->properties['chemical_class']['name'] }}</span>
-                                    </li> <br />
-                                    <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Sub
-                                            class: {{ $molecule->properties['chemical_sub_class']['name'] }} </span>
-                                    </li> <br />
-                                    <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Direct
-                                            parent:
-                                            {{ $molecule->properties['direct_parent_classification'] ? $molecule->properties['direct_parent_classification']['name'] : '-' }}
-                                        </span>
-                                    </li>
-                                </ul>
+                @if ($molecule->properties)
+                    <section aria-labelledby="notes-title">
+                        <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
+                            <div class="divide-y divide-gray-200">
+                                <div class="px-4 py-5 sm:px-6">
+                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">Chemical
+                                        classification
+                                    </h2>
+                                </div>
+                                <div class="px-4 py-6 sm:px-6">
+                                    <ul role="list" class="px-0">
+                                        <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">
+                                                <b>Super class</b>:
+                                                {{ $molecule->properties && $molecule->properties['chemical_super_class'] ? $molecule->properties['chemical_super_class']['name'] : '-' }}
+                                            </span>
+                                        </li>
+                                        <li class="py-5 flex md:py-0"><span
+                                                class="ml-3 text-base text-gray-500"><b>Class</b>:
+                                                {{ $molecule->properties && $molecule->properties['chemical_class'] ? $molecule->properties['chemical_class']['name'] : '-' }}</span>
+                                        </li>
+                                        <li class="py-5 flex md:py-0"><span
+                                                class="ml-3 text-base text-gray-500"><b>Sub
+                                                    class</b>:
+                                                {{ $molecule->properties && $molecule->properties['chemical_sub_class'] ? $molecule->properties['chemical_sub_class']['name'] : '-' }}
+                                            </span>
+                                        </li>
+                                        <li class="py-5 flex md:py-0"><span
+                                                class="ml-3 text-base text-gray-500"><b>Direct
+                                                    parent</b>:
+                                                {{ $molecule->properties && $molecule->properties['direct_parent_classification'] ? $molecule->properties['direct_parent_classification']['name'] : '-' }}
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
+                @endif
 
                 @if ($molecule->is_parent)
                     <section aria-labelledby="notes-title">
@@ -516,9 +524,7 @@
                                 <div class="px-4 pb-5 sm:px-6">
                                     <div class="mx-auto grid mt-6 gap-5 lg:max-w-none md:grid-cols-3 lg:grid-cols-2">
                                         @foreach ($molecule->variants as $variant)
-                                            <div class="rounded-lg hover:shadow-lg shadow border">
-                                                <livewire:molecule-card :molecule="json_encode($variant)" />
-                                            </div>
+                                            <livewire:molecule-card :molecule="json_encode($variant)" />
                                         @endforeach
                                     </div>
                                 </div>

@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Filament\Resources\CollectionResource\RelationManagers;
+namespace App\Filament\Resources\CitationResource\RelationManagers;
 
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class CitationsRelationManager extends RelationManager
+class CollectionRelationManager extends RelationManager
 {
-    protected static string $relationship = 'citations';
+    protected static string $relationship = 'collections';
 
     public function form(Form $form): Form
     {
@@ -29,16 +29,13 @@ class CitationsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DetachAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DetachBulkAction::make(),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
