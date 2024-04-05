@@ -19,7 +19,7 @@ class Entry extends Model
      */
     protected $fillable = [
         'canonical_smiles',
-        'identifier',
+        'reference_id',
         'doi',
         'link',
         'organism',

@@ -24,7 +24,7 @@ class EntriesRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('identifier')
+                Forms\Components\TextInput::make('reference_id')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('canonical_smiles')
@@ -65,7 +65,7 @@ class EntriesRelationManager extends RelationManager
 
                 Section::make()
                     ->schema([
-                        TextEntry::make('identifier'),
+                        TextEntry::make('reference_id'),
                         TextEntry::make('doi'),
                         TextEntry::make('link'),
                         TextEntry::make('organism'),

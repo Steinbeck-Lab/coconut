@@ -38,44 +38,53 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
             if ($this->entry->has_stereocenters) {
                 $data = $this->getRepresentations('parent');
                 $parent = Molecule::firstOrCreate(['standard_inchi' => $data['standard_inchi'], 'standard_inchi_key' => $data['standard_inchikey']]);
-                $parent->is_parent = true;
-                $parent->has_variants = true;
-                $parent->identifier = $this->entry->coconut_id;
-                $parent->variants_count += $parent->variants_count;
-                $parent = $this->assignData($parent, $data);
-                $parent->save();
-                $this->fetchIUPACNameFromPubChem($parent);
-                $this->attachProperties('parent', $parent);
+                if ($parent->wasRecentlyCreated) {
+                    $parent->is_parent = true;
+                    $parent->has_variants = true;
+                    $parent->identifier = $this->entry->coconut_id;
+                    $parent->is_placeholder = true;
+                    $parent->variants_count += $parent->variants_count;
+                    $parent = $this->assignData($parent, $data);
+                    $parent->save();
+
+                    $this->fetchIUPACNameFromPubChem($parent);
+                    $this->attachProperties('parent', $parent);
+                    $this->classify($parent);
+                }
                 $this->attachCollection($parent);
-                $this->classify($parent);
 
                 $data = $this->getRepresentations('standardized');
                 $molecule = Molecule::firstOrCreate(['standard_inchi' => $data['standard_inchi'], 'standard_inchi_key' => $data['standard_inchikey']]);
-                $molecule->has_stereo = true;
-                $molecule->parent_id = $parent->id;
-                $parent->ticker = $parent->ticker + 1;
-                $molecule->identifier = $this->entry->coconut_id.'.'.$parent->ticker;
-                $parent = $this->assignData($molecule, $data);
+                if ($molecule->wasRecentlyCreated) {
+                    $molecule->has_stereo = true;
+                    $molecule->parent_id = $parent->id;
+                    $parent->ticker = $parent->ticker + 1;
+                    $molecule->identifier = $this->entry->coconut_id.'.'.$parent->ticker;
+                    $molecule = $this->assignData($molecule, $data);
+                    $this->fetchIUPACNameFromPubChem($molecule);
+                    $this->attachProperties('standardized', $molecule);
+                    $parent->save();
+                    $this->classify($molecule);
+                    $molecule->save();
+                }
                 $this->entry->molecule_id = $molecule->id;
                 $this->entry->save();
-                $parent->save();
-                $molecule->save();
-                $this->fetchIUPACNameFromPubChem($molecule);
-                $this->attachProperties('standardized', $molecule);
+
                 $this->attachCollection($molecule);
-                $this->classify($molecule);
             } else {
                 $data = $this->getRepresentations('standardized');
                 $molecule = Molecule::firstOrCreate(['standard_inchi' => $data['standard_inchi'], 'standard_inchi_key' => $data['standard_inchikey']]);
-                $parent = $this->assignData($molecule, $data);
-                $molecule->identifier = $this->entry->coconut_id;
-                $molecule->save();
+                if ($molecule->wasRecentlyCreated) {
+                    $molecule = $this->assignData($molecule, $data);
+                    $molecule->identifier = $this->entry->coconut_id;
+                    $molecule->save();
+                    $this->fetchIUPACNameFromPubChem($molecule);
+                    $this->attachProperties('standardized', $molecule);
+                    $this->classify($molecule);
+                }
                 $this->entry->molecule_id = $molecule->id;
                 $this->entry->save();
-                $this->fetchIUPACNameFromPubChem($molecule);
-                $this->attachProperties('standardized', $molecule);
                 $this->attachCollection($molecule);
-                $this->classify($molecule);
             }
 
             if ($this->entry->doi && $this->entry->doi != '') {
@@ -148,7 +157,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
 
             //check if citation already exists
             $citation = Citation::where('doi', $doi)->first();
-
+            $citationResponse  = null;
             if (! $citation) {
                 // fetch citation from EuropePMC
                 $europemcUrl = env('EUROPEPMC_WS_API');
@@ -168,7 +177,6 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                     // fetch citation from CrossRef
                     $crossrefUrl = env('CROSSREF_WS_API').$doi;
                     $crossrefResponse = $this->makeRequest($crossrefUrl);
-
                     if ($crossrefResponse && isset($crossrefResponse['message'])) {
                         $citationResponse = $this->formatCitationResponse($crossrefResponse['message'], 'crossref');
                     } else {
@@ -199,7 +207,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
     public function makeRequest($url, $params = [])
     {
         try {
-            $response = Http::get($url, $params);
+            $response = Http::timeout(600)->get($url, $params);
             if ($response->successful()) {
                 return $response->json();
             } else {

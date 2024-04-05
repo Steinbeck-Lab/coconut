@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('entries', function (Blueprint $table) {
             $table->id();
             $table->longText('canonical_smiles')->nullable();
-            $table->longText('identifier')->nullable();
+            $table->longText('reference_id')->nullable();
             $table->longText('doi')->nullable();
             $table->longText('link')->nullable();
             $table->longText('organism')->nullable();
@@ -22,8 +22,10 @@ return new class extends Migration
             $table->text('molecular_formula')->nullable();
             $table->longText('coconut_id')->nullable();
             $table->longText('mol_filename')->nullable();
-            $table->enum('status', ['SUBMITTED', 'PROCESSING', 'INREVIEW', 'PASSED', 'REJECTED'])->default('SUBMITTED');
             $table->longText('structural_comments')->nullable();
+            $table->longText('geo_location')->nullable();
+            $table->longText('location')->nullable();
+            $table->enum('status', ['SUBMITTED', 'PROCESSING', 'INREVIEW', 'PASSED', 'REJECTED'])->default('SUBMITTED');
             $table->foreignId('owner_id')->nullable();
             $table->foreignId('collection_id')->nullable();
             $table->uuid('uuid')->unique();
