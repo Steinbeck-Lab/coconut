@@ -17,7 +17,7 @@ on:
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   GKE_CLUSTER: autopilot-cluster-coconut
-  GKE_ZONE: europe-west3-a
+  GKE_ZONE: europe-west3
   DEPLOYMENT_NAME: coconut-coconut-app
   WORKER_DEPLOYMENT_NAME: coconut-worker
   REPOSITORY_NAME: coconut
