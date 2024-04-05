@@ -1,6 +1,6 @@
-FROM php:8.3-fpm-alpine AS base
+FROM php:8.3-alpine3.19 AS base
 
-RUN apk add --update zlib-dev libpng-dev libzip-dev $PHPIZE_DEPS
+RUN apk add --update linux-headers zlib-dev libpng-dev libzip-dev icu-dev $PHPIZE_DEPS
 RUN apk add git
 
 RUN docker-php-ext-install exif
@@ -10,6 +10,9 @@ RUN docker-php-ext-install sockets
 RUN pecl install apcu
 RUN docker-php-ext-enable apcu
 RUN docker-php-ext-install pcntl
+RUN docker-php-ext-configure intl
+RUN docker-php-ext-install intl
+
 RUN apk --update add postgresql15-client --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main
 
 RUN set -ex \
@@ -51,7 +54,6 @@ RUN composer dump-autoload -o
 FROM node:18-alpine AS assets-build
 WORKDIR /var/www/html
 COPY . /var/www/html/
-COPY --from=build-fpm /var/www/html/vendor/tightenco/ziggy /var/www/html/vendor/tightenco/ziggy
 RUN npm ci
 RUN npm run build
 

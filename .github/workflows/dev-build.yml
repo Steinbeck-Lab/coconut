@@ -1,0 +1,93 @@
+
+# This worklflow will perform following actions when the code is pushed to development branch:
+# - Build the latest docker image in development.
+# - Push the latest docker image to Google Artifact Registry-Dev.
+# - Rollout the latest image in GKE.
+# 
+# Maintainers:
+#   - name: Nisha Sharma
+#   - email: nisha.sharma@uni-jena.de
+
+name : Build and Deploy to Dev
+
+on:
+  push:
+    branches: [development]
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  GKE_CLUSTER: autopilot-cluster-coconut
+  GKE_ZONE: europe-west3-a
+  DEPLOYMENT_NAME: coconut-coconut-app
+  WORKER_DEPLOYMENT_NAME: coconut-worker
+  REPOSITORY_NAME: coconut
+  APP_IMAGE: coconut-app
+  NGINX_IMAGE: coconut-nginx
+  SCHEDULER_DEPLOYMENT_NAME: coconut-scheduler
+  REPOSITORY_NAMESPACE: nfdi4chem
+
+jobs:
+  setup-build-publish-deploy-dev:
+    name: Build & deploy to development
+    runs-on: ubuntu-latest
+    environment:
+      name: Dev
+    steps:
+    # Checkout code
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    # Authenticate Github Actions to gcloud.
+    - name: Authenticate GitHub Actions
+      uses: 'google-github-actions/auth@v2'
+      with:
+        credentials_json: '${{ secrets.GKE_SA_KEY }}'
+
+    # Setup gcloud CLI
+    - name: Setup gcloud CLI
+      uses: google-github-actions/setup-gcloud@v2
+
+    # Get the GKE credentials
+    - name: Get GKE credentials
+      uses: google-github-actions/get-gke-credentials@v2
+      with:
+        cluster_name: ${{ env.GKE_CLUSTER }}
+        location: ${{ env.GKE_ZONE }}
+
+    # Login to Docker
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ env.DOCKER_HUB_USERNAME  }}
+        password: ${{ env.DOCKER_HUB_PASSWORD  }}
+
+    # Build and push the app Docker image
+    - name: Build and push App Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./resources/ops/docker/app/app.dockerfile
+        push: true
+        build-args: |
+          RELEASE_VERSION=dev-app-latest
+        tags: ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:dev-app-latest
+
+    # Build and push the nginx Docker image
+    - name: Build and push Nginx Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./resources/ops/docker/nginx/nginx.dockerfile
+        push: true
+        build-args: |
+          RELEASE_VERSION=dev-nginx-latest
+        tags: ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:dev-nginx-latest
+
+    # Deploy the latest Docker image to the GKE cluster
+    - name: Deploy
+      run: |-
+        kubectl rollout restart deployment/$DEPLOYMENT_NAME
+        kubectl rollout restart deployment/$WORKER_DEPLOYMENT_NAME
+        kubectl rollout restart deployment/$SCHEDULER_DEPLOYMENT_NAME
+        kubectl rollout status deployment/$DEPLOYMENT_NAME --timeout=300s
+        kubectl get services -o wide
