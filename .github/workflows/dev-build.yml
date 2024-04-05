@@ -16,6 +16,8 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
   GKE_CLUSTER: autopilot-cluster-coconut
   GKE_ZONE: europe-west3
   DEPLOYMENT_NAME: coconut-coconut-app
