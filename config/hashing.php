@@ -17,6 +17,8 @@ return [
 
     'driver' => 'bcrypt',
 
+    'rehash_on_login' => false,
+
     /*
     |--------------------------------------------------------------------------
     | Bcrypt Options
