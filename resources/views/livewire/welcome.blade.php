@@ -17,7 +17,7 @@
                             aria-hidden="true">→</span></a></div>
                 <p class="mt-12 text-sm flex items-baseline gap-x-2 text-[0.8125rem]/6 text-gray-500"> Report bugs: <a
                         class="group relative isolate flex items-center rounded-lg px-2 py-0.5 text-[0.8125rem]/6 font-medium text-dark/30 transition-colors hover:text-sky-900 gap-x-2"
-                        target="_blank" href="https://github.com/Steinbeck-Lab/COCONUT-2.0/issues"><span
+                        target="_blank" href="https://github.com/Steinbeck-Lab/coconut/issues"><span
                             class="absolute inset-0 -z-10 scale-75 rounded-lg bg-white/5 opacity-0 transition group-hover:scale-100 group-hover:opacity-100"></span><svg
                             viewBox="0 0 16 16" aria-hidden="true" fill="currentColor" class="flex-none h-4 w-4">
                             <path
