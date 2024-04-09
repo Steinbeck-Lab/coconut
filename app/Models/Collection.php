@@ -9,12 +9,18 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Tags\HasTags;
+use Str;
 
 class Collection extends Model implements Auditable
 {
     use HasFactory;
     use HasTags;
     use \OwenIt\Auditing\Auditable;
+
+    protected static function booted()
+    {
+        static::creating(fn ($collection) => $collection->uuid = Str::uuid());
+    }
 
     /**
      * The attributes that are mass assignable.

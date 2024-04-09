@@ -13,9 +13,11 @@ use Filament\Forms\Components\TextArea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class CollectionResource extends Resource
@@ -36,22 +38,25 @@ class CollectionResource extends Resource
                     Section::make('Database details')
                         ->description('Provide details of the database and link to the resource.')
                         ->schema([
-                            TextInput::make('title'),
+                            TextInput::make('title')->live()
+                                ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))
+                                ),
+                            TextInput::make('slug'),
                             TextArea::make('description'),
                             TextInput::make('url'),
                         ]),
                     Section::make('Meta data')
                         ->schema([
                             SpatieTagsInput::make('tags')
-                                ->type('collections'),
+                                 ->type('collections'),
                             TextInput::make('identifier'),
                         ]),
                     Section::make('Distribution')
                         ->schema([
                             Select::make('license')
-                                ->relationship('license', 'title')
-                                ->preload()
-                                ->searchable(),
+                                 ->relationship('license', 'title')
+                                 ->preload()
+                                 ->searchable(),
                             // ToggleButtons::make('status')
                             //     ->options([
                             //         'DRAFT' => 'Draft',
