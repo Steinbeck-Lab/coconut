@@ -42,10 +42,11 @@
                 {{ $slot }}
             </main>
         </div>
+        
+        @include('components.tawk-chat')
 
         @stack('modals')
         @livewireScripts
         @include('cookie-consent::index')
-        <x-support-bubble />
     </body>
 </html>

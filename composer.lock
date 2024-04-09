@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "25a3af330b0000683de7bcf0d6ad5edb",
+    "content-hash": "71ae1742cf9e56d5ebba46eace424b92",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -351,6 +351,84 @@
                 }
             ],
             "time": "2024-01-25T16:42:20+00:00"
+        },
+        {
+            "name": "bezhansalleh/filament-panel-switch",
+            "version": "1.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bezhanSalleh/filament-panel-switch.git",
+                "reference": "85fdf7ec35a7c35f380d952146594cd423af683d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bezhanSalleh/filament-panel-switch/zipball/85fdf7ec35a7c35f380d952146594cd423af683d",
+                "reference": "85fdf7ec35a7c35f380d952146594cd423af683d",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^3.0",
+                "php": "^8.1",
+                "spatie/laravel-package-tools": "^1.15.0"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0",
+                "nunomaduro/collision": "^7.9",
+                "orchestra/testbench": "^8.0",
+                "pestphp/pest": "^2.0",
+                "pestphp/pest-plugin-arch": "^2.0",
+                "pestphp/pest-plugin-laravel": "^2.0",
+                "spatie/laravel-ray": "^1.26"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "BezhanSalleh\\PanelSwitch\\PanelSwitchServiceProvider"
+                    ],
+                    "aliases": {
+                        "PanelSwitch": "BezhanSalleh\\PanelSwitch\\Facades\\PanelSwitch"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "BezhanSalleh\\PanelSwitch\\": "src/",
+                    "BezhanSalleh\\PanelSwitch\\Database\\Factories\\": "database/factories/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bezhan Salleh",
+                    "email": "bezhan_salleh@yahoo.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Easily Switch between your Filament Panels",
+            "homepage": "https://github.com/bezhansalleh/filament-panel-switch",
+            "keywords": [
+                "bezhanSalleh",
+                "filament",
+                "filament-panel-switch",
+                "panel-changer",
+                "panel-navigation",
+                "panel-switch"
+            ],
+            "support": {
+                "issues": "https://github.com/bezhansalleh/filament-panel-switch/issues",
+                "source": "https://github.com/bezhansalleh/filament-panel-switch"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/bezhanSalleh",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-01-12T02:52:11+00:00"
         },
         {
             "name": "bezhansalleh/filament-shield",

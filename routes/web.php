@@ -27,13 +27,3 @@ Route::get('/guidelines', Guides::class);
 // Compound pages
 Route::get('compounds/{id}', MoleculeDetails::class)->name('compound');
 Route::get('/search', Search::class)->name('browse');
-
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
-});

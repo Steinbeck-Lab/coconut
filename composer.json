@@ -10,6 +10,7 @@
     "require": {
         "php": "^8.3",
         "bezhansalleh/filament-exceptions": "^2.1.1",
+        "bezhansalleh/filament-panel-switch": "*",
         "bezhansalleh/filament-shield": "^3.2",
         "darkaonline/l5-swagger": "^8.6",
         "filament/filament": "^3.2",

@@ -30,8 +30,8 @@
                 <livewire:footer />
             </div>
         </div>
+        @include('components.tawk-chat')
         @livewireScripts
         @include('cookie-consent::index')
-        <x-support-bubble />
     </body>
 </html>

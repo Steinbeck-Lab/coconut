@@ -157,7 +157,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
 
             //check if citation already exists
             $citation = Citation::where('doi', $doi)->first();
-            $citationResponse  = null;
+            $citationResponse = null;
             if (! $citation) {
                 // fetch citation from EuropePMC
                 $europemcUrl = env('EUROPEPMC_WS_API');

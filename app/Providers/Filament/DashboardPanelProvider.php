@@ -2,11 +2,10 @@
 
 namespace App\Providers\Filament;
 
-use BezhanSalleh\FilamentExceptions\FilamentExceptionsPlugin;
-use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -18,40 +17,26 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use pxlrbt\FilamentEnvironmentIndicator\EnvironmentIndicatorPlugin;
-use ShuvroRoy\FilamentSpatieLaravelBackup\FilamentSpatieLaravelBackupPlugin;
-use Stephenjude\FilamentDebugger\DebuggerPlugin;
 
-class AdminPanelProvider extends PanelProvider
+class DashboardPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
-            ->id('control-panel')
-            ->path('control-panel')
+            ->id('dashboard')
+            ->path('dashboard')
             ->colors([
-                'primary' => Color::Teal,
+                'primary' => Color::Amber,
             ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
-            ->pages([])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+            ->discoverResources(in: app_path('Filament/Dashboard/Resources'), for: 'App\\Filament\\Dashboard\\Resources')
+            ->discoverPages(in: app_path('Filament/Dashboard/Pages'), for: 'App\\Filament\\Dashboard\\Pages')
+            ->pages([
+                Pages\Dashboard::class,
+            ])
+            ->discoverWidgets(in: app_path('Filament/Dashboard/Widgets'), for: 'App\\Filament\\Dashboard\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
-            ])
-            ->plugins([
-                FilamentShieldPlugin::make(),
-                FilamentExceptionsPlugin::make(),
-                DebuggerPlugin::make(),
-                FilamentSpatieLaravelBackupPlugin::make(),
-                EnvironmentIndicatorPlugin::make()
-                    ->color(fn () => match (app()->environment()) {
-                        'production' => null,
-                        'staging' => Color::Orange,
-                        default => Color::Red,
-                    }),
             ])
             ->middleware([
                 EncryptCookies::class,

@@ -2,8 +2,9 @@
 
 namespace App\Providers;
 
+use BezhanSalleh\PanelSwitch\PanelSwitch;
 use Filament\Facades\Filament;
-use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\UserMenuItem;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,15 +23,32 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Filament::serving(function () {
-            Filament::registerNavigationGroups([
-                NavigationGroup::make()
-                    ->label('Data'),
-                NavigationGroup::make()
-                    ->label('Settings'),
-                NavigationGroup::make()
-                    ->label('Debugger'),
-
+            Filament::registerUserMenuItems([
+                UserMenuItem::make()
+                    ->label('Profile')
+                    ->url('/user/profile')
+                    ->icon('heroicon-s-cog'),
             ]);
+        });
+
+        PanelSwitch::configureUsing(function (PanelSwitch $panelSwitch) {
+            $panelSwitch
+                ->modalWidth('sm')
+                ->slideOver()
+                ->icons([
+                    'control-panel' => 'heroicon-s-cog',
+                    'dashboard' => 'heroicon-s-building-office-2',
+                ])
+                ->iconSize(16)
+                ->labels([
+                    'control-panel' => 'Control Panel',
+                    'dashboard' => 'Coconut Dashboard',
+                ])
+                ->visible(fn (): bool => auth()->user()?->hasAnyRole([
+                    'super_admin',
+                    'admin',
+                    'dev',
+                ]));
         });
     }
 }
