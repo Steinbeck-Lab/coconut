@@ -2,7 +2,7 @@
 
 namespace App\Filament\Dashboard\Resources\CollectionResource\RelationManagers;
 
-use App\Filament\Imports\EntryImporter;
+use App\Filament\Dashboard\Imports\EntryImporter;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\ImageEntry;

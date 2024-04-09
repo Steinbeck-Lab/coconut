@@ -25,12 +25,11 @@
         "livewire/livewire": "^3.0",
         "owen-it/laravel-auditing": "^13.6",
         "predis/predis": "^2.2",
-        "pxlrbt/filament-environment-indicator": "^2.0",
+        "pxlrbt/filament-spotlight": "^1.2",
         "shuvroroy/filament-spatie-laravel-backup": "^2.1",
         "spatie/laravel-backup": "^8.6",
         "spatie/laravel-cookie-consent": "^3.3",
         "spatie/laravel-permission": "^6.3",
-        "spatie/laravel-support-bubble": "^1.5",
         "stechstudio/filament-impersonate": "*",
         "stephenjude/filament-debugger": "^3.0",
         "tapp/filament-auditing": "^3.0"

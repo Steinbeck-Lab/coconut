@@ -18,9 +18,9 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use pxlrbt\FilamentEnvironmentIndicator\EnvironmentIndicatorPlugin;
 use ShuvroRoy\FilamentSpatieLaravelBackup\FilamentSpatieLaravelBackupPlugin;
 use Stephenjude\FilamentDebugger\DebuggerPlugin;
+use pxlrbt\FilamentSpotlight\SpotlightPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -46,12 +46,7 @@ class AdminPanelProvider extends PanelProvider
                 FilamentExceptionsPlugin::make(),
                 DebuggerPlugin::make(),
                 FilamentSpatieLaravelBackupPlugin::make(),
-                EnvironmentIndicatorPlugin::make()
-                    ->color(fn () => match (app()->environment()) {
-                        'production' => null,
-                        'staging' => Color::Orange,
-                        default => Color::Red,
-                    }),
+                SpotlightPlugin::make(),
             ])
             ->middleware([
                 EncryptCookies::class,
