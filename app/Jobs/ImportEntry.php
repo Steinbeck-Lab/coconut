@@ -188,10 +188,6 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         $isDOI = preg_match('/\b(10[.][0-9]{4,}(?:[.][0-9]+)*)\b/', $doi);
 
         if ($isDOI) {
-
-            echo $doi;
-            echo '/r/n';
-
             //check if citation already exists
             $citation = Citation::firstOrCreate(['doi' => $doi]);
             $citationResponse = null;
