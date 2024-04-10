@@ -31,6 +31,7 @@ class Collection extends Model implements Auditable
         'title',
         'slug',
         'description',
+        'jobs_status',
         'comments',
         'identifier',
         'url',

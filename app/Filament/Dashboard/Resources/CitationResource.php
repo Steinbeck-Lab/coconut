@@ -20,6 +20,8 @@ class CitationResource extends Resource
 
     protected static ?string $model = Citation::class;
 
+    protected static ?string $recordTitleAttribute = 'title';
+
     protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationIcon = 'heroicon-o-ticket';

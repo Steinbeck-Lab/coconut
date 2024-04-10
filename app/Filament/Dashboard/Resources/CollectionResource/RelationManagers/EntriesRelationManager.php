@@ -30,6 +30,9 @@ class EntriesRelationManager extends RelationManager
                 Forms\Components\TextInput::make('canonical_smiles')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
                 Forms\Components\TextInput::make('doi')
                     ->required()
                     ->maxLength(255),
@@ -42,11 +45,20 @@ class EntriesRelationManager extends RelationManager
                 Forms\Components\TextInput::make('organism_part')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\TextInput::make('mol_filename')
+                    ->required()
+                    ->maxLength(255),
                 Forms\Components\TextInput::make('molecular_formula')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextArea::make('structural_comments')
                     ->required(),
+                Forms\Components\TextInput::make('geo_location')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('location')
+                    ->required()
+                    ->maxLength(255),
                 Forms\Components\TextArea::make('errors')
                     ->required(),
                 Forms\Components\TextInput::make('standardized_canonical_smiles')
@@ -66,12 +78,15 @@ class EntriesRelationManager extends RelationManager
                 Section::make()
                     ->schema([
                         TextEntry::make('reference_id'),
+                        TextEntry::make('name'),
                         TextEntry::make('doi'),
                         TextEntry::make('link'),
                         TextEntry::make('organism'),
                         TextEntry::make('organism_part'),
                         TextEntry::make('molecular_formula'),
                         TextEntry::make('structural_comments'),
+                        TextEntry::make('geo_location'),
+                        TextEntry::make('location'),
                         TextEntry::make('errors'),
                     ]),
                 Section::make()
@@ -122,7 +137,7 @@ class EntriesRelationManager extends RelationManager
                     ->height(200)
                     ->ring(5)
                     ->defaultImageUrl(url('/images/placeholder.png')),
-                Tables\Columns\TextColumn::make('identifier')->searchable(),
+                Tables\Columns\TextColumn::make('reference_id')->searchable(),
                 Tables\Columns\TextColumn::make('status'),
             ])
             ->filters([

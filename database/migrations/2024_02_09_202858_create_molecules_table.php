@@ -20,7 +20,7 @@ return new class extends Migration
             $table->longText('standard_inchi_key')->nullable();
             $table->longText('canonical_smiles')->nullable();
             $table->longText('sugar_free_smiles')->nullable();
-            $table->longText('identifier')->nullable()->unique();
+            $table->longText('identifier')->nullable();
             $table->longText('name')->nullable();
             $table->longText('cas')->nullable();
             $table->json('synonyms')->nullable();

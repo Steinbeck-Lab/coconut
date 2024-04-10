@@ -24,6 +24,7 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->enum('status', ['DRAFT', 'REVIEW', 'EMBARGO', 'PUBLISHED', 'REJECTED'])->default('DRAFT');
             $table->enum('jobs_status', ['INCURATION', 'QUEUED', 'PROCESSING', 'COMPLETE'])->default('INCURATION');
+            $table->longText('job_info')->nullable();
             $table->longText('doi')->nullable();
             $table->foreignId('owner_id')->nullable();
             $table->foreignId('license_id')->nullable();

@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\Citation;
 use App\Models\Molecule;
 use App\Models\Properties;
+use App\Models\Ticker;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -30,6 +31,14 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
     }
 
     /**
+     * Get the unique ID for the job.
+     */
+    public function uniqueId(): string
+    {
+        return $this->entry->uuid;
+    }
+
+    /**
      * Execute the job.
      */
     public function handle(): void
@@ -41,46 +50,41 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 if ($parent->wasRecentlyCreated) {
                     $parent->is_parent = true;
                     $parent->has_variants = true;
-                    $parent->identifier = $this->entry->coconut_id;
                     $parent->is_placeholder = true;
                     $parent->variants_count += $parent->variants_count;
                     $parent = $this->assignData($parent, $data);
                     $parent->save();
-
-                    $this->fetchIUPACNameFromPubChem($parent);
-                    $this->attachProperties('parent', $parent);
-                    $this->classify($parent);
+                    // $this->fetchIUPACNameFromPubChem($parent);
+                    // $this->attachProperties('parent', $parent);
+                    // $this->classify($parent);
                 }
-                $this->attachCollection($parent);
 
                 $data = $this->getRepresentations('standardized');
                 $molecule = Molecule::firstOrCreate(['standard_inchi' => $data['standard_inchi'], 'standard_inchi_key' => $data['standard_inchikey']]);
                 if ($molecule->wasRecentlyCreated) {
                     $molecule->has_stereo = true;
                     $molecule->parent_id = $parent->id;
-                    $parent->ticker = $parent->ticker + 1;
-                    $molecule->identifier = $this->entry->coconut_id.'.'.$parent->ticker;
-                    $molecule = $this->assignData($molecule, $data);
-                    $this->fetchIUPACNameFromPubChem($molecule);
-                    $this->attachProperties('standardized', $molecule);
                     $parent->save();
-                    $this->classify($molecule);
+                    $molecule = $this->assignData($molecule, $data);
+                    // $this->fetchIUPACNameFromPubChem($molecule);
+                    // $this->attachProperties('standardized', $molecule);
+                    // $this->classify($molecule);
                     $molecule->save();
                 }
                 $this->entry->molecule_id = $molecule->id;
                 $this->entry->save();
 
+                $this->attachCollection($parent);
                 $this->attachCollection($molecule);
             } else {
                 $data = $this->getRepresentations('standardized');
                 $molecule = Molecule::firstOrCreate(['standard_inchi' => $data['standard_inchi'], 'standard_inchi_key' => $data['standard_inchikey']]);
                 if ($molecule->wasRecentlyCreated) {
                     $molecule = $this->assignData($molecule, $data);
-                    $molecule->identifier = $this->entry->coconut_id;
                     $molecule->save();
-                    $this->fetchIUPACNameFromPubChem($molecule);
-                    $this->attachProperties('standardized', $molecule);
-                    $this->classify($molecule);
+                    // $this->fetchIUPACNameFromPubChem($molecule);
+                    // $this->attachProperties('standardized', $molecule);
+                    // $this->classify($molecule);
                 }
                 $this->entry->molecule_id = $molecule->id;
                 $this->entry->save();
@@ -88,14 +92,37 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
             }
 
             if ($this->entry->doi && $this->entry->doi != '') {
-                $this->fetchCitation($this->entry->doi, $molecule);
+                $dois = explode('|', $this->entry->doi);
+
+                $doiRegex = '/\b(10[.][0-9]{4,}(?:[.][0-9]+)*)\b/';
+                foreach ($dois as $doi) {
+                    if (preg_match($doiRegex, $doi)) {
+                        $this->fetchDOICitation($doi, $molecule);
+                    } else {
+                        $this->fetchCitation($doi, $molecule);
+                    }
+                }
             }
         }
     }
 
+    public function fetchIdentifier()
+    {
+        $ticker = Ticker::first();
+        $identifier = $ticker->index + 1;
+        $ticker->index = $identifier;
+        $ticker->save();
+        $CNP = 'CNP'.$identifier;
+
+        while (Molecule::where('identifier', $CNP)->exists()) {
+            return $this->fetchIdentifier();
+        }
+
+        return $CNP;
+    }
+
     public function classify($molecule)
     {
-
         $properties = $molecule->properties;
 
         if ($properties->chemical_class == null || $properties->chemical_sub_class == null || $properties->chemical_super_class == null || $properties->direct_parent_classification == null) {
@@ -146,8 +173,15 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
 
     }
 
-    public function fetchCitation($doi, $molecule)
+    public function fetchCitation($citation_text, $molecule)
     {
+        $citation = Citation::firstOrCreate(['citation_text' => $citation_text]);
+        $molecule->citations()->syncWithoutDetaching($citation);
+    }
+
+    public function fetchDOICitation($doi, $molecule)
+    {
+
         $citation = null;
 
         // check if the doi is valid
@@ -155,10 +189,13 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
 
         if ($isDOI) {
 
+            echo $doi;
+            echo '/r/n';
+
             //check if citation already exists
-            $citation = Citation::where('doi', $doi)->first();
+            $citation = Citation::firstOrCreate(['doi' => $doi]);
             $citationResponse = null;
-            if (! $citation) {
+            if ($citation->wasRecentlyCreated) {
                 // fetch citation from EuropePMC
                 $europemcUrl = env('EUROPEPMC_WS_API');
                 $europemcParams = [
@@ -199,7 +236,6 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 }
             }
 
-            // attach citation
             $molecule->citations()->syncWithoutDetaching($citation);
         }
     }

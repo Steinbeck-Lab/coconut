@@ -39,6 +39,10 @@ class ImportEntries extends Command
         }
 
         foreach ($collections as $collection) {
+            $collection->jobs_status = 'PROCESSING';
+            $collection->job_info = 'Importing entries: Citations, Organism Info and other details';
+            $collection->save();
+
             $batchJobs = [];
             $i = 0;
             Entry::select('id')->where('status', 'PASSED')->where('collection_id', $collection->id)->chunk(100, function ($ids) use (&$batchJobs, &$i) {
@@ -47,7 +51,10 @@ class ImportEntries extends Command
             });
             $batch = Bus::batch($batchJobs)->then(function (Batch $batch) {
             })->catch(function (Batch $batch, Throwable $e) {
-            })->finally(function (Batch $batch) {
+            })->finally(function (Batch $batch) use ($collection) {
+                $collection->jobs_status = 'INCURATION';
+                $collection->job_info = '';
+                $collection->save();
             })->name('Import Entries '.$collection->id)
                 ->allowFailures(false)
                 ->onConnection('redis')

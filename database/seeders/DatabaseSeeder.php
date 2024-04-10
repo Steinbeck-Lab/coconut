@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
+        \App\Models\User::factory(10)->create();
 
         $password = Str::random();
         $email = 'superadmin@email.com';
@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call(ShieldSeeder::class);
         $this->call(LicenseSeeder::class);
-        $this->call(CitationSeeder::class);
-        $this->call(CollectionSeeder::class);
+        // $this->call(CitationSeeder::class);
+        // $this->call(CollectionSeeder::class);
     }
 }

@@ -5,13 +5,14 @@ namespace App\Filament\Dashboard\Resources;
 use App\Filament\Dashboard\Resources\CollectionResource\Pages;
 use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\CitationsRelationManager;
 use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\EntriesRelationManager;
+use App\Livewire\ShowJobStatus;
 use App\Models\Collection;
+use Filament\Forms\Components\Livewire;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\TextArea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
@@ -30,11 +31,16 @@ class CollectionResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-swatch';
 
+    protected static ?string $recordTitleAttribute = 'title';
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema(
                 [
+
+                    Livewire::make(ShowJobStatus::class),
+
                     Section::make('Database details')
                         ->description('Provide details of the database and link to the resource.')
                         ->schema([
@@ -48,23 +54,15 @@ class CollectionResource extends Resource
                     Section::make('Meta data')
                         ->schema([
                             SpatieTagsInput::make('tags')
-                                 ->type('collections'),
+                                ->type('collections'),
                             TextInput::make('identifier'),
                         ]),
                     Section::make('Distribution')
                         ->schema([
                             Select::make('license')
-                                 ->relationship('license', 'title')
-                                 ->preload()
-                                 ->searchable(),
-                            // ToggleButtons::make('status')
-                            //     ->options([
-                            //         'DRAFT' => 'Draft',
-                            //         'REVIEW' => 'Review',
-                            //         'EMBARGO' => 'Embargo',
-                            //         'PUBLISHED' => 'Published',
-                            //         'REJECTED' => 'Rejected',
-                            //     ])->inline(),
+                                ->relationship('license', 'title')
+                                ->preload()
+                                ->searchable(),
                         ]),
                 ]
             )->columns(1);

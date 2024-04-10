@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->longText('canonical_smiles')->nullable();
             $table->longText('reference_id')->nullable();
+            $table->longText('name')->nullable();
             $table->longText('doi')->nullable();
             $table->longText('link')->nullable();
             $table->longText('organism')->nullable();

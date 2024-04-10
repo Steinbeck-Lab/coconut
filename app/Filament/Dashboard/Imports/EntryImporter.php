@@ -17,6 +17,7 @@ class EntryImporter extends Importer
         return [
             ImportColumn::make('canonical_smiles'),
             ImportColumn::make('reference_id'),
+            ImportColumn::make('name'),
             ImportColumn::make('doi'),
             ImportColumn::make('link'),
             ImportColumn::make('organism'),
