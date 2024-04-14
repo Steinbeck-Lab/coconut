@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TextArea;
+use Illuminate\Support\Str;
 
 class ReportResource extends Resource
 {
@@ -40,7 +41,22 @@ class ReportResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('title')->wrap(),
+                TextColumn::make('title')
+                    ->description(fn (Report $record): string => Str::of($record->evidence)->words(10)),
+                // TextColumn::make('evidence')->words(10),
+                TextColumn::make('url')
+                    ->url(fn (Report $record): string => $record->url)
+                    ->openUrlInNewTab(),
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(function (Report $record) {
+                        return match ($record->status) {
+                            'pending' => 'info',
+                            'approved' => 'success',
+                            'rejected' => 'danger',
+                        };
+                    }),
+                TextColumn::make('comment')->wrap(),
             ])
             ->filters([
                 //
@@ -58,7 +74,7 @@ class ReportResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\CollectionsRelationManager::class,
         ];
     }
 
