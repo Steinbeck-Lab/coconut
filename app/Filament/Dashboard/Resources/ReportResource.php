@@ -75,6 +75,7 @@ class ReportResource extends Resource
     {
         return [
             RelationManagers\CollectionsRelationManager::class,
+            RelationManagers\CitationsRelationManager::class,
         ];
     }
 
