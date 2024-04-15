@@ -51,7 +51,6 @@ RUN composer dump-autoload -o
 FROM node:18-alpine AS assets-build
 WORKDIR /var/www/html
 COPY . /var/www/html/
-COPY --from=build-fpm /var/www/html/vendor/filament/support/tailwind.config.preset.js /var/www/html/vendor/filament/support/tailwind.config.preset.js
 RUN npm ci
 RUN npm run build
 
