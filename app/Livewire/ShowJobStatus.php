@@ -2,14 +2,13 @@
 
 namespace App\Livewire;
 
-use Illuminate\Database\Eloquent\Model;
 use Livewire\Component;
 
 class ShowJobStatus extends Component
 {
-    public $collection;
+    public $collection = null;
 
-    public function mount(?Model $record = null)
+    public function mount($record = null)
     {
         $this->collection = $record;
     }
@@ -17,8 +16,8 @@ class ShowJobStatus extends Component
     public function render()
     {
         return view('livewire.show-job-status', [
-            'status' => $this->collection->jobs_status,
-            'info' => $this->collection->job_info,
+            'status' => $this->collection ? $this->collection->jobs_status : null,
+            'info' => $this->collection ? $this->collection->job_info : null,
         ]);
     }
 }

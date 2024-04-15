@@ -57,6 +57,7 @@ class MoleculeResource extends Resource
                     ->height(200)
                     ->ring(5)
                     ->defaultImageUrl(url('/images/placeholder.png')),
+                Tables\Columns\TextColumn::make('name')->searchable(),
                 Tables\Columns\TextColumn::make('identifier')->searchable(),
                 Tables\Columns\TextColumn::make('status'),
             ])

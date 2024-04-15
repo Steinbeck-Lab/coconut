@@ -3,13 +3,16 @@
 namespace App\Jobs;
 
 use App\Models\Citation;
+use App\Models\GeoLocation;
 use App\Models\Molecule;
+use App\Models\Organism;
 use App\Models\Properties;
 use App\Models\Ticker;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -58,6 +61,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                     // $this->attachProperties('parent', $parent);
                     // $this->classify($parent);
                 }
+                $this->attachCollection($parent);
 
                 $data = $this->getRepresentations('standardized');
                 $molecule = Molecule::firstOrCreate(['standard_inchi' => $data['standard_inchi'], 'standard_inchi_key' => $data['standard_inchikey']]);
@@ -74,7 +78,6 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $this->entry->molecule_id = $molecule->id;
                 $this->entry->save();
 
-                $this->attachCollection($parent);
                 $this->attachCollection($molecule);
             } else {
                 $data = $this->getRepresentations('standardized');
@@ -91,6 +94,18 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $this->attachCollection($molecule);
             }
 
+            $organism = $this->entry->organism;
+
+            if ($organism && $organism != '') {
+                $this->saveOrganismDetails($organism, $molecule);
+            }
+
+            $geo_location = $this->entry->geo_location;
+
+            if ($geo_location && $geo_location != '') {
+                $this->saveGeoLocationDetails($geo_location, $molecule, $this->entry->location);
+            }
+
             if ($this->entry->doi && $this->entry->doi != '') {
                 $dois = explode('|', $this->entry->doi);
 
@@ -103,6 +118,32 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                     }
                 }
             }
+        }
+    }
+
+    public function saveOrganismDetails($organismData, $molecule)
+    {
+        $organisms = explode('|', $organismData);
+        $parts = explode('|', $this->entry->organism_part);
+        $i = 0;
+        foreach ($organisms as $organism) {
+            $organismModel = Organism::firstOrCreate(['name' => $organism]);
+            $partNames = array_key_exists($i, $parts) ? $parts[$i] : '';
+            $molecule->organisms()->sync([$organismModel->id => ['organism_parts' => $partNames]]);
+            $i = $i + 1;
+        }
+    }
+
+    public function saveGeoLocationDetails($geo_location, $molecule)
+    {
+        $geo_locations = explode('|', $geo_location);
+        $locations = explode('|', $this->entry->locations);
+        $i = 0;
+        foreach ($geo_locations as $geo_location) {
+            $geolocationModel = GeoLocation::firstOrCreate(['name' => $geo_location]);
+            $locationsNames = array_key_exists($i, $locations) ? $locations[$i] : '';
+            $molecule->geoLocations()->sync([$geolocationModel->id => ['locations' => $partNames]]);
+            $i = $i + 1;
         }
     }
 
@@ -228,6 +269,9 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                     if (! Citation::where('doi', $citationResponse['doi'])->exists()) {
                         $citation = Citation::create($citationResponse);
                         $citation->save();
+                    } else {
+                        $citation->update($citationResponse);
+                        $citation->save();
                     }
                 }
             }
@@ -296,7 +340,15 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                     $formattedCitationRes['title'] = $journalTitle;
                     if (isset($obj['author'])) {
                         $formattedCitationRes['authors'] = implode(', ', array_map(function ($author) {
-                            return $author['given'].' '.$author['family'];
+                            $fullName = '';
+                            if (isset($author['given'])) {
+                                $fullName .= $author['given'].' ';
+                            }
+                            if (isset($author['family'])) {
+                                $fullName .= $author['family'];
+                            }
+
+                            return $fullName;
                         }, $obj['author']));
                     }
                     $formattedCitationRes['citation_text'] = $journalTitle.' '.$yearofPublication.' '.$volume.' ( '.$issue.' ) '.$pageInfo;
@@ -310,7 +362,39 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
 
     public function attachCollection($molecule)
     {
-        $molecule->collections()->syncWithoutDetaching($this->entry->collection);
+        try {
+            $collection_exists = $molecule->collections()->where('collections.id', $this->entry->collection->id)->exists();
+            if ($collection_exists) {
+                $collection = $molecule->collections()->where('collections.id', $this->entry->collection->id)->first();
+                $molecule->collections()->syncWithoutDetaching([
+                    $this->entry->collection->id => [
+                        'url' => $collection->pivot->url.'|'.$this->entry->link,
+                        'reference' => $collection->pivot->reference.'|'.$this->entry->reference_id,
+                        'mol_filename' => $collection->pivot->mol_filename.'|'.$this->entry->mol_filename,
+                        'structural_comments' => $collection->pivot->structural_comments.'|'.$this->entry->structural_comments,
+                    ],
+                ]);
+            } else {
+                $molecule->collections()->attach([
+                    $this->entry->collection->id => [
+                        'url' => $this->entry->link,
+                        'reference' => $this->entry->reference_id,
+                        'mol_filename' => $this->entry->mol_filename,
+                        'structural_comments' => $this->entry->structural_comments,
+                    ],
+                ]);
+            }
+        } catch (QueryException $e) {
+            if ($this->isUniqueViolationException($e)) {
+                $this->attachCollection($molecule);
+            }
+        }
+    }
+
+    private function isUniqueViolationException(QueryException $e)
+    {
+        // Check if the SQLSTATE is 23505, which corresponds to a unique violation error
+        return $e->getCode() == '23505';
     }
 
     public function fetchSynonymsCASFromPubChem($cid, $molecule)

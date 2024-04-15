@@ -49,12 +49,12 @@ class ProcessEntries extends Command
             $batch = Bus::batch($batchJobs)->then(function (Batch $batch) {
             })->catch(function (Batch $batch, Throwable $e) {
             })->finally(function (Batch $batch) use ($collection) {
-                Artisan::call('entries:import', [
-                    'collection_id' => $collection->id,
-                ]);
                 $collection->jobs_status = 'INCURATION';
                 $collection->job_info = '';
                 $collection->save();
+                Artisan::call('entries:import', [
+                    'collection_id' => $collection->id,
+                ]);
             })->name('Process Entries '.$collectionId['collection_id'])
                 ->allowFailures(false)
                 ->onConnection('redis')

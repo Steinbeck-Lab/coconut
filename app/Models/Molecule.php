@@ -97,6 +97,16 @@ class Molecule extends Model implements Auditable
      */
     public function collections(): BelongsToMany
     {
-        return $this->belongsToMany(Collection::class);
+        return $this->belongsToMany(Collection::class)->withPivot('url', 'reference', 'mol_filename', 'structural_comments')->withTimestamps();
+    }
+
+    public function organisms()
+    {
+        return $this->belongsToMany(Organism::class)->withTimestamps();
+    }
+
+    public function geoLocations()
+    {
+        return $this->belongsToMany(GeoLocation::class)->withTimestamps();
     }
 }

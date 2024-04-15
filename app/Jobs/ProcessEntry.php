@@ -41,7 +41,7 @@ class ProcessEntry implements ShouldQueue
         $has_stereocenters = false;
         $error_code = -1;
         $API_URL = env('API_URL', 'https://dev.api.naturalproducts.net/latest/');
-        $ENDPOINT = $API_URL.'chem/coconut/pre-processing?smiles='.urlencode($canonical_smiles).'&_3d_mol=false&descriptors=true';
+        $ENDPOINT = $API_URL.'chem/coconut/pre-processing?smiles='.urlencode($canonical_smiles).'&_3d_mol=false&descriptors=false';
 
         try {
             $response = Http::timeout(600)->get($ENDPOINT);

@@ -70,6 +70,6 @@ class Collection extends Model implements Auditable
      */
     public function molecules(): BelongsToMany
     {
-        return $this->belongsToMany(Molecule::class);
+        return $this->belongsToMany(Molecule::class)->withPivot('url', 'reference', 'mol_filename', 'structural_comments')->withTimestamps();
     }
 }
