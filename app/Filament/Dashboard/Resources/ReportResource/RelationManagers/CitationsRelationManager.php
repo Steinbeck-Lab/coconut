@@ -35,7 +35,9 @@ class CitationsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make(),
+                Tables\Actions\AttachAction::make()
+                    ->multiple()
+                    ->recordSelectSearchColumns(['title', 'authors']),
             ])
             ->actions([
                 // Tables\Actions\EditAction::make(),

@@ -19,11 +19,11 @@ use Illuminate\Support\Str;
 
 class ReportResource extends Resource
 {
-    protected static ?string $navigationGroup = 'Data';
+    protected static ?string $navigationGroup = 'Reporting';
     
     protected static ?string $model = Report::class;
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -74,6 +74,7 @@ class ReportResource extends Resource
     public static function getRelations(): array
     {
         return [
+            RelationManagers\MoleculesRelationManager::class,
             RelationManagers\CollectionsRelationManager::class,
             RelationManagers\CitationsRelationManager::class,
         ];

@@ -10,15 +10,15 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class CollectionsRelationManager extends RelationManager
+class MoleculesRelationManager extends RelationManager
 {
-    protected static string $relationship = 'collections';
+    protected static string $relationship = 'molecules';
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('title')
+                Forms\Components\TextInput::make('canonical_smiles')
                     ->required()
                     ->maxLength(255),
             ]);
@@ -27,9 +27,9 @@ class CollectionsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('title')
+            ->recordTitleAttribute('canonical_smiles')
             ->columns([
-                Tables\Columns\TextColumn::make('title'),
+                Tables\Columns\TextColumn::make('canonical_smiles'),
             ])
             ->filters([
                 //
@@ -37,7 +37,7 @@ class CollectionsRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\AttachAction::make()
                     ->multiple()
-                    ->recordSelectSearchColumns(['title', 'description']),
+                    ->recordSelectSearchColumns(['canonical_smiles']),
             ])
             ->actions([
                 // Tables\Actions\EditAction::make(),
