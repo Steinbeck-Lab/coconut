@@ -27,6 +27,7 @@ class Report extends Model implements Auditable
         'url',
         'status',
         'comment',
+        'user_id',
 
     ];
 
@@ -57,9 +58,9 @@ class Report extends Model implements Auditable
     /**
      * Get all of the users that are assigned this report.
      */
-    public function users(): MorphToMany
+    public function users(): BelongsTo
     {
-        return $this->morphedByMany(User::class, 'reportable');
+        return $this->belongsTo(User::class);
     }
     
 }

@@ -66,8 +66,8 @@ class User extends Authenticatable implements Auditable
     /**
      * Get all of the reports for the user.
      */
-    public function reports(): MorphToMany
+    public function reports(): HasMany
     {
-        return $this->morphToMany(Report::class, 'reportable');
+        return $this->hasMany(Report::class);
     }
 }
