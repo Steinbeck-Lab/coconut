@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TextArea;
+use Filament\Forms\Components\Select;
 use Illuminate\Support\Str;
 
 class ReportResource extends Resource
@@ -34,6 +35,19 @@ class ReportResource extends Resource
             TextInput::make('title'),
             TextArea::make('evidence'),
             TextInput::make('url'),
+            Select::make('status')
+                ->options([
+                    'pending' => 'Pending',
+                    'approved' => 'Approved',
+                    'rejected' => 'Rejected',
+                 ])
+                 ->hidden(function () {
+                     return !auth()->user()->hasRole('curator');
+                 }),
+            TextArea::make('comment')
+                ->hidden(function () {
+                    return !auth()->user()->hasRole('curator');
+                }),
         ])->columns(1);
     }
 
@@ -87,5 +101,13 @@ class ReportResource extends Resource
             'create' => Pages\CreateReport::route('/create'),
             'edit' => Pages\EditReport::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        if (auth()->user()->hasRole('super_admin')) {
+            return parent::getEloquentQuery();
+        }
+        return parent::getEloquentQuery()->where('user_id', auth()->id());
     }
 }
