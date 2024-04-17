@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\Report;
+use App\Models\License;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class ReportPolicy
+class LicensePolicy
 {
     use HandlesAuthorization;
 
@@ -15,15 +15,15 @@ class ReportPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_report');
+        return $user->can('view_any_license');
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Report $report): bool
+    public function view(User $user, License $license): bool
     {
-        return $user->can('view_report');
+        return $user->can('view_license');
     }
 
     /**
@@ -31,23 +31,23 @@ class ReportPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_report');
+        return $user->can('create_license');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Report $report): bool
+    public function update(User $user, License $license): bool
     {
-        return $user->can('update_report');
+        return $user->can('update_license');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Report $report): bool
+    public function delete(User $user, License $license): bool
     {
-        return $user->can('delete_report');
+        return $user->can('delete_license');
     }
 
     /**
@@ -55,15 +55,15 @@ class ReportPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_report');
+        return $user->can('delete_any_license');
     }
 
     /**
      * Determine whether the user can permanently delete.
      */
-    public function forceDelete(User $user, Report $report): bool
+    public function forceDelete(User $user, License $license): bool
     {
-        return $user->can('force_delete_report');
+        return $user->can('force_delete_license');
     }
 
     /**
@@ -71,15 +71,15 @@ class ReportPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_report');
+        return $user->can('force_delete_any_license');
     }
 
     /**
      * Determine whether the user can restore.
      */
-    public function restore(User $user, Report $report): bool
+    public function restore(User $user, License $license): bool
     {
-        return $user->can('restore_report');
+        return $user->can('restore_license');
     }
 
     /**
@@ -87,15 +87,15 @@ class ReportPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_report');
+        return $user->can('restore_any_license');
     }
 
     /**
      * Determine whether the user can replicate.
      */
-    public function replicate(User $user, Report $report): bool
+    public function replicate(User $user, License $license): bool
     {
-        return $user->can('replicate_report');
+        return $user->can('replicate_license');
     }
 
     /**
@@ -103,6 +103,6 @@ class ReportPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_report');
+        return $user->can('reorder_license');
     }
 }

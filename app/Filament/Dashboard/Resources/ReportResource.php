@@ -5,23 +5,21 @@ namespace App\Filament\Dashboard\Resources;
 use App\Filament\Dashboard\Resources\ReportResource\Pages;
 use App\Filament\Dashboard\Resources\ReportResource\RelationManagers;
 use App\Models\Report;
-use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextArea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\TextArea;
-use Filament\Forms\Components\Select;
 use Illuminate\Support\Str;
 
 class ReportResource extends Resource
 {
     protected static ?string $navigationGroup = 'Reporting';
-    
+
     protected static ?string $model = Report::class;
 
     protected static ?int $navigationSort = 1;
@@ -31,24 +29,24 @@ class ReportResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-        ->schema([
-            TextInput::make('title'),
-            TextArea::make('evidence'),
-            TextInput::make('url'),
-            Select::make('status')
-                ->options([
-                    'pending' => 'Pending',
-                    'approved' => 'Approved',
-                    'rejected' => 'Rejected',
-                 ])
-                 ->hidden(function () {
-                     return !auth()->user()->hasRole('curator');
-                 }),
-            TextArea::make('comment')
-                ->hidden(function () {
-                    return !auth()->user()->hasRole('curator');
-                }),
-        ])->columns(1);
+            ->schema([
+                TextInput::make('title'),
+                TextArea::make('evidence'),
+                TextInput::make('url'),
+                Select::make('status')
+                    ->options([
+                        'pending' => 'Pending',
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
+                    ])
+                    ->hidden(function () {
+                        return ! auth()->user()->hasRole('curator');
+                    }),
+                TextArea::make('comment')
+                    ->hidden(function () {
+                        return ! auth()->user()->hasRole('curator');
+                    }),
+            ])->columns(1);
     }
 
     public static function table(Table $table): Table
@@ -63,6 +61,7 @@ class ReportResource extends Resource
                     ->openUrlInNewTab(),
                 TextColumn::make('status')
                     ->badge()
+                    // Text column for status with badge and color based on status
                     ->color(function (Report $record) {
                         return match ($record->status) {
                             'pending' => 'info',
@@ -103,11 +102,13 @@ class ReportResource extends Resource
         ];
     }
 
+    // Define the Eloquent query for retrieving records based on user roles
     public static function getEloquentQuery(): Builder
     {
-        if (auth()->user()->hasRole('super_admin')) {
-            return parent::getEloquentQuery();
+        if (! auth()->user()->role()->exists()) {
+            return parent::getEloquentQuery()->where('user_id', auth()->id());
         }
-        return parent::getEloquentQuery()->where('user_id', auth()->id());
+
+        return parent::getEloquentQuery();
     }
 }
