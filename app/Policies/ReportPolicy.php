@@ -15,7 +15,8 @@ class ReportPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_report');
+        // return $user->can('view_any_report');
+        return true;
     }
 
     /**
@@ -39,6 +40,9 @@ class ReportPolicy
      */
     public function update(User $user, Report $report): bool
     {
+        if($user->id == $report->user_id) {
+            return true;
+        }
         return $user->can('update_report');
     }
 
