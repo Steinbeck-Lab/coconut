@@ -6,8 +6,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Events\Dispatcher;
 use App\Events\ReportStatusChanged;
+use App\Events\ReportSubmitted;
 use App\Models\User;
 use App\Notifications\ReportStatusChangedNotification;
+use App\Notifications\ReportSubmittedNotification;
 
 
 class ReportEventSubscriber
@@ -32,10 +34,17 @@ class ReportEventSubscriber
         $ReportOwner->notify(new ReportStatusChangedNotification($event));
     }
 
+    public function handleReportSubmitted(ReportSubmitted $event): void
+    {
+        $ReportOwner = User::find($event->report->user_id);
+        $ReportOwner->notify(new ReportSubmittedNotification($event));
+    }
+
     public function subscribe(Dispatcher $events): array
     {
         return [
             ReportStatusChanged::class => 'handleReportStatusChanged',
+            ReportSubmitted::class => 'handleReportSubmitted',
         ];
     }
 }
