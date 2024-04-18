@@ -15,6 +15,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
+use App\Events\ReportEdited;
 
 class ReportResource extends Resource
 {
@@ -41,6 +42,9 @@ class ReportResource extends Resource
                     ])
                     ->hidden(function () {
                         return ! auth()->user()->hasRole('curator');
+                    })
+                    ->afterStateUpdated(function (?Report $record, ?string $state, ?string $old) {
+                        ReportEdited::dispatch($record, $state, $old);
                     }),
                 TextArea::make('comment')
                     ->hidden(function () {
@@ -105,7 +109,7 @@ class ReportResource extends Resource
     // Define the Eloquent query for retrieving records based on user roles
     public static function getEloquentQuery(): Builder
     {
-        if (! auth()->user()->role()->exists()) {
+        if (! auth()->user()->roles()->exists()) {
             return parent::getEloquentQuery()->where('user_id', auth()->id());
         }
 
