@@ -31,9 +31,43 @@ class ReportResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('title'),
+                TextInput::make('title')
+                    ->required(),
                 TextArea::make('evidence'),
                 TextInput::make('url'),
+                Select::make('collections')
+                    ->relationship('collections', 'title')
+                    ->multiple()
+                    ->preload(function(string $operation) {
+                        if($operation === 'create') {
+                            return true;
+                        }
+                    })
+                    ->hidden(function (string $operation) {
+                        if($operation != 'create') {
+                            return true;
+                        }
+                    })
+                    ->searchable(),
+                Select::make('citations')
+                    ->relationship('citations', 'title')
+                    ->multiple()
+                    ->preload(function(string $operation) {
+                        if($operation === 'create') {
+                            return true;
+                        }
+                    })
+                    ->hidden(function (string $operation) {
+                        if($operation != 'create') {
+                            return true;
+                        }
+                    })
+                    ->searchable(),
+                // Select::make('molecules')
+                //     ->relationship('molecules', 'identifier')
+                //     ->multiple()
+                //     ->preload()
+                //     ->searchable(),
                 Select::make('status')
                     ->options([
                         'pending' => 'Pending',
@@ -44,6 +78,7 @@ class ReportResource extends Resource
                         return ! auth()->user()->hasRole('curator');
                     })
                     ->afterStateUpdated(function (?Report $record, ?string $state, ?string $old) {
+                        // dd($record, $state, $record->status, $old);
                         ReportStatusChanged::dispatch($record, $state, $old);
                     }),
                 TextArea::make('comment')
@@ -102,6 +137,7 @@ class ReportResource extends Resource
         return [
             'index' => Pages\ListReports::route('/'),
             'create' => Pages\CreateReport::route('/create'),
+            'view' => Pages\ViewReport::route('/{record}'),
             'edit' => Pages\EditReport::route('/{record}/edit'),
         ];
     }
