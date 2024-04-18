@@ -15,8 +15,8 @@ class ReportPolicy
      */
     public function viewAny(User $user): bool
     {
-        // return $user->can('view_any_report');
         return true;
+        // return $user->can('view_any_report');
     }
 
     /**
@@ -24,7 +24,8 @@ class ReportPolicy
      */
     public function view(User $user, Report $report): bool
     {
-        return $user->can('view_report');
+        return true;
+        // return $user->can('view_report');
     }
 
     /**
@@ -32,7 +33,8 @@ class ReportPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_report');
+        return true;
+        // return $user->can('create_report');
     }
 
     /**

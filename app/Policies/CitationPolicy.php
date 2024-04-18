@@ -15,7 +15,8 @@ class CitationPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_citation');
+        return true;
+        // return $user->can('view_any_citation');
     }
 
     /**

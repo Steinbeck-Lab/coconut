@@ -15,7 +15,8 @@ class CollectionPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_collection');
+        return true;
+        // return $user->can('view_any_collection');
     }
 
     /**
