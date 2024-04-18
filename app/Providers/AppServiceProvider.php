@@ -6,6 +6,8 @@ use BezhanSalleh\PanelSwitch\PanelSwitch;
 use Filament\Facades\Filament;
 use Filament\Navigation\UserMenuItem;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Event;
+use App\Listeners\ReportEventSubscriber;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -50,5 +52,7 @@ class AppServiceProvider extends ServiceProvider
                     'dev',
                 ]));
         });
+
+        Event::subscribe(ReportEventSubscriber::class);
     }
 }

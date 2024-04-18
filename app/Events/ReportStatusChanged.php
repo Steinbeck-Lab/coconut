@@ -11,7 +11,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Report;
 
-class ReportEdited
+class ReportStatusChanged
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -20,13 +20,13 @@ class ReportEdited
      */
 
      public $report;
-     public $state;
+     public $new;
      public $old;
 
-    public function __construct(Report $report, $state, $old)
+    public function __construct(Report $report, $new, $old)
     {
         $this->report = $report;
-        $this->state = $state;
+        $this->new = $new;
         $this->old = $old;
     }
 

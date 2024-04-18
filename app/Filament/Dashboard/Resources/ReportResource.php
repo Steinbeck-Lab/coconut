@@ -15,7 +15,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
-use App\Events\ReportEdited;
+use App\Events\ReportStatusChanged;
 
 class ReportResource extends Resource
 {
@@ -44,7 +44,7 @@ class ReportResource extends Resource
                         return ! auth()->user()->hasRole('curator');
                     })
                     ->afterStateUpdated(function (?Report $record, ?string $state, ?string $old) {
-                        ReportEdited::dispatch($record, $state, $old);
+                        ReportStatusChanged::dispatch($record, $state, $old);
                     }),
                 TextArea::make('comment')
                     ->hidden(function () {
