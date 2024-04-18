@@ -6,6 +6,9 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use App\Events\ReportStatusChanged;
+use Illuminate\Mail\Mailable;
+
 
 class ReportStatusChangedNotification extends Notification implements ShouldQueue
 {
@@ -14,9 +17,12 @@ class ReportStatusChangedNotification extends Notification implements ShouldQueu
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+
+     public $event;
+
+    public function __construct(ReportStatusChanged $event)
     {
-        //
+        $this->event = $event;
     }
 
     /**
@@ -34,10 +40,11 @@ class ReportStatusChangedNotification extends Notification implements ShouldQueu
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $url = url('http://localhost/dashboard/reports');
+    
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+                    ->subject('Coconut: Status changed for your Report: '.$this->event->report->title)
+                    ->markdown('mail.report.statuschanged', ['url' => $url, 'event' => $this->event, 'user' => $notifiable] );
     }
 
     /**
