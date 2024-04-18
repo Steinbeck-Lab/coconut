@@ -40,7 +40,7 @@ class ReportStatusChangedNotification extends Notification implements ShouldQueu
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $url = url('http://localhost/dashboard/reports');
+        $url = url(env('APP_URL').'/dashboard/reports/'.$this->event->report->id);
     
         return (new MailMessage)
                     ->subject('Coconut: Status changed for your Report: '.$this->event->report->title)
