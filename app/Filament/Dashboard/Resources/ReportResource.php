@@ -16,6 +16,10 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 use App\Events\ReportStatusChanged;
+use App\Models\Molecule;
+use App\Models\Citation;
+use Illuminate\Http\Request;
+use Filament\Forms\Get;
 
 class ReportResource extends Resource
 {
@@ -26,11 +30,26 @@ class ReportResource extends Resource
     protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
+    
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+                Select::make('choice')
+                    ->label('You want to report:')
+                    ->live()
+                    ->options([
+                        'molecule' => 'Molecule',
+                        'citation' => 'Citation',
+                        'collection' => 'Collection',
+                    ])
+                    ->hidden(function (string $operation) {
+                        if($operation == 'create' && (!request()->has('collection_uuid') && !request()->has('citation_id') && !request()->has('compound_id'))) {
+                            return false;
+                        }else {
+                            return true;
+                        }
+                    }),
                 TextInput::make('title')
                     ->required(),
                 TextArea::make('evidence'),
@@ -38,36 +57,79 @@ class ReportResource extends Resource
                 Select::make('collections')
                     ->relationship('collections', 'title')
                     ->multiple()
-                    ->preload(function(string $operation) {
-                        if($operation === 'create') {
+                    ->preload()
+                    ->hidden(function (Get $get, String $operation) {
+                        if($operation == 'edit' || $operation == 'view') {
+                            if($get('collections') == []) {
+                                return true;   
+                            }
+                        }
+                        elseif(!request()->has('collection_uuid') && $get('choice') != 'collection') {
                             return true;
                         }
                     })
-                    ->hidden(function (string $operation) {
-                        if($operation != 'create') {
+                    ->disabled(function (String $operation) {
+                        if($operation == 'edit') {
                             return true;
                         }
                     })
                     ->searchable(),
                 Select::make('citations')
                     ->relationship('citations', 'title')
+                    ->options(function () {
+                        return Citation::whereNotNull('title')->pluck('title', 'id');
+                    })
                     ->multiple()
-                    ->preload(function(string $operation) {
-                        if($operation === 'create') {
+                    // ->preload()
+                    ->hidden(function (Get $get, String $operation) {
+                        if($operation == 'edit' || $operation == 'view') {
+                            if($get('citations') == []) {
+                                return true;   
+                            }
+                        }
+                        elseif(!request()->has('citation_id') && $get('choice') != 'citation') {
                             return true;
                         }
                     })
-                    ->hidden(function (string $operation) {
-                        if($operation != 'create') {
+                    ->disabled(function (String $operation) {
+                        if($operation == 'edit') {
                             return true;
                         }
                     })
                     ->searchable(),
                 // Select::make('molecules')
                 //     ->relationship('molecules', 'identifier')
+                //     ->options(function () {
+                //         return Molecule::select('id', 'identifier')->whereNotNull('identifier')->get();
+                //     })
                 //     ->multiple()
-                //     ->preload()
+                //     ->hidden(function (Get $get) {
+                //         if(!request()->has('compound_id') && $get('choice') != 'molecule') {
+                //             return true;
+                //         }
+                //         else {
+                //             return false;
+                //         }
+                //     }),
                 //     ->searchable(),
+                TextInput::make('mol_id_csv')
+                    ->label('Molecules')
+                    ->placeholder('Enter the Identifiers separated by commas')
+                    ->hidden(function (Get $get, String $operation) {
+                        if($operation == 'edit' || $operation == 'view') {
+                            if(is_null($get('mol_id_csv'))) {
+                                return true;   
+                            }
+                        }
+                        elseif(!request()->has('compound_id') && $get('choice') != 'molecule') {
+                            return true;
+                        }
+                    })
+                    ->disabled(function (String $operation) {
+                        if($operation == 'edit') {
+                            return true;
+                        }
+                    }),
                 Select::make('status')
                     ->options([
                         'pending' => 'Pending',
@@ -126,9 +188,9 @@ class ReportResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\MoleculesRelationManager::class,
-            RelationManagers\CollectionsRelationManager::class,
-            RelationManagers\CitationsRelationManager::class,
+            // RelationManagers\MoleculesRelationManager::class,
+            // RelationManagers\CollectionsRelationManager::class,
+            // RelationManagers\CitationsRelationManager::class,
         ];
     }
 
