@@ -16,6 +16,7 @@ return new class extends Migration
             $table->longText('title');
             $table->longText('evidence')->nullable();
             $table->string('url', 2048)->nullable();
+            $table->longText('mol_id_csv')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->longText('comment')->nullable();
             $table->foreignId('user_id');

@@ -22,6 +22,7 @@ class Report extends Model implements Auditable
         'title',
         'evidence',
         'url',
+        'mol_id_csv',
         'status',
         'comment',
         'user_id',
