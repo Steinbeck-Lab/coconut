@@ -42,7 +42,7 @@ class ProcessEntries extends Command
             $collection->job_info = 'Processing entries using ChEMBL Pipeline.';
             $collection->save();
 
-            Entry::select('id')->where('status', 'SUBMITTED')->where('collection_id', $collectionId['collection_id'])->chunk(100, function ($ids) use (&$batchJobs, &$i) {
+            Entry::select('id')->where('status', 'SUBMITTED')->where('collection_id', $collectionId['collection_id'])->chunk(10000, function ($ids) use (&$batchJobs, &$i) {
                 array_push($batchJobs, new LoadEntriesBatch($ids->pluck('id')->toArray()));
                 $i = $i + 1;
             });

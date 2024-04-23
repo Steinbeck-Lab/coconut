@@ -6,8 +6,6 @@ use App\Models\Citation;
 use App\Models\GeoLocation;
 use App\Models\Molecule;
 use App\Models\Organism;
-use App\Models\Properties;
-use App\Models\Ticker;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -17,7 +15,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class ImportEntry implements ShouldBeUnique, ShouldQueue
 {
@@ -34,7 +31,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
     }
 
     /**
-     * Get the unique ID for the job.
+     * Get a unique identifier for the queued job.
      */
     public function uniqueId(): string
     {
@@ -49,7 +46,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         if ($this->entry->status == 'PASSED') {
             if ($this->entry->has_stereocenters) {
                 $data = $this->getRepresentations('parent');
-                $parent = Molecule::firstOrCreate(['standard_inchi' => $data['standard_inchi'], 'standard_inchi_key' => $data['standard_inchikey']]);
+                $parent = Molecule::firstOrCreate(['canonical_smiles' => $data['canonical_smiles']]);
                 if ($parent->wasRecentlyCreated) {
                     $parent->is_parent = true;
                     $parent->has_variants = true;
@@ -57,22 +54,16 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                     $parent->variants_count += $parent->variants_count;
                     $parent = $this->assignData($parent, $data);
                     $parent->save();
-                    // $this->fetchIUPACNameFromPubChem($parent);
-                    // $this->attachProperties('parent', $parent);
-                    // $this->classify($parent);
                 }
                 $this->attachCollection($parent);
 
                 $data = $this->getRepresentations('standardized');
-                $molecule = Molecule::firstOrCreate(['standard_inchi' => $data['standard_inchi'], 'standard_inchi_key' => $data['standard_inchikey']]);
+                $molecule = Molecule::firstOrCreate(['canonical_smiles' => $data['canonical_smiles']]);
                 if ($molecule->wasRecentlyCreated) {
                     $molecule->has_stereo = true;
                     $molecule->parent_id = $parent->id;
                     $parent->save();
                     $molecule = $this->assignData($molecule, $data);
-                    // $this->fetchIUPACNameFromPubChem($molecule);
-                    // $this->attachProperties('standardized', $molecule);
-                    // $this->classify($molecule);
                     $molecule->save();
                 }
                 $this->entry->molecule_id = $molecule->id;
@@ -81,14 +72,13 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $this->attachCollection($molecule);
             } else {
                 $data = $this->getRepresentations('standardized');
-                $molecule = Molecule::firstOrCreate(['standard_inchi' => $data['standard_inchi'], 'standard_inchi_key' => $data['standard_inchikey']]);
+                $molecule = Molecule::firstOrCreate(['canonical_smiles' => $data['canonical_smiles']]);
                 if ($molecule->wasRecentlyCreated) {
                     $molecule = $this->assignData($molecule, $data);
                     $molecule->save();
-                    // $this->fetchIUPACNameFromPubChem($molecule);
-                    // $this->attachProperties('standardized', $molecule);
-                    // $this->classify($molecule);
                 }
+                $molecule->is_placeholder = false;
+                $molecule->save();
                 $this->entry->molecule_id = $molecule->id;
                 $this->entry->save();
                 $this->attachCollection($molecule);
@@ -111,16 +101,62 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
 
                 $doiRegex = '/\b(10[.][0-9]{4,}(?:[.][0-9]+)*)\b/';
                 foreach ($dois as $doi) {
-                    if (preg_match($doiRegex, $doi)) {
-                        $this->fetchDOICitation($doi, $molecule);
-                    } else {
-                        $this->fetchCitation($doi, $molecule);
+                    if ($doi && $doi != '') {
+                        if (preg_match($doiRegex, $doi)) {
+                            $this->fetchDOICitation($doi, $molecule);
+                        } else {
+                            $this->fetchCitation($doi, $molecule);
+                        }
                     }
                 }
             }
         }
     }
 
+    /**
+     * Attach collection to molecule.
+     *
+     * @param  mixed  $molecule
+     * @return void
+     */
+    public function attachCollection($molecule)
+    {
+        try {
+            $collection_exists = $molecule->collections()->where('collections.id', $this->entry->collection->id)->exists();
+            if ($collection_exists) {
+                $collection = $molecule->collections()->where('collections.id', $this->entry->collection->id)->first();
+                $molecule->collections()->syncWithoutDetaching([
+                    $this->entry->collection->id => [
+                        'url' => $collection->pivot->url.'|'.$this->entry->link,
+                        'reference' => $collection->pivot->reference.'|'.$this->entry->reference_id,
+                        'mol_filename' => $collection->pivot->mol_filename.'|'.$this->entry->mol_filename,
+                        'structural_comments' => $collection->pivot->structural_comments.'|'.$this->entry->structural_comments,
+                    ],
+                ]);
+            } else {
+                $molecule->collections()->attach([
+                    $this->entry->collection->id => [
+                        'url' => $this->entry->link,
+                        'reference' => $this->entry->reference_id,
+                        'mol_filename' => $this->entry->mol_filename,
+                        'structural_comments' => $this->entry->structural_comments,
+                    ],
+                ]);
+            }
+        } catch (QueryException $e) {
+            if ($this->isUniqueViolationException($e)) {
+                $this->attachCollection($molecule);
+            }
+        }
+    }
+
+    /**
+     * Save organism details.
+     *
+     * @param  string  $organismData
+     * @param  mixed  $molecule
+     * @return void
+     */
     public function saveOrganismDetails($organismData, $molecule)
     {
         $organisms = explode('|', $organismData);
@@ -134,6 +170,13 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         }
     }
 
+    /**
+     * Save organism details.
+     *
+     * @param  string  $organismData
+     * @param  mixed  $molecule
+     * @return void
+     */
     public function saveGeoLocationDetails($geo_location, $molecule)
     {
         $geo_locations = explode('|', $geo_location);
@@ -142,158 +185,129 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         foreach ($geo_locations as $geo_location) {
             $geolocationModel = GeoLocation::firstOrCreate(['name' => $geo_location]);
             $locationsNames = array_key_exists($i, $locations) ? $locations[$i] : '';
-            $molecule->geoLocations()->sync([$geolocationModel->id => ['locations' => $partNames]]);
+            $molecule->geoLocations()->sync([$geolocationModel->id => ['locations' => $locationsNames]]);
             $i = $i + 1;
         }
     }
 
-    public function fetchIdentifier()
+    /**
+     * Fetch citation by citation text.
+     *
+     * @param  string  $citation_text
+     * @param  mixed  $molecule
+     * @return void
+     */
+    public function fetchCitation($citation_text, $molecule)
     {
-        $ticker = Ticker::first();
-        $identifier = $ticker->index + 1;
-        $ticker->index = $identifier;
-        $ticker->save();
-        $CNP = 'CNP'.$identifier;
-
-        while (Molecule::where('identifier', $CNP)->exists()) {
-            return $this->fetchIdentifier();
-        }
-
-        return $CNP;
-    }
-
-    public function classify($molecule)
-    {
-        $properties = $molecule->properties;
-
-        if ($properties->chemical_class == null || $properties->chemical_sub_class == null || $properties->chemical_super_class == null || $properties->direct_parent_classification == null) {
-            $API_URL = env('API_URL', 'https://dev.api.naturalproducts.net/latest/');
-            $ENDPOINT = $API_URL.'chem/classyfire/classify?smiles='.urlencode($molecule->canonical_smiles);
-
-            try {
-                $response = Http::timeout(600)->get($ENDPOINT);
-                if ($response->successful()) {
-                    $data = $response->json();
-                    if (array_key_exists('id', $data)) {
-                        $id = $data['id'];
-                        sleep(5);
-                        // fetch results
-                        $RESULT_ENDPOINT = $API_URL.'chem/classyfire/'.$id.'/result';
-                        $status = null;
-                        while ($status == null) {
-                            $response = Http::timeout(600)->get($RESULT_ENDPOINT);
-                            if ($response->successful()) {
-                                $data = $response->json();
-                                if (array_key_exists('classification_status', $data)) {
-                                    $status = $data['classification_status'];
-                                    if ($status == 'Done') {
-                                        $elements = $data['number_of_elements'];
-                                        if ($elements > 0) {
-                                            $entities = $data['entities'][0];
-                                            $properties->direct_parent_classification = $entities['direct_parent'];
-                                            $properties->chemical_sub_class = $entities['subclass'];
-                                            $properties->chemical_class = $entities['class'];
-                                            $properties->chemical_super_class = $entities['superclass'];
-                                            $properties->save();
-                                        }
-
-                                    }
-                                }
-
-                            }
-                            sleep(5);
-                        }
-                    }
-                }
-            } catch (RequestException $e) {
-                Log::error('Classifyre: Request Exception occurred: '.$e->getMessage().' - '.$molecule->id, ['code' => $e->getCode()]);
-            } catch (\Exception $e) {
-                Log::error('Classifyre: An unexpected exception occurred: '.$e->getMessage().' - '.$molecule->id);
+        try {
+            $citation = Citation::firstOrCreate(['citation_text' => $citation_text]);
+        } catch (QueryException $e) {
+            if ($this->isUniqueViolationException($e)) {
+                $this->fetchDOICitation($citation_text, $molecule);
             }
         }
 
-    }
-
-    public function fetchCitation($citation_text, $molecule)
-    {
-        $citation = Citation::firstOrCreate(['citation_text' => $citation_text]);
         $molecule->citations()->syncWithoutDetaching($citation);
     }
 
+    /**
+     * Fetch DOI citation.
+     *
+     * @param  string  $doi
+     * @param  mixed  $molecule
+     * @return void
+     */
     public function fetchDOICitation($doi, $molecule)
     {
-
         $citation = null;
 
-        // check if the doi is valid
-        $isDOI = preg_match('/\b(10[.][0-9]{4,}(?:[.][0-9]+)*)\b/', $doi);
+        $dois = $this->extract_dois($doi);
 
-        if ($isDOI) {
-            //check if citation already exists
-            $citation = Citation::firstOrCreate(['doi' => $doi]);
-            $citationResponse = null;
-            if ($citation->wasRecentlyCreated) {
-                // fetch citation from EuropePMC
-                $europemcUrl = env('EUROPEPMC_WS_API');
-                $europemcParams = [
-                    'query' => 'DOI:'.$doi,
-                    'format' => 'json',
-                    'pageSize' => '1',
-                    'resulttype' => 'core',
-                    'synonym' => 'true',
-                ];
-                $europemcResponse = $this->makeRequest($europemcUrl, $europemcParams);
+        foreach ($dois as $doi) {
+            if ($isDOI) {
+                //check if citation already exists
+                try {
+                    $citation = Citation::firstOrCreate(['doi' => $doi]);
+                } catch (QueryException $e) {
+                    if ($this->isUniqueViolationException($e)) {
+                        $this->fetchDOICitation($doi, $molecule);
+                    }
+                }
+                $citationResponse = null;
+                if ($citation->wasRecentlyCreated) {
+                    // fetch citation from EuropePMC
+                    $europemcUrl = env('EUROPEPMC_WS_API');
+                    $europemcParams = [
+                        'query' => 'DOI:'.$doi,
+                        'format' => 'json',
+                        'pageSize' => '1',
+                        'resulttype' => 'core',
+                        'synonym' => 'true',
+                    ];
+                    $europemcResponse = $this->makeRequest($europemcUrl, $europemcParams);
 
-                if ($europemcResponse && isset($europemcResponse['resultList']['result']) && count($europemcResponse['resultList']['result']) > 0) {
-                    $citationResponse = $this->formatCitationResponse($europemcResponse['resultList']['result'][0], 'europemc');
-                } else {
-
-                    // fetch citation from CrossRef
-                    $crossrefUrl = env('CROSSREF_WS_API').$doi;
-                    $crossrefResponse = $this->makeRequest($crossrefUrl);
-                    if ($crossrefResponse && isset($crossrefResponse['message'])) {
-                        $citationResponse = $this->formatCitationResponse($crossrefResponse['message'], 'crossref');
+                    if ($europemcResponse && isset($europemcResponse['resultList']['result']) && count($europemcResponse['resultList']['result']) > 0) {
+                        $citationResponse = $this->formatCitationResponse($europemcResponse['resultList']['result'][0], 'europemc');
                     } else {
-
-                        // fetch citation from DataCite
-                        $dataciteUrl = env('DATACITE_WS_API').$doi;
-                        $dataciteResponse = $this->makeRequest($dataciteUrl);
-
-                        if ($dataciteResponse && isset($dataciteResponse['data'])) {
-                            $citationResponse = $this->formatCitationResponse($dataciteResponse['data'], 'datacite');
+                        // fetch citation from CrossRef
+                        $crossrefUrl = env('CROSSREF_WS_API').$doi;
+                        $crossrefResponse = $this->makeRequest($crossrefUrl);
+                        if ($crossrefResponse && isset($crossrefResponse['message'])) {
+                            $citationResponse = $this->formatCitationResponse($crossrefResponse['message'], 'crossref');
+                        } else {
+                            // fetch citation from DataCite
+                            $dataciteUrl = env('DATACITE_WS_API').$doi;
+                            $dataciteResponse = $this->makeRequest($dataciteUrl);
+                            if ($dataciteResponse && isset($dataciteResponse['data'])) {
+                                $citationResponse = $this->formatCitationResponse($dataciteResponse['data'], 'datacite');
+                            }
+                        }
+                    }
+                    if ($citationResponse) {
+                        if (! Citation::where('doi', $citationResponse['doi'])->exists()) {
+                            $citation = Citation::create($citationResponse);
+                            $citation->save();
+                        } else {
+                            $citation->update($citationResponse);
+                            $citation->save();
                         }
                     }
                 }
-
-                if ($citationResponse) {
-                    if (! Citation::where('doi', $citationResponse['doi'])->exists()) {
-                        $citation = Citation::create($citationResponse);
-                        $citation->save();
-                    } else {
-                        $citation->update($citationResponse);
-                        $citation->save();
-                    }
-                }
+                $molecule->citations()->syncWithoutDetaching($citation);
             }
-
-            $molecule->citations()->syncWithoutDetaching($citation);
         }
+
     }
 
-    public function makeRequest($url, $params = [])
+    /**
+     * Extract DOIs from a given input string.
+     *
+     * @param  string  $input_string
+     * @return array
+     */
+    public function extract_dois($input_string)
     {
-        try {
-            $response = Http::timeout(600)->get($url, $params);
-            if ($response->successful()) {
-                return $response->json();
-            } else {
-                return null; // Handle error here
-            }
-        } catch (Exception $e) {
-            return null; // Handle exception here
+        $dois = [];
+        $matches = [];
+        // Regex pattern to match DOIs
+        $pattern = '/(10\.\d{4,}(?:\.\d+)*\/\S+(?:(?!["&\'<>])\S))/i';
+        // Extract DOIs using preg_match_all
+        preg_match_all($pattern, $input_string, $matches);
+        // Add matched DOIs to the dois array
+        foreach ($matches[0] as $doi) {
+            $dois[] = $doi;
         }
+
+        return $dois;
     }
 
+    /**
+     * Format citation response based on API type.
+     *
+     * @param  mixed  $obj
+     * @param  string  $apiType
+     * @return array
+     */
     public function formatCitationResponse($obj, $apiType)
     {
         $journalTitle = '';
@@ -332,7 +346,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                     $formattedCitationRes['doi'] = isset($obj['attributes']['doi']) ? $obj['attributes']['doi'] : '';
                     break;
                 case 'crossref':
-                    $journalTitle = $obj['title'][0];
+                    $journalTitle = isset($obj['title'][0]) ? $obj['title'][0] : '';
                     $yearofPublication = isset($obj['published-online']['date-parts'][0][0]) ? $obj['published-online']['date-parts'][0][0] : '';
                     $volume = isset($obj['volume']) ? $obj['volume'] : '';
                     $issue = isset($obj['issue']) ? $obj['issue'] : '';
@@ -360,125 +374,24 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         return $formattedCitationRes;
     }
 
-    public function attachCollection($molecule)
-    {
-        try {
-            $collection_exists = $molecule->collections()->where('collections.id', $this->entry->collection->id)->exists();
-            if ($collection_exists) {
-                $collection = $molecule->collections()->where('collections.id', $this->entry->collection->id)->first();
-                $molecule->collections()->syncWithoutDetaching([
-                    $this->entry->collection->id => [
-                        'url' => $collection->pivot->url.'|'.$this->entry->link,
-                        'reference' => $collection->pivot->reference.'|'.$this->entry->reference_id,
-                        'mol_filename' => $collection->pivot->mol_filename.'|'.$this->entry->mol_filename,
-                        'structural_comments' => $collection->pivot->structural_comments.'|'.$this->entry->structural_comments,
-                    ],
-                ]);
-            } else {
-                $molecule->collections()->attach([
-                    $this->entry->collection->id => [
-                        'url' => $this->entry->link,
-                        'reference' => $this->entry->reference_id,
-                        'mol_filename' => $this->entry->mol_filename,
-                        'structural_comments' => $this->entry->structural_comments,
-                    ],
-                ]);
-            }
-        } catch (QueryException $e) {
-            if ($this->isUniqueViolationException($e)) {
-                $this->attachCollection($molecule);
-            }
-        }
-    }
-
+    /**
+     * Check if the exception is a unique violation.
+     *
+     * @return bool
+     */
     private function isUniqueViolationException(QueryException $e)
     {
         // Check if the SQLSTATE is 23505, which corresponds to a unique violation error
         return $e->getCode() == '23505';
     }
 
-    public function fetchSynonymsCASFromPubChem($cid, $molecule)
-    {
-        if ($cid && $cid != 0) {
-            $synonymsURL = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/'.trim(preg_replace('/\s+/', ' ', $cid)).'/synonyms/txt';
-            $data = Http::get($synonymsURL)->body();
-            $synonyms = preg_split("/\r\n|\n|\r/", $data);
-            if ($synonyms && count($synonyms) > 0) {
-                if ($synonyms[0] != 'Status: 404') {
-                    $pattern = "/\b[1-9][0-9]{1,5}-\d{2}-\d\b/";
-                    $casIds = preg_grep($pattern, $synonyms);
-                    $molecule->synonyms = $synonyms;
-                    $molecule->cas = array_values($casIds);
-                    $molecule->name = $synonyms[0];
-                    $molecule->save();
-                }
-            }
-        }
-    }
-
-    public function fetchIUPACNameFromPubChem($molecule)
-    {
-        $inchiUrl = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/inchi/cids/TXT?inchi='.urlencode($molecule->standard_inchi);
-        $cid = Http::get($inchiUrl)->body();
-
-        if ($cid && $cid != 0) {
-            $cidPropsURL = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/'.trim(preg_replace('/\s+/', ' ', $cid)).'/json';
-            $data = Http::get($cidPropsURL)->json();
-            $props = $data['PC_Compounds'][0]['props'];
-            $IUPACName = null;
-            foreach ($props as $prop) {
-                if ($prop['urn']['label'] == 'IUPAC Name' && $prop['urn']['name'] == 'Preferred') {
-                    $IUPACName = $prop['value']['sval'];
-                }
-            }
-            $this->fetchSynonymsCASFromPubChem($cid, $molecule);
-            if ($IUPACName) {
-                $molecule->iupac_name = $IUPACName;
-                $molecule->save();
-            }
-        }
-    }
-
-    public function getRepresentations($type)
-    {
-        $data = json_decode($this->entry->cm_data, true);
-        $data = $data[$type]['representations'];
-
-        return $data;
-    }
-
-    public function attachProperties($type, $model)
-    {
-        $data = json_decode($this->entry->cm_data, true);
-        $descriptors = $data[$type]['descriptors'];
-        $properties = Properties::firstOrCreate(['molecule_id' => $model->id]);
-        $properties->total_atom_count = $descriptors['atom_count'];
-        $properties->heavy_atom_count = $descriptors['heavy_atom_count'];
-        $properties->molecular_weight = $descriptors['molecular_weight'];
-        $properties->molecular_formula = $this->entry->molecular_formula;
-        $properties->exact_molecular_weight = $descriptors['exactmolecular_weight'];
-        $properties->alogp = $descriptors['alogp'];
-        $properties->rotatable_bond_count = $descriptors['rotatable_bond_count'];
-        $properties->topological_polar_surface_area = $descriptors['topological_polar_surface_area'];
-        $properties->hydrogen_bond_acceptors = $descriptors['hydrogen_bond_acceptors'];
-        $properties->hydrogen_bond_donors = $descriptors['hydrogen_bond_donors'];
-        $properties->hydrogen_bond_acceptors_lipinski = $descriptors['hydrogen_bond_acceptors_lipinski'];
-        $properties->hydrogen_bond_donors_lipinski = $descriptors['hydrogen_bond_donors_lipinski'];
-        $properties->lipinski_rule_of_five_violations = $descriptors['lipinski_rule_of_five_violations'];
-        $properties->aromatic_rings_count = $descriptors['aromatic_rings_count'];
-        $properties->qed_drug_likeliness = $descriptors['qed_drug_likeliness'];
-        $properties->formal_charge = $descriptors['formal_charge'];
-        $properties->fractioncsp3 = $descriptors['fractioncsp3'];
-        $properties->number_of_minimal_rings = $descriptors['number_of_minimal_rings'];
-        $properties->van_der_walls_volume = $descriptors['van_der_walls_volume'] == 'None' ? 0 : $descriptors['van_der_walls_volume'];
-        $properties->contains_ring_sugars = $descriptors['circular_sugars'];
-        $properties->contains_linear_sugars = $descriptors['linear_sugars'];
-        $properties->murko_framework = $descriptors['murko_framework'];
-        $properties->np_likeness = $descriptors['nplikeness'];
-        $properties->molecule_id = $model->id;
-        $properties->save();
-    }
-
+    /**
+     * Assign data to the model.
+     *
+     * @param  mixed  $model
+     * @param  array  $data
+     * @return mixed
+     */
     public function assignData($model, $data)
     {
         $model['standard_inchi'] = $data['standard_inchi'];
@@ -486,5 +399,26 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         $model['canonical_smiles'] = $data['canonical_smiles'];
 
         return $model;
+    }
+
+    /**
+     * Make an HTTP request.
+     *
+     * @param  string  $url
+     * @param  array  $params
+     * @return mixed
+     */
+    public function makeRequest($url, $params = [])
+    {
+        try {
+            $response = Http::timeout(600)->get($url, $params);
+            if ($response->successful()) {
+                return $response->json();
+            } else {
+                return null; // Handle error here
+            }
+        } catch (Exception $e) {
+            return null; // Handle exception here
+        }
     }
 }

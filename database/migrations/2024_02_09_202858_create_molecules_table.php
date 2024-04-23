@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
 
             $table->longText('inchi')->nullable();
-            $table->longText('standard_inchi')->unique();
+            $table->longText('standard_inchi')->nullable();
             $table->longText('inchi_key')->nullable();
             $table->longText('standard_inchi_key')->nullable();
-            $table->longText('canonical_smiles')->nullable();
+            $table->longText('canonical_smiles')->unique();
             $table->longText('sugar_free_smiles')->nullable();
             $table->longText('identifier')->nullable();
             $table->longText('name')->nullable();
