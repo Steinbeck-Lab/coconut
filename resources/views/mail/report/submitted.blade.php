@@ -10,7 +10,7 @@ Thank you for submitting your report. It is peding review with our Curators. You
 
 
 <x-mail::button :url="$url">
-Button Text
+View Report
 </x-mail::button>
 
 Thanks,<br>
