@@ -20,6 +20,7 @@ use App\Models\Molecule;
 use App\Models\Citation;
 use Illuminate\Http\Request;
 use Filament\Forms\Get;
+use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class ReportResource extends Resource
 {
@@ -188,9 +189,10 @@ class ReportResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // RelationManagers\MoleculesRelationManager::class,
-            // RelationManagers\CollectionsRelationManager::class,
-            // RelationManagers\CitationsRelationManager::class,
+            RelationManagers\MoleculesRelationManager::class,
+            RelationManagers\CollectionsRelationManager::class,
+            RelationManagers\CitationsRelationManager::class,
+            AuditsRelationManager::class,
         ];
     }
 
