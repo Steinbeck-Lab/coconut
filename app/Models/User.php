@@ -62,4 +62,12 @@ class User extends Authenticatable implements Auditable
     protected $appends = [
         'profile_photo_url',
     ];
+
+    /**
+     * Get all of the reports for the user.
+     */
+    public function reports(): HasMany
+    {
+        return $this->hasMany(Report::class);
+    }
 }

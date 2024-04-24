@@ -15,6 +15,7 @@
                 </div>
             </div>
         </div>
+        @if($molecule->properties)
         <div class="border-b mt-8 border-b-gray-900/10 lg:border-t lg:border-t-gray-900/5">
             <dl class="mx-auto grid max-w-7xl grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:px-2 xl:px-0">
                 <div
@@ -94,7 +95,7 @@
                 </div>
             </dl>
         </div>
-
+        @endif
 
         <div
             class="mx-auto mt-8 grid max-w-3xl grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3">
@@ -163,6 +164,7 @@
                                                     {{ $molecule->canonical_smiles }}
                                                 </div>
                                             </div>
+                                            @if($molecule->properties)
                                             <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
                                                 <div class="sm:flex sm:justify-between">
                                                     <div class="text-sm font-medium text-gray-500"> Murcko Framework
@@ -172,6 +174,7 @@
                                                     {{ $molecule->properties->murko_framework }}
                                                 </div>
                                             </div>
+                                            @endif
                                         </section>
                                     </div>
                                 </article>
@@ -225,6 +228,7 @@
                         </div>
                     </div>
                 </section>
+                @if($molecule->properties)
                 <section aria-labelledby="notes-title">
                     <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
                         <div class="divide-y divide-gray-200">
@@ -308,6 +312,7 @@
                         </div>
                     </div>
                 </section>
+                @endif
 
                 <section aria-labelledby="notes-title">
                     <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
@@ -605,10 +610,10 @@
                 <dl class="mt-5 flex w-full">
                     <div class="text-center md:text-left">
                         <dd class="mt-1"><a class="text-base font-semibold text-text-dark hover:text-slate-600"
-                                href="https://dev.coconut.naturalproducts.net/compounds/CNP0220816/report">
+                                href="http://localhost/dashboard/reports/create?compound_id={{ $molecule->identifier }}">
                                 Report this compound <span aria-hidden="true">→</span></a></dd>
                         <dd class="mt-1"><a class="text-base font-semibold text-text-dark hover:text-slate-600"
-                                href="https://dev.coconut.naturalproducts.net/compounds/CNP0220816/update">Request
+                                href="https://dev.coconut.naturalproducts.net/compounds/{{ $molecule->identifier }}/update">Request
                                 changes to this page <span aria-hidden="true">→</span></a></dd>
                     </div>
                 </dl>

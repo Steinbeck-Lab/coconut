@@ -71,7 +71,8 @@ Route::prefix('v1')->group(function () {
 
     // Compounds and details
     Route::get('/{id}/report', function ($id) {
-        return redirect('compounds/'.$id.'/report');
+        // return redirect('compounds/'.$id.'/report');
+        return redirect(env('APP_URL').'/dashboard/reports/create'.'?compound_id='.$id);
     })->name('compound.report');
 
     Route::post('/compounds', [SubmissionAPIController::class, 'submission'])->name('compound.submission');
