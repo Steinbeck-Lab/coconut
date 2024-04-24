@@ -21,6 +21,7 @@ use App\Models\Citation;
 use Illuminate\Http\Request;
 use Filament\Forms\Get;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
+use Filament\Forms\Components\SpatieTagsInput;
 
 class ReportResource extends Resource
 {
@@ -131,6 +132,9 @@ class ReportResource extends Resource
                             return true;
                         }
                     }),
+                SpatieTagsInput::make('tags')
+                    ->splitKeys(['Tab', ','])
+                    ->type('reports'),
                 Select::make('status')
                     ->options([
                         'pending' => 'Pending',
@@ -173,6 +177,7 @@ class ReportResource extends Resource
                     }),
                 TextColumn::make('comment')->wrap(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
