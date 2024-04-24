@@ -45,7 +45,7 @@ class ImportEntries extends Command
 
             $batchJobs = [];
             $i = 0;
-            Entry::select('id')->where('status', 'PASSED')->where('collection_id', $collection->id)->chunk(100, function ($ids) use (&$batchJobs, &$i) {
+            Entry::select('id')->where('status', 'PASSED')->whereNull('molecule_id')->where('collection_id', $collection->id)->chunk(10000, function ($ids) use (&$batchJobs, &$i) {
                 array_push($batchJobs, new ImportEntriesBatch($ids->pluck('id')->toArray()));
                 $i = $i + 1;
             });

@@ -72,4 +72,12 @@ class Collection extends Model implements Auditable
     {
         return $this->belongsToMany(Molecule::class)->withPivot('url', 'reference', 'mol_filename', 'structural_comments')->withTimestamps();
     }
+
+    /**
+     * Get all of the reports for the collection.
+     */
+    public function reports(): MorphToMany
+    {
+        return $this->morphToMany(Report::class, 'reportable');
+    }
 }

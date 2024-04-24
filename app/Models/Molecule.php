@@ -109,4 +109,12 @@ class Molecule extends Model implements Auditable
     {
         return $this->belongsToMany(GeoLocation::class)->withTimestamps();
     }
+
+    /**
+     * Get all of the reports for the molecule.
+     */
+    public function reports(): MorphToMany
+    {
+        return $this->morphToMany(Report::class, 'reportable');
+    }
 }

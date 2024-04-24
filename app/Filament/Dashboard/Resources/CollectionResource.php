@@ -53,7 +53,7 @@ class CollectionResource extends Resource
                     Section::make('Meta data')
                         ->schema([
                             SpatieTagsInput::make('tags')
-                                ->splitKeys(['Tab', ','])  
+                                ->splitKeys(['Tab', ','])
                                 ->type('collections'),
                             TextInput::make('identifier'),
                         ]),

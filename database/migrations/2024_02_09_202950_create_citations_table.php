@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('citations', function (Blueprint $table) {
             $table->id();
-            $table->longText('doi')->unique();
+            $table->longText('doi')->nullable()->unique();
             $table->longText('title')->nullable();
             $table->longText('authors')->nullable();
             $table->longText('citation_text')->nullable();
