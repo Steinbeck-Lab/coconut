@@ -38,7 +38,6 @@ class CitationsRelationManager extends RelationManager
                     ->recordSelectSearchColumns(['title', 'authors']),
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
                 Tables\Actions\DetachAction::make(),
             ])
             ->bulkActions([

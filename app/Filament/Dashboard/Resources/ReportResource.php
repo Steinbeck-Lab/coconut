@@ -6,7 +6,6 @@ use App\Events\ReportStatusChanged;
 use App\Filament\Dashboard\Resources\ReportResource\Pages;
 use App\Filament\Dashboard\Resources\ReportResource\RelationManagers;
 use App\Models\Citation;
-use App\Models\Molecule;
 use App\Models\Report;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieTagsInput;
@@ -19,7 +18,6 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
@@ -97,21 +95,6 @@ class ReportResource extends Resource
                         }
                     })
                     ->searchable(),
-                // Select::make('molecules')
-                //     ->relationship('molecules', 'identifier')
-                //     ->options(function () {
-                //         return Molecule::select('id', 'identifier')->whereNotNull('identifier')->get();
-                //     })
-                //     ->multiple()
-                //     ->hidden(function (Get $get) {
-                //         if(!request()->has('compound_id') && $get('choice') != 'molecule') {
-                //             return true;
-                //         }
-                //         else {
-                //             return false;
-                //         }
-                //     }),
-                //     ->searchable(),
                 TextInput::make('mol_id_csv')
                     ->label('Molecules')
                     ->placeholder('Enter the Identifiers separated by commas')
@@ -142,7 +125,6 @@ class ReportResource extends Resource
                         return ! auth()->user()->hasRole('curator');
                     })
                     ->afterStateUpdated(function (?Report $record, ?string $state, ?string $old) {
-                        // dd($record, $state, $record->status, $old);
                         ReportStatusChanged::dispatch($record, $state, $old);
                     }),
                 TextArea::make('comment')
@@ -158,13 +140,11 @@ class ReportResource extends Resource
             ->columns([
                 TextColumn::make('title')
                     ->description(fn (Report $record): string => Str::of($record->evidence)->words(10)),
-                // TextColumn::make('evidence')->words(10),
                 TextColumn::make('url')
                     ->url(fn (Report $record): string => $record->url)
                     ->openUrlInNewTab(),
                 TextColumn::make('status')
                     ->badge()
-                    // Text column for status with badge and color based on status
                     ->color(function (Report $record) {
                         return match ($record->status) {
                             'pending' => 'info',

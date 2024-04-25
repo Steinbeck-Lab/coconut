@@ -38,7 +38,6 @@ class CollectionsRelationManager extends RelationManager
                     ->recordSelectSearchColumns(['title', 'description']),
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
                 Tables\Actions\DetachAction::make(),
             ])
             ->bulkActions([
