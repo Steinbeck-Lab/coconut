@@ -102,12 +102,12 @@ class Molecule extends Model implements Auditable
 
     public function organisms()
     {
-        return $this->belongsToMany(Organism::class)->withTimestamps();
+        return $this->belongsToMany(Organism::class)->withPivot('id','organism_parts')->withTimestamps();
     }
 
     public function geoLocations()
     {
-        return $this->belongsToMany(GeoLocation::class)->withTimestamps();
+        return $this->belongsToMany(GeoLocation::class)->withPivot('locations')->withTimestamps();
     }
 
     /**

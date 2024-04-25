@@ -8,7 +8,11 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Actions\AttachAction;
+use Filament\Tables\Actions\EditAction;
+use App\Models\Organism;
 
 class OrganismsRelationManager extends RelationManager
 {
@@ -30,15 +34,30 @@ class OrganismsRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->columns([
                 Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('organism_parts'),
             ])
+            // ->allowDuplicates()
             ->filters([
                 //
             ])
             ->headerActions([
                 Tables\Actions\AttachAction::make()
-                    ->multiple(),
+                    ->preloadRecordSelect()
+                    ->form(fn (AttachAction $action): array => [
+                        $action->getRecordSelect(),
+                        Forms\Components\TextInput::make('organism_parts')
+                    ]),
             ])
             ->actions([
+                Tables\Actions\EditAction::make()
+                    ->form(function ($action) {
+                        return [
+                            Forms\Components\TextInput::make('organism_parts'),
+                        ];
+                    }),
+                    // ->mountUsing(
+                    //     fn($record, $form) => $form->fill($record->pivot->toArray())
+                    // ),
                 Tables\Actions\DetachAction::make(),
             ])
             ->bulkActions([

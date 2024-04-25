@@ -9,6 +9,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Actions\AttachAction;
 
 class GeoLocationRelationManager extends RelationManager
 {
@@ -30,15 +31,26 @@ class GeoLocationRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->columns([
                 Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('locations'),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
                 Tables\Actions\AttachAction::make()
-                    ->multiple(),
+                    ->preloadRecordSelect()
+                    ->form(fn (AttachAction $action): array => [
+                        $action->getRecordSelect(),
+                        Forms\Components\TextInput::make('locations')
+                    ]),
             ])
             ->actions([
+                Tables\Actions\EditAction::make()
+                    ->form(function ($action) {
+                        return [
+                            Forms\Components\TextInput::make('locations'),
+                        ];
+                    }),
                 Tables\Actions\DetachAction::make(),
             ])
             ->bulkActions([
