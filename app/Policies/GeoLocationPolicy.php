@@ -15,7 +15,8 @@ class GeoLocationPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_geo::location');
+        return true;
+        // return $user->can('view_any_geo::location');
     }
 
     /**
@@ -23,7 +24,8 @@ class GeoLocationPolicy
      */
     public function view(User $user, GeoLocation $geoLocation): bool
     {
-        return $user->can('view_geo::location');
+        return true;
+        // return $user->can('view_geo::location');
     }
 
     /**

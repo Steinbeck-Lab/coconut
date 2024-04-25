@@ -15,7 +15,8 @@ class OrganismPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_organism');
+        return true;
+        // return $user->can('view_any_organism');
     }
 
     /**
@@ -23,7 +24,8 @@ class OrganismPolicy
      */
     public function view(User $user, Organism $organism): bool
     {
-        return $user->can('view_organism');
+        return true;
+        // return $user->can('view_organism');
     }
 
     /**

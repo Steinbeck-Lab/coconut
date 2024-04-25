@@ -32,23 +32,6 @@ class GeoLocationResource extends Resource
                 TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                // Fieldset::make('Molecule')
-                //     ->relationship('molecules', 'identifier')
-                //     ->schema([
-                //         TextInput::make('identifier'),
-                //         TextInput::make('locations'),
-                //     ])
-                // TextInput::make('molecule_id')
-                //     ->label('Molecule')
-                //     ->relationship('molecule')
-                //     ->placeholder('Enter the molecule Identifier')
-                //     ->required(),
-                // TextInput::make('locations')
-                //     ->label('Locations')
-                //     ->relationship('molecule')
-                //     ->placeholder('soil, water, etc.')
-                //     ->helperText('Enter where in this Geo-Location these molecules can be found')
-                //     ->required(),
             ]);
     }
 

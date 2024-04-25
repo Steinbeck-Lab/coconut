@@ -36,7 +36,6 @@ class OrganismsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('name'),
                 Tables\Columns\TextColumn::make('organism_parts'),
             ])
-            // ->allowDuplicates()
             ->filters([
                 //
             ])
@@ -55,9 +54,6 @@ class OrganismsRelationManager extends RelationManager
                             Forms\Components\TextInput::make('organism_parts'),
                         ];
                     }),
-                    // ->mountUsing(
-                    //     fn($record, $form) => $form->fill($record->pivot->toArray())
-                    // ),
                 Tables\Actions\DetachAction::make(),
             ])
             ->bulkActions([
