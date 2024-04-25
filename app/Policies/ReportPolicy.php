@@ -42,9 +42,10 @@ class ReportPolicy
      */
     public function update(User $user, Report $report): bool
     {
-        if($user->id == $report->user_id) {
+        if ($user->id == $report->user_id) {
             return true;
         }
+
         return $user->can('update_report');
     }
 

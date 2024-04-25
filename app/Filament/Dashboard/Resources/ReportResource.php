@@ -2,26 +2,26 @@
 
 namespace App\Filament\Dashboard\Resources;
 
+use App\Events\ReportStatusChanged;
 use App\Filament\Dashboard\Resources\ReportResource\Pages;
 use App\Filament\Dashboard\Resources\ReportResource\RelationManagers;
+use App\Models\Citation;
+use App\Models\Molecule;
 use App\Models\Report;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\TextArea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Str;
-use App\Events\ReportStatusChanged;
-use App\Models\Molecule;
-use App\Models\Citation;
 use Illuminate\Http\Request;
-use Filament\Forms\Get;
+use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
-use Filament\Forms\Components\SpatieTagsInput;
 
 class ReportResource extends Resource
 {
@@ -32,7 +32,7 @@ class ReportResource extends Resource
     protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    
+
     public static function form(Form $form): Form
     {
         return $form
@@ -46,9 +46,9 @@ class ReportResource extends Resource
                         'collection' => 'Collection',
                     ])
                     ->hidden(function (string $operation) {
-                        if($operation == 'create' && (!request()->has('collection_uuid') && !request()->has('citation_id') && !request()->has('compound_id'))) {
+                        if ($operation == 'create' && (! request()->has('collection_uuid') && ! request()->has('citation_id') && ! request()->has('compound_id'))) {
                             return false;
-                        }else {
+                        } else {
                             return true;
                         }
                     }),
@@ -60,18 +60,17 @@ class ReportResource extends Resource
                     ->relationship('collections', 'title')
                     ->multiple()
                     ->preload()
-                    ->hidden(function (Get $get, String $operation) {
-                        if($operation == 'edit' || $operation == 'view') {
-                            if($get('collections') == []) {
-                                return true;   
+                    ->hidden(function (Get $get, string $operation) {
+                        if ($operation == 'edit' || $operation == 'view') {
+                            if ($get('collections') == []) {
+                                return true;
                             }
-                        }
-                        elseif(!request()->has('collection_uuid') && $get('choice') != 'collection') {
+                        } elseif (! request()->has('collection_uuid') && $get('choice') != 'collection') {
                             return true;
                         }
                     })
-                    ->disabled(function (String $operation) {
-                        if($operation == 'edit') {
+                    ->disabled(function (string $operation) {
+                        if ($operation == 'edit') {
                             return true;
                         }
                     })
@@ -83,18 +82,17 @@ class ReportResource extends Resource
                     })
                     ->multiple()
                     // ->preload()
-                    ->hidden(function (Get $get, String $operation) {
-                        if($operation == 'edit' || $operation == 'view') {
-                            if($get('citations') == []) {
-                                return true;   
+                    ->hidden(function (Get $get, string $operation) {
+                        if ($operation == 'edit' || $operation == 'view') {
+                            if ($get('citations') == []) {
+                                return true;
                             }
-                        }
-                        elseif(!request()->has('citation_id') && $get('choice') != 'citation') {
+                        } elseif (! request()->has('citation_id') && $get('choice') != 'citation') {
                             return true;
                         }
                     })
-                    ->disabled(function (String $operation) {
-                        if($operation == 'edit') {
+                    ->disabled(function (string $operation) {
+                        if ($operation == 'edit') {
                             return true;
                         }
                     })
@@ -117,18 +115,17 @@ class ReportResource extends Resource
                 TextInput::make('mol_id_csv')
                     ->label('Molecules')
                     ->placeholder('Enter the Identifiers separated by commas')
-                    ->hidden(function (Get $get, String $operation) {
-                        if($operation == 'edit' || $operation == 'view') {
-                            if(is_null($get('mol_id_csv'))) {
-                                return true;   
+                    ->hidden(function (Get $get, string $operation) {
+                        if ($operation == 'edit' || $operation == 'view') {
+                            if (is_null($get('mol_id_csv'))) {
+                                return true;
                             }
-                        }
-                        elseif(!request()->has('compound_id') && $get('choice') != 'molecule') {
+                        } elseif (! request()->has('compound_id') && $get('choice') != 'molecule') {
                             return true;
                         }
                     })
-                    ->disabled(function (String $operation) {
-                        if($operation == 'edit') {
+                    ->disabled(function (string $operation) {
+                        if ($operation == 'edit') {
                             return true;
                         }
                     }),

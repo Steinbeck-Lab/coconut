@@ -3,9 +3,8 @@
 namespace App\Filament\Dashboard\Resources\GeoLocationResource\Pages;
 
 use App\Filament\Dashboard\Resources\GeoLocationResource;
-use Filament\Actions;
-use Filament\Resources\Pages\CreateRecord;
 use App\Models\Molecule;
+use Filament\Resources\Pages\CreateRecord;
 
 class CreateGeoLocation extends CreateRecord
 {

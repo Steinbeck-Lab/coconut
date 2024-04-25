@@ -20,6 +20,6 @@ class Organism extends Model
 
     public function molecules()
     {
-        return $this->belongsToMany(Molecule::class)->withPivot('id','organism_parts')->withTimestamps();
+        return $this->belongsToMany(Molecule::class)->withPivot('id', 'organism_parts')->withTimestamps();
     }
 }
