@@ -38,7 +38,6 @@ class MoleculesRelationManager extends RelationManager
                     ->recordSelectSearchColumns(['canonical_smiles']),
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
                 Tables\Actions\DetachAction::make(),
             ])
             ->bulkActions([
