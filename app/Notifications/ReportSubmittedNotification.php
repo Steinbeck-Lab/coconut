@@ -2,13 +2,11 @@
 
 namespace App\Notifications;
 
+use App\Events\ReportSubmitted;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use App\Events\ReportSubmitted;
-use Illuminate\Mail\Mailable;
-
 
 class ReportSubmittedNotification extends Notification implements ShouldQueue
 {
@@ -17,8 +15,7 @@ class ReportSubmittedNotification extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
-
-     public $event;
+    public $event;
 
     public function __construct(ReportSubmitted $event)
     {
@@ -41,10 +38,10 @@ class ReportSubmittedNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $url = url(env('APP_URL').'/dashboard/reports/'.$this->event->report->id);
-    
+
         return (new MailMessage)
-                    ->subject('Coconut: Your report "'.$this->event->report->title.'" has been submitted.')
-                    ->markdown('mail.report.submitted', ['url' => $url, 'event' => $this->event, 'user' => $notifiable] );
+            ->subject('Coconut: Your report "'.$this->event->report->title.'" has been submitted.')
+            ->markdown('mail.report.submitted', ['url' => $url, 'event' => $this->event, 'user' => $notifiable]);
     }
 
     /**

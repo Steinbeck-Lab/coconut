@@ -2,22 +2,18 @@
 
 namespace App\Listeners;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Events\Dispatcher;
 use App\Events\ReportStatusChanged;
 use App\Events\ReportSubmitted;
 use App\Models\User;
 use App\Notifications\ReportStatusChangedNotification;
 use App\Notifications\ReportSubmittedNotification;
-
+use Illuminate\Events\Dispatcher;
 
 class ReportEventSubscriber
 {
     /**
      * Create the event listener.
      */
-
     public $ReportOwner;
 
     public function __construct()

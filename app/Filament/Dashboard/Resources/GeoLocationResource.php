@@ -3,27 +3,22 @@
 namespace App\Filament\Dashboard\Resources;
 
 use App\Filament\Dashboard\Resources\GeoLocationResource\Pages;
-use App\Filament\Dashboard\Resources\GeoLocationResource\RelationManagers;
 use App\Models\GeoLocation;
-use Filament\Forms;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Fieldset;
 
 class GeoLocationResource extends Resource
 {
     protected static ?string $navigationGroup = 'Data';
 
     protected static ?int $navigationSort = 5;
-    
+
     protected static ?string $model = GeoLocation::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-map-pin';
 
     public static function form(Form $form): Form
     {

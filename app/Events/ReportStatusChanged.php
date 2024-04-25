@@ -2,14 +2,11 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
+use App\Models\Report;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Report;
 
 class ReportStatusChanged
 {
@@ -18,10 +15,11 @@ class ReportStatusChanged
     /**
      * Create a new event instance.
      */
+    public $report;
 
-     public $report;
-     public $new;
-     public $old;
+    public $new;
+
+    public $old;
 
     public function __construct(Report $report, $new, $old)
     {

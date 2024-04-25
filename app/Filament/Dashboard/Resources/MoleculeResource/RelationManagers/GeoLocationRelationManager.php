@@ -6,10 +6,8 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Actions\AttachAction;
+use Filament\Tables\Table;
 
 class GeoLocationRelationManager extends RelationManager
 {
@@ -41,7 +39,7 @@ class GeoLocationRelationManager extends RelationManager
                     ->preloadRecordSelect()
                     ->form(fn (AttachAction $action): array => [
                         $action->getRecordSelect(),
-                        Forms\Components\TextInput::make('locations')
+                        Forms\Components\TextInput::make('locations'),
                     ]),
             ])
             ->actions([

@@ -6,13 +6,8 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Actions\AttachAction;
-use Filament\Tables\Actions\EditAction;
-use App\Models\Organism;
+use Filament\Tables\Table;
 
 class OrganismsRelationManager extends RelationManager
 {
@@ -44,7 +39,7 @@ class OrganismsRelationManager extends RelationManager
                     ->preloadRecordSelect()
                     ->form(fn (AttachAction $action): array => [
                         $action->getRecordSelect(),
-                        Forms\Components\TextInput::make('organism_parts')
+                        Forms\Components\TextInput::make('organism_parts'),
                     ]),
             ])
             ->actions([

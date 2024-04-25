@@ -3,15 +3,12 @@
 namespace App\Filament\Dashboard\Resources;
 
 use App\Filament\Dashboard\Resources\OrganismResource\Pages;
-use App\Filament\Dashboard\Resources\OrganismResource\RelationManagers;
 use App\Models\Organism;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class OrganismResource extends Resource
 {
@@ -21,7 +18,7 @@ class OrganismResource extends Resource
 
     protected static ?string $model = Organism::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-bug-ant';
 
     public static function form(Form $form): Form
     {

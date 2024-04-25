@@ -12,8 +12,8 @@ use Spatie\Tags\HasTags;
 class Report extends Model implements Auditable
 {
     use HasFactory;
-    use \OwenIt\Auditing\Auditable;
     use HasTags;
+    use \OwenIt\Auditing\Auditable;
 
     /**
      * The attributes that are mass assignable.
