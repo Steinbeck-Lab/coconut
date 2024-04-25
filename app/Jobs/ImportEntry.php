@@ -113,6 +113,14 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         }
     }
 
+    public function getRepresentations($type)
+    {
+        $data = json_decode($this->entry->cm_data, true);
+        $data = $data[$type]['representations'];
+
+        return $data;
+    }
+
     /**
      * Attach collection to molecule.
      *
@@ -224,7 +232,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         $dois = $this->extract_dois($doi);
 
         foreach ($dois as $doi) {
-            if ($isDOI) {
+            if ($doi) {
                 //check if citation already exists
                 try {
                     $citation = Citation::firstOrCreate(['doi' => $doi]);
@@ -234,7 +242,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                     }
                 }
                 $citationResponse = null;
-                if ($citation->wasRecentlyCreated) {
+                if ($citation->wasRecentlyCreated || $citation->title == '') {
                     // fetch citation from EuropePMC
                     $europemcUrl = env('EUROPEPMC_WS_API');
                     $europemcParams = [
@@ -264,12 +272,16 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                         }
                     }
                     if ($citationResponse) {
-                        if (! Citation::where('doi', $citationResponse['doi'])->exists()) {
-                            $citation = Citation::create($citationResponse);
-                            $citation->save();
-                        } else {
-                            $citation->update($citationResponse);
-                            $citation->save();
+                        if ($citationResponse['doi'] == $doi) {
+                            $citation = Citation::where('doi', $citationResponse['doi'])->first();
+                            if ($citation === null) {
+                                $citation = Citation::create($citationResponse);
+                                $citation->save();
+                            } else {
+                                unset($citationResponse['doi']);
+                                $citation->update($citationResponse);
+                                $citation->save();
+                            }
                         }
                     }
                 }

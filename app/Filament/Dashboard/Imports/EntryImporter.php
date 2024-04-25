@@ -7,6 +7,7 @@ use App\Models\Entry;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
+use Filament\Forms\Components\Checkbox;
 
 class EntryImporter extends Importer
 {
@@ -30,12 +31,24 @@ class EntryImporter extends Importer
         ];
     }
 
+    public static function getOptionsFormComponents(): array
+    {
+        return [
+            Checkbox::make('updateExisting')
+                ->label('Update existing records'),
+        ];
+    }
+
     public function resolveRecord(): ?Entry
     {
-        // return Entry::firstOrNew([
-        //     // Update existing records, matching them by `$this->data['column_name']`
-        //     'email' => $this->data['email'],
-        // ]);
+        if ($this->options['updateExisting'] ?? false) {
+            return Entry::firstOrNew([
+                'canonical_smiles' => $this->data['canonical_smiles'],
+                'reference_id' => $this->data['reference_id'],
+                'collection_id' => $this->options['collection_id'],
+            ]);
+        }
+
         $entry = new Entry();
         $entry->collection_id = $this->options['collection_id'];
 
@@ -46,11 +59,7 @@ class EntryImporter extends Importer
     {
         ImportedCSVProcessed::dispatch($import);
 
-        $body = 'Your entry import has completed and '.number_format($import->successful_rows).' '.str('row')->plural($import->successful_rows).' imported.';
-
-        if ($failedRowsCount = $import->getFailedRowsCount()) {
-            $body .= ' '.number_format($failedRowsCount).' '.str('row')->plural($failedRowsCount).' failed to import.';
-        }
+        $body = 'Your entry import has completed. '.number_format($import->total_rows).' '.str('row')->plural($import->total_rows).' imported.';
 
         return $body;
     }
