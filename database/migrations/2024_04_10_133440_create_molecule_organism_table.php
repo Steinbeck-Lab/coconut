@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('organism_id')->constrained()->onDelete('cascade');
             $table->foreignId('molecule_id')->constrained()->onDelete('cascade');
-            $table->longText('organism_parts');
+            $table->longText('organism_parts')->nullable();
             $table->timestamps();
         });
     }

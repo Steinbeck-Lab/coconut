@@ -20,6 +20,6 @@ class GeoLocation extends Model
 
     public function molecules()
     {
-        return $this->belongsToMany(Molecule::class)->withTimestamps();
+        return $this->belongsToMany(Molecule::class)->withPivot('locations')->withTimestamps();
     }
 }

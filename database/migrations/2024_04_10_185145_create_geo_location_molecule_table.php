@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('geo_location_id')->constrained()->onDelete('cascade');
             $table->foreignId('molecule_id')->constrained()->onDelete('cascade');
-            $table->longText('locations');
+            $table->longText('locations')->nullable();
             $table->timestamps();
         });
     }

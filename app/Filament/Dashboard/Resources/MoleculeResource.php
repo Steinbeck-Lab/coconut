@@ -7,6 +7,8 @@ use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\Citations
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\CollectionsRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\MoleculesRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\PropertiesRelationManager;
+use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\GeoLocationRelationManager;
+use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\OrganismsRelationManager;
 use App\Models\Molecule;
 use Filament\Forms\Components\TextArea;
 use Filament\Forms\Components\TextInput;
@@ -81,6 +83,8 @@ class MoleculeResource extends Resource
             CollectionsRelationManager::class,
             CitationsRelationManager::class,
             MoleculesRelationManager::class,
+            GeoLocationRelationManager::class,
+            OrganismsRelationManager::class,
             AuditsRelationManager::class,
         ];
     }
