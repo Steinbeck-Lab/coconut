@@ -13,6 +13,16 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
+use Filament\Notifications\Notification;
+use Closure;
+use Filament\Forms\Set;
+use Filament\Forms\Get;
+use Illuminate\Support\HtmlString;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\ViewField;
+use App\Livewire\ShowStatus;
+use Filament\Forms\Components\Livewire;
 
 class CitationResource extends Resource
 {
@@ -30,11 +40,57 @@ class CitationResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('doi'),
-                TextInput::make('title'),
-                TextInput::make('authors'),
-                TextArea::make('citation_text'),
-            ])->columns(1);
+                Section::make()
+                    ->schema([
+                        TextInput::make('failMessage')
+                        ->default('hello'),
+                        Livewire::make(ShowStatus::class,  function(Get $get) {
+                            return ['status' => $get('failMessage')];
+                        })->live(),
+                        TextInput::make('doi')
+                            ->label('DOI')
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function ($set, $state) {
+                                $set('failMessage', 'Fetching');
+                                if(doiRegxMatch($state)) {
+                                    $citationDetails = fetchDOICitation($state);
+                                    if($citationDetails) {
+                                        $set('title', $citationDetails['title']);
+                                        $set('authors', $citationDetails['authors']);
+                                        $set('citation_text', $citationDetails['citation_text']);
+                                        $set('failMessage', 'Successful');
+                                    } else {
+                                        $set('failMessage', 'No citation found');
+                                    }
+                                } else {
+                                    $set('failMessage', 'Invalid DOI');
+                                }
+                            })
+                            ->required()
+                            ->unique()
+                            ->rules([
+                                fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                                    if ($get('failMessage')) {
+                                        $fail($get('failMessage'));
+                                    }
+                                },
+                            ])
+                            ->validationMessages([
+                                'unique' => 'The DOI already exists.',
+                            ]),
+                    ]),
+                
+                Section::make()
+                    ->schema([
+                        
+                        // ViewField::make('forms.loading'),
+                        TextInput::make('title'),
+                        TextInput::make('authors'),
+                        TextArea::make('citation_text')
+                            ->label('Citation text / URL'),
+                ])->columns(1)
+            ])
+            ;
     }
 
     public static function table(Table $table): Table

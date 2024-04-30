@@ -1,5 +1,8 @@
 <div>
     <div wire:poll>
+        @if($failMessage)
+            {{ $failMessage }}
+        @endif
 @if($status == 'PROCESSING')
         <div class="rounded-md border bg-yellow p-4">
             <div class="flex">
