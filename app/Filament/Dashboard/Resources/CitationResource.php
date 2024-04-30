@@ -48,6 +48,9 @@ class CitationResource extends Resource
                             ->disabled(),
                         TextInput::make('doi')
                             ->label('DOI')
+                            ->disabled(function (string $operation) {
+                                return $operation == 'edit' ? true : false;
+                            })
                             ->live(onBlur: true)
                             ->afterStateUpdated(function ($set, $state) {
                                 // $set('failMessage', 'Fetching');
@@ -98,16 +101,16 @@ class CitationResource extends Resource
                 Section::make()
                     ->schema([
                         TextInput::make('title')
-                            ->disabled(function ($get) {
-                                if($get('failMessage') == 'No citation found. Please fill in the details manually') {
+                            ->disabled(function ($get, string $operation) {
+                                if($operation='edit' || $get('failMessage') == 'No citation found. Please fill in the details manually') {
                                     return false;
                                 } else {
                                     return true;
                                 };
                             }),
                         TextInput::make('authors')
-                            ->disabled(function ($get) {
-                                if($get('failMessage') == 'No citation found. Please fill in the details manually') {
+                            ->disabled(function ($get, string $operation) {
+                                if($operation='edit' || $get('failMessage') == 'No citation found. Please fill in the details manually') {
                                     return false;
                                 } else {
                                     return true;
@@ -115,8 +118,8 @@ class CitationResource extends Resource
                             }),
                         TextArea::make('citation_text')
                             ->label('Citation text / URL')
-                            ->disabled(function ($get) {
-                                if($get('failMessage') == 'No citation found. Please fill in the details manually') {
+                            ->disabled(function ($get, string $operation) {
+                                if($operation='edit' || $get('failMessage') == 'No citation found. Please fill in the details manually') {
                                     return false;
                                 } else {
                                     return true;

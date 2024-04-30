@@ -57,20 +57,6 @@ function fetchDOICitation($doi)
     }
 
     return $citationResponse;
-
-    // if ($citationResponse) {
-    //     if ($citationResponse['doi'] == $doi) {
-    //         $citation = Citation::where('doi', $citationResponse['doi'])->first();
-    //         if ($citation === null) {
-    //             $citation = Citation::create($citationResponse);
-    //             $citation->save();
-    //         } else {
-    //             unset($citationResponse['doi']);
-    //             $citation->update($citationResponse);
-    //             $citation->save();
-    //         }
-    //     }
-    // }
 }
 
 function makeRequest($url, $params = [])
