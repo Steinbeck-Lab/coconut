@@ -46,6 +46,12 @@ function fetchDOICitation($doi)
             $dataciteResponse = makeRequest($dataciteUrl);
             if ($dataciteResponse && isset($dataciteResponse['data'])) {
                 $citationResponse = formatCitationResponse($dataciteResponse['data'], 'datacite');
+            } else {
+                // fetch citation internally from CoconutDB
+                $coconutResponse = Citation::where('doi', $doi)->first();
+                if ($coconutResponse) {
+                    return $coconutResponse;
+                }
             }
         }
     }
