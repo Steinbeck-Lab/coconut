@@ -26,10 +26,6 @@ class CreateReport extends CreateRecord
             $id = $citation[0]->id;
             array_push($this->data['citations'], $id);
         } elseif ($request->has('compound_id')) {
-            // $this->molecule_identifier = $request->compound_id;
-            // $this->molecule = Molecule::where('identifier',$this->molecule_identifier)->get();
-            // $id = $this->molecule[0]->id;
-            // array_push($this->data['molecules'], $id);
             $this->data['mol_id_csv'] = $request->compound_id;
         }
     }

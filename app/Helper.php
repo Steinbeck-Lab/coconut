@@ -2,7 +2,6 @@
 
 use App\Models\Citation;
 
-
 function npScore($old_value)
 {
     $old_min = -4.5;
@@ -16,6 +15,7 @@ function npScore($old_value)
 function doiRegxMatch($doi)
 {
     $doiRegex = '/\b(10[.][0-9]{4,}(?:[.][0-9]+)*)\b/';
+
     return preg_match($doiRegex, $doi);
 }
 
@@ -71,7 +71,7 @@ function makeRequest($url, $params = [])
     } catch (Exception $e) {
         return null; // Handle exception here
     }
-    }
+}
 
 function formatCitationResponse($obj, $apiType)
 {
@@ -138,4 +138,3 @@ function formatCitationResponse($obj, $apiType)
 
     return $formattedCitationRes;
 }
-
