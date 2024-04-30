@@ -21,8 +21,6 @@ use Filament\Forms\Get;
 use Illuminate\Support\HtmlString;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\ViewField;
-use App\Livewire\ShowStatus;
-use Filament\Forms\Components\Livewire;
 
 class CitationResource extends Resource
 {
@@ -36,6 +34,8 @@ class CitationResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-ticket';
 
+    // protected static ?string $failMessage = null;
+
     public static function form(Form $form): Form
     {
         return $form
@@ -43,34 +43,49 @@ class CitationResource extends Resource
                 Section::make()
                     ->schema([
                         TextInput::make('failMessage')
-                        ->default('hello'),
-                        Livewire::make(ShowStatus::class,  function(Get $get) {
-                            return ['status' => $get('failMessage')];
-                        })->live(),
+                            ->default('')
+                            ->hidden()
+                            ->disabled(),
                         TextInput::make('doi')
                             ->label('DOI')
                             ->live(onBlur: true)
                             ->afterStateUpdated(function ($set, $state) {
-                                $set('failMessage', 'Fetching');
+                                // $set('failMessage', 'Fetching');
                                 if(doiRegxMatch($state)) {
                                     $citationDetails = fetchDOICitation($state);
                                     if($citationDetails) {
                                         $set('title', $citationDetails['title']);
                                         $set('authors', $citationDetails['authors']);
                                         $set('citation_text', $citationDetails['citation_text']);
-                                        $set('failMessage', 'Successful');
+                                        $set('failMessage', 'Success');
                                     } else {
-                                        $set('failMessage', 'No citation found');
+                                        $set('failMessage', 'No citation found. Please fill in the details manually');
                                     }
                                 } else {
                                     $set('failMessage', 'Invalid DOI');
+                                }
+                            })
+                            ->helperText(function ($get) {
+
+                                if ($get('failMessage') == 'Fetching') {
+                                    // dd($get('failMessage'));
+                                    return new HtmlString('<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-dark inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg> ') ;
+                                }
+                                elseif ($get('failMessage')!='Success') {
+                                    return new HtmlString('<span style="color:red">'.$get('failMessage').'</span>');
+                                }
+                                else {
+                                    return null;
                                 }
                             })
                             ->required()
                             ->unique()
                             ->rules([
                                 fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
-                                    if ($get('failMessage')) {
+                                    if ($get('failMessage') != 'No citation found. Please fill in the details manually') {
                                         $fail($get('failMessage'));
                                     }
                                 },
@@ -82,12 +97,31 @@ class CitationResource extends Resource
                 
                 Section::make()
                     ->schema([
-                        
-                        // ViewField::make('forms.loading'),
-                        TextInput::make('title'),
-                        TextInput::make('authors'),
+                        TextInput::make('title')
+                            ->disabled(function ($get) {
+                                if($get('failMessage') == 'No citation found. Please fill in the details manually') {
+                                    return false;
+                                } else {
+                                    return true;
+                                };
+                            }),
+                        TextInput::make('authors')
+                            ->disabled(function ($get) {
+                                if($get('failMessage') == 'No citation found. Please fill in the details manually') {
+                                    return false;
+                                } else {
+                                    return true;
+                                };
+                            }),
                         TextArea::make('citation_text')
-                            ->label('Citation text / URL'),
+                            ->label('Citation text / URL')
+                            ->disabled(function ($get) {
+                                if($get('failMessage') == 'No citation found. Please fill in the details manually') {
+                                    return false;
+                                } else {
+                                    return true;
+                                };
+                            }),
                 ])->columns(1)
             ])
             ;
