@@ -20,6 +20,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
+use App\Filament\Dashboard\Resources\CollectionResource\Widgets\CollectionStats;
+
 
 class CollectionResource extends Resource
 {
@@ -78,6 +80,7 @@ class CollectionResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -102,6 +105,14 @@ class CollectionResource extends Resource
             'index' => Pages\ListCollections::route('/'),
             'create' => Pages\CreateCollection::route('/create'),
             'edit' => Pages\EditCollection::route('/{record}/edit'),
+            'view' => Pages\ViewCollection::route('/{record}'),
+        ];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            CollectionStats::class,
         ];
     }
 }
