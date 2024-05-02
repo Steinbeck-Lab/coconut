@@ -18,6 +18,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
+use App\Filament\Dashboard\Resources\MoleculeResource\Widgets\MoleculeStats;
 
 class MoleculeResource extends Resource
 {
@@ -67,6 +68,7 @@ class MoleculeResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -95,6 +97,14 @@ class MoleculeResource extends Resource
             'index' => Pages\ListMolecules::route('/'),
             'create' => Pages\CreateMolecule::route('/create'),
             'edit' => Pages\EditMolecule::route('/{record}/edit'),
+            'view' => Pages\ViewMolecule::route('/{record}'),
+        ];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            MoleculeStats::class,
         ];
     }
 }
