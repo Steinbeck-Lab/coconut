@@ -3,6 +3,7 @@
 namespace App\Filament\Dashboard\Resources;
 
 use App\Filament\Dashboard\Resources\OrganismResource\Pages;
+use App\Filament\Dashboard\Resources\OrganismResource\Widgets\OrganismStats;
 use App\Models\Organism;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -53,6 +54,7 @@ class OrganismResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -75,6 +77,14 @@ class OrganismResource extends Resource
             'index' => Pages\ListOrganisms::route('/'),
             'create' => Pages\CreateOrganism::route('/create'),
             'edit' => Pages\EditOrganism::route('/{record}/edit'),
+            'view' => Pages\ViewOrganism::route('/{record}'),
+        ];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            OrganismStats::class,
         ];
     }
 }
