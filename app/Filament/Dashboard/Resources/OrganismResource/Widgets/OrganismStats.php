@@ -2,15 +2,15 @@
 
 namespace App\Filament\Dashboard\Resources\OrganismResource\Widgets;
 
+use App\Models\Organism;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use App\Models\Organism;
 use Illuminate\Support\Facades\Cache;
 
 class OrganismStats extends BaseWidget
 {
     public ?Organism $record = null;
- 
+
     protected function getStats(): array
     {
         return [
@@ -21,9 +21,10 @@ class OrganismStats extends BaseWidget
                 // refactor the below with eloquent relations if possible
                 $molecules = $this->record->molecules;
                 $count = 0;
-                foreach($molecules as $molecule) {
+                foreach ($molecules as $molecule) {
                     $count += $molecule->geoLocations()->count();
                 }
+
                 return $count;
             })),
         ];

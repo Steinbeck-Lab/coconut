@@ -2,14 +2,13 @@
 
 namespace App\Filament\Dashboard\Widgets;
 
+use App\Models\Citation;
+use App\Models\Collection;
+use App\Models\GeoLocation;
+use App\Models\Organism;
+use App\Models\Report;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use App\Models\Collection;
-use App\Models\Citation;
-use App\Models\Molecule;
-use App\Models\Organism;
-use App\Models\GeoLocation;
-use App\Models\Report;
 use Illuminate\Support\Facades\Cache;
 
 class DashboardStats extends BaseWidget
@@ -20,6 +19,7 @@ class DashboardStats extends BaseWidget
     {
         return 4;
     }
+
     protected function getStats(): array
     {
         return [
@@ -29,7 +29,7 @@ class DashboardStats extends BaseWidget
             Stat::make('Total Citations', Cache::rememberForever('stats.citations', function () {
                 return Citation::count();
             })),
-            
+
             Stat::make('Total Organisms', Cache::rememberForever('stats.organisms', function () {
                 return Organism::count();
             })),

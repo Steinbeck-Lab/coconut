@@ -3,9 +3,8 @@
 namespace App\Filament\Dashboard\Resources\MoleculeResource\Pages;
 
 use App\Filament\Dashboard\Resources\MoleculeResource;
-use Filament\Actions;
-use Filament\Resources\Pages\ViewRecord;
 use App\Filament\Dashboard\Resources\MoleculeResource\Widgets\MoleculeStats;
+use Filament\Resources\Pages\ViewRecord;
 
 class ViewMolecule extends ViewRecord
 {

@@ -3,13 +3,13 @@
 namespace App\Filament\Dashboard\Resources;
 
 use App\Filament\Dashboard\Resources\GeoLocationResource\Pages;
+use App\Filament\Dashboard\Resources\GeoLocationResource\Widgets\GeoLocationStats;
 use App\Models\GeoLocation;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use App\Filament\Dashboard\Resources\GeoLocationResource\Widgets\GeoLocationStats;
 
 class GeoLocationResource extends Resource
 {

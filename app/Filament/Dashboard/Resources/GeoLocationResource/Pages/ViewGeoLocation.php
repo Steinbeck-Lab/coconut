@@ -3,9 +3,8 @@
 namespace App\Filament\Dashboard\Resources\GeoLocationResource\Pages;
 
 use App\Filament\Dashboard\Resources\GeoLocationResource;
-use Filament\Actions;
-use Filament\Resources\Pages\ViewRecord;
 use App\Filament\Dashboard\Resources\GeoLocationResource\Widgets\GeoLocationStats;
+use Filament\Resources\Pages\ViewRecord;
 
 class ViewGeoLocation extends ViewRecord
 {

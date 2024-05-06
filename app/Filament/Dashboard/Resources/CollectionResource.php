@@ -5,6 +5,7 @@ namespace App\Filament\Dashboard\Resources;
 use App\Filament\Dashboard\Resources\CollectionResource\Pages;
 use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\CitationsRelationManager;
 use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\EntriesRelationManager;
+use App\Filament\Dashboard\Resources\CollectionResource\Widgets\CollectionStats;
 use App\Livewire\ShowJobStatus;
 use App\Models\Collection;
 use Filament\Forms\Components\Livewire;
@@ -20,8 +21,6 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
-use App\Filament\Dashboard\Resources\CollectionResource\Widgets\CollectionStats;
-
 
 class CollectionResource extends Resource
 {

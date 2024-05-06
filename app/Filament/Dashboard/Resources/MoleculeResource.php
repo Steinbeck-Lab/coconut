@@ -9,6 +9,7 @@ use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\GeoLocati
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\MoleculesRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\OrganismsRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\PropertiesRelationManager;
+use App\Filament\Dashboard\Resources\MoleculeResource\Widgets\MoleculeStats;
 use App\Models\Molecule;
 use Filament\Forms\Components\TextArea;
 use Filament\Forms\Components\TextInput;
@@ -18,7 +19,6 @@ use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
-use App\Filament\Dashboard\Resources\MoleculeResource\Widgets\MoleculeStats;
 
 class MoleculeResource extends Resource
 {

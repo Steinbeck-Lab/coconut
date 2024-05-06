@@ -2,15 +2,15 @@
 
 namespace App\Filament\Dashboard\Resources\GeoLocationResource\Widgets;
 
+use App\Models\GeoLocation;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\Cache;
-use App\Models\GeoLocation;
 
 class GeoLocationStats extends BaseWidget
 {
     public ?GeoLocation $record = null;
- 
+
     protected function getStats(): array
     {
         return [
@@ -21,9 +21,10 @@ class GeoLocationStats extends BaseWidget
                 // refactor the below with eloquent relations if possible
                 $molecules = $this->record->molecules;
                 $count = 0;
-                foreach($molecules as $molecule) {
+                foreach ($molecules as $molecule) {
                     $count += $molecule->organisms()->count();
                 }
+
                 return $count;
             })),
         ];

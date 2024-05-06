@@ -3,9 +3,8 @@
 namespace App\Filament\Dashboard\Resources\CollectionResource\Pages;
 
 use App\Filament\Dashboard\Resources\CollectionResource;
-use Filament\Actions;
-use Filament\Resources\Pages\ViewRecord;
 use App\Filament\Dashboard\Resources\CollectionResource\Widgets\CollectionStats;
+use Filament\Resources\Pages\ViewRecord;
 
 class ViewCollection extends ViewRecord
 {
