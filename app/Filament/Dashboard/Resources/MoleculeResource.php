@@ -9,6 +9,7 @@ use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\GeoLocati
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\MoleculesRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\OrganismsRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\PropertiesRelationManager;
+use App\Filament\Dashboard\Resources\MoleculeResource\Widgets\MoleculeStats;
 use App\Models\Molecule;
 use Filament\Forms\Components\TextArea;
 use Filament\Forms\Components\TextInput;
@@ -67,6 +68,7 @@ class MoleculeResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -95,6 +97,14 @@ class MoleculeResource extends Resource
             'index' => Pages\ListMolecules::route('/'),
             'create' => Pages\CreateMolecule::route('/create'),
             'edit' => Pages\EditMolecule::route('/{record}/edit'),
+            'view' => Pages\ViewMolecule::route('/{record}'),
+        ];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            MoleculeStats::class,
         ];
     }
 }

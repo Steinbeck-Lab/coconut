@@ -3,6 +3,7 @@
 namespace App\Filament\Dashboard\Resources;
 
 use App\Filament\Dashboard\Resources\GeoLocationResource\Pages;
+use App\Filament\Dashboard\Resources\GeoLocationResource\Widgets\GeoLocationStats;
 use App\Models\GeoLocation;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -49,6 +50,7 @@ class GeoLocationResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -71,6 +73,14 @@ class GeoLocationResource extends Resource
             'index' => Pages\ListGeoLocations::route('/'),
             'create' => Pages\CreateGeoLocation::route('/create'),
             'edit' => Pages\EditGeoLocation::route('/{record}/edit'),
+            'view' => Pages\ViewGeoLocation::route('/{record}'),
+        ];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            GeoLocationStats::class,
         ];
     }
 }
