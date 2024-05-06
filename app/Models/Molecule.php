@@ -69,6 +69,14 @@ class Molecule extends Model implements Auditable
     }
 
     /**
+     * Get all of the entries for the molecule.
+     */
+    public function entries(): HasMany
+    {
+        return $this->hasMany(Entry::class);
+    }
+
+    /**
      * Get the properties associated with the molecule.
      */
     public function properties(): HasOne

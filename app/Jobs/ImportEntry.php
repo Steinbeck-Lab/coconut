@@ -46,7 +46,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         if ($this->entry->status == 'PASSED') {
             if ($this->entry->has_stereocenters) {
                 $data = $this->getRepresentations('parent');
-                $parent = Molecule::firstOrCreate(['canonical_smiles' => $data['canonical_smiles']]);
+                $parent = $this->firstOrCreateMolecule($data['canonical_smiles'], $data['standard_inchi']);
                 if ($parent->wasRecentlyCreated) {
                     $parent->is_parent = true;
                     $parent->has_variants = true;
@@ -58,7 +58,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $this->attachCollection($parent);
 
                 $data = $this->getRepresentations('standardized');
-                $molecule = Molecule::firstOrCreate(['canonical_smiles' => $data['canonical_smiles']]);
+                $molecule = $this->firstOrCreateMolecule($data['canonical_smiles'], $data['standard_inchi']);
                 if ($molecule->wasRecentlyCreated) {
                     $molecule->has_stereo = true;
                     $molecule->parent_id = $parent->id;
@@ -72,7 +72,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $this->attachCollection($molecule);
             } else {
                 $data = $this->getRepresentations('standardized');
-                $molecule = Molecule::firstOrCreate(['canonical_smiles' => $data['canonical_smiles']]);
+                $molecule = $this->firstOrCreateMolecule($data['canonical_smiles'], $data['standard_inchi']);
                 if ($molecule->wasRecentlyCreated) {
                     $molecule = $this->assignData($molecule, $data);
                     $molecule->save();
@@ -111,6 +111,19 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 }
             }
         }
+    }
+
+    public function firstOrCreateMolecule($canonical_smiles, $standard_inchi){
+        $mol = Molecule::firstOrCreate(['standard_inchi' => $standard_inchi]);
+        if (!$mol->wasRecentlyCreated) {
+            if($mol->canonical_smiles != $canonical_smiles){
+                $standardizeTautomericSMILESURL = "" + $data['canonical_smiles'];
+                $standard_tautomeric_smiles = $this->makeRequest($standardizeTautomericSMILESURL);
+                $mol = Molecule::firstOrCreate(['canonical_smiles' => $standard_tautomeric_smiles]);
+                $mol->has_tautomers = true;
+            }
+        }
+        return $mol;
     }
 
     public function getRepresentations($type)

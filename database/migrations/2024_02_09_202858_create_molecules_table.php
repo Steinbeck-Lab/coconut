@@ -40,6 +40,7 @@ return new class extends Migration
             $table->boolean('active')->default(0);
             $table->boolean('has_variants')->default(0);
             $table->boolean('has_stereo')->default(0);
+            $table->boolean('has_tautomers')->default(0);
             $table->boolean('is_parent')->default(0);
             $table->boolean('is_placeholder')->default(0);
 

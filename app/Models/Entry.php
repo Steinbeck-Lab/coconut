@@ -43,4 +43,13 @@ class Entry extends Model
     {
         return $this->belongsTo(Collection::class, 'collection_id');
     }
+
+
+   /**
+     * Get the molecule this entry is associated with
+     */
+    public function molecule(): BelongsTo
+    {
+        return $this->belongsTo(Molecule::class, 'molecule_id');
+    }
 }
