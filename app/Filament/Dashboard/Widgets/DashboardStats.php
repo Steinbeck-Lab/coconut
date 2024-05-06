@@ -14,6 +14,12 @@ use Illuminate\Support\Facades\Cache;
 
 class DashboardStats extends BaseWidget
 {
+    protected static ?int $sort = 2;
+
+    public function getColumns(): int
+    {
+        return 4;
+    }
     protected function getStats(): array
     {
         return [
@@ -23,9 +29,7 @@ class DashboardStats extends BaseWidget
             Stat::make('Total Citations', Cache::rememberForever('stats.citations', function () {
                 return Citation::count();
             })),
-            Stat::make('Total Molecules', Cache::rememberForever('stats.molecules', function () {
-                return Molecule::count();
-            })),
+            
             Stat::make('Total Organisms', Cache::rememberForever('stats.organisms', function () {
                 return Organism::count();
             })),
