@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Molecule;
 use App\Models\Entry;
-use Illuminate\Console\Command;
+use App\Models\Molecule;
 use DB;
+use Illuminate\Console\Command;
 
 class ImportNames extends Command
 {
@@ -45,21 +45,21 @@ class ImportNames extends Command
 
         // Map them via entry -> molecule
         Entry::whereNotNull('name')->whereStatus('PASSED')->select('id', 'name', 'molecule_id')->chunk(10000, function ($entries) {
-            DB::transaction(function() use($entries) {
-                foreach($entries as $entry){
-                    echo($entry->id);
-                    echo("\r\n");
-                    echo($entry->name);
-                    echo("\r\n");
+            DB::transaction(function () use ($entries) {
+                foreach ($entries as $entry) {
+                    echo $entry->id;
+                    echo "\r\n";
+                    echo $entry->name;
+                    echo "\r\n";
                     $molecule = $entry->molecule;
-                    if(!$molecule->name){
+                    if (! $molecule->name) {
                         $molecule->name = $entry->name;
                     }
-                    if($molecule->synonyms){
+                    if ($molecule->synonyms) {
                         $synonyms = $molecule->synonyms;
                         $synonyms[] = $entry->name;
                         $molecule->synonyms = $synonyms;
-                    }else{
+                    } else {
                         $molecule->synonyms = [$entry->name];
                     }
                     $molecule->save();

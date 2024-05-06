@@ -2,12 +2,12 @@
 
 namespace App\Jobs;
 
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Bus\Batchable;
 use Illuminate\Support\Facades\Http;
 
 class ImportPubChem implements ShouldQueue
@@ -44,7 +44,7 @@ class ImportPubChem implements ShouldQueue
     {
         $smilesURL = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/cids/TXT?smiles='.urlencode($this->molecule->canonical_smiles);
         $cid = Http::get($smilesURL)->body();
-        echo($cid);
+        echo $cid;
         if ($cid && $cid != 0) {
             $cidPropsURL = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/'.trim(preg_replace('/\s+/', ' ', $cid)).'/json';
             $data = Http::get($cidPropsURL)->json();
@@ -73,15 +73,15 @@ class ImportPubChem implements ShouldQueue
                 if ($synonyms[0] != 'Status: 404') {
                     $pattern = "/\b[1-9][0-9]{1,5}-\d{2}-\d\b/";
                     $casIds = preg_grep($pattern, $synonyms);
-                    if($this->molecule->synonyms){
+                    if ($this->molecule->synonyms) {
                         $_synonyms = $this->molecule->synonyms;
                         $synonyms[] = $_synonyms;
                         $this->molecule->synonyms = $synonyms;
-                    }else{
+                    } else {
                         $this->molecule->synonyms = $synonyms;
                     }
                     $this->molecule->cas = array_values($casIds);
-                    if(!$this->molecule->name){
+                    if (! $this->molecule->name) {
                         $this->molecule->name = $synonyms[0];
                     }
                 }

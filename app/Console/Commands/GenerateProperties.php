@@ -2,14 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\Molecule;
-use App\Models\Properties;
-use DB;
-use Illuminate\Bus\Batch;
-use Illuminate\Support\Facades\Bus;
 use App\Jobs\GeneratePropertiesBatch;
-
+use App\Models\Molecule;
+use Illuminate\Bus\Batch;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Bus;
 
 class GenerateProperties extends Command
 {
@@ -31,7 +28,7 @@ class GenerateProperties extends Command
      * Execute the console command.
      */
     public function handle()
-    {  
+    {
         $i = 0;
         Molecule::doesntHave('properties')->select('id')->chunk(30000, function ($mols) use (&$i) {
             $batchJobs = [];
@@ -39,7 +36,7 @@ class GenerateProperties extends Command
             $batch = Bus::batch($batchJobs)->then(function (Batch $batch) {
             })->catch(function (Batch $batch, Throwable $e) {
             })->finally(function (Batch $batch) {
-            })->name('Generate Properties Batch:'. $i)
+            })->name('Generate Properties Batch:'.$i)
                 ->allowFailures(false)
                 ->onConnection('redis')
                 ->onQueue('default')

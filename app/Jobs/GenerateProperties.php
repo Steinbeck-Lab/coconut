@@ -2,13 +2,13 @@
 
 namespace App\Jobs;
 
+use App\Models\Properties;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use App\Models\Properties;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -33,7 +33,7 @@ class GenerateProperties implements ShouldQueue
     {
         return $this->molecule->id;
     }
-    
+
     /**
      * Execute the job.
      */
@@ -56,8 +56,6 @@ class GenerateProperties implements ShouldQueue
             ];
         }
     }
-
-
 
     public function attachProperties($descriptors, $id)
     {

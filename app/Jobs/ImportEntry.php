@@ -113,16 +113,18 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         }
     }
 
-    public function firstOrCreateMolecule($canonical_smiles, $standard_inchi){
+    public function firstOrCreateMolecule($canonical_smiles, $standard_inchi)
+    {
         $mol = Molecule::firstOrCreate(['standard_inchi' => $standard_inchi]);
-        if (!$mol->wasRecentlyCreated) {
-            if($mol->canonical_smiles != $canonical_smiles){
-                $standardizeTautomericSMILESURL = "" + $data['canonical_smiles'];
+        if (! $mol->wasRecentlyCreated) {
+            if ($mol->canonical_smiles != $canonical_smiles) {
+                $standardizeTautomericSMILESURL = '' + $data['canonical_smiles'];
                 $standard_tautomeric_smiles = $this->makeRequest($standardizeTautomericSMILESURL);
                 $mol = Molecule::firstOrCreate(['canonical_smiles' => $standard_tautomeric_smiles]);
                 $mol->has_tautomers = true;
             }
         }
+
         return $mol;
     }
 

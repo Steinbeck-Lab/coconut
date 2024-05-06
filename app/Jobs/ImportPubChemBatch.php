@@ -2,13 +2,13 @@
 
 namespace App\Jobs;
 
+use App\Models\Molecule;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Bus\Batchable;
-use App\Models\Molecule;
 
 class ImportPubChemBatch implements ShouldQueue
 {
