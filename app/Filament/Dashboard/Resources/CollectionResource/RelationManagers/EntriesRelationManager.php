@@ -166,6 +166,16 @@ class EntriesRelationManager extends RelationManager
                     ->action(function () {
                         Artisan::call('entries:process');
                     }),
+                Action::make('publish')
+                    ->hidden(function () {
+                        return $this->ownerRecord->molecules()->where('status', 'DRAFT')->count() < 1;
+                    })
+                    ->action(function () {
+                        $this->ownerRecord->status = 'PUBLISHED';
+                        $this->ownerRecord->is_public = true;
+                        $this->ownerRecord->molecules()->where('status', 'DRAFT')->update(['status' => 'APPROVED']);
+                        $this->ownerRecord->save();
+                    }),
                 // Tables\Actions\CreateAction::make(),
             ])
             ->actions([
