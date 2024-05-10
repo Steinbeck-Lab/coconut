@@ -5,6 +5,7 @@ namespace App\Filament\Dashboard\Resources;
 use App\Filament\Dashboard\Resources\CollectionResource\Pages;
 use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\CitationsRelationManager;
 use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\EntriesRelationManager;
+use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\MoleculesRelationManager;
 use App\Filament\Dashboard\Resources\CollectionResource\Widgets\CollectionStats;
 use App\Livewire\ShowJobStatus;
 use App\Models\Collection;
@@ -21,6 +22,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
+use Illuminate\Database\Eloquent\Model;
 
 class CollectionResource extends Resource
 {
@@ -91,11 +93,16 @@ class CollectionResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
+        // $record = static::getOwner();
+        // dd(static::getOwner());
+        // dd(static::$model::molecules()->get());
+        $arr = [
             EntriesRelationManager::class,
             CitationsRelationManager::class,
             AuditsRelationManager::class,
+            MoleculesRelationManager::class,
         ];
+        return $arr;
     }
 
     public static function getPages(): array

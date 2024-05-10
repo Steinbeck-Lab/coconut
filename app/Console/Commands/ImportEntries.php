@@ -8,6 +8,7 @@ use App\Models\Entry;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Cache;
 
 class ImportEntries extends Command
 {
@@ -55,6 +56,7 @@ class ImportEntries extends Command
                 $collection->jobs_status = 'INCURATION';
                 $collection->job_info = '';
                 $collection->save();
+                Cache::forget('stats.collections'.$collection->id.'molecules.count');
             })->name('Import Entries '.$collection->id)
                 ->allowFailures(false)
                 ->onConnection('redis')
