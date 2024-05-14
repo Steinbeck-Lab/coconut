@@ -7,6 +7,7 @@ use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\Citations
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\CollectionsRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\GeoLocationRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\MoleculesRelationManager;
+use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\RelatedRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\OrganismsRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\PropertiesRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\Widgets\MoleculeStats;
@@ -42,7 +43,7 @@ class MoleculeResource extends Resource
                 TextArea::make('iupac_name'),
                 TextInput::make('canonical_smiles'),
                 TextInput::make('murko_framework'),
-                TextArea::make('synonyms'),
+                TextArea::make('synonyms')
             ]);
     }
 
@@ -61,6 +62,7 @@ class MoleculeResource extends Resource
                     ->ring(5)
                     ->defaultImageUrl(url('/images/placeholder.png')),
                 Tables\Columns\TextColumn::make('name')->searchable(),
+                Tables\Columns\TextColumn::make('id')->searchable(),
                 Tables\Columns\TextColumn::make('identifier')->searchable(),
                 Tables\Columns\TextColumn::make('status'),
             ])
@@ -85,6 +87,7 @@ class MoleculeResource extends Resource
             CollectionsRelationManager::class,
             CitationsRelationManager::class,
             MoleculesRelationManager::class,
+            RelatedRelationManager::class,
             GeoLocationRelationManager::class,
             OrganismsRelationManager::class,
             AuditsRelationManager::class,

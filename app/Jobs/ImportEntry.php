@@ -31,14 +31,6 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
     }
 
     /**
-     * Get a unique identifier for the queued job.
-     */
-    public function uniqueId(): string
-    {
-        return $this->entry->uuid;
-    }
-
-    /**
      * Execute the job.
      */
     public function handle(): void
@@ -49,7 +41,6 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $parent = $this->firstOrCreateMolecule($data['canonical_smiles'], $data['standard_inchi']);
                 if ($parent->wasRecentlyCreated) {
                     $parent->is_parent = true;
-                    $parent->has_variants = true;
                     $parent->is_placeholder = true;
                     $parent->variants_count += $parent->variants_count;
                     $parent = $this->assignData($parent, $data);
@@ -58,18 +49,21 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $this->attachCollection($parent);
 
                 $data = $this->getRepresentations('standardized');
-                $molecule = $this->firstOrCreateMolecule($data['canonical_smiles'], $data['standard_inchi']);
-                if ($molecule->wasRecentlyCreated) {
-                    $molecule->has_stereo = true;
-                    $molecule->parent_id = $parent->id;
-                    $parent->save();
-                    $molecule = $this->assignData($molecule, $data);
-                    $molecule->save();
-                }
-                $this->entry->molecule_id = $molecule->id;
-                $this->entry->save();
+                if($data['has_stereo_defined']){
+                    $molecule = $this->firstOrCreateMolecule($data['canonical_smiles'], $data['standard_inchi']);
+                    if ($molecule->wasRecentlyCreated) {
+                        $molecule->has_stereo = true;
+                        $molecule->parent_id = $parent->id;
+                        $parent->has_variants = true;
+                        $parent->save();
+                        $molecule = $this->assignData($molecule, $data);
+                        $molecule->save();
+                    }
+                    $this->entry->molecule_id = $molecule->id;
+                    $this->entry->save();
 
-                $this->attachCollection($molecule);
+                    $this->attachCollection($molecule);
+                }
             } else {
                 $data = $this->getRepresentations('standardized');
                 $molecule = $this->firstOrCreateMolecule($data['canonical_smiles'], $data['standard_inchi']);
@@ -82,6 +76,10 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $this->entry->molecule_id = $molecule->id;
                 $this->entry->save();
                 $this->attachCollection($molecule);
+            }
+
+            if(!$data['has_stereo_defined'] && !$molecule){
+                $molecule = $parent;
             }
 
             $organism = $this->entry->organism;
@@ -118,22 +116,38 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         $mol = Molecule::firstOrCreate(['standard_inchi' => $standard_inchi]);
         if (! $mol->wasRecentlyCreated) {
             if ($mol->canonical_smiles != $canonical_smiles) {
-                $standardizeTautomericSMILESURL = '' + $data['canonical_smiles'];
-                $standard_tautomeric_smiles = $this->makeRequest($standardizeTautomericSMILESURL);
-                $mol = Molecule::firstOrCreate(['canonical_smiles' => $standard_tautomeric_smiles]);
-                $mol->has_tautomers = true;
+                $mol->is_tautomer = true;
+                $mol->save();
+
+                $_mol = Molecule::firstOrCreate(['standard_inchi' => $standard_inchi, 'canonical_smiles' => $canonical_smiles]);
+                $_mol->is_tautomer = true;
+                $_mol->save();
+
+                $relatedMols = Molecule::where('standard_inchi',$standard_inchi)->get();
+                $molIDs = $relatedMols->pluck('id')->toArray();
+                foreach($relatedMols as $_relatedMol){
+                    $_molIDs = $molIDs;
+                    foreach ($molIDs as $key => $value) {
+                        if ($value === $_relatedMol->id) {
+                            unset($_molIDs[$key]);
+                        }
+                    }
+                    $_relatedMol->related()->syncWithPivotValues($_molIDs, [ 'type' => 'tautomers' ], false);
+                } 
+                return $_mol;
             }
         }
-
         return $mol;
     }
 
     public function getRepresentations($type)
     {
         $data = json_decode($this->entry->cm_data, true);
-        $data = $data[$type]['representations'];
-
-        return $data;
+        $mol_data = $data[$type]['representations'];
+        if($type != 'parent'){
+            $mol_data['has_stereo_defined'] = $data[$type]['has_stereo_defined'];
+        }
+        return $mol_data;
     }
 
     /**
@@ -267,20 +281,20 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                         'resulttype' => 'core',
                         'synonym' => 'true',
                     ];
-                    $europemcResponse = $this->makeRequest($europemcUrl, $europemcParams);
+                    $europemcResponse = $this->makeRequest($europemcUrl, $europemcParams)->json();
 
                     if ($europemcResponse && isset($europemcResponse['resultList']['result']) && count($europemcResponse['resultList']['result']) > 0) {
                         $citationResponse = $this->formatCitationResponse($europemcResponse['resultList']['result'][0], 'europemc');
                     } else {
                         // fetch citation from CrossRef
                         $crossrefUrl = env('CROSSREF_WS_API').$doi;
-                        $crossrefResponse = $this->makeRequest($crossrefUrl);
+                        $crossrefResponse = $this->makeRequest($crossrefUrl)->json();
                         if ($crossrefResponse && isset($crossrefResponse['message'])) {
                             $citationResponse = $this->formatCitationResponse($crossrefResponse['message'], 'crossref');
                         } else {
                             // fetch citation from DataCite
                             $dataciteUrl = env('DATACITE_WS_API').$doi;
-                            $dataciteResponse = $this->makeRequest($dataciteUrl);
+                            $dataciteResponse = $this->makeRequest($dataciteUrl)->json();
                             if ($dataciteResponse && isset($dataciteResponse['data'])) {
                                 $citationResponse = $this->formatCitationResponse($dataciteResponse['data'], 'datacite');
                             }
@@ -424,7 +438,6 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         $model['standard_inchi'] = $data['standard_inchi'];
         $model['standard_inchi_key'] = $data['standard_inchikey'];
         $model['canonical_smiles'] = $data['canonical_smiles'];
-
         return $model;
     }
 
@@ -440,7 +453,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         try {
             $response = Http::timeout(600)->get($url, $params);
             if ($response->successful()) {
-                return $response->json();
+                return $response;
             } else {
                 return null; // Handle error here
             }

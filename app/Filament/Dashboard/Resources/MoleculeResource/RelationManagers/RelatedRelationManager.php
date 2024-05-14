@@ -8,9 +8,9 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\ImageColumn;
 
-class MoleculesRelationManager extends RelationManager
+class RelatedRelationManager extends RelationManager
 {
-    protected static string $relationship = 'variants';
+    protected static string $relationship = 'related';
 
     public function form(Form $form): Form
     {
@@ -32,9 +32,9 @@ class MoleculesRelationManager extends RelationManager
                     ->height(200)
                     ->ring(5)
                     ->defaultImageUrl(url('/images/placeholder.png')),
-                Tables\Columns\TextColumn::make('name')->searchable(),
+                // Tables\Columns\TextColumn::make('name')->searchable(),
                 Tables\Columns\TextColumn::make('id')->searchable(),
-                Tables\Columns\TextColumn::make('identifier')->searchable(),
+                Tables\Columns\TextColumn::make('type')->searchable(),
                 Tables\Columns\TextColumn::make('status'),
             ])
             ->filters([
