@@ -75,6 +75,15 @@ class CollectionResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title')->wrap(),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'DRAFT' => 'info',
+                        'REVIEW' => 'warning',
+                        'EMBARGO' => 'warning',
+                        'PUBLISHED' => 'success',
+                        'REJECTED' => 'danger',
+                    }),
             ])
             ->filters([
                 //
