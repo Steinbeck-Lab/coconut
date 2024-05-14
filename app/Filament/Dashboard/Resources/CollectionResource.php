@@ -22,7 +22,6 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
-use Illuminate\Database\Eloquent\Model;
 
 class CollectionResource extends Resource
 {
@@ -102,6 +101,7 @@ class CollectionResource extends Resource
             AuditsRelationManager::class,
             MoleculesRelationManager::class,
         ];
+
         return $arr;
     }
 
