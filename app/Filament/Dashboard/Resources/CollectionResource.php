@@ -5,6 +5,7 @@ namespace App\Filament\Dashboard\Resources;
 use App\Filament\Dashboard\Resources\CollectionResource\Pages;
 use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\CitationsRelationManager;
 use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\EntriesRelationManager;
+use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\MoleculesRelationManager;
 use App\Filament\Dashboard\Resources\CollectionResource\Widgets\CollectionStats;
 use App\Filament\Dashboard\Resources\CollectionResource\Widgets\EntriesOverview;
 use App\Livewire\ShowJobStatus;
@@ -75,6 +76,15 @@ class CollectionResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title')->wrap(),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'DRAFT' => 'info',
+                        'REVIEW' => 'warning',
+                        'EMBARGO' => 'warning',
+                        'PUBLISHED' => 'success',
+                        'REJECTED' => 'danger',
+                    }),
             ])
             ->filters([
                 //
@@ -92,11 +102,17 @@ class CollectionResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
+        // $record = static::getOwner();
+        // dd(static::getOwner());
+        // dd(static::$model::molecules()->get());
+        $arr = [
             EntriesRelationManager::class,
             CitationsRelationManager::class,
             AuditsRelationManager::class,
+            MoleculesRelationManager::class,
         ];
+
+        return $arr;
     }
 
     public static function getPages(): array
