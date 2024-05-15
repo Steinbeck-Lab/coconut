@@ -6,6 +6,7 @@ use App\Filament\Dashboard\Resources\CollectionResource\Pages;
 use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\CitationsRelationManager;
 use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\EntriesRelationManager;
 use App\Filament\Dashboard\Resources\CollectionResource\Widgets\CollectionStats;
+use App\Filament\Dashboard\Resources\CollectionResource\Widgets\EntriesOverview;
 use App\Livewire\ShowJobStatus;
 use App\Models\Collection;
 use Filament\Forms\Components\Livewire;
@@ -112,6 +113,7 @@ class CollectionResource extends Resource
     {
         return [
             CollectionStats::class,
+            EntriesOverview::class
         ];
     }
 }

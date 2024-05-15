@@ -14,7 +14,16 @@ class CollectionStats extends BaseWidget
     protected function getStats(): array
     {
         return [
-            Stat::make('Total Entries',  $this->record->entries->count()),
+            Stat::make('Entries', $this->record->entries->count())
+                ->description('Total count')
+                ->color('primary'),
+            Stat::make('Passed Entries', $this->record->entries->where('status', 'PASSED')->count())
+                ->description('Successful count')
+                ->color('success'),
+            Stat::make('Entries', $this->record->entries->where('status', 'REJECTED')->count())
+                ->description('Failed entries')
+                ->color('danger'),
+            // Stat::make('Total Entries',  $this->record->entries->count()),
             Stat::make('Total Molecules', $this->record->molecules->count()),
             Stat::make('Total Citations',  $this->record->citations->count()),
             // Stat::make('Total Organisms', Cache::rememberForever('stats.collections'.$this->record->id.'organisms.count', function () {

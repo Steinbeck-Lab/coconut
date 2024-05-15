@@ -36,6 +36,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
     public function handle(): void
     {
         if ($this->entry->status == 'PASSED') {
+            $molecule = null;
             if ($this->entry->has_stereocenters) {
                 $data = $this->getRepresentations('parent');
                 $parent = $this->firstOrCreateMolecule($data['canonical_smiles'], $data['standard_inchi']);
@@ -288,7 +289,8 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                     } else {
                         // fetch citation from CrossRef
                         $crossrefUrl = env('CROSSREF_WS_API').$doi;
-                        $crossrefResponse = $this->makeRequest($crossrefUrl)->json();
+                        $response = $this->makeRequest($crossrefUrl);
+                        $crossrefResponse = $response ? $response->json() : null;
                         if ($crossrefResponse && isset($crossrefResponse['message'])) {
                             $citationResponse = $this->formatCitationResponse($crossrefResponse['message'], 'crossref');
                         } else {

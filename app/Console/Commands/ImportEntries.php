@@ -16,7 +16,7 @@ class ImportEntries extends Command
      *
      * @var string
      */
-    protected $signature = 'entries:import {collection_id}';
+    protected $signature = 'entries:import {collection_id?}';
 
     /**
      * The console command description.
@@ -35,7 +35,7 @@ class ImportEntries extends Command
         if (! is_null($collection_id)) {
             $collections = Collection::where('id', $collection_id)->get();
         } else {
-            $collections = Collection::where('status', 'PUBLISHED')->get();
+            $collections = Collection::where('status', 'DRAFT')->get();
         }
 
         foreach ($collections as $collection) {
