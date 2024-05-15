@@ -11,10 +11,12 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ImportAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Artisan;
 
 class EntriesRelationManager extends RelationManager
 {
@@ -157,6 +159,13 @@ class EntriesRelationManager extends RelationManager
                     ->options([
                         'collection_id' => $this->ownerRecord->id,
                     ]),
+                Action::make('process')
+                    ->hidden(function () {
+                        return $this->ownerRecord->entries()->where('status', 'SUBMITTED')->count() < 1;
+                    })
+                    ->action(function () {
+                        Artisan::call('entries:process');
+                    }),
                 // Tables\Actions\CreateAction::make(),
             ])
             ->actions([
