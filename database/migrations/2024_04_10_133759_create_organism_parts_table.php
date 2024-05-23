@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('organism_parts', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('ontology');
+            $table->string('iri');
             $table->foreignId('organism_id');
             $table->timestamps();
         });

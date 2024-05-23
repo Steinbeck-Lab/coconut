@@ -2,6 +2,7 @@
 
 namespace App\Filament\Dashboard\Resources;
 
+use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\MoleculesRelationManager;
 use App\Filament\Dashboard\Resources\OrganismResource\Pages;
 use App\Filament\Dashboard\Resources\OrganismResource\Widgets\OrganismStats;
 use App\Models\Organism;
@@ -66,9 +67,14 @@ class OrganismResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
+        // $record = static::getOwner();
+        // dd(static::getOwner());
+        // dd(static::$model::molecules()->get());
+        $arr = [
+            MoleculesRelationManager::class,
         ];
+
+        return $arr;
     }
 
     public static function getPages(): array

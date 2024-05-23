@@ -7,9 +7,9 @@ use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\Citations
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\CollectionsRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\GeoLocationRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\MoleculesRelationManager;
-use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\RelatedRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\OrganismsRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\PropertiesRelationManager;
+use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\RelatedRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\Widgets\MoleculeStats;
 use App\Models\Molecule;
 use Filament\Forms\Components\TextArea;
@@ -43,7 +43,7 @@ class MoleculeResource extends Resource
                 TextArea::make('iupac_name'),
                 TextInput::make('canonical_smiles'),
                 TextInput::make('murko_framework'),
-                TextArea::make('synonyms')
+                TextArea::make('synonyms'),
             ]);
     }
 

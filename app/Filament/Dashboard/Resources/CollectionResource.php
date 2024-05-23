@@ -129,7 +129,7 @@ class CollectionResource extends Resource
     {
         return [
             CollectionStats::class,
-            EntriesOverview::class
+            EntriesOverview::class,
         ];
     }
 }

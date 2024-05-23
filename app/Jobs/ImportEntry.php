@@ -50,7 +50,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $this->attachCollection($parent);
 
                 $data = $this->getRepresentations('standardized');
-                if($data['has_stereo_defined']){
+                if ($data['has_stereo_defined']) {
                     $molecule = $this->firstOrCreateMolecule($data['canonical_smiles'], $data['standard_inchi']);
                     if ($molecule->wasRecentlyCreated) {
                         $molecule->has_stereo = true;
@@ -64,6 +64,11 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                     $this->entry->save();
 
                     $this->attachCollection($molecule);
+                } else {
+                    $this->entry->molecule_id = $parent->id;
+                    $this->entry->save();
+
+                    $this->attachCollection($parent);
                 }
             } else {
                 $data = $this->getRepresentations('standardized');
@@ -79,7 +84,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $this->attachCollection($molecule);
             }
 
-            if(!$data['has_stereo_defined'] && !$molecule){
+            if (! $data['has_stereo_defined'] && ! $molecule) {
                 $molecule = $parent;
             }
 
@@ -124,20 +129,22 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $_mol->is_tautomer = true;
                 $_mol->save();
 
-                $relatedMols = Molecule::where('standard_inchi',$standard_inchi)->get();
+                $relatedMols = Molecule::where('standard_inchi', $standard_inchi)->get();
                 $molIDs = $relatedMols->pluck('id')->toArray();
-                foreach($relatedMols as $_relatedMol){
+                foreach ($relatedMols as $_relatedMol) {
                     $_molIDs = $molIDs;
                     foreach ($molIDs as $key => $value) {
                         if ($value === $_relatedMol->id) {
                             unset($_molIDs[$key]);
                         }
                     }
-                    $_relatedMol->related()->syncWithPivotValues($_molIDs, [ 'type' => 'tautomers' ], false);
-                } 
+                    $_relatedMol->related()->syncWithPivotValues($_molIDs, ['type' => 'tautomers'], false);
+                }
+
                 return $_mol;
             }
         }
+
         return $mol;
     }
 
@@ -145,9 +152,10 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
     {
         $data = json_decode($this->entry->cm_data, true);
         $mol_data = $data[$type]['representations'];
-        if($type != 'parent'){
+        if ($type != 'parent') {
             $mol_data['has_stereo_defined'] = $data[$type]['has_stereo_defined'];
         }
+
         return $mol_data;
     }
 
@@ -203,7 +211,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         foreach ($organisms as $organism) {
             $organismModel = Organism::firstOrCreate(['name' => $organism]);
             $partNames = array_key_exists($i, $parts) ? $parts[$i] : '';
-            $molecule->organisms()->sync([$organismModel->id => ['organism_parts' => $partNames]]);
+            $molecule->organisms()->syncWithoutDetaching([$organismModel->id => ['organism_parts' => $partNames]]);
             $i = $i + 1;
         }
     }
@@ -223,7 +231,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         foreach ($geo_locations as $geo_location) {
             $geolocationModel = GeoLocation::firstOrCreate(['name' => $geo_location]);
             $locationsNames = array_key_exists($i, $locations) ? $locations[$i] : '';
-            $molecule->geoLocations()->sync([$geolocationModel->id => ['locations' => $locationsNames]]);
+            $molecule->geoLocations()->syncWithoutDetaching([$geolocationModel->id => ['locations' => $locationsNames]]);
             $i = $i + 1;
         }
     }
@@ -296,7 +304,8 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                         } else {
                             // fetch citation from DataCite
                             $dataciteUrl = env('DATACITE_WS_API').$doi;
-                            $dataciteResponse = $this->makeRequest($dataciteUrl)->json();
+                            $response = $this->makeRequest($dataciteUrl);
+                            $dataciteResponse = $response ? $response->json() : null;
                             if ($dataciteResponse && isset($dataciteResponse['data'])) {
                                 $citationResponse = $this->formatCitationResponse($dataciteResponse['data'], 'datacite');
                             }
@@ -440,6 +449,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         $model['standard_inchi'] = $data['standard_inchi'];
         $model['standard_inchi_key'] = $data['standard_inchikey'];
         $model['canonical_smiles'] = $data['canonical_smiles'];
+
         return $model;
     }
 

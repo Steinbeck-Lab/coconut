@@ -16,6 +16,8 @@ class Organism extends Model
      */
     protected $fillable = [
         'name',
+        'iri',
+        'rank',
     ];
 
     public function molecules()

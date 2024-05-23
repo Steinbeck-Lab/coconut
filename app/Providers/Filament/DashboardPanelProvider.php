@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\UserMenuItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -41,6 +42,12 @@ class DashboardPanelProvider extends PanelProvider
             ->widgets([
                 // Widgets\AccountWidget::class,
                 // Widgets\FilamentInfoWidget::class,
+            ])
+            ->userMenuItems([
+                UserMenuItem::make()
+                    ->label('Profile')
+                    ->url('/user/profile')
+                    ->icon('heroicon-s-cog'),
             ])
             ->middleware([
                 EncryptCookies::class,
