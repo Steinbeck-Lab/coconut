@@ -70,4 +70,14 @@ class User extends Authenticatable implements Auditable
     {
         return $this->hasMany(Report::class);
     }
+
+    /**
+     * Define the relationship with linked social accounts.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function linkedSocialAccounts()
+    {
+        return $this->hasMany(LinkedSocialAccount::class);
+    }
 }
