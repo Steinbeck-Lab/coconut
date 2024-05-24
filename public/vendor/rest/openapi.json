@@ -16,6 +16,1058 @@
         "version": "ALPHA"
     },
     "paths": {
+        "\/api\/v1\/molecules": {
+            "get": {
+                "tags": [
+                    "Molecules"
+                ],
+                "summary": "Get the resource detail",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": {
+                                        "actions": [],
+                                        "instructions": [],
+                                        "fields": [
+                                            "id"
+                                        ],
+                                        "limits": [
+                                            10,
+                                            25,
+                                            50
+                                        ],
+                                        "scopes": [],
+                                        "relations": [],
+                                        "rules": {
+                                            "all": [],
+                                            "create": [],
+                                            "update": []
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Get every detail about the resource according to the current user connected",
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Molecules"
+                ],
+                "summary": "Perform a destroy request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": [],
+                                    "meta": []
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Delete database records using primary key",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "resources": [
+                                    1,
+                                    5,
+                                    6
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/molecules\/search": {
+            "post": {
+                "tags": [
+                    "Molecules"
+                ],
+                "summary": "Perform a search request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": [],
+                                    "meta": []
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Crunch the Api's data with multiple attributes",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "search": {
+                                    "scopes": [],
+                                    "filters": [
+                                        {
+                                            "field": "id",
+                                            "operator": "=",
+                                            "value": ""
+                                        }
+                                    ],
+                                    "sorts": [
+                                        {
+                                            "field": "id",
+                                            "direction": "desc"
+                                        }
+                                    ],
+                                    "selects": [
+                                        {
+                                            "field": "id"
+                                        }
+                                    ],
+                                    "includes": [],
+                                    "aggregates": [],
+                                    "instructions": [],
+                                    "gates": [
+                                        "create",
+                                        "update",
+                                        "delete"
+                                    ],
+                                    "page": 1,
+                                    "limit": 10
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/molecules\/mutate": {
+            "post": {
+                "tags": [
+                    "Molecules"
+                ],
+                "summary": "Perform a mutate request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "created": [
+                                        1
+                                    ],
+                                    "updated": [
+                                        2,
+                                        3
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Create \/ Modify the database data with multiple options",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "mutate": [
+                                    {
+                                        "operation": "create",
+                                        "attributes": {
+                                            "id": ""
+                                        },
+                                        "relations": []
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/molecules\/actions\/{action}": {
+            "parameters": {
+                "0": {
+                    "name": "action",
+                    "in": "path",
+                    "description": "The action uriKey",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Molecules"
+                ],
+                "summary": "Perform an action request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": {
+                                        "impacted": 2
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Launch actions",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "search": {
+                                    "filters": [
+                                        {
+                                            "field": "has_received_welcome_notification",
+                                            "value": false
+                                        }
+                                    ]
+                                },
+                                "fields": [
+                                    {
+                                        "name": "expires_at",
+                                        "value": "2023-04-29"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/collections": {
+            "get": {
+                "tags": [
+                    "Collections"
+                ],
+                "summary": "Get the resource detail",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": {
+                                        "actions": [],
+                                        "instructions": [],
+                                        "fields": [
+                                            "id"
+                                        ],
+                                        "limits": [
+                                            10,
+                                            25,
+                                            50
+                                        ],
+                                        "scopes": [],
+                                        "relations": [],
+                                        "rules": {
+                                            "all": [],
+                                            "create": [],
+                                            "update": []
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Get every detail about the resource according to the current user connected",
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Collections"
+                ],
+                "summary": "Perform a destroy request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": [],
+                                    "meta": []
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Delete database records using primary key",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "resources": [
+                                    1,
+                                    5,
+                                    6
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/collections\/search": {
+            "post": {
+                "tags": [
+                    "Collections"
+                ],
+                "summary": "Perform a search request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": [],
+                                    "meta": []
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Crunch the Api's data with multiple attributes",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "search": {
+                                    "scopes": [],
+                                    "filters": [
+                                        {
+                                            "field": "id",
+                                            "operator": "=",
+                                            "value": ""
+                                        }
+                                    ],
+                                    "sorts": [
+                                        {
+                                            "field": "id",
+                                            "direction": "desc"
+                                        }
+                                    ],
+                                    "selects": [
+                                        {
+                                            "field": "id"
+                                        }
+                                    ],
+                                    "includes": [],
+                                    "aggregates": [],
+                                    "instructions": [],
+                                    "gates": [
+                                        "create",
+                                        "update",
+                                        "delete"
+                                    ],
+                                    "page": 1,
+                                    "limit": 10
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/collections\/mutate": {
+            "post": {
+                "tags": [
+                    "Collections"
+                ],
+                "summary": "Perform a mutate request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "created": [
+                                        1
+                                    ],
+                                    "updated": [
+                                        2,
+                                        3
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Create \/ Modify the database data with multiple options",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "mutate": [
+                                    {
+                                        "operation": "create",
+                                        "attributes": {
+                                            "id": ""
+                                        },
+                                        "relations": []
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/collections\/actions\/{action}": {
+            "parameters": {
+                "0": {
+                    "name": "action",
+                    "in": "path",
+                    "description": "The action uriKey",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Collections"
+                ],
+                "summary": "Perform an action request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": {
+                                        "impacted": 2
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Launch actions",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "search": {
+                                    "filters": [
+                                        {
+                                            "field": "has_received_welcome_notification",
+                                            "value": false
+                                        }
+                                    ]
+                                },
+                                "fields": [
+                                    {
+                                        "name": "expires_at",
+                                        "value": "2023-04-29"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/citations": {
+            "get": {
+                "tags": [
+                    "Citations"
+                ],
+                "summary": "Get the resource detail",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": {
+                                        "actions": [],
+                                        "instructions": [],
+                                        "fields": [
+                                            "id"
+                                        ],
+                                        "limits": [
+                                            10,
+                                            25,
+                                            50
+                                        ],
+                                        "scopes": [],
+                                        "relations": [],
+                                        "rules": {
+                                            "all": [],
+                                            "create": [],
+                                            "update": []
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Get every detail about the resource according to the current user connected",
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Citations"
+                ],
+                "summary": "Perform a destroy request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": [],
+                                    "meta": []
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Delete database records using primary key",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "resources": [
+                                    1,
+                                    5,
+                                    6
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/citations\/search": {
+            "post": {
+                "tags": [
+                    "Citations"
+                ],
+                "summary": "Perform a search request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": [],
+                                    "meta": []
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Crunch the Api's data with multiple attributes",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "search": {
+                                    "scopes": [],
+                                    "filters": [
+                                        {
+                                            "field": "id",
+                                            "operator": "=",
+                                            "value": ""
+                                        }
+                                    ],
+                                    "sorts": [
+                                        {
+                                            "field": "id",
+                                            "direction": "desc"
+                                        }
+                                    ],
+                                    "selects": [
+                                        {
+                                            "field": "id"
+                                        }
+                                    ],
+                                    "includes": [],
+                                    "aggregates": [],
+                                    "instructions": [],
+                                    "gates": [
+                                        "create",
+                                        "update",
+                                        "delete"
+                                    ],
+                                    "page": 1,
+                                    "limit": 10
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/citations\/mutate": {
+            "post": {
+                "tags": [
+                    "Citations"
+                ],
+                "summary": "Perform a mutate request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "created": [
+                                        1
+                                    ],
+                                    "updated": [
+                                        2,
+                                        3
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Create \/ Modify the database data with multiple options",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "mutate": [
+                                    {
+                                        "operation": "create",
+                                        "attributes": {
+                                            "id": ""
+                                        },
+                                        "relations": []
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/citations\/actions\/{action}": {
+            "parameters": {
+                "0": {
+                    "name": "action",
+                    "in": "path",
+                    "description": "The action uriKey",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Citations"
+                ],
+                "summary": "Perform an action request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": {
+                                        "impacted": 2
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Launch actions",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "search": {
+                                    "filters": [
+                                        {
+                                            "field": "has_received_welcome_notification",
+                                            "value": false
+                                        }
+                                    ]
+                                },
+                                "fields": [
+                                    {
+                                        "name": "expires_at",
+                                        "value": "2023-04-29"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/organisms": {
+            "get": {
+                "tags": [
+                    "Organisms"
+                ],
+                "summary": "Get the resource detail",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": {
+                                        "actions": [],
+                                        "instructions": [],
+                                        "fields": [
+                                            "id"
+                                        ],
+                                        "limits": [
+                                            10,
+                                            25,
+                                            50
+                                        ],
+                                        "scopes": [],
+                                        "relations": [],
+                                        "rules": {
+                                            "all": [],
+                                            "create": [],
+                                            "update": []
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Get every detail about the resource according to the current user connected",
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Organisms"
+                ],
+                "summary": "Perform a destroy request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": [],
+                                    "meta": []
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Delete database records using primary key",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "resources": [
+                                    1,
+                                    5,
+                                    6
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/organisms\/search": {
+            "post": {
+                "tags": [
+                    "Organisms"
+                ],
+                "summary": "Perform a search request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": [],
+                                    "meta": []
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Crunch the Api's data with multiple attributes",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "search": {
+                                    "scopes": [],
+                                    "filters": [
+                                        {
+                                            "field": "id",
+                                            "operator": "=",
+                                            "value": ""
+                                        }
+                                    ],
+                                    "sorts": [
+                                        {
+                                            "field": "id",
+                                            "direction": "desc"
+                                        }
+                                    ],
+                                    "selects": [
+                                        {
+                                            "field": "id"
+                                        }
+                                    ],
+                                    "includes": [],
+                                    "aggregates": [],
+                                    "instructions": [],
+                                    "gates": [
+                                        "create",
+                                        "update",
+                                        "delete"
+                                    ],
+                                    "page": 1,
+                                    "limit": 10
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/organisms\/mutate": {
+            "post": {
+                "tags": [
+                    "Organisms"
+                ],
+                "summary": "Perform a mutate request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "created": [
+                                        1
+                                    ],
+                                    "updated": [
+                                        2,
+                                        3
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Create \/ Modify the database data with multiple options",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "mutate": [
+                                    {
+                                        "operation": "create",
+                                        "attributes": {
+                                            "id": ""
+                                        },
+                                        "relations": []
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/organisms\/actions\/{action}": {
+            "parameters": {
+                "0": {
+                    "name": "action",
+                    "in": "path",
+                    "description": "The action uriKey",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Organisms"
+                ],
+                "summary": "Perform an action request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": {
+                                        "impacted": 2
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Launch actions",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "search": {
+                                    "filters": [
+                                        {
+                                            "field": "has_received_welcome_notification",
+                                            "value": false
+                                        }
+                                    ]
+                                },
+                                "fields": [
+                                    {
+                                        "name": "expires_at",
+                                        "value": "2023-04-29"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "\/api\/v1\/users": {
             "get": {
                 "tags": [
@@ -73,8 +1125,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Marianna Wintheiser",
-                                        "email": "mueller.eleonore@example.org"
+                                        "name": "Kyle Schowalter",
+                                        "email": "fstark@example.org"
                                     },
                                     "meta": []
                                 }
@@ -116,8 +1168,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Rosalyn Stokes",
-                                        "email": "oschimmel@example.org"
+                                        "name": "Mr. Emerald Rolfson",
+                                        "email": "hkozey@example.com"
                                     },
                                     "meta": []
                                 }
@@ -313,6 +1365,1058 @@
                 ]
             }
         },
+        "\/api\/molecules": {
+            "get": {
+                "tags": [
+                    "Molecules"
+                ],
+                "summary": "Get the resource detail",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": {
+                                        "actions": [],
+                                        "instructions": [],
+                                        "fields": [
+                                            "id"
+                                        ],
+                                        "limits": [
+                                            10,
+                                            25,
+                                            50
+                                        ],
+                                        "scopes": [],
+                                        "relations": [],
+                                        "rules": {
+                                            "all": [],
+                                            "create": [],
+                                            "update": []
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Get every detail about the resource according to the current user connected",
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Molecules"
+                ],
+                "summary": "Perform a destroy request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": [],
+                                    "meta": []
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Delete database records using primary key",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "resources": [
+                                    1,
+                                    5,
+                                    6
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/molecules\/search": {
+            "post": {
+                "tags": [
+                    "Molecules"
+                ],
+                "summary": "Perform a search request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": [],
+                                    "meta": []
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Crunch the Api's data with multiple attributes",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "search": {
+                                    "scopes": [],
+                                    "filters": [
+                                        {
+                                            "field": "id",
+                                            "operator": "=",
+                                            "value": ""
+                                        }
+                                    ],
+                                    "sorts": [
+                                        {
+                                            "field": "id",
+                                            "direction": "desc"
+                                        }
+                                    ],
+                                    "selects": [
+                                        {
+                                            "field": "id"
+                                        }
+                                    ],
+                                    "includes": [],
+                                    "aggregates": [],
+                                    "instructions": [],
+                                    "gates": [
+                                        "create",
+                                        "update",
+                                        "delete"
+                                    ],
+                                    "page": 1,
+                                    "limit": 10
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/molecules\/mutate": {
+            "post": {
+                "tags": [
+                    "Molecules"
+                ],
+                "summary": "Perform a mutate request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "created": [
+                                        1
+                                    ],
+                                    "updated": [
+                                        2,
+                                        3
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Create \/ Modify the database data with multiple options",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "mutate": [
+                                    {
+                                        "operation": "create",
+                                        "attributes": {
+                                            "id": ""
+                                        },
+                                        "relations": []
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/molecules\/actions\/{action}": {
+            "parameters": {
+                "0": {
+                    "name": "action",
+                    "in": "path",
+                    "description": "The action uriKey",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Molecules"
+                ],
+                "summary": "Perform an action request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": {
+                                        "impacted": 2
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Launch actions",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "search": {
+                                    "filters": [
+                                        {
+                                            "field": "has_received_welcome_notification",
+                                            "value": false
+                                        }
+                                    ]
+                                },
+                                "fields": [
+                                    {
+                                        "name": "expires_at",
+                                        "value": "2023-04-29"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/collections": {
+            "get": {
+                "tags": [
+                    "Collections"
+                ],
+                "summary": "Get the resource detail",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": {
+                                        "actions": [],
+                                        "instructions": [],
+                                        "fields": [
+                                            "id"
+                                        ],
+                                        "limits": [
+                                            10,
+                                            25,
+                                            50
+                                        ],
+                                        "scopes": [],
+                                        "relations": [],
+                                        "rules": {
+                                            "all": [],
+                                            "create": [],
+                                            "update": []
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Get every detail about the resource according to the current user connected",
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Collections"
+                ],
+                "summary": "Perform a destroy request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": [],
+                                    "meta": []
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Delete database records using primary key",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "resources": [
+                                    1,
+                                    5,
+                                    6
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/collections\/search": {
+            "post": {
+                "tags": [
+                    "Collections"
+                ],
+                "summary": "Perform a search request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": [],
+                                    "meta": []
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Crunch the Api's data with multiple attributes",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "search": {
+                                    "scopes": [],
+                                    "filters": [
+                                        {
+                                            "field": "id",
+                                            "operator": "=",
+                                            "value": ""
+                                        }
+                                    ],
+                                    "sorts": [
+                                        {
+                                            "field": "id",
+                                            "direction": "desc"
+                                        }
+                                    ],
+                                    "selects": [
+                                        {
+                                            "field": "id"
+                                        }
+                                    ],
+                                    "includes": [],
+                                    "aggregates": [],
+                                    "instructions": [],
+                                    "gates": [
+                                        "create",
+                                        "update",
+                                        "delete"
+                                    ],
+                                    "page": 1,
+                                    "limit": 10
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/collections\/mutate": {
+            "post": {
+                "tags": [
+                    "Collections"
+                ],
+                "summary": "Perform a mutate request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "created": [
+                                        1
+                                    ],
+                                    "updated": [
+                                        2,
+                                        3
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Create \/ Modify the database data with multiple options",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "mutate": [
+                                    {
+                                        "operation": "create",
+                                        "attributes": {
+                                            "id": ""
+                                        },
+                                        "relations": []
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/collections\/actions\/{action}": {
+            "parameters": {
+                "0": {
+                    "name": "action",
+                    "in": "path",
+                    "description": "The action uriKey",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Collections"
+                ],
+                "summary": "Perform an action request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": {
+                                        "impacted": 2
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Launch actions",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "search": {
+                                    "filters": [
+                                        {
+                                            "field": "has_received_welcome_notification",
+                                            "value": false
+                                        }
+                                    ]
+                                },
+                                "fields": [
+                                    {
+                                        "name": "expires_at",
+                                        "value": "2023-04-29"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/citations": {
+            "get": {
+                "tags": [
+                    "Citations"
+                ],
+                "summary": "Get the resource detail",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": {
+                                        "actions": [],
+                                        "instructions": [],
+                                        "fields": [
+                                            "id"
+                                        ],
+                                        "limits": [
+                                            10,
+                                            25,
+                                            50
+                                        ],
+                                        "scopes": [],
+                                        "relations": [],
+                                        "rules": {
+                                            "all": [],
+                                            "create": [],
+                                            "update": []
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Get every detail about the resource according to the current user connected",
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Citations"
+                ],
+                "summary": "Perform a destroy request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": [],
+                                    "meta": []
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Delete database records using primary key",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "resources": [
+                                    1,
+                                    5,
+                                    6
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/citations\/search": {
+            "post": {
+                "tags": [
+                    "Citations"
+                ],
+                "summary": "Perform a search request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": [],
+                                    "meta": []
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Crunch the Api's data with multiple attributes",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "search": {
+                                    "scopes": [],
+                                    "filters": [
+                                        {
+                                            "field": "id",
+                                            "operator": "=",
+                                            "value": ""
+                                        }
+                                    ],
+                                    "sorts": [
+                                        {
+                                            "field": "id",
+                                            "direction": "desc"
+                                        }
+                                    ],
+                                    "selects": [
+                                        {
+                                            "field": "id"
+                                        }
+                                    ],
+                                    "includes": [],
+                                    "aggregates": [],
+                                    "instructions": [],
+                                    "gates": [
+                                        "create",
+                                        "update",
+                                        "delete"
+                                    ],
+                                    "page": 1,
+                                    "limit": 10
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/citations\/mutate": {
+            "post": {
+                "tags": [
+                    "Citations"
+                ],
+                "summary": "Perform a mutate request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "created": [
+                                        1
+                                    ],
+                                    "updated": [
+                                        2,
+                                        3
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Create \/ Modify the database data with multiple options",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "mutate": [
+                                    {
+                                        "operation": "create",
+                                        "attributes": {
+                                            "id": ""
+                                        },
+                                        "relations": []
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/citations\/actions\/{action}": {
+            "parameters": {
+                "0": {
+                    "name": "action",
+                    "in": "path",
+                    "description": "The action uriKey",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Citations"
+                ],
+                "summary": "Perform an action request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": {
+                                        "impacted": 2
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Launch actions",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "search": {
+                                    "filters": [
+                                        {
+                                            "field": "has_received_welcome_notification",
+                                            "value": false
+                                        }
+                                    ]
+                                },
+                                "fields": [
+                                    {
+                                        "name": "expires_at",
+                                        "value": "2023-04-29"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/organisms": {
+            "get": {
+                "tags": [
+                    "Organisms"
+                ],
+                "summary": "Get the resource detail",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": {
+                                        "actions": [],
+                                        "instructions": [],
+                                        "fields": [
+                                            "id"
+                                        ],
+                                        "limits": [
+                                            10,
+                                            25,
+                                            50
+                                        ],
+                                        "scopes": [],
+                                        "relations": [],
+                                        "rules": {
+                                            "all": [],
+                                            "create": [],
+                                            "update": []
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Get every detail about the resource according to the current user connected",
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Organisms"
+                ],
+                "summary": "Perform a destroy request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": [],
+                                    "meta": []
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Delete database records using primary key",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "resources": [
+                                    1,
+                                    5,
+                                    6
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/organisms\/search": {
+            "post": {
+                "tags": [
+                    "Organisms"
+                ],
+                "summary": "Perform a search request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": [],
+                                    "meta": []
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Crunch the Api's data with multiple attributes",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "search": {
+                                    "scopes": [],
+                                    "filters": [
+                                        {
+                                            "field": "id",
+                                            "operator": "=",
+                                            "value": ""
+                                        }
+                                    ],
+                                    "sorts": [
+                                        {
+                                            "field": "id",
+                                            "direction": "desc"
+                                        }
+                                    ],
+                                    "selects": [
+                                        {
+                                            "field": "id"
+                                        }
+                                    ],
+                                    "includes": [],
+                                    "aggregates": [],
+                                    "instructions": [],
+                                    "gates": [
+                                        "create",
+                                        "update",
+                                        "delete"
+                                    ],
+                                    "page": 1,
+                                    "limit": 10
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/organisms\/mutate": {
+            "post": {
+                "tags": [
+                    "Organisms"
+                ],
+                "summary": "Perform a mutate request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "created": [
+                                        1
+                                    ],
+                                    "updated": [
+                                        2,
+                                        3
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Create \/ Modify the database data with multiple options",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "mutate": [
+                                    {
+                                        "operation": "create",
+                                        "attributes": {
+                                            "id": ""
+                                        },
+                                        "relations": []
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/organisms\/actions\/{action}": {
+            "parameters": {
+                "0": {
+                    "name": "action",
+                    "in": "path",
+                    "description": "The action uriKey",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Organisms"
+                ],
+                "summary": "Perform an action request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": {
+                                        "impacted": 2
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Launch actions",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "search": {
+                                    "filters": [
+                                        {
+                                            "field": "has_received_welcome_notification",
+                                            "value": false
+                                        }
+                                    ]
+                                },
+                                "fields": [
+                                    {
+                                        "name": "expires_at",
+                                        "value": "2023-04-29"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "\/api\/users": {
             "get": {
                 "tags": [
@@ -370,8 +2474,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Valerie Lemke MD",
-                                        "email": "ecorkery@example.org"
+                                        "name": "Miss Heath Dicki II",
+                                        "email": "rsmith@example.net"
                                     },
                                     "meta": []
                                 }
@@ -413,8 +2517,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Cordie Weber",
-                                        "email": "lilla.wilderman@example.org"
+                                        "name": "Delphia Hagenes",
+                                        "email": "gusikowski.nayeli@example.org"
                                     },
                                     "meta": []
                                 }

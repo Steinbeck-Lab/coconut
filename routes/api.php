@@ -49,6 +49,10 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
+    Rest::resource('molecules', \App\Rest\Controllers\MoleculesController::class);
+    Rest::resource('collections', \App\Rest\Controllers\CollectionsController::class);
+    Rest::resource('citations', \App\Rest\Controllers\CitationsController::class);
+    Rest::resource('organisms', \App\Rest\Controllers\OrganismsController::class);
     Rest::resource('users', \App\Rest\Controllers\UsersController::class);
 });
     
