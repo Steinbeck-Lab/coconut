@@ -30,19 +30,6 @@ class VerificationController extends Controller
         return redirect()->route('welcome')->with('success', 'Email verification Successful');
     }
 
-    /**
-     *  @OA\Get(
-     *      path="/api/auth/email/resend",
-     *      summary="Resend verification email",
-     *      tags={"auth"},
-     *      security={{"sanctum":{}}},
-     *
-     *      @OA\Response(
-     *          response=200,
-     *          description="successful operation"
-     *      ),
-     *  )
-     */
     public function resend()
     {
         if (auth()->user()) {

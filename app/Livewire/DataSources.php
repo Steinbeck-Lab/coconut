@@ -11,7 +11,7 @@ class DataSources extends Component
 
     public function mount()
     {
-        $this->collections = Collection::where('is_public', 1)->get()->pluck('title');
+        $this->collections = Collection::limit(10)->pluck('title');
     }
 
     public function render()

@@ -10,6 +10,8 @@ use App\Http\Controllers\API\SearchController;
 use App\Http\Controllers\API\SubmissionController;
 use App\Http\Controllers\DownloadController;
 use Illuminate\Support\Facades\Route;
+use Laravel\Fortify\Features;
+use \Lomkit\Rest\Facades\Rest;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,45 +38,36 @@ Route::prefix('auth')->group(function () {
 
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/logout', [LoginController::class, 'logout']);
-        Route::get('/user/info', [UserController::class, 'info']);
 
-        Route::get('/email/verify/{id}', [VerificationController::class, 'verify']);
-        Route::get('/email/resend', [VerificationController::class, 'resend']);
+        if (Features::enabled(Features::emailVerification())) {
+            Route::middleware(['auth:sanctum'])->group(function () {
+                Route::get('/email/resend', [VerificationController::class, 'resend']);
+            });
+            Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
+        }
     });
 });
 
-Route::prefix('v1')->group(function () {
-
-    // Search
-    Route::post('/search/{smiles?}', [SearchController::class, 'search']);
-
-    // Compounds and details
-    Route::get('/compounds', [CompoundController::class, 'list'])->name('compounds.list');
-    Route::get('/compounds/{id}/{property?}/{key?}', [CompoundController::class, 'id'])->name('compound.property');
-    Route::get('/compounds/{id}/toggleBookmark', [CompoundController::class, 'toggleBookmark'])
-        ->name('compound.toggle-bookmark');
-
-    // Schemas
-    Route::get('/compounds', [CompoundController::class, 'list']);
-    Route::prefix('schemas')->group(function () {
-        Route::prefix('bioschema')->group(function () {
-            Route::get('/{id}', [MolecularEntityController::class, 'moleculeSchema']);
-        });
-    });
-
-    // Submissions
-    Route::middleware([
-        'auth:sanctum',
-    ])->group(function () {
-        Route::delete('/compounds', [SubmissionController::class, 'report'])->name('submission.report');
-    });
-
-    // Compounds and details
-    Route::get('/{id}/report', function ($id) {
-        // return redirect('compounds/'.$id.'/report');
-        return redirect(env('APP_URL').'/dashboard/reports/create'.'?compound_id='.$id);
-    })->name('compound.report');
-
-    Route::post('/compounds', [SubmissionAPIController::class, 'submission'])->name('compound.submission');
-    Route::get('/download', [DownloadController::class, 'getDataDumpURL'])->name('downloadDataDump');
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
+    Rest::resource('users', \App\Rest\Controllers\UsersController::class);
 });
+    
+// Route::middleware(['auth:sanctum', 'verified'])->group(function () {
+    // Route::prefix('v1')->group(function () {
+
+    //     // Search
+    //     Route::post('/search/{smiles?}', [SearchController::class, 'search']);
+
+    //     // Compounds and details
+    //     Route::get('/compounds', [CompoundController::class, 'list'])->name('compounds.list');
+    //     // Route::get('/compounds/{id}/{property?}/{key?}', [CompoundController::class, 'id'])->name('compound.property');
+
+    //     // Schemas
+    //     Route::get('/compounds', [CompoundController::class, 'list']);
+    //     Route::prefix('schemas')->group(function () {
+    //         Route::prefix('bioschema')->group(function () {
+    //             Route::get('/{id}', [MolecularEntityController::class, 'moleculeSchema']);
+    //         });
+    //     });
+
+// });

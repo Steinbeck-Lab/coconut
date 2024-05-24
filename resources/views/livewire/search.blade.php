@@ -6,8 +6,9 @@
                     <p class="mt-4 max-w-xl text-sm text-gray-700">#COLLECTION</p>
                     <h1 class="text-3xl font-bold tracking-tight text-gray-900">{{ $collection->title }}</h1>
                     <p class="mt-4 max-w-xl text-sm text-gray-700">{{ $collection->description }}</p>
+                    @if($collection->license)
                     <p class="mt-4 max-w-xl text-sm text-gray-700">License: {{ $collection->license->title }}</p>
-
+                    @endif
                 </div>
             @endif
         @else

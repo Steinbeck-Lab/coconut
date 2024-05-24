@@ -11,41 +11,6 @@ use Illuminate\Support\Facades\Hash;
 
 class RegisterController extends Controller
 {
-    /**
-     * @OA\Post(
-     * path="/api/auth/register",
-     * summary="Register",
-     * description="Register by providing details.",
-     * operationId="authRegister",
-     * tags={"auth"},
-     *
-     * @OA\RequestBody(
-     *    required=true,
-     *    description="Pass registration details.",
-     *
-     *    @OA\JsonContent(
-     *       required={"first_name","last_name","email","password","username"},
-     *
-     *       @OA\Property(property="first_name", type="string", format="first_name", example="Marie"),
-     *       @OA\Property(property="last_name", type="string", format="last_name", example="Warren"),
-     *       @OA\Property(property="email", type="string", format="email", example="marie.warren@email.com"),
-     *       @OA\Property(property="username", type="string", format="username", example="marie123"),
-     *       @OA\Property(property="orcid_id", type="string", format="orcid_id", example="0000-0003-2433-4341"),
-     *       @OA\Property(property="password", type="string", format="password", example="secret1234"),
-     *
-     *    ),
-     * ),
-     *
-     * @OA\Response(
-     *    response=200,
-     *    description="Successful Operation"
-     *    ),
-     * @OA\Response(
-     *    response=422,
-     *    description="Unprocessable Content"
-     * )
-     * )
-     */
     public function register(Request $request): JsonResponse
     {
         $validatedData = $request->validate([
