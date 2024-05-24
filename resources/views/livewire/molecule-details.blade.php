@@ -1,13 +1,13 @@
-<div class="mx-auto max-w-3xl lg:max-w-5xl">
-    <div class="py-10 bg-white mt-32 rounded-lg shadow-md">
+<div class="mx-auto max-w-4xl lg:max-w-7xl px-10">
+    <div class="py-10 bg-white mt-32 rounded-lg border">
         <div
             class="mx-auto max-w-3xl px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-7xl lg:px-8">
             <div class="flex items-center space-x-5">
                 <div>
                     <p class="text-secondary-dark text-lg my-0">{{ $molecule->identifier }}</p>
                     <h2
-                        class="text-2xl break-all font-bold leading-7 break-words text-gray-900 sm:text-3xl sm:tracking-tight">
-                        {{ $molecule->name }}
+                        class="mb-2 text-2xl break-all font-bold leading-7 break-words text-gray-900 sm:text-3xl sm:tracking-tight">
+                        {{ $molecule->name ?  $molecule->name : $molecule->iupac_name}}
                     </h2>
                     <p class="text-sm font-medium text-gray-500">Created on <time
                             datetime="{{ $molecule->created_at }}">{{ $molecule->created_at }}</time> &middot; Last
@@ -42,7 +42,6 @@
                                 <span class="ml-1 text-sm font-bold">{{ $molecule->properties->np_likeness }}</span>
                             </span></div>
                     </div>
-
                 </div>
                 <div
                     class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-10 sm:px-6 lg:border-t-0 xl:px-8 sm:border-l">
@@ -567,25 +566,12 @@
                 <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg mb-2">
                     <livewire:molecule-depict3d :height="300" :smiles="$molecule->canonical_smiles">
                 </div>
-                <div class="bg-white px-4 py-5 shadow sm:rounded-lg sm:px-6 border">
-                    <h2 id="timeline-title" class="text-lg font-medium text-gray-900">Timeline</h2>
-
-                    <div class="mt-6 flow-root">
+                <div class="bg-white px-4 py-1 shadow sm:rounded-lg sm:px-6 border">
+                    <div class="mt-2 flow-root">
                         <ul role="list" class="-mb-8">
                             <li>
                                 <div class="relative pb-8">
                                     <div class="relative flex space-x-3">
-                                        <div>
-                                            <span
-                                                class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white">
-                                                <svg class="h-5 w-5 text-white" viewBox="0 0 20 20"
-                                                    fill="currentColor" aria-hidden="true">
-                                                    <path fill-rule="evenodd"
-                                                        d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                                                        clip-rule="evenodd"></path>
-                                                </svg>
-                                            </span>
-                                        </div>
                                         <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
                                             <div>
                                                 <p class="text-sm text-gray-500">Created at <a href="#"
@@ -600,10 +586,9 @@
 
                         </ul>
                     </div>
-                    <div class="mt-6 flex flex-col justify-stretch">
-                        <button type="button"
-                            class="inline-flex items-center justify-center rounded-md bg-gray-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">View
-                            complete history</button>
+                    <div class="my-2 flex flex-col justify-stretch">
+                        <a class="inline-flex right py-2 text-sm font-semibold">View
+                            complete history</a>
                     </div>
                 </div>
 
