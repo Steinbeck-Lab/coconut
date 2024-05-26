@@ -37,6 +37,7 @@ class ReportResource extends Resource
             ->schema([
                 Select::make('choice')
                     ->label('You want to report:')
+                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select what you want to report. Ex: Molecule, Citation, Collection, Organism.')
                     ->live()
                     ->options([
                         'molecule' => 'Molecule',
@@ -52,12 +53,16 @@ class ReportResource extends Resource
                         }
                     }),
                 TextInput::make('title')
+                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Title of the report. This is required.')
                     ->required(),
                 TextArea::make('evidence')
+                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Please provide Evidence/Comment to support your claims in this report. This will help our Curators in reviewing your report.')
                     ->label('Evidence/Comment'),
                 TextInput::make('url')
+                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide a link to the webpage that supports your claims.')
                     ->label('URL'),
                 Select::make('collections')
+                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select the Collections you want to report. This will help our Curators in reviewing your report.')
                     ->relationship('collections', 'title')
                     ->multiple()
                     ->preload()
@@ -77,6 +82,7 @@ class ReportResource extends Resource
                     })
                     ->searchable(),
                 Select::make('citations')
+                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select the Citations you want to report. This will help our Curators in reviewing your report.')
                     ->relationship('citations', 'title')
                     ->options(function () {
                         return Citation::whereNotNull('title')->pluck('title', 'id');
@@ -98,6 +104,7 @@ class ReportResource extends Resource
                     })
                     ->searchable(),
                 Select::make('organisms')
+                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select the Organisms you want to report. This will help our Curators in reviewing your report.')
                     ->relationship('organisms', 'name')
                     ->multiple()
                     ->searchable()
@@ -134,6 +141,7 @@ class ReportResource extends Resource
                         }
                     }),
                 SpatieTagsInput::make('tags')
+                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide comma separated search terms that would help in finding your report when searched.')
                     ->splitKeys(['Tab', ','])
                     ->type('reports'),
                 Select::make('status')
@@ -149,6 +157,7 @@ class ReportResource extends Resource
                         ReportStatusChanged::dispatch($record, $state, $old);
                     }),
                 TextArea::make('comment')
+                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide your comments/observations on anything noteworthy in the Curation process.')
                     ->hidden(function () {
                         return ! auth()->user()->hasRole('curator');
                     }),
