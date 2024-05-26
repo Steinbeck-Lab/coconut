@@ -195,6 +195,7 @@ class ReportResource extends Resource
             RelationManagers\MoleculesRelationManager::class,
             RelationManagers\CollectionsRelationManager::class,
             RelationManagers\CitationsRelationManager::class,
+            RelationManagers\OrganismsRelationManager::class,
             AuditsRelationManager::class,
         ];
     }
