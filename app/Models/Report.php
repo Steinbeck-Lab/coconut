@@ -55,6 +55,11 @@ class Report extends Model implements Auditable
         return $this->morphedByMany(Citation::class, 'reportable');
     }
 
+    public function organisms(): MorphToMany
+    {
+        return $this->morphedByMany(Organism::class, 'reportable');
+    }
+
     /**
      * Get all of the users that are assigned this report.
      */

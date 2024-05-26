@@ -42,9 +42,10 @@ class ReportResource extends Resource
                         'molecule' => 'Molecule',
                         'citation' => 'Citation',
                         'collection' => 'Collection',
+                        'organism' => 'Organism',
                     ])
                     ->hidden(function (string $operation) {
-                        if ($operation == 'create' && (! request()->has('collection_uuid') && ! request()->has('citation_id') && ! request()->has('compound_id'))) {
+                        if ($operation == 'create' && (! request()->has('collection_uuid') && ! request()->has('citation_id') && ! request()->has('compound_id') && ! request()->has('organism_id'))) {
                             return false;
                         } else {
                             return true;
@@ -52,8 +53,10 @@ class ReportResource extends Resource
                     }),
                 TextInput::make('title')
                     ->required(),
-                TextArea::make('evidence'),
-                TextInput::make('url'),
+                TextArea::make('evidence')
+                    ->label('Evidence/Comment'),
+                TextInput::make('url')
+                    ->label('URL'),
                 Select::make('collections')
                     ->relationship('collections', 'title')
                     ->multiple()
@@ -79,13 +82,31 @@ class ReportResource extends Resource
                         return Citation::whereNotNull('title')->pluck('title', 'id');
                     })
                     ->multiple()
-                    // ->preload()
                     ->hidden(function (Get $get, string $operation) {
                         if ($operation == 'edit' || $operation == 'view') {
                             if ($get('citations') == []) {
                                 return true;
                             }
                         } elseif (! request()->has('citation_id') && $get('choice') != 'citation') {
+                            return true;
+                        }
+                    })
+                    ->disabled(function (string $operation) {
+                        if ($operation == 'edit') {
+                            return true;
+                        }
+                    })
+                    ->searchable(),
+                Select::make('organisms')
+                    ->relationship('organisms', 'name')
+                    ->multiple()
+                    ->searchable()
+                    ->hidden(function (Get $get, string $operation) {
+                        if ($operation == 'edit' || $operation == 'view') {
+                            if ($get('organisms') == []) {
+                                return true;
+                            }
+                        } elseif (! request()->has('organism_id') && $get('choice') != 'organism') {
                             return true;
                         }
                     })
@@ -141,7 +162,7 @@ class ReportResource extends Resource
                 TextColumn::make('title')
                     ->description(fn (Report $record): string => Str::of($record->evidence)->words(10)),
                 TextColumn::make('url')
-                    ->url(fn (Report $record): string => $record->url)
+                    ->url(fn (Report $record) => $record->url)
                     ->openUrlInNewTab(),
                 TextColumn::make('status')
                     ->badge()

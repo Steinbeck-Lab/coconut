@@ -7,6 +7,7 @@ use App\Filament\Dashboard\Resources\ReportResource;
 use App\Models\Citation;
 use App\Models\Collection;
 use App\Models\Molecule;
+use App\Models\Organism;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 
@@ -26,31 +27,39 @@ class CreateReport extends CreateRecord
             $id = $citation[0]->id;
             array_push($this->data['citations'], $id);
         } elseif ($request->has('compound_id')) {
-            // $this->molecule_identifier = $request->compound_id;
-            // $this->molecule = Molecule::where('identifier',$this->molecule_identifier)->get();
-            // $id = $this->molecule[0]->id;
-            // array_push($this->data['molecules'], $id);
             $this->data['mol_id_csv'] = $request->compound_id;
+        } elseif ($request->has('organism_id')) {
+            $citation = Organism::where('id', $request->organism_id)->get();
+            $id = $citation[0]->id;
+            array_push($this->data['organisms'], $id);
         }
     }
 
     protected function beforeCreate(): void
     {
-        if ($this->data['choice'] = 'collection') {
+        if ($this->data['choice'] == 'collection') {
             $this->data['citations'] = [];
             $this->data['molecules'] = null;
-        } elseif ($this->data['choice'] = 'citation') {
+            $this->data['organisms'] = [];
+        } elseif ($this->data['choice'] == 'citation') {
             $this->data['collections'] = [];
             $this->data['molecules'] = null;
-        } elseif ($this->data['choice'] = 'molecule') {
+            $this->data['organisms'] = [];
+        } elseif ($this->data['choice'] == 'molecule') {
             $this->data['collections'] = [];
             $this->data['citations'] = [];
+            $this->data['organisms'] = [];
+        } elseif ($this->data['choice'] == 'organism') {
+            $this->data['collections'] = [];
+            $this->data['citations'] = [];
+            $this->data['molecules'] = null;
         }
 
-        if (! ($this->data['collections'] || $this->data['citations'] || $this->data['molecules'])) {
+
+        if (! ($this->data['collections'] || $this->data['citations'] || $this->data['molecules'] || $this->data['organisms'])) {
             Notification::make()
                 ->danger()
-                ->title('Select at least one Collection or Citation or Molecule.')
+                ->title('Select at least one Collection/Citation/Molecule/Organism')
                 ->persistent()
                 ->send();
 
