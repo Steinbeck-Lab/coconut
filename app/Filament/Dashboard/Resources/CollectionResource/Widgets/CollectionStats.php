@@ -32,9 +32,9 @@ class CollectionStats extends BaseWidget
                 ->color('danger'),
             // Stat::make('Total Entries',  $this->record->entries->count()),
             Stat::make('Total Molecules', function () {
-                return DB::table('collection_molecule')->selectRaw('count(*)')->whereRaw("collection_id =".$this->record->id)->get()[0]->count;
+                return DB::table('collection_molecule')->selectRaw('count(*)')->whereRaw('collection_id ='.$this->record->id)->get()[0]->count;
             }),
-            Stat::make('Total Citations',  function () {
+            Stat::make('Total Citations', function () {
                 return DB::table('citables')->selectRaw('count(*)')->whereRaw("citable_type='App\Models\Collection' and citable_id=".$this->record->id)->get()[0]->count;
             }),
             // Stat::make('Total Organisms', Cache::rememberForever('stats.collections'.$this->record->id.'organisms.count', function () {
