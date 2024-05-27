@@ -31,7 +31,7 @@ class CollectionStats extends BaseWidget
                 ->description('Failed entries')
                 ->color('danger'),
             Stat::make('Total Molecules', Cache::rememberForever('stats.collections'.$this->record->id.'count.molecules', function () {
-                return DB::table('collection_molecule')->selectRaw('count(*)')->whereRaw("collection_id =".$this->record->id)->get()[0]->count;
+                return DB::table('collection_molecule')->selectRaw('count(*)')->whereRaw('collection_id ='.$this->record->id)->get()[0]->count;
             })),
             Stat::make('Total Citations', Cache::rememberForever('stats.collections'.$this->record->id.'count.citations', function () {
                 return DB::table('citables')->selectRaw('count(*)')->whereRaw("citable_type='App\Models\Collection' and citable_id=".$this->record->id)->get()[0]->count;

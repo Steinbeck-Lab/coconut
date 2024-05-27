@@ -21,11 +21,11 @@ use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Support\Str;
-use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class CollectionResource extends Resource
 {

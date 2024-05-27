@@ -55,7 +55,6 @@ class CreateReport extends CreateRecord
             $this->data['molecules'] = null;
         }
 
-
         if (! ($this->data['collections'] || $this->data['citations'] || $this->data['molecules'] || $this->data['organisms'])) {
             Notification::make()
                 ->danger()
