@@ -25,6 +25,7 @@ use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Model;
 
 class CollectionResource extends Resource
 {
@@ -78,6 +79,26 @@ class CollectionResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title')->wrap(),
+                Tables\Columns\TextColumn::make('entries')
+                    ->state(function (Model $record) {
+                        return Cache::get('stats.collections'.$record->id.'count.entries').'/'.Cache::get('stats.collections'.$record->id.'count.rejected_entries');
+                    }),
+                Tables\Columns\TextColumn::make('molecules')
+                    ->state(function (Model $record) {
+                        return Cache::get('stats.collections'.$record->id.'count.molecules');
+                    }),
+                Tables\Columns\TextColumn::make('citations')
+                    ->state(function (Model $record) {
+                        return Cache::get('stats.collections'.$record->id.'count.citations');
+                    }),
+                Tables\Columns\TextColumn::make('organisms')
+                    ->state(function (Model $record) {
+                        return Cache::get('stats.collections'.$record->id.'count.organisms');
+                    }),
+                Tables\Columns\TextColumn::make('geo_locations')
+                    ->state(function (Model $record) {
+                        return Cache::get('stats.collections'.$record->id.'count.geo_locations');
+                    }),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
