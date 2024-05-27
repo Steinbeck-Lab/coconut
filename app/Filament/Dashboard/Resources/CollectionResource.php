@@ -23,6 +23,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class CollectionResource extends Resource
 {
@@ -131,5 +133,12 @@ class CollectionResource extends Resource
             CollectionStats::class,
             EntriesOverview::class,
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return Cache::rememberForever('stats.collections', function () {
+            return DB::table('collections')->selectRaw('count(*)')->get()[0]->count;
+        });
     }
 }
