@@ -29,7 +29,7 @@ class GenerateSwaggerDocs extends Command
         $this->call('rest:documentation');
         $publicPaths = [
             '/api/v1/auth/login',
-            '/api/v1/auth/register'
+            '/api/v1/auth/register',
         ];
         $this->modifyOpenAPIJsonFile($publicPaths);
 

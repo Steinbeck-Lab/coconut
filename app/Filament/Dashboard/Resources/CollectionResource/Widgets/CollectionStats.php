@@ -25,7 +25,7 @@ class CollectionStats extends BaseWidget
                 ->color('danger'),
             // Stat::make('Total Entries',  $this->record->entries->count()),
             Stat::make('Total Molecules', $this->record->molecules->count()),
-            Stat::make('Total Citations',  $this->record->citations->count()),
+            Stat::make('Total Citations', $this->record->citations->count()),
             // Stat::make('Total Organisms', Cache::rememberForever('stats.collections'.$this->record->id.'organisms.count', function () {
             //     // refactor the below with eloquent relations if possible
             //     $molecules = $this->record->molecules;
