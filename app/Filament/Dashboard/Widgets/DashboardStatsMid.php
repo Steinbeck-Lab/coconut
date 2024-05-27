@@ -2,7 +2,6 @@
 
 namespace App\Filament\Dashboard\Widgets;
 
-use App\Models\Molecule;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\Cache;
