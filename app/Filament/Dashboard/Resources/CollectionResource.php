@@ -23,7 +23,6 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
@@ -81,23 +80,23 @@ class CollectionResource extends Resource
                 Tables\Columns\TextColumn::make('title')->wrap(),
                 Tables\Columns\TextColumn::make('entries')
                     ->state(function (Model $record) {
-                        return Cache::get('stats.collections'.$record->id.'count.entries').'/'.Cache::get('stats.collections'.$record->id.'count.rejected_entries');
+                        return Cache::get('stats.collections'.$record->id.'entries.count').'/'.Cache::get('stats.collections'.$record->id.'count.rejected_entries');
                     }),
                 Tables\Columns\TextColumn::make('molecules')
                     ->state(function (Model $record) {
-                        return Cache::get('stats.collections'.$record->id.'count.molecules');
+                        return Cache::get('stats.collections'.$record->id.'molecules.count');
                     }),
                 Tables\Columns\TextColumn::make('citations')
                     ->state(function (Model $record) {
-                        return Cache::get('stats.collections'.$record->id.'count.citations');
+                        return Cache::get('stats.collections'.$record->id.'citations.count');
                     }),
                 Tables\Columns\TextColumn::make('organisms')
                     ->state(function (Model $record) {
-                        return Cache::get('stats.collections'.$record->id.'count.organisms');
+                        return Cache::get('stats.collections'.$record->id.'organisms.count');
                     }),
                 Tables\Columns\TextColumn::make('geo_locations')
                     ->state(function (Model $record) {
-                        return Cache::get('stats.collections'.$record->id.'count.geo_locations');
+                        return Cache::get('stats.collections'.$record->id.'geo_locations.count');
                     }),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
@@ -158,8 +157,6 @@ class CollectionResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return Cache::rememberForever('stats.collections', function () {
-            return DB::table('collections')->selectRaw('count(*)')->get()[0]->count;
-        });
+        return Cache::get('stats.collections');
     }
 }
