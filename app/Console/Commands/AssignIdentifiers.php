@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Molecule;
 use App\Models\Ticker;
+use DB;
 use Illuminate\Console\Command;
 
 class AssignIdentifiers extends Command
@@ -27,48 +28,77 @@ class AssignIdentifiers extends Command
      */
     public function handle()
     {
-        Molecule::select('id')->chunk(10000, function ($mols) {
-            foreach ($mols as $mol) {
-                $id = $mol->id;
-                echo $id;
-                echo "\r\n";
-                // fetch molecule
-                $molecule = Molecule::whereId($id)->first();
-                if ($molecule->identifier == null) {
-                    // if molecule has_stereo false
-                    if (! $molecule->has_stereo) {
-                        $cnID = $this->fetchIdentifier();
-                        echo $cnID;
-                        echo "\r\n";
-                        $molecule->identifier = $cnID;
-                        if ($molecule->is_parent) {
-                            $variants = $molecule->variants;
-                            $i = $molecule->ticker + 1;
-                            foreach ($variants as $variant) {
-                                $variantID = $cnID.'.'.$i;
-                                $variant->identifier = $variantID;
-                                echo $variantID;
-                                echo "\r\n";
-                                $variant->save();
-                                $i += 1;
-                            }
-                            $molecule->ticker = $i;
-                        }
-                        $molecule->save();
-                    }
+        $batchSize = 1000;
+        $currentIndex = $this->fetchLastIndex() + 1;
+        $data = [];
+        $this->info('Mapping parents');
+        Molecule::select('identifier', 'id', 'has_variants')->where([
+            ['has_stereo', '=', false],
+            ['identifier', '=', null],
+        ])->chunk($batchSize, function ($molecules) use (&$currentIndex) {
+            $data = [];
+            $header = ['id', 'identifier'];
+            foreach ($molecules as $molecule) {
+                if (! $molecule->identifier) {
+                    $data[] = array_combine($header, [$molecule->id, $this->generateIdentifier($currentIndex)]);
+                    $currentIndex++;
                 }
             }
+            $this->insertBatch($data);
         });
+        $this->info('Mapping parents: Done');
+
+        $this->info('Mapping variants');
+        Molecule::select('identifier', 'id', 'has_variants')->where(
+            [
+                ['is_parent', '=', true],
+                ['identifier', '!=', null],
+            ])->chunk($batchSize, function ($molecules) {
+                $data = [];
+                $header = ['id', 'identifier'];
+                foreach ($molecules as $molecule) {
+                    $i = 1;
+                    $variants = $molecule->variants;
+                    foreach ($variants as $variant) {
+                        $data[] = array_combine($header, [$variant->id, $molecule->identifier.'.'.$i]);
+                        $i++;
+                    }
+                }
+                $this->insertBatch($data);
+            });
+        $this->info('Mapping variants: Done');
     }
 
-    public function fetchIdentifier()
+    public function generateIdentifier($index)
     {
-        $ticker = Ticker::first();
-        $identifier = $ticker->index + 1;
-        $ticker->index = $identifier;
-        $ticker->save();
-        $CNP = 'CNP2_'.$identifier;
+        return 'CNP'.str_pad($index, 7, '0', STR_PAD_LEFT);
+    }
 
-        return $CNP;
+    public function fetchLastIndex()
+    {
+        $ticker = Ticker::where('type', 'molecule')->first();
+
+        return (int) $ticker->index;
+    }
+
+    /**
+     * Insert a batch of data into the database.
+     *
+     * @return void
+     */
+    private function insertBatch(array $data)
+    {
+        DB::transaction(function () use ($data) {
+            foreach ($data as $row) {
+                Molecule::updateorCreate(
+                    [
+                        'id' => $row['id'],
+                    ],
+                    [
+                        'identifier' => $row['identifier'],
+                    ]
+                );
+            }
+        });
     }
 }

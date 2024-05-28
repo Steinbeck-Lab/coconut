@@ -50,6 +50,7 @@ class MapOrganismNamesToOGG extends Command
                                 $this->updateOrganismModel($name, $data, $organism, 'genus');
                                 $this->info("Mapped and updated: $name");
                             } else {
+                                $this->getGNFMatches($name, $organism);
                                 $this->error("Could not map: $name");
                             }
                         }
@@ -57,6 +58,70 @@ class MapOrganismNamesToOGG extends Command
                 }
             }
         });
+    }
+
+    protected function getGNFMatches($name, $organism)
+    {
+        // echo $name .  "\n";;
+        $data = [
+            'text' => $name,
+            'bytesOffset' => false,
+            'returnContent' => false,
+            'uniqueNames' => true,
+            'ambiguousNames' => false,
+            'noBayes' => false,
+            'oddsDetails' => false,
+            'language' => 'eng',
+            'wordsAround' => 0,
+            'verification' => true,
+            'allMatches' => true,
+        ];
+
+        $client = new Client();
+        $url = 'https://finder.globalnames.org/api/v1/find';
+
+        $response = $client->post($url, [
+            'json' => $data,
+        ]);
+
+        $responseBody = json_decode($response->getBody(), true);
+        $names = [];
+        if (isset($responseBody['names']) && count($responseBody['names']) > 0) {
+            $r_name = $responseBody['names'][0];
+            $matchType = $r_name['verification']['matchType'];
+            echo $matchType."\n";
+            if ($matchType == 'Exact' || $matchType == 'Fuzzy') {
+                $iri = $r_name['verification']['bestResult']['outlink'] ?? $r_name['verification']['bestResult']['dataSourceTitleShort'];
+                $ranks = $r_name['verification']['bestResult']['classificationRanks'] ?? null;
+                $ranks = rtrim($ranks, '|');
+                $ranks = explode('|', $ranks);
+                $rank = end($ranks);
+                if ($matchType == 'Fuzzy') {
+                    $rank = $rank.' (fuzzy)';
+                }
+                $this->updateOrganismModel($name, $iri, $organism, $rank);
+                $this->info("Mapped and updated: $name");
+            } elseif ($matchType == 'PartialFuzzy' || $matchType == 'PartialExact') {
+                $iri = $r_name['verification']['bestResult']['dataSourceTitleShort'];
+                if (isset($r_name['verification']['bestResult']['classificationRanks'])) {
+                    $ranks = rtrim($r_name['verification']['bestResult']['classificationRanks'], '|') ?? null;
+                    $paths = rtrim($r_name['verification']['bestResult']['classificationPath'], '|') ?? null;
+                    $ids = rtrim($r_name['verification']['bestResult']['classificationIds'], '|') ?? null;
+                    $ranks = explode('|', $ranks);
+                    $ranksLength = count($ranks);
+                    if ($ranksLength > 0) {
+                        $parentRank = $ranks[$ranksLength - 2];
+                        $parentName = $paths[$ranksLength - 2];
+                        $parentId = $ids[$ranksLength - 2];
+                        $this->updateOrganismModel($name, $iri.'['.$parentName.'|'.$parentId.']', $organism, $parentRank);
+                        $this->info("Mapped and updated: $name");
+                    }
+                }
+            }
+        } else {
+            $this->error("Could not map: $name");
+        }
+
     }
 
     protected function getOLSIRI($name, $rank)

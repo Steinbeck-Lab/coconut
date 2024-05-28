@@ -1,1 +1,0 @@
-import{_ as s,o as a,c as o,O as t}from"./chunks/framework.9be35eee.js";const D=JSON.parse('{"title":"Database Dump","description":"","frontmatter":{},"headers":[],"relativePath":"db-dump.md","filePath":"db-dump.md"}'),e={name:"db-dump.md"},n=t("",7),l=[n];function p(r,c,i,d,u,h){return a(),o("div",null,l)}const m=s(e,[["render",p]]);export{D as __pageData,m as default};
