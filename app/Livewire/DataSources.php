@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Collection;
 use Livewire\Component;
+use Cache;
 
 class DataSources extends Component
 {
@@ -11,7 +12,9 @@ class DataSources extends Component
 
     public function mount()
     {
-        $this->collections = Collection::limit(10)->pluck('title');
+        $this->collections = Cache::rememberForever('collections', function (){
+            return Collection::limit(10)->pluck('title');
+        });
     }
 
     public function render()

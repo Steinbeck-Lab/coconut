@@ -6,6 +6,7 @@ use App\Http\Resources\MoleculeResource;
 use App\Models\Molecule;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Cache;
 
 class RecentMolecules extends Component
 {
@@ -16,7 +17,10 @@ class RecentMolecules extends Component
     public function render()
     {
         return view('livewire.recent-molecules', [
-            'molecules' => MoleculeResource::collection(Molecule::where('has_variants', true)->where('name', '!=', null)->orderByDesc('updated_at')->paginate($this->size)),
+            'molecules' => 
+            Cache::rememberForever('molecules.recent', function (){
+                return MoleculeResource::collection(Molecule::where('has_variants', true)->where('name', '!=', null)->orderByDesc('updated_at')->paginate($this->size));
+            })
         ]);
     }
 }
