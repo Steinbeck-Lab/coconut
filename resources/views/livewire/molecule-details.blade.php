@@ -490,23 +490,23 @@
                                     <ul role="list" class="px-0">
                                         <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">
                                                 <b>Super class</b>:
-                                                {{ $molecule->properties && $molecule->properties['chemical_super_class'] ? $molecule->properties['chemical_super_class']['name'] : '-' }}
+                                                {{ $molecule->properties && $molecule->properties['chemical_super_class'] ? $molecule->properties['chemical_super_class'] : '-' }}
                                             </span>
                                         </li>
                                         <li class="py-5 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500"><b>Class</b>:
-                                                {{ $molecule->properties && $molecule->properties['chemical_class'] ? $molecule->properties['chemical_class']['name'] : '-' }}</span>
+                                                {{ $molecule->properties && $molecule->properties['chemical_class'] ? $molecule->properties['chemical_class'] : '-' }}</span>
                                         </li>
                                         <li class="py-5 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500"><b>Sub
                                                     class</b>:
-                                                {{ $molecule->properties && $molecule->properties['chemical_sub_class'] ? $molecule->properties['chemical_sub_class']['name'] : '-' }}
+                                                {{ $molecule->properties && $molecule->properties['chemical_sub_class'] ? $molecule->properties['chemical_sub_class'] : '-' }}
                                             </span>
                                         </li>
                                         <li class="py-5 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500"><b>Direct
                                                     parent</b>:
-                                                {{ $molecule->properties && $molecule->properties['direct_parent_classification'] ? $molecule->properties['direct_parent_classification']['name'] : '-' }}
+                                                {{ $molecule->properties && $molecule->properties['direct_parent_classification'] ? $molecule->properties['direct_parent_classification'] : '-' }}
                                             </span>
                                         </li>
                                     </ul>
