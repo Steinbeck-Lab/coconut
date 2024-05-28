@@ -15,33 +15,26 @@ class CollectionStats extends BaseWidget
     protected function getStats(): array
     {
         return [
-            Stat::make('Entries', Cache::rememberForever('stats.collections'.$this->record->id.'count.entries', function () {
-                return DB::table('entries')->selectRaw('count(*)')->whereRaw('collection_id='.$this->record->id)->get()[0]->count;
-            }))
+            // Commented is the model query that we can use in case we decide not to use app level caching as the app scales up.
+
+            // Stat::make('Entries', Cache::rememberForever('stats.collections'.$this->record->id.'entries.count', function () {
+            //     return DB::table('entries')->selectRaw('count(*)')->whereRaw('collection_id='.$this->record->id)->get()[0]->count;
+            // }))
+            //     ->description('Total count')
+            //     ->color('primary'),
+            Stat::make('Entries', Cache::get('stats.collections'.$this->record->id.'entries.count'))
                 ->description('Total count')
                 ->color('primary'),
-            Stat::make('Passed Entries', Cache::rememberForever('stats.collections'.$this->record->id.'count.passed_entries', function () {
-                return DB::table('entries')->selectRaw('count(*)')->whereRaw("status = 'PASSED'")->get()[0]->count;
-            }))
+            Stat::make('Passed Entries', Cache::get('stats.collections'.$this->record->id.'passed_entries.count'))
                 ->description('Successful count')
                 ->color('success'),
-            Stat::make('Entries', Cache::rememberForever('stats.collections'.$this->record->id.'count.rejected_entries', function () {
-                return DB::table('entries')->selectRaw('count(*)')->whereRaw("status = 'REJECTED'")->get()[0]->count;
-            }))
+            Stat::make('Entries', Cache::get('stats.collections'.$this->record->id.'rejected_entries.count'))
                 ->description('Failed entries')
                 ->color('danger'),
-            Stat::make('Total Molecules', Cache::rememberForever('stats.collections'.$this->record->id.'count.molecules', function () {
-                return DB::table('collection_molecule')->selectRaw('count(*)')->whereRaw('collection_id ='.$this->record->id)->get()[0]->count;
-            })),
-            Stat::make('Total Citations', Cache::rememberForever('stats.collections'.$this->record->id.'count.citations', function () {
-                return DB::table('citables')->selectRaw('count(*)')->whereRaw("citable_type='App\Models\Collection' and citable_id=".$this->record->id)->get()[0]->count;
-            })),
-            Stat::make('Total Organisms', Cache::rememberForever('stats.collections'.$this->record->id.'count.organisms', function () {
-                return DB::table('collection_molecule')->selectRaw('count(*)')->whereRaw('collection_id='.$this->record->id)->Join('molecule_organism', 'collection_molecule.molecule_id', '=', 'molecule_organism.molecule_id')->get()[0]->count;
-            })),
-            Stat::make('Total Geo Locations', Cache::rememberForever('stats.collections'.$this->record->id.'count.geo_locations', function () {
-                return DB::table('collection_molecule')->selectRaw('count(*)')->whereRaw('collection_id='.$this->record->id)->Join('geo_location_molecule', 'collection_molecule.molecule_id', '=', 'geo_location_molecule.molecule_id')->get()[0]->count;
-            })),
+            Stat::make('Total Molecules', Cache::get('stats.collections'.$this->record->id.'molecules.count')),
+            Stat::make('Total Citations', Cache::get('stats.collections'.$this->record->id.'citations.count')),
+            Stat::make('Total Organisms', Cache::get('stats.collections'.$this->record->id.'organisms.count')),
+            Stat::make('Total Geo Locations', Cache::get('stats.collections'.$this->record->id.'geo_locations.count')),
         ];
     }
 }

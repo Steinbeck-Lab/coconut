@@ -5,7 +5,6 @@ namespace App\Filament\Dashboard\Widgets;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 class DashboardStats extends BaseWidget
 {
@@ -19,22 +18,12 @@ class DashboardStats extends BaseWidget
     protected function getStats(): array
     {
         return [
-            Stat::make('Total Collections', Cache::rememberForever('stats.collections', function () {
-                return DB::table('collections')->selectRaw('count(*)')->get()[0]->count;
-            })),
-            Stat::make('Total Citations', Cache::rememberForever('stats.citations', function () {
-                return DB::table('citations')->selectRaw('count(*)')->get()[0]->count;
-            })),
+            Stat::make('Total Collections', Cache::get('stats.collections')),
+            Stat::make('Total Citations', Cache::get('stats.citations')),
 
-            Stat::make('Total Organisms', Cache::rememberForever('stats.organisms', function () {
-                return DB::table('organisms')->selectRaw('count(*)')->get()[0]->count;
-            })),
-            Stat::make('Total Geo Locations', Cache::rememberForever('stats.geo_locations', function () {
-                return DB::table('geo_locations')->selectRaw('count(*)')->get()[0]->count;
-            })),
-            Stat::make('Total Reports', Cache::rememberForever('stats.reports', function () {
-                return DB::table('reports')->selectRaw('count(*)')->get()[0]->count;
-            })),
+            Stat::make('Total Organisms', Cache::get('stats.organisms')),
+            Stat::make('Total Geo Locations', Cache::get('stats.geo_locations')),
+            Stat::make('Total Reports', Cache::get('stats.reports')),
         ];
     }
 }
