@@ -14,19 +14,8 @@ class GeoLocationStats extends BaseWidget
     protected function getStats(): array
     {
         return [
-            Stat::make('Total Molecules', Cache::rememberForever('stats.geo_locations'.$this->record->id.'molecules.count', function () {
-                return $this->record->molecules->count();
-            })),
-            Stat::make('Total Organisms', Cache::rememberForever('stats.geo_locations'.$this->record->id.'organisms.count', function () {
-                // refactor the below with eloquent relations if possible
-                $molecules = $this->record->molecules;
-                $count = 0;
-                foreach ($molecules as $molecule) {
-                    $count += $molecule->organisms()->count();
-                }
-
-                return $count;
-            })),
+            Stat::make('Total Molecules', Cache::get('stats.geo_locations'.$this->record->id.'molecules.count')),
+            Stat::make('Total Organisms', Cache::get('stats.geo_locations'.$this->record->id.'organisms.count')),
         ];
     }
 }

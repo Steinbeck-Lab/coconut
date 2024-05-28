@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Cache;
 
 class GeoLocationResource extends Resource
 {
@@ -82,5 +83,10 @@ class GeoLocationResource extends Resource
         return [
             GeoLocationStats::class,
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return Cache::get('stats.geo_locations');
     }
 }
