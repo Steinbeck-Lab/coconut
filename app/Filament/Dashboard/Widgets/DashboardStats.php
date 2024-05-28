@@ -5,7 +5,6 @@ namespace App\Filament\Dashboard\Widgets;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 class DashboardStats extends BaseWidget
 {
