@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Organism extends Model
 {
@@ -23,5 +24,10 @@ class Organism extends Model
     public function molecules()
     {
         return $this->belongsToMany(Molecule::class)->withPivot('id', 'organism_parts')->withTimestamps();
+    }
+
+    public function reports(): MorphToMany
+    {
+        return $this->morphToMany(Report::class, 'reportable');
     }
 }

@@ -6,6 +6,7 @@ use App\Models\Molecule;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class MoleculeStats extends BaseWidget
 {
@@ -15,10 +16,10 @@ class MoleculeStats extends BaseWidget
     {
         return [
             Stat::make('Total Organisms', Cache::rememberForever('stats.molecules'.$this->record->id.'organisms.count', function () {
-                return $this->record->organisms->count();
+                return DB::table('molecule_organism')->selectRaw('count(*)')->whereRaw('molecule_id='.$this->record->id)->get()[0]->count;
             })),
             Stat::make('Total Geo Locations', Cache::rememberForever('stats.molecules'.$this->record->id.'geo_locations.count', function () {
-                return $this->record->geoLocations->count();
+                return DB::table('geo_location_molecule')->selectRaw('count(*)')->whereRaw('molecule_id='.$this->record->id)->get()[0]->count;
             })),
         ];
     }

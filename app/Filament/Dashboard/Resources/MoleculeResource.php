@@ -19,6 +19,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class MoleculeResource extends Resource
@@ -109,5 +111,12 @@ class MoleculeResource extends Resource
         return [
             MoleculeStats::class,
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return Cache::rememberForever('stats.molecules', function () {
+            return DB::table('molecules')->selectRaw('count(*)')->get()[0]->count;
+        });
     }
 }
