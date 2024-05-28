@@ -17,7 +17,7 @@ class DashWidgetsRefresh extends Command
      *
      * @var string
      */
-    protected $signature = 'app:dash-widgets-refresh';
+    protected $signature = 'app:cache';
 
     /**
      * The console command description.
