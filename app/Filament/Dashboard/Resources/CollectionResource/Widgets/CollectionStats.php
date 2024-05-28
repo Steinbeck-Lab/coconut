@@ -31,10 +31,36 @@ class CollectionStats extends BaseWidget
             Stat::make('Entries', Cache::get('stats.collections'.$this->record->id.'rejected_entries.count'))
                 ->description('Failed entries')
                 ->color('danger'),
+<<<<<<< HEAD
             Stat::make('Total Molecules', Cache::get('stats.collections'.$this->record->id.'molecules.count')),
             Stat::make('Total Citations', Cache::get('stats.collections'.$this->record->id.'citations.count')),
             Stat::make('Total Organisms', Cache::get('stats.collections'.$this->record->id.'organisms.count')),
             Stat::make('Total Geo Locations', Cache::get('stats.collections'.$this->record->id.'geo_locations.count')),
+=======
+            // Stat::make('Total Entries',  $this->record->entries->count()),
+            Stat::make('Total Molecules', $this->record->molecules->count()),
+            Stat::make('Total Citations', $this->record->citations->count()),
+            // Stat::make('Total Organisms', Cache::rememberForever('stats.collections'.$this->record->id.'organisms.count', function () {
+            //     // refactor the below with eloquent relations if possible
+            //     $molecules = $this->record->molecules;
+            //     $count = 0;
+            //     foreach ($molecules as $molecule) {
+            //         $count += $molecule->organisms()->count();
+            //     }
+
+            //     return $count;
+            // })),
+            // Stat::make('Total Geo Locations', Cache::rememberForever('stats.collections'.$this->record->id.'geo_locations.count', function () {
+            //     // refactor the below with eloquent relations if possible
+            //     $molecules = $this->record->molecules;
+            //     $count = 0;
+            //     foreach ($molecules as $molecule) {
+            //         $count += $molecule->geoLocations()->count();
+            //     }
+
+            //     return $count;
+            // })),
+>>>>>>> feature-enhance-reporting
         ];
     }
 }
