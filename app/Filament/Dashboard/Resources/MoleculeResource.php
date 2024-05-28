@@ -20,10 +20,6 @@ use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Cache;
-<<<<<<< HEAD
-=======
-use Illuminate\Support\Facades\DB;
->>>>>>> feature-widget-refresh-command
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class MoleculeResource extends Resource
