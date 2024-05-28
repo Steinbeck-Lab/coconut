@@ -19,6 +19,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Cache;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class MoleculeResource extends Resource
@@ -109,5 +110,10 @@ class MoleculeResource extends Resource
         return [
             MoleculeStats::class,
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return Cache::get('stats.molecules');
     }
 }

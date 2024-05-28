@@ -21,6 +21,8 @@ use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
@@ -76,6 +78,26 @@ class CollectionResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('title')->wrap(),
+                Tables\Columns\TextColumn::make('entries')
+                    ->state(function (Model $record) {
+                        return Cache::get('stats.collections'.$record->id.'entries.count').'/'.Cache::get('stats.collections'.$record->id.'count.rejected_entries');
+                    }),
+                Tables\Columns\TextColumn::make('molecules')
+                    ->state(function (Model $record) {
+                        return Cache::get('stats.collections'.$record->id.'molecules.count');
+                    }),
+                Tables\Columns\TextColumn::make('citations')
+                    ->state(function (Model $record) {
+                        return Cache::get('stats.collections'.$record->id.'citations.count');
+                    }),
+                Tables\Columns\TextColumn::make('organisms')
+                    ->state(function (Model $record) {
+                        return Cache::get('stats.collections'.$record->id.'organisms.count');
+                    }),
+                Tables\Columns\TextColumn::make('geo_locations')
+                    ->state(function (Model $record) {
+                        return Cache::get('stats.collections'.$record->id.'geo_locations.count');
+                    }),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -131,5 +153,10 @@ class CollectionResource extends Resource
             CollectionStats::class,
             EntriesOverview::class,
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return Cache::get('stats.collections');
     }
 }
