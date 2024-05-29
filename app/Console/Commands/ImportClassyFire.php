@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Log;
 use App\Models\Properties;
 use DB;
+use Illuminate\Console\Command;
+use Log;
 
 class ImportClassyFire extends Command
 {
@@ -36,7 +36,7 @@ class ImportClassyFire extends Command
             return 1;
         }
 
-        Log::info("Reading file: " . $file);
+        Log::info('Reading file: '.$file);
 
         $batchSize = 10000;
         $header = null;
@@ -85,7 +85,7 @@ class ImportClassyFire extends Command
             foreach ($data as $row) {
                 Properties::updateorCreate(
                     [
-                        'molecule_id' => $row['id']
+                        'molecule_id' => $row['id'],
                     ],
                     [
                         'chemical_class' => str_replace('"', '', $row['chemical_class']),

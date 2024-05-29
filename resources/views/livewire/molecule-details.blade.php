@@ -99,6 +99,33 @@
         <div
             class="mx-auto mt-8 grid max-w-3xl grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3">
             <div class="space-y-6 lg:col-span-2 lg:col-start-1">
+             @if ($molecule->organisms && count($molecule->organisms) > 0)
+             <section>
+                    <div class="bg-white border shadow sm:rounded-lg">
+                        <div class="px-4 py-5 sm:px-6">
+                            <h2 id="applicant-information-title" class="text-lg font-medium leading-6 text-gray-900">
+                                Organisms</h2>
+                        </div>
+                        <div class="border-t border-gray-200">
+                            <div class="no-scrollbar px-4 py-4 lg:px-8 min-w-0">
+                                    <ul role="list" class="mt-2 leading-8">
+                                        @foreach ($molecule->organisms as $organism)
+                                            @if ($organism != '')
+                                                <li class="inline">
+                                                    <a class="text-sm relative mr-2 inline-flex items-center rounded-md border border-gray-300 px-3 py-0.5"
+                                                        href="{{ urldecode($organism->iri) }}"
+                                                        target="_blank">
+                                                        {{ $organism->name }} | {{ $organism->rank }}
+                                                    </a>
+                                                </li>
+                                            @endif
+                                        @endforeach
+                                    </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                @endif
                 <section>
                     <div class="bg-white border shadow sm:rounded-lg">
                         <div class="px-4 py-5 sm:px-6">
@@ -157,7 +184,7 @@
                                             <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
                                                 <dt
                                                     class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
-                                                    Canonical SMILES (CDK)
+                                                    Canonical SMILES (RDKit)
                                                 </dt>
                                                 <div class="mt-1 break-all text-sm text-gray-900">
                                                     {{ $molecule->canonical_smiles }}

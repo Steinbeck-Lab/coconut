@@ -48,8 +48,9 @@ class CollectionStats extends BaseWidget
                 $molecules = $this->record->molecules;
                 $count = 0;
                 foreach ($molecules as $molecule) {
-                    $count += $molecule->geoLocations()->count();
+                    $count += $molecule->geo_locations()->count();
                 }
+
                 return $count;
             })),
         ];

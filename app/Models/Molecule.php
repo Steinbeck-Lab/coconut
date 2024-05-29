@@ -120,7 +120,7 @@ class Molecule extends Model implements Auditable
     /**
      * Get all of the geo-locations for the molecule.
      */
-    public function geoLocations(): BelongsToMany
+    public function geo_locations(): BelongsToMany
     {
         return $this->belongsToMany(GeoLocation::class)->withPivot('locations')->withTimestamps();
     }

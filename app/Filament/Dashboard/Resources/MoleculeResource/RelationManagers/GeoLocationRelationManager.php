@@ -11,7 +11,7 @@ use Filament\Tables\Table;
 
 class GeoLocationRelationManager extends RelationManager
 {
-    protected static string $relationship = 'geoLocations';
+    protected static string $relationship = 'geo_locations';
 
     public function form(Form $form): Form
     {

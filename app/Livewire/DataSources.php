@@ -3,8 +3,8 @@
 namespace App\Livewire;
 
 use App\Models\Collection;
-use Livewire\Component;
 use Cache;
+use Livewire\Component;
 
 class DataSources extends Component
 {
@@ -12,7 +12,7 @@ class DataSources extends Component
 
     public function mount()
     {
-        $this->collections = Cache::rememberForever('collections', function (){
+        $this->collections = Cache::rememberForever('collections', function () {
             return Collection::limit(10)->pluck('title');
         });
     }

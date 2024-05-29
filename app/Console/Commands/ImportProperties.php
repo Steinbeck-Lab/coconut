@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Log;
 use App\Models\Properties;
 use DB;
+use Illuminate\Console\Command;
+use Log;
 
 class ImportProperties extends Command
 {
@@ -36,7 +36,7 @@ class ImportProperties extends Command
             return 1;
         }
 
-        Log::info("Reading file: " . $file);
+        Log::info('Reading file: '.$file);
 
         $batchSize = 10000;
         $header = null;
@@ -85,7 +85,7 @@ class ImportProperties extends Command
             foreach ($data as $row) {
                 Properties::updateorCreate(
                     [
-                        'molecule_id' => $row['id']
+                        'molecule_id' => $row['id'],
                     ],
                     [
                         'total_atom_count' => str_replace('"', '', $row['atom_count']),
@@ -110,7 +110,7 @@ class ImportProperties extends Command
                         'contains_ring_sugars' => str_replace('"', '', $row['circular_sugars']),
                         'contains_sugar' => filter_var(str_replace('"', '', $row['linear_sugars']), FILTER_VALIDATE_BOOLEAN) || filter_var(str_replace('"', '', $row['circular_sugars']), FILTER_VALIDATE_BOOLEAN),
                         'murko_framework' => str_replace('"', '', $row['murko_framework']),
-                        'nplikeness' => str_replace('"', '', $row['nplikeness']),
+                        'np_likeness' => str_replace('"', '', $row['nplikeness']),
                         'molecular_formula' => str_replace('"', '', $row['molecular_formula']),
                     ]
                 );
