@@ -257,7 +257,7 @@ class Search extends Component
                         $offset;
                 } else {
                     $statement =
-                        'select id, COUNT(*) OVER () from mols limit '.
+                        'select id, COUNT(*) OVER () from molecules ORDER BY annotation_level DESC limit '.
                         $this->size.
                         ' offset '.
                         $offset;

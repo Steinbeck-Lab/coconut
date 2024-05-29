@@ -48,33 +48,18 @@
                     <div>
                         <dt class="font-medium text-gray-500"> Annotation Level</dt>
                         <div class="flex items-center">
-                            <div class="flex items-center">
-                                @if ($molecule->annotation_level > 0)
-                                    @foreach (range(0, $molecule->annotation_level) as $i)
-                                        <svg :key="index" v-for="index in molecule.annotation_level"
-                                            class="inline text-yellow-400 h-5 w-5 flex-shrink-0" x-state:on="Active"
-                                            x-state:off="Inactive"
-                                            x-state-description='Active: "text-yellow-400", Inactive: "text-gray-200"'
-                                            x-description="Heroicon name: mini/star" xmlns="http://www.w3.org/2000/svg"
-                                            viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                            <path fill-rule="evenodd"
-                                                d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                                                clip-rule="evenodd"></path>
-                                        </svg>
-                                    @endforeach
-                                @endif
-                                @foreach (range(1, 5 - $molecule->annotation_level) as $j)
-                                    <svg :key="index" v-for="index in 5 - molecule.annotation_level"
-                                        class="inline text-gray-200 h-5 w-5 flex-shrink-0"
-                                        x-state-description='undefined: "text-yellow-400", undefined: "text-gray-200"'
-                                        x-description="Heroicon name: mini/star" xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd"
-                                            d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
-                                            clip-rule="evenodd"></path>
-                                    </svg>
-                                @endforeach
-                            </div>
+                            @foreach (range(1, $molecule->annotation_level) as $i)
+                                <svg :key="index"
+                                    class="inline text-yellow-400 h-5 w-5 flex-shrink-0" x-state:on="Active"
+                                    x-state:off="Inactive"
+                                    x-state-description='Active: "text-yellow-400", Inactive: "text-gray-200"'
+                                    x-description="Heroicon name: mini/star" xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd"
+                                        d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            @endforeach
                         </div>
                     </div>
                 </div>
@@ -126,6 +111,32 @@
                     </div>
                 </section>
                 @endif
+                 @if ($molecule->geo_locations && count($molecule->geo_locations) > 0)
+             <section>
+                    <div class="bg-white border shadow sm:rounded-lg">
+                        <div class="px-4 py-5 sm:px-6">
+                            <h2 id="applicant-information-title" class="text-lg font-medium leading-6 text-gray-900">
+                                Geolocations</h2>
+                        </div>
+                        <div class="border-t border-gray-200">
+                            <div class="no-scrollbar px-4 py-4 lg:px-8 min-w-0">
+                                    <ul role="list" class="mt-2 leading-8">
+                                        @foreach ($molecule->geo_locations as $geo_location)
+                                            @if ($geo_location != '')
+                                                <li class="inline">
+                                                    <a class="text-sm relative mr-2 inline-flex items-center rounded-md border border-gray-300 px-3 py-0.5"
+                                                        target="_blank">
+                                                        {{ $geo_location->name }}
+                                                    </a>
+                                                </li>
+                                            @endif
+                                        @endforeach
+                                    </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                @endif
                 <section>
                     <div class="bg-white border shadow sm:rounded-lg">
                         <div class="px-4 py-5 sm:px-6">
@@ -152,7 +163,7 @@
                                                     Name
                                                 </dt>
                                                 <div class="mt-1 break-all text-sm text-gray-900">
-                                                    {{ $molecule->name }}
+                                                    {{ $molecule->name ?  $molecule->name : '-' }}
                                                 </div>
                                             </div>
                                             <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
@@ -284,13 +295,13 @@
                                                 {{ $molecule->properties->total_atom_count }}</span></li>
                                         <li class="py-5 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500">Contains Sugar :
-                                                {{ $molecule->properties->contains_sugar }}</span></li>
+                                                {{ $molecule->properties->contains_sugar ? "True" : "False" }}</span></li>
                                         <li class="py-5 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500">Contains Ring Sugars :
-                                                {{ $molecule->properties->contains_ring_sugars }}</span></li>
+                                                {{ $molecule->properties->contains_ring_sugars ? "True" : "False"  }}</span></li>
                                         <li class="py-5 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500">Contains Linear Sugars
-                                                : {{ $molecule->properties->contains_linear_sugars }}</span></li>
+                                                : {{ $molecule->properties->contains_linear_sugars ? "True" : "False" }}</span></li>
                                     </ul>
                                 </div>
                             </div>
@@ -537,6 +548,25 @@
                                             </span>
                                         </li>
                                     </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                @endif
+
+                @if ($molecule->related && count($molecule->related) > 0)
+                    <section aria-labelledby="notes-title">
+                        <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
+                            <div class="divide-y divide-gray-200">
+                                <div class="px-4 py-5 sm:px-6">
+                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">Tautomers</h2>
+                                </div>
+                                <div class="px-4 pb-5 sm:px-6">
+                                    <div class="mx-auto grid mt-6 gap-5 lg:max-w-none md:grid-cols-3 lg:grid-cols-2">
+                                        @foreach ($molecule->related as $tautomer)
+                                            <livewire:molecule-card :molecule="json_encode($tautomer)" />
+                                        @endforeach
+                                    </div>
                                 </div>
                             </div>
                         </div>
