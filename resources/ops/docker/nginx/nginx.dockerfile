@@ -45,7 +45,10 @@ COPY /config config
 COPY /routes routes
 COPY . /var/www/html
 
-RUN composer install
+ARG COMPOSER_AUTH
+ENV COMPOSER_AUTH=$COMPOSER_AUTH
+
+RUN COMPOSER_AUTH=${COMPOSER_AUTH} composer install --no-dev --no-interaction --no-progress --no-ansi --no-scripts
 RUN composer dump-autoload -o
 
 FROM node:18-alpine AS assets-build
