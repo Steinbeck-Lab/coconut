@@ -46,6 +46,7 @@ COPY /routes routes
 COPY . /var/www/html
 
 ARG COMPOSER_AUTH
+RUN echo "COMPOSER_AUTH=$COMPOSER_AUTH"
 RUN echo "$COMPOSER_AUTH" | jq . > auth.json
 
 RUN composer install
