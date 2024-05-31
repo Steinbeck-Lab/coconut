@@ -1,7 +1,7 @@
 FROM php:8.3-fpm-alpine3.19 AS base
 
 RUN apk add --update linux-headers zlib-dev libpng-dev libzip-dev icu-dev $PHPIZE_DEPS
-RUN apk add git
+RUN apk add git jq
 
 RUN docker-php-ext-install exif
 RUN docker-php-ext-install gd
@@ -48,7 +48,7 @@ COPY /routes routes
 COPY . /var/www/html
 
 ARG COMPOSER_AUTH
-RUN echo "$COMPOSER_AUTH" > auth.json
+RUN echo "$COMPOSER_AUTH" | jq . > auth.json
 
 RUN composer install
 RUN composer dump-autoload -o
