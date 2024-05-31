@@ -34,4 +34,25 @@
         @livewireScripts
         @include('cookie-consent::index')
     </body>
+     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function animateValue(element, start, end, duration) {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    element.innerText = Math.floor(progress * (end - start) + start);
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    }
+                };
+                window.requestAnimationFrame(step);
+            }
+
+            document.querySelectorAll('.number').forEach((element) => {
+                const endValue = parseFloat(element.getAttribute('data-value').replace(/,/g, ''));
+                animateValue(element, 0, endValue, 500);
+            });
+        });
+    </script>
 </html>
