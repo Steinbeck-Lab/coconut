@@ -27,6 +27,7 @@ class MoleculesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('canonical_smiles')
             ->columns([
+                Tables\Columns\TextColumn::make('identifier'),
                 Tables\Columns\TextColumn::make('canonical_smiles'),
             ])
             ->filters([

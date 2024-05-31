@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Archilex\AdvancedTables\Plugin\AdvancedTablesPlugin;
 use BezhanSalleh\FilamentExceptions\FilamentExceptionsPlugin;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
@@ -47,6 +48,7 @@ class AdminPanelProvider extends PanelProvider
                 DebuggerPlugin::make(),
                 FilamentSpatieLaravelBackupPlugin::make(),
                 SpotlightPlugin::make(),
+                AdvancedTablesPlugin::make(),
             ])
             ->middleware([
                 EncryptCookies::class,

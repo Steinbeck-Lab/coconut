@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "archilex/filament-filter-sets": "^3.7",
         "bezhansalleh/filament-exceptions": "^2.1.1",
         "bezhansalleh/filament-panel-switch": "*",
         "bezhansalleh/filament-shield": "^3.2",
@@ -90,5 +91,11 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://filament-filter-sets.composer.sh"
+        }
+    ]
 }

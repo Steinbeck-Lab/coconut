@@ -77,10 +77,10 @@ class CollectionResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title')->wrap(),
+                Tables\Columns\TextColumn::make('title')->sortable()->wrap(),
                 Tables\Columns\TextColumn::make('entries')
                     ->state(function (Model $record) {
-                        return Cache::get('stats.collections'.$record->id.'entries.count').'/'.Cache::get('stats.collections'.$record->id.'count.rejected_entries');
+                        return Cache::get('stats.collections'.$record->id.'entries.count').'/'.Cache::get('stats.collections'.$record->id.'rejected_entries.count');
                     }),
                 Tables\Columns\TextColumn::make('molecules')
                     ->state(function (Model $record) {
@@ -119,7 +119,8 @@ class CollectionResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->searchable();
     }
 
     public static function getRelations(): array

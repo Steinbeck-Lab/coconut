@@ -14,6 +14,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         'Spatie\Permission\Models\Role' => 'App\Policies\RolePolicy',
+        'Archilex\AdvancedTables\Models\UserView' => 'App\Policies\UserViewPolicy',
     ];
 
     /**
