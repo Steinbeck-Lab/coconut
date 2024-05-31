@@ -57,8 +57,8 @@ RUN composer dump-autoload -o
 FROM node:18-alpine AS assets-build
 WORKDIR /var/www/html
 COPY . /var/www/html/
-COPY --from=build-fpm /var/www/html/vendor/filament /vendor/filament
-COPY --from=build-fpm /var/www/html/vendor/archilex /vendor/archilex
+COPY --from=build-fpm /var/www/html/vendor /var/www/html/vendor
+
 RUN npm ci
 RUN npm run build
 
