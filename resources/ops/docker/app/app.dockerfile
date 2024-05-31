@@ -47,6 +47,9 @@ COPY /config config
 COPY /routes routes
 COPY . /var/www/html
 
+ARG COMPOSER_AUTH
+RUN echo "$COMPOSER_AUTH" > auth.json
+
 RUN composer install
 RUN composer dump-autoload -o
 
