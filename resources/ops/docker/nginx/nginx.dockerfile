@@ -1,7 +1,7 @@
 FROM php:8.3-fpm-alpine3.19 AS base
 
 RUN apk add --update linux-headers zlib-dev libpng-dev libzip-dev icu-dev $PHPIZE_DEPS
-RUN apk add git jq
+RUN apk add git
 
 RUN docker-php-ext-install exif
 RUN docker-php-ext-install gd
@@ -45,18 +45,16 @@ COPY /config config
 COPY /routes routes
 COPY . /var/www/html
 
-ARG COMPOSER_AUTH
-RUN echo "COMPOSER_AUTH=$COMPOSER_AUTH"
-RUN echo "$COMPOSER_AUTH" | jq . > auth.json
-
 RUN composer install
 RUN composer dump-autoload -o
 
 FROM node:18-alpine AS assets-build
 WORKDIR /var/www/html
 COPY . /var/www/html/
+
 COPY --from=build-fpm /vendor/filament/filament/resources/css/theme.css /var/www/html/vendor/filament/filament/resources/css/theme.css
 COPY --from=build-fpm /vendor/archilex/filament-filter-sets/resources/css/plugin.css /var/www/html/vendor/archilex/filament-filter-sets/resources/css/plugin.css
+
 RUN npm ci
 RUN npm run build
 
