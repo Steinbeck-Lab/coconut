@@ -55,8 +55,8 @@ FROM node:18-alpine AS assets-build
 WORKDIR /var/www/html
 COPY . /var/www/html/
 
-COPY --from=build-fpm /vendor/filament/filament/resources/css/theme.css /var/www/html/vendor/filament/filament/resources/css/theme.css
-COPY --from=build-fpm /vendor/archilex/filament-filter-sets/resources/css/plugin.css /var/www/html/vendor/archilex/filament-filter-sets/resources/css/plugin.css
+COPY --from=build-fpm /var/www/html/vendor/filament/filament/resources/css/theme.css /var/www/html/vendor/filament/filament/resources/css/theme.css
+COPY --from=build-fpm /var/www/html/vendor/archilex/filament-filter-sets/resources/css/plugin.css /var/www/html/vendor/archilex/filament-filter-sets/resources/css/plugin.css
 
 RUN npm ci
 RUN npm run build
