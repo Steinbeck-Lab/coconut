@@ -209,7 +209,7 @@ return [
 
         'local' => [
             'supervisor-1' => [
-                'maxProcesses' => 3,
+                'maxProcesses' => 10,
                 'maxTime' => 0,
                 'maxJobs' => 0,
                 'memory' => 128,

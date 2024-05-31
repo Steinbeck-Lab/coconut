@@ -9,12 +9,18 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Tags\HasTags;
+use Str;
 
 class Collection extends Model implements Auditable
 {
     use HasFactory;
     use HasTags;
     use \OwenIt\Auditing\Auditable;
+
+    protected static function booted()
+    {
+        static::creating(fn ($collection) => $collection->uuid = Str::uuid());
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -25,6 +31,7 @@ class Collection extends Model implements Auditable
         'title',
         'slug',
         'description',
+        'jobs_status',
         'comments',
         'identifier',
         'url',
@@ -63,6 +70,14 @@ class Collection extends Model implements Auditable
      */
     public function molecules(): BelongsToMany
     {
-        return $this->belongsToMany(Molecule::class);
+        return $this->belongsToMany(Molecule::class)->withPivot('url', 'reference', 'mol_filename', 'structural_comments')->withTimestamps();
+    }
+
+    /**
+     * Get all of the reports for the collection.
+     */
+    public function reports(): MorphToMany
+    {
+        return $this->morphToMany(Report::class, 'reportable');
     }
 }

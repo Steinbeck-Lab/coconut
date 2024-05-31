@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\SocialController;
 use App\Livewire\Guides;
 use App\Livewire\MoleculeDetails;
 use App\Livewire\Policy;
@@ -18,6 +19,13 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+Route::group([
+    'prefix' => 'auth',
+], function () {
+    Route::get('/login/{service}', [SocialController::class, 'redirectToProvider']);
+    Route::get('/login/{service}/callback', [SocialController::class, 'handleProviderCallback']);
+});
 
 Route::get('/', Welcome::class);
 Route::get('/policy', Policy::class);

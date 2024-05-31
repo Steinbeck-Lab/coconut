@@ -9,8 +9,9 @@ export default {
         './vendor/laravel/jetstream/**/*.blade.php',
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
-        './vendor/spatie/laravel-support-bubble/config/**/*.php',
-        './vendor/spatie/laravel-support-bubble/resources/views/**/*.blade.php',
+        './app/Filament/**/*.php',
+        './resources/views/filament/**/*.blade.php',
+        './vendor/filament/**/*.blade.php',
     ],
 
     theme: {
@@ -24,7 +25,7 @@ export default {
                     light: '#92400e'
                 },
                 secondary: {
-                    dark: '#3ab449',
+                    dark: '#99674d',
                     light: '#22c55e'
                 },
                 text: {

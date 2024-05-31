@@ -173,7 +173,7 @@ class Search extends Component
             } elseif ($queryType == 'tags') {
                 if ($this->tagType == 'dataSource') {
                     $this->collection = Collection::where('title', $this->query)->first();
-                    $results = $this->collection->molecules()->paginate($this->size);
+                    $results = $this->collection->molecules()->orderBy('annotation_level', 'desc')->paginate($this->size);
                 } else {
                     $results = Molecule::withAnyTags([$this->query], $this->tagType)->paginate($this->size);
                 }
@@ -257,7 +257,7 @@ class Search extends Component
                         $offset;
                 } else {
                     $statement =
-                        'select id, COUNT(*) OVER () from mols limit '.
+                        'select id, COUNT(*) OVER () from molecules ORDER BY annotation_level DESC limit '.
                         $this->size.
                         ' offset '.
                         $offset;

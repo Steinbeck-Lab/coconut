@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('collection_id');
             $table->foreignId('molecule_id');
-            $table->string('url')->nullable();
-            $table->string('reference')->nullable();
+            $table->longText('url')->nullable();
+            $table->longText('reference')->nullable();
+            $table->longText('mol_filename')->nullable();
+            $table->longText('structural_comments')->nullable();
             $table->unique(['collection_id', 'molecule_id']);
             $table->timestamps();
         });

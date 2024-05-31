@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Jobs\LoadEntriesBatch;
+use App\Models\Collection;
 use App\Models\Entry;
 use Artisan;
 use Illuminate\Bus\Batch;
@@ -35,18 +36,25 @@ class ProcessEntries extends Command
         foreach ($collectionIds as $collectionId) {
             $batchJobs = [];
             $i = 0;
-            Entry::select('id')->where('status', 'SUBMITTED')->where('collection_id', $collectionId)->chunk(100, function ($ids) use (&$batchJobs, &$i) {
+
+            $collection = Collection::whereId($collectionId['collection_id'])->first();
+            $collection->jobs_status = 'PROCESSING';
+            $collection->job_info = 'Processing entries using ChEMBL Pipeline.';
+            $collection->save();
+
+            Entry::select('id')->where('status', 'SUBMITTED')->where('collection_id', $collectionId['collection_id'])->chunk(10000, function ($ids) use (&$batchJobs, &$i) {
                 array_push($batchJobs, new LoadEntriesBatch($ids->pluck('id')->toArray()));
                 $i = $i + 1;
             });
             $batch = Bus::batch($batchJobs)->then(function (Batch $batch) {
             })->catch(function (Batch $batch, Throwable $e) {
-            })->finally(function (Batch $batch) use ($collectionId) {
-
+            })->finally(function (Batch $batch) use ($collection) {
+                $collection->jobs_status = 'INCURATION';
+                $collection->job_info = '';
+                $collection->save();
                 Artisan::call('entries:import', [
-                    'collection_id' => $collectionId['collection_id'],
+                    'collection_id' => $collection->id,
                 ]);
-
             })->name('Process Entries '.$collectionId['collection_id'])
                 ->allowFailures(false)
                 ->onConnection('redis')

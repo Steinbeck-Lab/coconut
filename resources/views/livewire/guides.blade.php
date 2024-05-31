@@ -445,7 +445,7 @@
                                     <strong class="font-bold">Note:</strong>
                                     <span class="block sm:inline">For more details check the detailed API
                                         documentation
-                                        <a href="https://dev.COCONUT.naturalproducts.net/api/documentation"
+                                        <a href="https://dev.COCONUT.naturalproducts.net/api-documentation"
                                             class="underline">here</a>.</span>
                                 </div>
                                 <h2 class="mt-6 text-xl font-semibold leading-7 text-indigo-600 sm:text-xl">

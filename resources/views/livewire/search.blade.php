@@ -6,8 +6,9 @@
                     <p class="mt-4 max-w-xl text-sm text-gray-700">#COLLECTION</p>
                     <h1 class="text-3xl font-bold tracking-tight text-gray-900">{{ $collection->title }}</h1>
                     <p class="mt-4 max-w-xl text-sm text-gray-700">{{ $collection->description }}</p>
+                    @if($collection->license)
                     <p class="mt-4 max-w-xl text-sm text-gray-700">License: {{ $collection->license->title }}</p>
-
+                    @endif
                 </div>
             @endif
         @else
@@ -19,7 +20,7 @@
         @endif
     </div>
     <div class="bg-white">
-        <div class="px-8">
+        <div class="px-4 mx-auto max-w-7xl">
             <div class="flex h-16 flex-shrink-0 rounded-md border border-zinc-900/5 border-b-4">
                 <div class="flex flex-1 justify-between px-4 md:px-0">
                     <div class="flex flex-1">
@@ -45,14 +46,11 @@
                     <div class="flex items-center md:ml-6">
                         <div><button type="button"
                                 class="rounded-md text-gray-900 bg-white mr-3 py-3 px-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
-
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                     stroke-width="1.5" stroke="currentColor" class="mr-3 ml-2 h-6 w-6">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
                                 </svg>
-
-
                             </button></div>
                         <div><button type="button"
                                 class="rounded-md bg-white text-gray-900 mr-3 py-3 px-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2"><svg
@@ -81,7 +79,7 @@
         <livewire:molecule-editor />
     </div>
     <div class="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-8 lg:max-w-7xl lg:px-8">
-        <div class="p-4">
+        <div class="p-4 w-full">
             {{ $molecules->links() }}
         </div>
         <div class="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-8">

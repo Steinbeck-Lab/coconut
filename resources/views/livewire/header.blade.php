@@ -1,6 +1,6 @@
   <!-- Header -->
   <header class="absolute inset-x-0 top-0 z-50">
-      <nav class="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
+      <nav class="flex items-center justify-between p-6 lg:px-8 max-w-4xl lg:max-w-7xl mx-auto" aria-label="Global">
           <div class="flex lg:flex-1">
               <a href="/" class="-m-1.5 p-1.5">
                   <x-authentication-card-logo />
@@ -18,7 +18,8 @@
               </button>
           </div>
           <div class="hidden lg:flex lg:gap-x-12">
-              <a href="/api/documentation" class="text-sm font-semibold leading-6 text-gray-900">API</a><a
+           <a href="/search" class="text-sm font-semibold leading-6 text-gray-900">Browse</a>
+              <a href="/api-documentation" class="text-sm font-semibold leading-6 text-gray-900">API</a><a
                   href="/guidelines" class="text-sm font-semibold leading-6 text-gray-900">Guidelines</a><a
                   href="https://cheminf.uni-jena.de/" class="text-sm font-semibold leading-6 text-gray-900">About
                   us</a><a href="/download" class="text-sm font-semibold leading-6 text-gray-900">Download</a>
@@ -53,7 +54,9 @@
               <div class="mt-6 flow-root">
                   <div class="-my-6 divide-y divide-gray-500/10">
                       <div class="space-y-2 py-6">
-                          <a href="/api/documentation"
+                        <a href="/search"
+                              class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Browse</a>
+                          <a href="/api-documentation"
                               class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">API</a>
                           <a href="/guidelines"
                               class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Guidelines</a>

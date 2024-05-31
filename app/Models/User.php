@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Archilex\AdvancedTables\Concerns\HasViews;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -18,6 +19,7 @@ class User extends Authenticatable implements Auditable
     use HasFactory;
     use HasProfilePhoto;
     use HasRoles;
+    use HasViews;
     use Notifiable;
     use \OwenIt\Auditing\Auditable;
     use TwoFactorAuthenticatable;
@@ -62,4 +64,22 @@ class User extends Authenticatable implements Auditable
     protected $appends = [
         'profile_photo_url',
     ];
+
+    /**
+     * Get all of the reports for the user.
+     */
+    public function reports(): HasMany
+    {
+        return $this->hasMany(Report::class);
+    }
+
+    /**
+     * Define the relationship with linked social accounts.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function linkedSocialAccounts()
+    {
+        return $this->hasMany(LinkedSocialAccount::class);
+    }
 }

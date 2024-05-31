@@ -14,13 +14,11 @@ return new class extends Migration
         Schema::create('molecules', function (Blueprint $table) {
             $table->id();
 
-            $table->longText('inchi')->nullable();
-            $table->longText('standard_inchi')->unique();
-            $table->longText('inchi_key')->nullable();
+            $table->longText('standard_inchi')->nullable();
             $table->longText('standard_inchi_key')->nullable();
             $table->longText('canonical_smiles')->nullable();
             $table->longText('sugar_free_smiles')->nullable();
-            $table->longText('identifier')->nullable()->unique();
+            $table->longText('identifier')->nullable();
             $table->longText('name')->nullable();
             $table->longText('cas')->nullable();
             $table->json('synonyms')->nullable();
@@ -40,6 +38,7 @@ return new class extends Migration
             $table->boolean('active')->default(0);
             $table->boolean('has_variants')->default(0);
             $table->boolean('has_stereo')->default(0);
+            $table->boolean('is_tautomer')->default(0);
             $table->boolean('is_parent')->default(0);
             $table->boolean('is_placeholder')->default(0);
 

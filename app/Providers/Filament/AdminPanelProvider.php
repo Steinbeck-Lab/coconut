@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Archilex\AdvancedTables\Plugin\AdvancedTablesPlugin;
 use BezhanSalleh\FilamentExceptions\FilamentExceptionsPlugin;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
@@ -18,7 +19,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use pxlrbt\FilamentEnvironmentIndicator\EnvironmentIndicatorPlugin;
+use pxlrbt\FilamentSpotlight\SpotlightPlugin;
 use ShuvroRoy\FilamentSpatieLaravelBackup\FilamentSpatieLaravelBackupPlugin;
 use Stephenjude\FilamentDebugger\DebuggerPlugin;
 
@@ -46,12 +47,8 @@ class AdminPanelProvider extends PanelProvider
                 FilamentExceptionsPlugin::make(),
                 DebuggerPlugin::make(),
                 FilamentSpatieLaravelBackupPlugin::make(),
-                EnvironmentIndicatorPlugin::make()
-                    ->color(fn () => match (app()->environment()) {
-                        'production' => null,
-                        'staging' => Color::Orange,
-                        default => Color::Red,
-                    }),
+                SpotlightPlugin::make(),
+                AdvancedTablesPlugin::make(),
             ])
             ->middleware([
                 EncryptCookies::class,

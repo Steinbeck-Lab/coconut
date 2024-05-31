@@ -37,4 +37,12 @@ class Citation extends Model
     {
         return $this->morphedByMany(Molecule::class, 'citable');
     }
+
+    /**
+     * Get all of the citations for the report.
+     */
+    public function reports(): MorphToMany
+    {
+        return $this->morphToMany(Report::class, 'reportable');
+    }
 }

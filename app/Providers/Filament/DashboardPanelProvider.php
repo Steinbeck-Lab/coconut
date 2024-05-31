@@ -2,9 +2,11 @@
 
 namespace App\Providers\Filament;
 
+use Archilex\AdvancedTables\Plugin\AdvancedTablesPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\UserMenuItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -17,6 +19,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use pxlrbt\FilamentSpotlight\SpotlightPlugin;
 
 class DashboardPanelProvider extends PanelProvider
 {
@@ -26,17 +29,27 @@ class DashboardPanelProvider extends PanelProvider
             ->id('dashboard')
             ->path('dashboard')
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Teal,
             ])
             ->discoverResources(in: app_path('Filament/Dashboard/Resources'), for: 'App\\Filament\\Dashboard\\Resources')
             ->discoverPages(in: app_path('Filament/Dashboard/Pages'), for: 'App\\Filament\\Dashboard\\Pages')
             ->pages([
                 Pages\Dashboard::class,
             ])
+            ->plugins([
+                AdvancedTablesPlugin::make(),
+                SpotlightPlugin::make(),
+            ])
             ->discoverWidgets(in: app_path('Filament/Dashboard/Widgets'), for: 'App\\Filament\\Dashboard\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                // Widgets\AccountWidget::class,
+                // Widgets\FilamentInfoWidget::class,
+            ])
+            ->userMenuItems([
+                UserMenuItem::make()
+                    ->label('Profile')
+                    ->url('/user/profile')
+                    ->icon('heroicon-s-cog'),
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -57,6 +70,7 @@ class DashboardPanelProvider extends PanelProvider
             ->brandLogoHeight('3rem')
             ->darkMode(false)
             ->sidebarCollapsibleOnDesktop()
+            ->viteTheme('resources/css/filament/dashboard/theme.css')
             ->renderHook(
                 'panels::body.end',
                 fn (): string => view('components.tawk-chat')

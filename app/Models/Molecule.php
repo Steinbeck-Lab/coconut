@@ -47,6 +47,7 @@ class Molecule extends Model implements Auditable
         'active',
         'has_variants',
         'has_stereo',
+        'is_tautomer',
         'is_parent',
         'is_placeholder'];
 
@@ -66,6 +67,14 @@ class Molecule extends Model implements Auditable
     public function citations(): MorphToMany
     {
         return $this->morphToMany(Citation::class, 'citable');
+    }
+
+    /**
+     * Get all of the entries for the molecule.
+     */
+    public function entries(): HasMany
+    {
+        return $this->hasMany(Entry::class);
     }
 
     /**
@@ -97,6 +106,38 @@ class Molecule extends Model implements Auditable
      */
     public function collections(): BelongsToMany
     {
-        return $this->belongsToMany(Collection::class);
+        return $this->belongsToMany(Collection::class)->withPivot('url', 'reference', 'mol_filename', 'structural_comments')->withTimestamps();
+    }
+
+    /**
+     * Get all of the organisms reported for the molecule.
+     */
+    public function organisms(): BelongsToMany
+    {
+        return $this->belongsToMany(Organism::class)->withPivot('id', 'organism_parts')->withTimestamps();
+    }
+
+    /**
+     * Get all of the geo-locations for the molecule.
+     */
+    public function geo_locations(): BelongsToMany
+    {
+        return $this->belongsToMany(GeoLocation::class)->withPivot('locations')->withTimestamps();
+    }
+
+    /**
+     * Get all of the reports for the molecule.
+     */
+    public function reports(): MorphToMany
+    {
+        return $this->morphToMany(Report::class, 'reportable');
+    }
+
+    /**
+     * Get all related molecules.
+     */
+    public function related()
+    {
+        return $this->belongsToMany(Molecule::class, 'molecule_related', 'molecule_id', 'related_id');
     }
 }

@@ -13,12 +13,15 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Cache;
 
 class CitationResource extends Resource
 {
     protected static ?string $navigationGroup = 'Data';
 
     protected static ?string $model = Citation::class;
+
+    protected static ?string $recordTitleAttribute = 'title';
 
     protected static ?int $navigationSort = 2;
 
@@ -70,5 +73,10 @@ class CitationResource extends Resource
             'create' => Pages\CreateCitation::route('/create'),
             'edit' => Pages\EditCitation::route('/{record}/edit'),
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return Cache::get('stats.citations');
     }
 }

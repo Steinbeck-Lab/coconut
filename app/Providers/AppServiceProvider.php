@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
+use App\Listeners\ReportEventSubscriber;
 use BezhanSalleh\PanelSwitch\PanelSwitch;
 use Filament\Facades\Filament;
 use Filament\Navigation\UserMenuItem;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -14,7 +17,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->register(\L5Swagger\L5SwaggerServiceProvider::class);
     }
 
     /**
@@ -22,6 +24,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if ($this->app->environment('production') || $this->app->environment('development')) {
+            URL::forceScheme('https');
+        }
+
         Filament::serving(function () {
             Filament::registerUserMenuItems([
                 UserMenuItem::make()
@@ -50,5 +56,7 @@ class AppServiceProvider extends ServiceProvider
                     'dev',
                 ]));
         });
+
+        Event::subscribe(ReportEventSubscriber::class);
     }
 }

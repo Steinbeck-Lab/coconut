@@ -72,6 +72,7 @@ jobs:
         push: true
         build-args: |
           RELEASE_VERSION=dev-app-latest
+          COMPOSER_AUTH=${{ secrets.COMPOSER_AUTH }}
         tags: ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:dev-app-latest
 
     # Build and push the nginx Docker image
@@ -83,6 +84,7 @@ jobs:
         push: true
         build-args: |
           RELEASE_VERSION=dev-nginx-latest
+          COMPOSER_AUTH=${{ secrets.COMPOSER_AUTH }}
         tags: ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:dev-nginx-latest
 
     # Deploy the latest Docker image to the GKE cluster
