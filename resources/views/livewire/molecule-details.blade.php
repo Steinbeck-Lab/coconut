@@ -91,8 +91,7 @@
                                         @foreach ($molecule->organisms as $organism)
                                             @if ($organism != '')
                                                 <li class="inline">
-                                                    <a class="text-sm relative mr-2 inline-flex items-center rounded-md border border-gray-300 px-3 py-0.5"
-                                                        href="{{ urldecode($organism->iri) }}"
+                                                    <a href="/search?type=tags&q={{$organism->name}}&tagType=organisms" class="text-sm relative mr-2 inline-flex items-center rounded-md border border-gray-300 px-3 py-0.5"
                                                         target="_blank">
                                                         {{ $organism->name }} | {{ $organism->rank }}
                                                     </a>

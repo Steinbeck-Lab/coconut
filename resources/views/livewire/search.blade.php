@@ -11,7 +11,14 @@
                     @endif
                 </div>
             @endif
-        @else
+        @elseif ($tagType == 'organisms')
+            <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+                <p class="mt-4 max-w-xl text-sm text-gray-700">#ORGANISMS</p>
+                @foreach ($organisms as $index => $organism)
+                    <span class="text-3xl font-bold text-gray-900"><span class="italic">{{ ucfirst($organism) }}</span></span>@if (!$loop->last), @endif
+                @endforeach
+            </div>
+        @else        
             <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
                 <h1 class="text-3xl font-bold tracking-tight text-gray-900">Browse compounds</h1>
                 <p class="mt-4 max-w-xl text-sm text-gray-700">Explore our database of natural products to uncover their unique properties. Search, filter, and discover the diverse realm of chemistry.

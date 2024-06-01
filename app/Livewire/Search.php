@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Http\Resources\MoleculeResource;
 use App\Models\Collection;
 use App\Models\Molecule;
+use App\Models\Organism;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
@@ -35,6 +36,8 @@ class Search extends Component
     public $tagType = null;
 
     public $collection = null;
+
+    public $organisms = null;
 
     public function gotoPage($page)
     {
@@ -173,7 +176,31 @@ class Search extends Component
             } elseif ($queryType == 'tags') {
                 if ($this->tagType == 'dataSource') {
                     $this->collection = Collection::where('title', $this->query)->first();
-                    $results = $this->collection->molecules()->orderBy('annotation_level', 'desc')->paginate($this->size);
+                    if ($this->collection) {
+                        $results = $this->collection->molecules()->orderBy('annotation_level', 'desc')->paginate($this->size);
+                    } else {
+                        $results = new LengthAwarePaginator(
+                            [],
+                            0,
+                            $this->size,
+                            $this->page
+                        );
+                    }
+                } elseif ($this->tagType == 'organisms') {
+                    $this->organisms = array_map(function ($name) {
+                        return strtolower(trim($name));
+                    }, explode(',', $this->query));
+
+                    $organismIds = Organism::where(function ($query) {
+                        foreach ($this->organisms as $name) {
+                            $query->orWhereRaw('LOWER(name) = ?', [$name]);
+                        }
+                    })->pluck('id');
+
+                    $results = Molecule::whereHas('organisms', function ($query) use ($organismIds) {
+                        $query->whereIn('organism_id', $organismIds);
+                    })->orderBy('annotation_level', 'DESC')->paginate($this->size);
+
                 } else {
                     $results = Molecule::withAnyTags([$this->query], $this->tagType)->paginate($this->size);
                 }
