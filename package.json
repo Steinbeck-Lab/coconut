@@ -23,6 +23,6 @@
         "vitepress": "^1.2.2"
     },
     "dependencies": {
-        "openchemlib": "^8.9.0"
+        "openchemlib": "^8.13.0"
     }
 }

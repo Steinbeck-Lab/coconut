@@ -13,12 +13,10 @@
             <div class="py-16 sm:py-24 xl:mx-auto xl:max-w-7xl">
                 <div class="px-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8 xl:px-0">
                     <h2 class="text-2xl font-bold tracking-tight text-gray-900">Collections</h2>
-                    {{-- 
-                    <a href="#" class="hidden text-sm font-semibold text-indigo-600 hover:text-indigo-500 sm:block">
+                    <a href="/collections" class="hidden text-sm font-semibold text-indigo-600 hover:text-indigo-500 sm:block">
                         Browse all collections
                         <span aria-hidden="true"> &rarr;</span>
                     </a>
-                    --}}
                 </div>
                 <div class="mt-4 flow-root">
                     <div class="-my-2">

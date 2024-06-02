@@ -91,10 +91,15 @@
                                         @foreach ($molecule->organisms as $organism)
                                             @if ($organism != '')
                                                 <li class="inline">
-                                                    <a href="/search?type=tags&q={{$organism->name}}&tagType=organisms" class="text-sm relative mr-2 inline-flex items-center rounded-md border border-gray-300 px-3 py-0.5"
-                                                        target="_blank">
-                                                        {{ $organism->name }} | {{ $organism->rank }}
-                                                    </a>
+                                                <span class="isolate inline-flex rounded-md shadow-sm mb-2">
+  <a href="/search?type=tags&amp;q=Citrullus lanatus&amp;tagType=organisms" target="_blank" class="relative inline-flex items-center rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 organism">{{ $organism->name }}&nbsp;<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+  <path stroke-linecap="round" stroke-linejoin="round" d="m9 9 6-6m0 0 6 6m-6-6v12a6 6 0 0 1-12 0v-3" />
+</svg></a>
+  <a href="{{ $organism->iri }}" target="_blank" class="relative -ml-px inline-flex items-center rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 capitalize">
+{{ $organism->rank }}&nbsp;<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+</svg></a>
+</span>
                                                 </li>
                                             @endif
                                         @endforeach

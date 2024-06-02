@@ -2,7 +2,6 @@
 
 namespace App\Livewire;
 
-use App\Http\Resources\MoleculeResource;
 use App\Models\Collection;
 use App\Models\Molecule;
 use App\Models\Organism;
@@ -13,6 +12,7 @@ use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Layout('layouts.guest')]
 class Search extends Component
 {
     use WithPagination;
@@ -44,7 +44,14 @@ class Search extends Component
         $this->page = $page;
     }
 
-    #[Layout('layouts.guest')]
+    protected $listeners = ['updateSmiles' => 'setSmiles'];
+
+    public function setSmiles($smiles, $searchType)
+    {
+        $this->query = $smiles;
+        $this->type = $searchType;
+    }
+
     public function render()
     {
 
@@ -262,11 +269,12 @@ class Search extends Component
                             }
                             $statement =
                                 $statement.
-                                '('.$filterMap[$_filter[0]].'::TEXT ILIKE \'%'.$_filter[1].'%\')';
+                                '(LOWER(REGEXP_REPLACE('.$filterMap[$_filter[0]].' , \'\s+\', \'-\', \'g\'))::TEXT ILIKE \'%'.$_filter[1].'%\')';
                         }
                     }
                     $statement = $statement.')';
                 }
+                // dd($statement);
                 $statement = $statement.' LIMIT '.$this->size;
             } else {
                 if ($this->query) {
@@ -362,10 +370,5 @@ class Search extends Component
                 500
             );
         }
-        // return view('livewire.search', [
-        //     'molecules' => MoleculeResource::collection(
-        //         Molecule::where('active', true)->orderByDesc('updated_at')->paginate($this->size)
-        //     ),
-        // ]);
     }
 }

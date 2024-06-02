@@ -6,6 +6,32 @@ use Livewire\Component;
 
 class CompoundClasses extends Component
 {
+    public $superClasses = [
+        'Acetylides',
+        'Alkaloids and derivatives',
+        'Allenes',
+        'Benzenoids',
+        'Hydrocarbon derivatives',
+        'Hydrocarbons',
+        'Lignans, neolignans and related compounds',
+        'Lipids and lipid-like molecules',
+        'Nucleosides, nucleotides, and analogues',
+        'Organoheterocyclic compounds',
+        'Organohalogen compounds',
+        'Organometallic compounds',
+        'Organophosphorus compounds',
+        'Organosulfur compounds',
+        'Organic 1,3-dipolar compounds',
+        'Organic Polymers',
+        'Organic acids and derivatives',
+        'Organic anions',
+        'Organic cations',
+        'Organic nitrogen compounds',
+        'Organic oxygen compounds',
+        'Organic salts',
+        'Phenylpropanoids and polyketides',
+    ];
+
     public $parentClasses = [
         'Acenaphthylenes',
         'Acetals',
@@ -985,7 +1011,8 @@ class CompoundClasses extends Component
 
     public function mount()
     {
-        $this->parentClasses = array_slice($this->parentClasses, 0, 50);
+        // $this->parentClasses = array_slice($this->parentClasses, 0, 50);
+        $this->superClasses = $this->superClasses;
     }
 
     public function render()
