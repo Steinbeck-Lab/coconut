@@ -142,9 +142,11 @@ class Search extends Component
 
             if ($queryType == 'smiles' || $queryType == 'substructure') {
                 $statement =
-                    "select id, COUNT(*) OVER () from mols where m@>'".
+                    "select id, COUNT(*) OVER () from fps where mfp2%morganbv_fp('".
                     $this->query.
-                    "' limit ".
+                    "') order by morganbv_fp(mol_from_smiles('".
+                    $this->query.
+                    "'))<%>mfp2 limit ".
                     $this->size.
                     ' offset '.
                     $offset;
@@ -176,7 +178,9 @@ class Search extends Component
                 $statement =
                     "select id, COUNT(*) OVER () from fps where mfp2%morganbv_fp('".
                     $this->query.
-                    "') limit ".
+                    "') order by morganbv_fp(mol_from_smiles('".
+                    $this->query.
+                    "'))<%>mfp2 limit ".
                     $this->size.
                     ' offset '.
                     $offset;
