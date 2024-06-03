@@ -1,7 +1,7 @@
 <div>
     <div class="mt-24">
         <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-            <h1 class="text-3xl font-bold tracking-tight text-gray-900">Browse collections</h1>
+            <h1 class="text-3xl font-bold tracking-tight text-primary-dark">Browse collections</h1>
             <p class="mt-4 max-w-xl text-sm text-gray-700">Explore our database of natural products to uncover their
                 unique properties. Search, filter, and discover the diverse realm of chemistry.
             </p>

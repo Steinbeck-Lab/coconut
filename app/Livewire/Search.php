@@ -287,20 +287,20 @@ class Search extends Component
     SELECT id, COUNT(*) OVER () 
     FROM molecules 
     WHERE 
-        (\"name\"::TEXT ILIKE '%" . $this->query . "%') 
-        OR (\"synonyms\"::TEXT ILIKE '%" . $this->query . "%') 
-        OR (\"identifier\"::TEXT ILIKE '%" . $this->query . "%') 
+        (\"name\"::TEXT ILIKE '%".$this->query."%') 
+        OR (\"synonyms\"::TEXT ILIKE '%".$this->query."%') 
+        OR (\"identifier\"::TEXT ILIKE '%".$this->query."%') 
     ORDER BY 
         CASE 
-            WHEN \"name\"::TEXT ILIKE '" . $this->query . "' THEN 1 
-            WHEN \"synonyms\"::TEXT ILIKE '" . $this->query . "' THEN 2 
-            WHEN \"identifier\"::TEXT ILIKE '" . $this->query . "' THEN 3 
-            WHEN \"name\"::TEXT ILIKE '%" . $this->query . "%' THEN 4 
-            WHEN \"synonyms\"::TEXT ILIKE '%" . $this->query . "%' THEN 5 
-            WHEN \"identifier\"::TEXT ILIKE '%" . $this->query . "%' THEN 6 
+            WHEN \"name\"::TEXT ILIKE '".$this->query."' THEN 1 
+            WHEN \"synonyms\"::TEXT ILIKE '".$this->query."' THEN 2 
+            WHEN \"identifier\"::TEXT ILIKE '".$this->query."' THEN 3 
+            WHEN \"name\"::TEXT ILIKE '%".$this->query."%' THEN 4 
+            WHEN \"synonyms\"::TEXT ILIKE '%".$this->query."%' THEN 5 
+            WHEN \"identifier\"::TEXT ILIKE '%".$this->query."%' THEN 6 
             ELSE 7 
         END
-    LIMIT " . $this->size . " OFFSET " . $offset;
+    LIMIT ".$this->size.' OFFSET '.$offset;
 
                 } else {
                     $statement =

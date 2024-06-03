@@ -14,11 +14,12 @@
 
                 <div class="mt-3">
                     <div class="bg-white">
-                        <div class="flex h-16 flex-shrink-0 rounded-md border border-zinc-900/5 border-b-4">
-                            <div class="flex flex-1 justify-between px-4 md:px-0">
+                        <div class="flex h-16 flex-shrink-0 rounded-md">
+                            <div
+                                class="flex flex-1 justify-between border-b-4 border border-gray-400 rounded-md px-4 md:px-0">
                                 <div class="flex flex-1">
-                                    <div class="flex w-full md:ml-0"><label for="search-field"
-                                            class="sr-only">Search</label>
+                                    <div class="flex w-full md:ml-0">
+                                        <label for="search-field" class="sr-only">Find natural products</label>
                                         <div class="relative w-full text-gray-400 focus-within:text-gray-600">
                                             <div
                                                 class="px-2 pointer-events-none absolute inset-y-0 left-0 flex items-center">
@@ -32,7 +33,7 @@
                                                 </svg>
                                             </div>
                                             <input x-model="query" id="query"
-                                                class="h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
+                                                class="rounded-md h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
                                                 placeholder="Search compound name, SMILES, InChI, InChI Key"
                                                 type="search" autofocus>
                                         </div>
@@ -53,13 +54,14 @@
                                 </div>
                             </div>
                         </div>
-                        <small>Try: <a href="/search?q=caffeine">Caffeine</a>, <a href="/compounds/CNP0329459">CNP0329459</a></small>
+                        <small>Try: <a class="underline" href="/search?q=caffeine">Caffeine</a>, <a class="underline"
+                                href="/compounds/CNP0329459">CNP0329459</a></small>
                     </div>
                 </div>
                 <div class="mt-5 flex items-center gap-x-6">
                     <div>
                         <button type="button" onclick="Livewire.dispatch('openModal', { smiles: query })"
-                            class="bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 text-gray-400 hover:bg-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
+                            class="bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 text-gray-400 hover:bg-gray-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
                             <svg class="w-12 h-12 mx-auto" viewBox="0 0 78 78" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <g clip-path="url(#clip0_1_2)">
@@ -171,7 +173,7 @@
         <div class="mx-auto max-w-7xl">
             <div class="grid grid-cols-1 gap-px bg-white/5 sm:grid-cols-2 lg:grid-cols-4">
                 <!-- Total Molecules Section -->
-                <div class="bg-gray-900 py-6 px-8 sm:px-6 lg:px-8">
+                <a href="/search" class="bg-gray-900 py-6 px-8 sm:px-6 lg:px-8">
                     <p class="text-sm font-medium leading-6 text-gray-400">
                         <svg fill="currentColor" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
                             xmlns:xlink="http://www.w3.org/1999/xlink" class="w-5 h-5 inline"
@@ -215,9 +217,9 @@
                         <span class="text-4xl font-semibold tracking-tight text-white number"
                             data-value="{{ $totalMolecules }}"></span>
                     </p>
-                </div>
+                </a>
                 <!-- Total Collections Section -->
-                <div class="bg-gray-900 px-8 py-6 sm:px-6 lg:px-8">
+                <a href="/collections"  class="bg-gray-900 px-8 py-6 sm:px-6 lg:px-8">
                     <p class="text-sm font-medium leading-6 text-gray-400">
                         <svg class="w-5 h-5 inline" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"
                             fill="currentColor">
@@ -230,7 +232,7 @@
                         <span class="text-4xl font-semibold tracking-tight text-white number"
                             data-value="{{ $totalCollections }}"></span>
                     </p>
-                </div>
+                </a>
                 <!-- Unique Organisms Section -->
                 <div class="bg-gray-900 px-8 py-6 sm:px-6 lg:px-8">
                     <p class="text-sm font-medium leading-6 text-gray-400">
