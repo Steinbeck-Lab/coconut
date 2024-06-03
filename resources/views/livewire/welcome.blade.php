@@ -1,7 +1,7 @@
 <div x-data="{ query: '' }">
     <div
         class="relative mx-auto mt-32 grid w-full max-w-4xl lg:max-w-7xl grid-cols-1 md:grid-cols-2 px-4 sm:px-6 lg:px-8">
-        <img class="invisible md:visible absolute scale-110 -z-10 -mt-20 -ml-20 w-100 h-auto" src="/img/bg.png"
+        <img class="opacity-50 invisible md:visible absolute scale-100 -z-10 -mt-20 ml-20 w-100 h-auto" src="/img/bg.png"
             alt="">
         <div class="mx-auto py-1 px-4 sm:px-6 sm:py-24 lg:px-8 mb-12">
             <div class="text-left">
@@ -31,37 +31,127 @@
                                                         clip-rule="evenodd"></path>
                                                 </svg>
                                             </div>
-                                            <input x-model="query" id="query" class="h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block" placeholder="Search compound name, SMILES, InChI, InChI Key" type="search" autofocus>
+                                            <input x-model="query" id="query"
+                                                class="h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
+                                                placeholder="Search compound name, SMILES, InChI, InChI Key"
+                                                type="search" autofocus>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="flex items-center md:ml-6">
+                                <div class="flex items-center mx-3">
                                     <div>
-                                        <button @click="window.location.href = '/search?q=' + encodeURIComponent(query)" class="rounded-md bg-gray-100 text-gray-900 mr-1 py-3 px-3 text-gray-400 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">Search</button>
-                                    </div>
-                                    <div><button type="button"
-                                            onclick="Livewire.dispatch('openModal', { smiles: query })"
-                                            class="rounded-md text-gray-900 bg-white mr-1 py-3 px-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                stroke-width="1.5" stroke="currentColor" class="mr-3 ml-2 h-6 w-6">
+                                        <button @click="window.location.href = '/search?q=' + encodeURIComponent(query)"
+                                            class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"><svg
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor" class="size-4 inline">
                                                 <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+                                                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                                             </svg>
-                                        </button>
+                                            &nbsp;Search</button>
                                     </div>
                                     <livewire:structure-editor />
                                 </div>
                             </div>
                         </div>
+                        <small>Try: <a href="/search?q=caffeine">Caffeine</a>, <a href="/compounds/CNP0329459">CNP0329459</a></small>
                     </div>
                 </div>
-                <div class="mt-5 flex items-center gap-x-6"><a href="/search"
-                        class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Browse</a>
-                    or <a href="/admin/collections/create"
-                        class="text-base font-semibold leading-7 text-gray-900">Submit data <span
-                            aria-hidden="true">→</span></a></div>
-                <div class="">
-
+                <div class="mt-5 flex items-center gap-x-6">
+                    <div>
+                        <button type="button" onclick="Livewire.dispatch('openModal', { smiles: query })"
+                            class="bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 text-gray-400 hover:bg-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
+                            <svg class="w-12 h-12 mx-auto" viewBox="0 0 78 78" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <g clip-path="url(#clip0_1_2)">
+                                    <path d="M70.1638 11.819L66.3621 23.4827" stroke="black" stroke-width="1.13386"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M68.0431 32.4052L74.8966 41.819" stroke="black" stroke-width="1.13386"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M68.0431 51.2586L74.8966 41.819" stroke="black" stroke-width="1.13386"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M65.8448 49.6293L71.5086 41.819" stroke="black" stroke-width="1.13386"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M61.0603 54.3621L48.6983 50.3793" stroke="black" stroke-width="1.13386"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M48.6983 50.3793V33.2845" stroke="black" stroke-width="1.13386"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M45.9828 48.8017V34.8621" stroke="black" stroke-width="1.13386"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M61.0603 29.3017L48.6983 33.2845" stroke="black" stroke-width="1.13386"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M48.6983 33.2845L33.9052 24.75" stroke="black" stroke-width="1.13386"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M32.5345 25.5259V12.4397" stroke="black" stroke-width="1.13386"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M35.2759 25.5259V12.4397" stroke="black" stroke-width="1.13386"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M33.9052 24.75L22.7845 31.1638" stroke="black" stroke-width="1.13386"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M19.1121 37.9397V50.3793" stroke="black" stroke-width="1.13386"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M20.4828 51.1552L9.10345 57.7241" stroke="black" stroke-width="1.13386"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M19.1121 48.8017L7.73276 55.3707" stroke="black" stroke-width="1.13386"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M19.1121 50.3793L30.2069 56.7672" stroke="black" stroke-width="1.13386"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M48.6983 50.3793L37.6034 56.7672" stroke="black" stroke-width="1.13386"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M33.9052 63.569V75.9828" stroke="black" stroke-width="1.13386"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M15.4138 31.1638L4.31897 24.75" stroke="black" stroke-width="1.13386"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path
+                                        d="M62.5345 24.9569H63.6466L66.3879 30.1552V24.9569H67.2155V31.1638H66.0776L63.3362 25.9914V31.1638H62.5345V24.9569Z"
+                                        fill="black" />
+                                    <path
+                                        d="M62.5345 52.5H63.6466L66.3879 57.6983V52.5H67.2155V58.7069H66.0776L63.3362 53.5345V58.7069H62.5345V52.5Z"
+                                        fill="black" />
+                                    <path
+                                        d="M33.9052 5.12069C33.2845 5.12069 32.7931 5.34482 32.431 5.7931C32.069 6.24138 31.8879 6.86207 31.8879 7.65517C31.8879 8.43103 32.069 9.05172 32.431 9.51724C32.7931 9.96551 33.2845 10.1897 33.9052 10.1897C34.5086 10.1897 34.9914 9.96551 35.3535 9.51724C35.7155 9.06896 35.8966 8.44827 35.8966 7.65517C35.8966 6.87931 35.7155 6.25862 35.3535 5.7931C34.9914 5.34482 34.5086 5.12069 33.9052 5.12069ZM33.9052 4.44827C34.7672 4.44827 35.4569 4.74138 35.9741 5.32758C36.4914 5.91379 36.75 6.69827 36.75 7.68103C36.75 8.66379 36.4914 9.44827 35.9741 10.0345C35.4569 10.6207 34.7672 10.9138 33.9052 10.9138C33.0259 10.9138 32.3276 10.6207 31.8103 10.0345C31.2931 9.44827 31.0345 8.66379 31.0345 7.68103C31.0345 6.69827 31.2931 5.91379 31.8103 5.32758C32.3276 4.74138 33.0259 4.44827 33.9052 4.44827Z"
+                                        fill="black" />
+                                    <path
+                                        d="M16.7586 30.181H17.8707L20.6121 35.3793V30.181H21.4397V36.3879H20.3017L17.5603 31.2155V36.3879H16.7586V30.181Z"
+                                        fill="black" />
+                                    <path
+                                        d="M4.31897 56.3793C3.69828 56.3793 3.2069 56.6034 2.84483 57.0517C2.48276 57.5 2.30172 58.1207 2.30172 58.9138C2.30172 59.6897 2.48276 60.3103 2.84483 60.7759C3.2069 61.2241 3.69828 61.4483 4.31897 61.4483C4.92241 61.4483 5.40517 61.2241 5.76724 60.7759C6.12931 60.3276 6.31035 59.7069 6.31035 58.9138C6.31035 58.1379 6.12931 57.5172 5.76724 57.0517C5.40517 56.6034 4.92241 56.3793 4.31897 56.3793ZM4.31897 55.681C5.18103 55.681 5.87069 55.9741 6.38793 56.5603C6.90517 57.1465 7.16379 57.931 7.16379 58.9138C7.16379 59.8965 6.90517 60.681 6.38793 61.2672C5.87069 61.8534 5.18103 62.1465 4.31897 62.1465C3.43966 62.1465 2.74138 61.8534 2.22414 61.2672C1.7069 60.681 1.44828 59.8965 1.44828 58.9138C1.44828 57.931 1.7069 57.1465 2.22414 56.5603C2.74138 55.9741 3.43966 55.681 4.31897 55.681Z"
+                                        fill="black" />
+                                    <path
+                                        d="M31.5517 55.8103H32.6638L35.4052 61.0086V55.8103H36.2328V62.0172H35.0948L32.3535 56.8448V62.0172H31.5517V55.8103Z"
+                                        fill="black" />
+                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M61.194 0.892153L70.1146 9.91002C70.6816 10.4859 71 11.2659 71 12.0792C71 12.8924 70.6816 13.6724 70.1146 14.2483L65.1786 19.2692L51.9689 5.89107L56.932 0.892153C57.502 0.320612 58.2717 0 59.0739 0C59.876 0 60.6457 0.320612 61.2157 0.892153H61.194ZM43.5211 41.1808L32.7957 44.5391C25.2666 46.1907 25.3319 47.9249 26.729 40.7348L30.3385 27.8301L49.4682 8.42906L62.678 21.8072L43.532 41.1973L43.5211 41.1808ZM32.5891 30.1149L41.2869 38.9235L34.2199 41.1257C28.7023 42.8489 28.7295 43.9995 30.2298 38.6207L32.5891 30.1424V30.1149Z"
+                                        fill="black" />
+                                </g>
+                                <defs>
+                                    <clipPath id="clip0_1_2">
+                                        <rect width="77.5862" height="78" fill="white" />
+                                    </clipPath>
+                                </defs>
+                            </svg>
+                            <small class="text-base font-semibold leading-7 text-gray-900">Draw Structure</small>
+                        </button>
+                    </div>
+                    <a href="/search"
+                        class="bg-gray-50 text-secondary justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 text-gray-400 hover:bg-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+                        </svg>
+                        <small class="text-base font-semibold leading-7 text-gray-900">Browse Data</small>
+                        </button>
+                    </a>
+                    <a href="/admin/collections/create"
+                        class="bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 text-gray-400 hover:bg-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3 4.5h14.25M3 9h9.75M3 13.5h5.25m5.25-.75L17.25 9m0 0L21 12.75M17.25 9v12" />
+                        </svg>
+                        <small class="text-base font-semibold leading-7 text-gray-900">Submit Data</small>
+                        </button>
+                    </a>
                 </div>
                 <p class="mt-12 text-sm flex items-baseline gap-x-2 text-[0.8125rem]/6 text-gray-500"> Report bugs: <a
                         class="group relative isolate flex items-center rounded-lg px-2 py-0.5 text-[0.8125rem]/6 font-medium text-dark/30 transition-colors hover:text-sky-900 gap-x-2"
@@ -71,7 +161,8 @@
                             <path
                                 d="M8 .198a8 8 0 0 0-8 8 7.999 7.999 0 0 0 5.47 7.59c.4.076.547-.172.547-.384 0-.19-.007-.694-.01-1.36-2.226.482-2.695-1.074-2.695-1.074-.364-.923-.89-1.17-.89-1.17-.725-.496.056-.486.056-.486.803.056 1.225.824 1.225.824.714 1.224 1.873.87 2.33.666.072-.518.278-.87.507-1.07-1.777-.2-3.644-.888-3.644-3.954 0-.873.31-1.586.823-2.146-.09-.202-.36-1.016.07-2.118 0 0 .67-.214 2.2.82a7.67 7.67 0 0 1 2-.27 7.67 7.67 0 0 1 2 .27c1.52-1.034 2.19-.82 2.19-.82.43 1.102.16 1.916.08 2.118.51.56.82 1.273.82 2.146 0 3.074-1.87 3.75-3.65 3.947.28.24.54.73.54 1.48 0 1.07-.01 1.93-.01 2.19 0 .21.14.46.55.38A7.972 7.972 0 0 0 16 8.199a8 8 0 0 0-8-8Z">
                             </path>
-                        </svg><span class="self-baseline">Issue Tracker</span></a></p>
+                        </svg><span class="self-baseline">Issue Tracker</span></a>
+                </p>
             </div>
         </div>
     </div>
