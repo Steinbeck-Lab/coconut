@@ -1,4 +1,4 @@
-<div class="mx-auto max-w-4xl lg:max-w-7xl px-10">
+<div class="mx-auto max-w-4xl lg:max-w-7xl px-4 md:px-10">
     <div class="py-10 bg-white mt-32 rounded-lg border">
         <div
             class="mx-auto max-w-3xl px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-7xl lg:px-8">
