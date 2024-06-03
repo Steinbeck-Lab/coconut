@@ -283,17 +283,22 @@ class Search extends Component
             } else {
                 if ($this->query) {
                     $this->query = str_replace("'", "''", $this->query);
-                    $statement =
-                        "select id, COUNT(*) OVER () from molecules WHERE (\"name\"::TEXT ILIKE '%".
-                        $this->query.
-                        "%') OR (\"synonyms\"::TEXT ILIKE '%".
-                        $this->query.
-                        "%') OR (\"identifier\"::TEXT ILIKE '%".
-                        $this->query.
-                        "%') limit ".
-                        $this->size.
-                        ' offset '.
-                        $offset;
+                    $statement = "
+    SELECT id, COUNT(*) OVER () 
+    FROM molecules 
+    WHERE 
+        (\"name\"::TEXT ILIKE '%".$this->query."%') 
+        OR (\"synonyms\"::TEXT ILIKE '%".$this->query."%') 
+        OR (\"identifier\"::TEXT ILIKE '%".$this->query."%') 
+    ORDER BY 
+        CASE 
+            WHEN \"name\"::TEXT ILIKE '%".$this->query."%' THEN 1 
+            WHEN \"synonyms\"::TEXT ILIKE '%".$this->query."%' THEN 2 
+            WHEN \"identifier\"::TEXT ILIKE '%".$this->query."%' THEN 3 
+            ELSE 4 
+        END
+    LIMIT ".$this->size.' OFFSET '.$offset;
+
                 } else {
                     $statement =
                         'select id, COUNT(*) OVER () from molecules ORDER BY annotation_level DESC limit '.
