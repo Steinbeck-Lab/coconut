@@ -16,6 +16,13 @@ class Welcome extends Component
 
     public $citationsMapped;
 
+    protected $listeners = ['updateSmiles' => 'setSmiles'];
+
+    public function setSmiles($smiles, $searchType)
+    {
+        return redirect()->to('/search?q='.urlencode($smiles).'&type='.urlencode($searchType));
+    }
+
     #[Layout('layouts.guest')]
     public function render()
     {

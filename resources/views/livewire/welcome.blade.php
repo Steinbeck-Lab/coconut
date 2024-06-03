@@ -1,21 +1,68 @@
-<div>
+<div x-data="{ query: '' }">
     <div
         class="relative mx-auto mt-32 grid w-full max-w-4xl lg:max-w-7xl grid-cols-1 md:grid-cols-2 px-4 sm:px-6 lg:px-8">
         <img class="invisible md:visible absolute scale-110 -z-10 -mt-20 -ml-20 w-100 h-auto" src="/img/bg.png"
             alt="">
         <div class="mx-auto py-1 px-4 sm:px-6 sm:py-24 lg:px-8 mb-12">
             <div class="text-left">
-                <h1 class="text-3xl font-bold tracking-tight text-primary-dark sm:text-5xl"><span
+                <h1 class="text-3xl font-bold tracking-tight text-primary-dark sm:text-4xl"><span
                         class="block xl:inline">COCONUT: </span><span class="block text-secondary-dark xl:inline">the
                         COlleCtion of Open NatUral producTs</span></h1>
-                <p class="mt-6 text-lg leading-8 text-text-light"> An aggregated dataset of elucidated and predicted NPs
+                <p class="mt-6 text-md leading-6 text-text-light"> An aggregated dataset of elucidated and predicted NPs
                     collected from open sources and a web interface to browse, search and easily and quickly download
                     NPs. </p>
-                <div class="mt-10 flex items-center gap-x-6"><a href="/search"
+
+                <div class="mt-3">
+                    <div class="bg-white">
+                        <div class="flex h-16 flex-shrink-0 rounded-md border border-zinc-900/5 border-b-4">
+                            <div class="flex flex-1 justify-between px-4 md:px-0">
+                                <div class="flex flex-1">
+                                    <div class="flex w-full md:ml-0"><label for="search-field"
+                                            class="sr-only">Search</label>
+                                        <div class="relative w-full text-gray-400 focus-within:text-gray-600">
+                                            <div
+                                                class="px-2 pointer-events-none absolute inset-y-0 left-0 flex items-center">
+                                                <svg class="h-5 w-5 flex-shrink-0"
+                                                    x-description="Heroicon name: mini/magnifying-glass"
+                                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                                    fill="currentColor" aria-hidden="true">
+                                                    <path fill-rule="evenodd"
+                                                        d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                                                        clip-rule="evenodd"></path>
+                                                </svg>
+                                            </div>
+                                            <input x-model="query" id="query" class="h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block" placeholder="Search compound name, SMILES, InChI, InChI Key" type="search" autofocus>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center md:ml-6">
+                                    <div>
+                                        <button @click="window.location.href = '/search?q=' + encodeURIComponent(query)" class="rounded-md bg-gray-100 text-gray-900 mr-1 py-3 px-3 text-gray-400 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">Search</button>
+                                    </div>
+                                    <div><button type="button"
+                                            onclick="Livewire.dispatch('openModal', { smiles: query })"
+                                            class="rounded-md text-gray-900 bg-white mr-1 py-3 px-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor" class="mr-3 ml-2 h-6 w-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <livewire:structure-editor />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-5 flex items-center gap-x-6"><a href="/search"
                         class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Browse</a>
                     or <a href="/admin/collections/create"
                         class="text-base font-semibold leading-7 text-gray-900">Submit data <span
                             aria-hidden="true">→</span></a></div>
+                <div class="">
+
+                </div>
                 <p class="mt-12 text-sm flex items-baseline gap-x-2 text-[0.8125rem]/6 text-gray-500"> Report bugs: <a
                         class="group relative isolate flex items-center rounded-lg px-2 py-0.5 text-[0.8125rem]/6 font-medium text-dark/30 transition-colors hover:text-sky-900 gap-x-2"
                         target="_blank" href="https://github.com/Steinbeck-Lab/coconut/issues"><span
