@@ -7,6 +7,19 @@
 
         <title>{{ config('app.name', 'Coconut') }}</title>
 
+        <!-- Meta Tags -->
+        <meta name="description" content="{{ $description ?? 'An aggregated dataset of elucidated and predicted natural products collected from open sources and a web interface to browse, search, and easily download NPs.' }}">
+        <meta name="keywords" content="{{ $keywords ?? 'natural products, COCONUT, open data, molecule database' }}">
+        <meta name="author" content="{{ $author ?? 'COCONUT Team' }}">
+        <meta property="og:title" content="{{ $ogTitle ?? 'COCONUT: Collection of Open Natural Products' }}">
+        <meta property="og:description" content="{{ $ogDescription ?? 'An aggregated dataset of elucidated and predicted natural products collected from open sources and a web interface to browse, search, and easily download NPs.' }}">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ $ogUrl ?? url()->current() }}">
+        <meta property="og:image" content="{{ $ogImage ?? asset('img/coconut-og-image.png') }}">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta property="og:site_name" content="{{ $ogSiteName ?? config('app.name', 'Coconut') }}">
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
