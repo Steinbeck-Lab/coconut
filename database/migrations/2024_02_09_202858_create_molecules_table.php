@@ -42,6 +42,12 @@ return new class extends Migration
             $table->boolean('is_parent')->default(0);
             $table->boolean('is_placeholder')->default(0);
 
+            $table->integer('organism_count')->default(0)->nullable();
+            $table->integer('geo_count')->default(0)->nullable();
+            $table->integer('citation_count')->default(0)->nullable();
+            $table->integer('collection_count')->default(0)->nullable();
+            $table->integer('synonym_count')->default(0)->nullable();
+
             $table->json('comment')->nullable();
 
             $table->timestamps();

@@ -61,7 +61,7 @@
                 <div class="mt-5 flex items-center gap-x-6">
                     <div>
                         <button type="button" onclick="Livewire.dispatch('openModal', { smiles: query })"
-                            class="bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 text-gray-400 hover:bg-gray-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
+                            class="bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
                             <svg class="w-12 h-12 mx-auto" viewBox="0 0 78 78" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <g clip-path="url(#clip0_1_2)">
@@ -131,27 +131,27 @@
                                     </clipPath>
                                 </defs>
                             </svg>
-                            <small class="text-base font-semibold leading-7 text-gray-900">Draw Structure</small>
+                            <small class="text-base font-semibold leading-7">Draw Structure</small>
                         </button>
                     </div>
                     <a href="/search"
-                        class="bg-gray-50 text-secondary justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 text-gray-400 hover:bg-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
+                        class="bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
                         </svg>
-                        <small class="text-base font-semibold leading-7 text-gray-900">Browse Data</small>
+                        <small class="text-base font-semibold leading-7">Browse Data</small>
                         </button>
                     </a>
                     <a href="/admin/collections/create"
-                        class="bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 text-gray-400 hover:bg-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
+                        class="bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M3 4.5h14.25M3 9h9.75M3 13.5h5.25m5.25-.75L17.25 9m0 0L21 12.75M17.25 9v12" />
                         </svg>
-                        <small class="text-base font-semibold leading-7 text-gray-900">Submit Data</small>
+                        <small class="text-base font-semibold leading-7">Submit Data</small>
                         </button>
                     </a>
                 </div>
