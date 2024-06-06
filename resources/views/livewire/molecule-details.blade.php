@@ -251,7 +251,9 @@
                         <div class="divide-y divide-gray-200">
                             <div class="px-4 py-5 sm:px-6">
                                 <h2 id="notes-title" class="text-lg font-medium text-gray-900">Synonyms
+                                    @if($molecule->synonyms)
                                     ({{ count($molecule->synonyms) }})</h2>
+                                    @endif
                             </div>
                             <div class="px-4 py-6 sm:px-6">
                                 @if ($molecule->synonyms && count($molecule->synonyms) > 0)
