@@ -256,7 +256,7 @@
                                     @endif
                             </div>
                             <div class="px-4 py-6 sm:px-6">
-                                @if ($molecule->synonyms && count($molecule->synonyms) > 0)
+                                @if ($molecule->synonyms && count($molecule->synonyms) > 0 )
                                     <div class="not-prose flex gap-3">
                                         <div <ul role="list" class="mt-2 leading-8">
                                             @foreach ($molecule->synonyms as $index => $synonym)
@@ -273,20 +273,19 @@
                                             </ul>
                                         </div>
                                     </div>
+                                    <div class="justify-center mt-4 ">
+                                        <button @click="showAllSynonyms = true" x-show="!showAllSynonyms"
+                                            class="text-base font-semibold leading-7 text-secondary-dark text-sm">
+                                            View More ↓
+                                        </button>
+                                        <button @click="showAllSynonyms = false" x-show="showAllSynonyms"
+                                            class="text-base font-semibold leading-7 text-secondary-dark  text-sm">
+                                            View Less ↑
+                                        </button>
+                                    </div>
                                 @else
                                     <span>No synonyms or alternative names were found for this compound</span>
                                 @endif
-
-                                <div class="justify-center mt-4 ">
-                                    <button @click="showAllSynonyms = true" x-show="!showAllSynonyms"
-                                        class="text-base font-semibold leading-7 text-secondary-dark text-sm">
-                                        View More ↓
-                                    </button>
-                                    <button @click="showAllSynonyms = false" x-show="showAllSynonyms"
-                                        class="text-base font-semibold leading-7 text-secondary-dark  text-sm">
-                                        View Less ↑
-                                    </button>
-                                </div>
                                 <div class="gap-3 mt-4">
                                     @if ($molecule->cas && count($molecule->cas) > 0)
                                         <h2 id="notes-title" class="text-md font-medium text-gray-900">CAS</h2>
