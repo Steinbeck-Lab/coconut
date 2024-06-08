@@ -12,6 +12,7 @@ use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\Propertie
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\RelatedRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\Widgets\MoleculeStats;
 use App\Models\Molecule;
+use Archilex\AdvancedTables\Filters\AdvancedFilter;
 use Filament\Forms\Components\TextArea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -65,10 +66,12 @@ class MoleculeResource extends Resource
                 Tables\Columns\TextColumn::make('name')->searchable(),
                 Tables\Columns\TextColumn::make('id')->searchable(),
                 Tables\Columns\TextColumn::make('identifier')->searchable(),
-                Tables\Columns\TextColumn::make('status'),
+                Tables\Columns\TextColumn::make('status')->searchable(),
+                Tables\Columns\ToggleColumn::make('active')
+                    ->searchable(),
             ])
             ->filters([
-                //
+                // 
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
