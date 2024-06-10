@@ -71,7 +71,8 @@ class MoleculeResource extends Resource
                     ->searchable(),
             ])
             ->filters([
-                // 
+                AdvancedFilter::make()
+                    ->includeColumns(),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
