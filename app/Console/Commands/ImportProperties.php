@@ -109,7 +109,7 @@ class ImportProperties extends Command
                         'contains_linear_sugars' => str_replace('"', '', $row['linear_sugars']),
                         'contains_ring_sugars' => str_replace('"', '', $row['circular_sugars']),
                         'contains_sugar' => filter_var(str_replace('"', '', $row['linear_sugars']), FILTER_VALIDATE_BOOLEAN) || filter_var(str_replace('"', '', $row['circular_sugars']), FILTER_VALIDATE_BOOLEAN),
-                        'murko_framework' => str_replace('"', '', $row['murko_framework']),
+                        'murcko_framework' => str_replace('"', '', $row['murcko_framework']),
                         'np_likeness' => str_replace('"', '', $row['nplikeness']),
                         'molecular_formula' => str_replace('"', '', $row['molecular_formula']),
                     ]

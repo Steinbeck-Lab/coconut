@@ -36,7 +36,7 @@ class Molecule extends Model implements Auditable
         'cas',
         'synonyms',
         'iupac_name',
-        'murko_framework',
+        'murcko_framework',
         'structural_comments',
 
         'name_trust_level',

@@ -39,12 +39,16 @@ class MoleculeResource extends Resource
             ->schema([
                 TextInput::make('name'),
                 TextInput::make('identifier'),
-                TextInput::make('iupac_name'),
-                TextInput::make('standard_inchi'),
-                TextInput::make('standard_inchi_key'),
-                TextArea::make('iupac_name'),
-                TextInput::make('canonical_smiles'),
-                TextInput::make('murko_framework'),
+                TextInput::make('iupac_name')
+                    ->label('IUPAC Name'),
+                TextInput::make('standard_inchi')
+                    ->label('Standard InChI'),
+                TextInput::make('standard_inchi_key')
+                    ->label('Standard InChI Key'),
+                TextInput::make('canonical_smiles')
+                    ->label('Canonical SMILES'),
+                TextInput::make('murcko_framework')
+                    ->label('Murcko Framework'),
                 TextArea::make('synonyms'),
             ]);
     }
