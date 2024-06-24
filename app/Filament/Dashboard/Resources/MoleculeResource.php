@@ -12,6 +12,7 @@ use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\Propertie
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\RelatedRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\Widgets\MoleculeStats;
 use App\Models\Molecule;
+use Archilex\AdvancedTables\Filters\AdvancedFilter;
 use Filament\Forms\Components\TextArea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -38,12 +39,16 @@ class MoleculeResource extends Resource
             ->schema([
                 TextInput::make('name'),
                 TextInput::make('identifier'),
-                TextInput::make('iupac_name'),
-                TextInput::make('standard_inchi'),
-                TextInput::make('standard_inchi_key'),
-                TextArea::make('iupac_name'),
-                TextInput::make('canonical_smiles'),
-                TextInput::make('murko_framework'),
+                TextInput::make('iupac_name')
+                    ->label('IUPAC Name'),
+                TextInput::make('standard_inchi')
+                    ->label('Standard InChI'),
+                TextInput::make('standard_inchi_key')
+                    ->label('Standard InChI Key'),
+                TextInput::make('canonical_smiles')
+                    ->label('Canonical SMILES'),
+                TextInput::make('murcko_framework')
+                    ->label('Murcko Framework'),
                 TextArea::make('synonyms'),
             ]);
     }
@@ -65,10 +70,13 @@ class MoleculeResource extends Resource
                 Tables\Columns\TextColumn::make('name')->searchable(),
                 Tables\Columns\TextColumn::make('id')->searchable(),
                 Tables\Columns\TextColumn::make('identifier')->searchable(),
-                Tables\Columns\TextColumn::make('status'),
+                Tables\Columns\TextColumn::make('status')->searchable(),
+                Tables\Columns\ToggleColumn::make('active')
+                    ->searchable(),
             ])
             ->filters([
-                //
+                AdvancedFilter::make()
+                    ->includeColumns(),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

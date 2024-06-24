@@ -235,7 +235,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="mt-1 break-all text-sm text-gray-900">
-                                                        {{ $molecule->properties->murko_framework }}
+                                                        {{ $molecule->properties->murcko_framework }}
                                                     </div>
                                                 </div>
                                             @endif
