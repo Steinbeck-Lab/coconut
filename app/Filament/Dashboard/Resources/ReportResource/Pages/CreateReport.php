@@ -39,11 +39,11 @@ class CreateReport extends CreateRecord
     {
         if ($this->data['choice'] == 'collection') {
             $this->data['citations'] = [];
-            $this->data['molecules'] = null;
+            $this->data['mol_id_csv'] = null;
             $this->data['organisms'] = [];
         } elseif ($this->data['choice'] == 'citation') {
             $this->data['collections'] = [];
-            $this->data['molecules'] = null;
+            $this->data['mol_id_csv'] = null;
             $this->data['organisms'] = [];
         } elseif ($this->data['choice'] == 'molecule') {
             $this->data['collections'] = [];
@@ -52,10 +52,10 @@ class CreateReport extends CreateRecord
         } elseif ($this->data['choice'] == 'organism') {
             $this->data['collections'] = [];
             $this->data['citations'] = [];
-            $this->data['molecules'] = null;
+            $this->data['mol_id_csv'] = null;
         }
 
-        if (! ($this->data['collections'] || $this->data['citations'] || $this->data['molecules'] || $this->data['organisms'])) {
+        if (! ($this->data['collections'] || $this->data['citations'] || $this->data['mol_id_csv'] || $this->data['organisms'])) {
             Notification::make()
                 ->danger()
                 ->title('Select at least one Collection/Citation/Molecule/Organism')
