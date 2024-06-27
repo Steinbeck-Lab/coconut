@@ -2,9 +2,9 @@
 
 namespace App\Livewire;
 
-use App\Http\Resources\MoleculeResource;
 use App\Models\Collection;
 use App\Models\Molecule;
+use App\Models\Organism;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
@@ -12,6 +12,7 @@ use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Layout('layouts.guest')]
 class Search extends Component
 {
     use WithPagination;
@@ -36,12 +37,21 @@ class Search extends Component
 
     public $collection = null;
 
+    public $organisms = null;
+
     public function gotoPage($page)
     {
         $this->page = $page;
     }
 
-    #[Layout('layouts.guest')]
+    protected $listeners = ['updateSmiles' => 'setSmiles'];
+
+    public function setSmiles($smiles, $searchType)
+    {
+        $this->query = $smiles;
+        $this->type = $searchType;
+    }
+
     public function render()
     {
 
@@ -132,9 +142,11 @@ class Search extends Component
 
             if ($queryType == 'smiles' || $queryType == 'substructure') {
                 $statement =
-                    "select id, COUNT(*) OVER () from mols where m@>'".
+                    "select id, COUNT(*) OVER () from fps where mfp2%morganbv_fp('".
                     $this->query.
-                    "' limit ".
+                    "') order by morganbv_fp(mol_from_smiles('".
+                    $this->query.
+                    "'))<%>mfp2 limit ".
                     $this->size.
                     ' offset '.
                     $offset;
@@ -166,14 +178,40 @@ class Search extends Component
                 $statement =
                     "select id, COUNT(*) OVER () from fps where mfp2%morganbv_fp('".
                     $this->query.
-                    "') limit ".
+                    "') order by morganbv_fp(mol_from_smiles('".
+                    $this->query.
+                    "'))<%>mfp2 limit ".
                     $this->size.
                     ' offset '.
                     $offset;
             } elseif ($queryType == 'tags') {
                 if ($this->tagType == 'dataSource') {
                     $this->collection = Collection::where('title', $this->query)->first();
-                    $results = $this->collection->molecules()->paginate($this->size);
+                    if ($this->collection) {
+                        $results = $this->collection->molecules()->orderBy('annotation_level', 'desc')->paginate($this->size);
+                    } else {
+                        $results = new LengthAwarePaginator(
+                            [],
+                            0,
+                            $this->size,
+                            $this->page
+                        );
+                    }
+                } elseif ($this->tagType == 'organisms') {
+                    $this->organisms = array_map(function ($name) {
+                        return strtolower(trim($name));
+                    }, explode(',', $this->query));
+
+                    $organismIds = Organism::where(function ($query) {
+                        foreach ($this->organisms as $name) {
+                            $query->orWhereRaw('LOWER(name) = ?', [$name]);
+                        }
+                    })->pluck('id');
+
+                    $results = Molecule::whereHas('organisms', function ($query) use ($organismIds) {
+                        $query->whereIn('organism_id', $organismIds);
+                    })->orderBy('annotation_level', 'DESC')->paginate($this->size);
+
                 } else {
                     $results = Molecule::withAnyTags([$this->query], $this->tagType)->paginate($this->size);
                 }
@@ -235,29 +273,38 @@ class Search extends Component
                             }
                             $statement =
                                 $statement.
-                                '('.$filterMap[$_filter[0]].'::TEXT ILIKE \'%'.$_filter[1].'%\')';
+                                '(LOWER(REGEXP_REPLACE('.$filterMap[$_filter[0]].' , \'\s+\', \'-\', \'g\'))::TEXT ILIKE \'%'.$_filter[1].'%\')';
                         }
                     }
                     $statement = $statement.')';
                 }
+                // dd($statement);
                 $statement = $statement.' LIMIT '.$this->size;
             } else {
                 if ($this->query) {
                     $this->query = str_replace("'", "''", $this->query);
-                    $statement =
-                        "select id, COUNT(*) OVER () from molecules WHERE (\"name\"::TEXT ILIKE '%".
-                        $this->query.
-                        "%') OR (\"synonyms\"::TEXT ILIKE '%".
-                        $this->query.
-                        "%') OR (\"identifier\"::TEXT ILIKE '%".
-                        $this->query.
-                        "%') limit ".
-                        $this->size.
-                        ' offset '.
-                        $offset;
+                    $statement = "
+    SELECT id, COUNT(*) OVER () 
+    FROM molecules 
+    WHERE 
+        (\"name\"::TEXT ILIKE '%".$this->query."%') 
+        OR (\"synonyms\"::TEXT ILIKE '%".$this->query."%') 
+        OR (\"identifier\"::TEXT ILIKE '%".$this->query."%') 
+    ORDER BY 
+        CASE 
+            WHEN \"name\"::TEXT ILIKE '".$this->query."' THEN 1 
+            WHEN \"synonyms\"::TEXT ILIKE '".$this->query."' THEN 2 
+            WHEN \"identifier\"::TEXT ILIKE '".$this->query."' THEN 3 
+            WHEN \"name\"::TEXT ILIKE '%".$this->query."%' THEN 4 
+            WHEN \"synonyms\"::TEXT ILIKE '%".$this->query."%' THEN 5 
+            WHEN \"identifier\"::TEXT ILIKE '%".$this->query."%' THEN 6 
+            ELSE 7 
+        END
+    LIMIT ".$this->size.' OFFSET '.$offset;
+
                 } else {
                     $statement =
-                        'select id, COUNT(*) OVER () from mols limit '.
+                        'select id, COUNT(*) OVER () from molecules ORDER BY annotation_level DESC limit '.
                         $this->size.
                         ' offset '.
                         $offset;
@@ -335,10 +382,5 @@ class Search extends Component
                 500
             );
         }
-        // return view('livewire.search', [
-        //     'molecules' => MoleculeResource::collection(
-        //         Molecule::where('active', true)->orderByDesc('updated_at')->paginate($this->size)
-        //     ),
-        // ]);
     }
 }

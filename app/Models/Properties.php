@@ -40,7 +40,7 @@ class Properties extends Model
         'contains_linear_sugars',
         'fragments',
         'fragments_with_sugar',
-        'murko_framework',
+        'murcko_framework',
         'np_likeness',
         'chemical_class',
         'chemical_sub_class',

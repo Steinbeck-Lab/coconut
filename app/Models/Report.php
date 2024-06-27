@@ -21,6 +21,7 @@ class Report extends Model implements Auditable
      * @var array<int, string>
      */
     protected $fillable = [
+        'report_type',
         'title',
         'evidence',
         'url',
@@ -53,6 +54,11 @@ class Report extends Model implements Auditable
     public function citations(): MorphToMany
     {
         return $this->morphedByMany(Citation::class, 'reportable');
+    }
+
+    public function organisms(): MorphToMany
+    {
+        return $this->morphedByMany(Organism::class, 'reportable');
     }
 
     /**

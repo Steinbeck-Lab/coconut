@@ -294,3 +294,11 @@
   visibility: visible;
   opacity: 1;
 }
+
+.organism::first-letter {
+  text-transform: capitalize !important;
+}
+
+.organism {
+  font-style: italic;
+}

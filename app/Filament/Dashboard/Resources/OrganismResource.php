@@ -2,13 +2,16 @@
 
 namespace App\Filament\Dashboard\Resources;
 
+use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\MoleculesRelationManager;
 use App\Filament\Dashboard\Resources\OrganismResource\Pages;
+use App\Filament\Dashboard\Resources\OrganismResource\Widgets\OrganismStats;
 use App\Models\Organism;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Cache;
 
 class OrganismResource extends Resource
 {
@@ -38,8 +41,11 @@ class OrganismResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('ontology')
+                Tables\Columns\TextColumn::make('rank')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('iri')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -53,6 +59,7 @@ class OrganismResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -64,9 +71,14 @@ class OrganismResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
+        // $record = static::getOwner();
+        // dd(static::getOwner());
+        // dd(static::$model::molecules()->get());
+        $arr = [
+            MoleculesRelationManager::class,
         ];
+
+        return $arr;
     }
 
     public static function getPages(): array
@@ -75,6 +87,19 @@ class OrganismResource extends Resource
             'index' => Pages\ListOrganisms::route('/'),
             'create' => Pages\CreateOrganism::route('/create'),
             'edit' => Pages\EditOrganism::route('/{record}/edit'),
+            'view' => Pages\ViewOrganism::route('/{record}'),
         ];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            OrganismStats::class,
+        ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return Cache::get('stats.organisms');
     }
 }

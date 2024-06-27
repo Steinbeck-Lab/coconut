@@ -9,7 +9,10 @@ use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\GeoLocati
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\MoleculesRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\OrganismsRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\PropertiesRelationManager;
+use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\RelatedRelationManager;
+use App\Filament\Dashboard\Resources\MoleculeResource\Widgets\MoleculeStats;
 use App\Models\Molecule;
+use Archilex\AdvancedTables\Filters\AdvancedFilter;
 use Filament\Forms\Components\TextArea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -17,6 +20,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Cache;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class MoleculeResource extends Resource
@@ -35,12 +39,16 @@ class MoleculeResource extends Resource
             ->schema([
                 TextInput::make('name'),
                 TextInput::make('identifier'),
-                TextInput::make('iupac_name'),
-                TextInput::make('standard_inchi'),
-                TextInput::make('standard_inchi_key'),
-                TextArea::make('iupac_name'),
-                TextInput::make('canonical_smiles'),
-                TextInput::make('murko_framework'),
+                TextInput::make('iupac_name')
+                    ->label('IUPAC Name'),
+                TextInput::make('standard_inchi')
+                    ->label('Standard InChI'),
+                TextInput::make('standard_inchi_key')
+                    ->label('Standard InChI Key'),
+                TextInput::make('canonical_smiles')
+                    ->label('Canonical SMILES'),
+                TextInput::make('murcko_framework')
+                    ->label('Murcko Framework'),
                 TextArea::make('synonyms'),
             ]);
     }
@@ -60,13 +68,18 @@ class MoleculeResource extends Resource
                     ->ring(5)
                     ->defaultImageUrl(url('/images/placeholder.png')),
                 Tables\Columns\TextColumn::make('name')->searchable(),
+                Tables\Columns\TextColumn::make('id')->searchable(),
                 Tables\Columns\TextColumn::make('identifier')->searchable(),
-                Tables\Columns\TextColumn::make('status'),
+                Tables\Columns\TextColumn::make('status')->searchable(),
+                Tables\Columns\ToggleColumn::make('active')
+                    ->searchable(),
             ])
             ->filters([
-                //
+                AdvancedFilter::make()
+                    ->includeColumns(),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -83,6 +96,7 @@ class MoleculeResource extends Resource
             CollectionsRelationManager::class,
             CitationsRelationManager::class,
             MoleculesRelationManager::class,
+            RelatedRelationManager::class,
             GeoLocationRelationManager::class,
             OrganismsRelationManager::class,
             AuditsRelationManager::class,
@@ -95,6 +109,19 @@ class MoleculeResource extends Resource
             'index' => Pages\ListMolecules::route('/'),
             'create' => Pages\CreateMolecule::route('/create'),
             'edit' => Pages\EditMolecule::route('/{record}/edit'),
+            'view' => Pages\ViewMolecule::route('/{record}'),
         ];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            MoleculeStats::class,
+        ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return Cache::get('stats.molecules');
     }
 }

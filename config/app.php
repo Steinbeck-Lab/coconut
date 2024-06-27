@@ -176,7 +176,7 @@ return [
         App\Providers\JetstreamServiceProvider::class,
         Spatie\Permission\PermissionServiceProvider::class,
         OwenIt\Auditing\AuditingServiceProvider::class,
-        L5Swagger\L5SwaggerServiceProvider::class,
+        App\Providers\RestDocumentationServiceProvider::class,
     ])->toArray(),
 
     /*

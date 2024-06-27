@@ -14,18 +14,16 @@ return new class extends Migration
         Schema::create('molecules', function (Blueprint $table) {
             $table->id();
 
-            $table->longText('inchi')->nullable();
             $table->longText('standard_inchi')->nullable();
-            $table->longText('inchi_key')->nullable();
             $table->longText('standard_inchi_key')->nullable();
-            $table->longText('canonical_smiles')->unique();
+            $table->longText('canonical_smiles')->nullable();
             $table->longText('sugar_free_smiles')->nullable();
             $table->longText('identifier')->nullable();
             $table->longText('name')->nullable();
             $table->longText('cas')->nullable();
             $table->json('synonyms')->nullable();
             $table->longText('iupac_name')->nullable();
-            $table->longText('murko_framework')->nullable();
+            $table->longText('murcko_framework')->nullable();
             $table->longText('structural_comments')->nullable();
 
             $table->integer('name_trust_level')->default(0)->nullable();
@@ -40,8 +38,15 @@ return new class extends Migration
             $table->boolean('active')->default(0);
             $table->boolean('has_variants')->default(0);
             $table->boolean('has_stereo')->default(0);
+            $table->boolean('is_tautomer')->default(0);
             $table->boolean('is_parent')->default(0);
             $table->boolean('is_placeholder')->default(0);
+
+            $table->integer('organism_count')->default(0)->nullable();
+            $table->integer('geo_count')->default(0)->nullable();
+            $table->integer('citation_count')->default(0)->nullable();
+            $table->integer('collection_count')->default(0)->nullable();
+            $table->integer('synonym_count')->default(0)->nullable();
 
             $table->json('comment')->nullable();
 

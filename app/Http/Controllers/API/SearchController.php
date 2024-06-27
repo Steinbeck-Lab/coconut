@@ -276,7 +276,8 @@ class SearchController extends Controller
                         'select id, COUNT(*) OVER () from mols limit '.
                         $limit.
                         ' offset '.
-                        $offset;
+                        $offset.
+                        'ORDER BY annotation_level DESC';
                 }
             }
             if ($statement) {

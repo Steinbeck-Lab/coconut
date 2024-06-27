@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Auth\SocialController;
+use App\Livewire\CollectionList;
 use App\Livewire\Guides;
 use App\Livewire\MoleculeDetails;
 use App\Livewire\Policy;
@@ -19,10 +21,19 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::group([
+    'prefix' => 'auth',
+], function () {
+    Route::get('/login/{service}', [SocialController::class, 'redirectToProvider']);
+    Route::get('/login/{service}/callback', [SocialController::class, 'handleProviderCallback']);
+});
+
 Route::get('/', Welcome::class);
 Route::get('/policy', Policy::class);
 Route::get('/terms', Terms::class);
 Route::get('/guidelines', Guides::class);
+
+Route::get('/collections', CollectionList::class)->name('collections.index');
 
 // Compound pages
 Route::get('compounds/{id}', MoleculeDetails::class)->name('compound');

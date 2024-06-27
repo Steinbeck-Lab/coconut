@@ -2,13 +2,16 @@
 
 namespace App\Providers\Filament;
 
+use Archilex\AdvancedTables\Plugin\AdvancedTablesPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\UserMenuItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\ActionSize;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -35,12 +38,24 @@ class DashboardPanelProvider extends PanelProvider
                 Pages\Dashboard::class,
             ])
             ->plugins([
+                AdvancedTablesPlugin::make()
+                    ->persistActiveViewInSession()
+                    ->favoritesBarDivider()
+                    ->favoritesBarSize(ActionSize::Small)
+                    ->favoritesBarDefaultView(false)
+                    ->presetViewsManageable(false),
                 SpotlightPlugin::make(),
             ])
             ->discoverWidgets(in: app_path('Filament/Dashboard/Widgets'), for: 'App\\Filament\\Dashboard\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                // Widgets\AccountWidget::class,
+                // Widgets\FilamentInfoWidget::class,
+            ])
+            ->userMenuItems([
+                UserMenuItem::make()
+                    ->label('Profile')
+                    ->url('/user/profile')
+                    ->icon('heroicon-s-cog'),
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -61,6 +76,7 @@ class DashboardPanelProvider extends PanelProvider
             ->brandLogoHeight('3rem')
             ->darkMode(false)
             ->sidebarCollapsibleOnDesktop()
+            ->viteTheme('resources/css/filament/dashboard/theme.css')
             ->renderHook(
                 'panels::body.end',
                 fn (): string => view('components.tawk-chat')

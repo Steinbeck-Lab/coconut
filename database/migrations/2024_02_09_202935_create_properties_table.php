@@ -51,7 +51,7 @@ return new class extends Migration
             $table->jsonb('fragments')->nullable();
             $table->jsonb('fragments_with_sugar')->nullable();
 
-            $table->longText('murko_framework')->nullable();
+            $table->longText('murcko_framework')->nullable();
             $table->decimal('np_likeness')->nullable();
 
             $table->jsonb('chemical_class')->nullable();

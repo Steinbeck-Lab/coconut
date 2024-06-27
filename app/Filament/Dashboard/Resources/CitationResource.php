@@ -16,6 +16,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\HtmlString;
 
 class CitationResource extends Resource
@@ -151,5 +152,10 @@ class CitationResource extends Resource
             'create' => Pages\CreateCitation::route('/create'),
             'edit' => Pages\EditCitation::route('/{record}/edit'),
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return Cache::get('stats.citations');
     }
 }

@@ -8,6 +8,7 @@ use App\Models\Entry;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Cache;
 
 class ImportEntries extends Command
 {
@@ -16,7 +17,7 @@ class ImportEntries extends Command
      *
      * @var string
      */
-    protected $signature = 'entries:import {collection_id}';
+    protected $signature = 'entries:import {collection_id?}';
 
     /**
      * The console command description.
@@ -35,7 +36,7 @@ class ImportEntries extends Command
         if (! is_null($collection_id)) {
             $collections = Collection::where('id', $collection_id)->get();
         } else {
-            $collections = Collection::where('status', 'PUBLISHED')->get();
+            $collections = Collection::where('status', 'DRAFT')->get();
         }
 
         foreach ($collections as $collection) {
@@ -55,6 +56,7 @@ class ImportEntries extends Command
                 $collection->jobs_status = 'INCURATION';
                 $collection->job_info = '';
                 $collection->save();
+                Cache::forget('stats.collections'.$collection->id.'molecules.count');
             })->name('Import Entries '.$collection->id)
                 ->allowFailures(false)
                 ->onConnection('redis')
