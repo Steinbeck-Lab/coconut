@@ -21,6 +21,7 @@ class Report extends Model implements Auditable
      * @var array<int, string>
      */
     protected $fillable = [
+        'report_type',
         'title',
         'evidence',
         'url',

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('reports', function (Blueprint $table) {
             $table->id();
+            $table->string('report_type', 2048)->nullable();
             $table->longText('title');
             $table->longText('evidence')->nullable();
             $table->string('url', 2048)->nullable();
