@@ -37,19 +37,19 @@ class CreateReport extends CreateRecord
 
     protected function beforeCreate(): void
     {
-        if ($this->data['choice'] == 'collection') {
+        if ($this->data['report_type'] == 'collection') {
             $this->data['citations'] = [];
             $this->data['mol_id_csv'] = null;
             $this->data['organisms'] = [];
-        } elseif ($this->data['choice'] == 'citation') {
+        } elseif ($this->data['report_type'] == 'citation') {
             $this->data['collections'] = [];
             $this->data['mol_id_csv'] = null;
             $this->data['organisms'] = [];
-        } elseif ($this->data['choice'] == 'molecule') {
+        } elseif ($this->data['report_type'] == 'molecule') {
             $this->data['collections'] = [];
             $this->data['citations'] = [];
             $this->data['organisms'] = [];
-        } elseif ($this->data['choice'] == 'organism') {
+        } elseif ($this->data['report_type'] == 'organism') {
             $this->data['collections'] = [];
             $this->data['citations'] = [];
             $this->data['mol_id_csv'] = null;
