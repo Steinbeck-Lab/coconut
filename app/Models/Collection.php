@@ -8,16 +8,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use OwenIt\Auditing\Contracts\Auditable;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Tags\HasTags;
 use Str;
 
-class Collection extends Model implements Auditable, HasMedia
+class Collection extends Model implements Auditable
 {
     use HasFactory;
     use HasTags;
-    use InteractsWithMedia;
     use \OwenIt\Auditing\Auditable;
 
     protected static function booted()
@@ -84,4 +81,9 @@ class Collection extends Model implements Auditable, HasMedia
     {
         return $this->morphToMany(Report::class, 'reportable');
     }
+
+    // protected function fullUrl()
+    // {
+    //     return Collection::
+    // }
 }
