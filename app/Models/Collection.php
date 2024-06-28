@@ -81,9 +81,4 @@ class Collection extends Model implements Auditable
     {
         return $this->morphToMany(Report::class, 'reportable');
     }
-
-    // protected function fullUrl()
-    // {
-    //     return Collection::
-    // }
 }

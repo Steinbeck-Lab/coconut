@@ -13,7 +13,7 @@ class DataSources extends Component
     public function mount()
     {
         $this->collections = Cache::rememberForever('collections', function () {
-            return Collection::limit(10)->pluck('title');
+            return Collection::take(10)->get(['title', 'image'])->toArray();
         });
     }
 
