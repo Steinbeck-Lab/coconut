@@ -13,6 +13,7 @@
         "bezhansalleh/filament-exceptions": "^2.1.1",
         "bezhansalleh/filament-panel-switch": "*",
         "bezhansalleh/filament-shield": "^3.2",
+        "dompdf/dompdf": "^3.0",
         "filament/filament": "^3.2",
         "filament/forms": "^3.2",
         "filament/spatie-laravel-tags-plugin": "^3.2",
@@ -25,6 +26,7 @@
         "league/flysystem-aws-s3-v3": "^3.0",
         "livewire/livewire": "^3.0",
         "lomkit/laravel-rest-api": "*",
+        "mpdf/mpdf": "^8.2",
         "owen-it/laravel-auditing": "^13.6",
         "predis/predis": "^2.2",
         "pxlrbt/filament-excel": "^2.3",
@@ -35,7 +37,8 @@
         "spatie/laravel-permission": "^6.3",
         "stechstudio/filament-impersonate": "*",
         "stephenjude/filament-debugger": "^3.0",
-        "tapp/filament-auditing": "^3.0"
+        "tapp/filament-auditing": "^3.0",
+        "tecnickcom/tc-lib-pdf": "^8.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
