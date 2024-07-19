@@ -21,9 +21,9 @@ use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Cache;
-use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
+use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class MoleculeResource extends Resource
 {
@@ -85,7 +85,7 @@ class MoleculeResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                
+
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                     ExportBulkAction::make()->exports([
@@ -98,8 +98,7 @@ class MoleculeResource extends Resource
                         ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::MPDF)->label('MPDF')->queue(),
                         // ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::DOMPDF)->label('DOMPDF')->queue(),
                         // ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::TCPDF)->label('TCPDF')->queue(),
-                    ])
-                    ,
+                    ]),
                 ]),
             ]);
     }
