@@ -18,8 +18,10 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
@@ -73,7 +75,30 @@ class MoleculeResource extends Resource
                 Tables\Columns\TextColumn::make('id')->searchable(),
                 Tables\Columns\TextColumn::make('identifier')->searchable(),
                 Tables\Columns\TextColumn::make('status')->searchable(),
-                Tables\Columns\ToggleColumn::make('active')
+                Tables\Columns\TextColumn::make('active')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => $state ? 'Active' : 'Inactive')
+                    ->color(fn (string $state): string => match ($state) {
+                        '1' => 'success',
+                        '' => 'warning',
+                    })
+                    ->action(
+                        Action::make('moleculeStausChange')
+                            ->form([
+                                TextArea::make('reason')
+                                    ->required(function (Molecule $record) {
+                                        return $record['active'];
+                                    }),
+                            ])
+                            ->action(function (array $data, Molecule $record): void {
+                                $record->comment = json_encode([Auth::user()->id => $data['reason']]);
+                                $record->active = ! $record->active;
+                                $record->save();
+                            })
+                            ->modalHidden(function (Molecule $record) {
+                                return ! $record['active'];
+                            })
+                    )
                     ->searchable(),
             ])
             ->filters([
