@@ -4,7 +4,7 @@ layout: home
 
 hero:
   name: "COCONUT"
-  text: "COlleCtion of Open NatUral producTs"
+  text: "COlleCtion of Open Natural prodUcTs"
   tagline: An aggregated dataset of elucidated and predicted NPs collected from open sources and a web interface to browse, search and easily and quickly download NPs.
   actions:
     - theme: brand

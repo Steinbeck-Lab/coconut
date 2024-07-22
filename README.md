@@ -13,7 +13,7 @@
 
 ## About COCONUT
 
-COlleCtion of Open NatUral producTs (COCONUT) database is comprised of elucidated and predicted NPs collected from more than 50 open-source datasets, in addition to a web interface that can be used to browse, search, and download the NPs. The COCONUT web can be accessed at the following address: https://coconut.naturalproducts.net.
+COlleCtion of Open Natural prodUcTs (COCONUT) database is comprised of elucidated and predicted NPs collected from more than 50 open-source datasets, in addition to a web interface that can be used to browse, search, and download the NPs. The COCONUT web can be accessed at the following address: https://coconut.naturalproducts.net.
 
 ## Descriptor calculations
 COCONUT descriptors are calculated using our [microservices](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice) more details could be found [here](https://api.naturalproducts.net/docs). 
@@ -22,7 +22,7 @@ COCONUT descriptors are calculated using our [microservices](https://github.com/
 This project is licensed under the MIT License - see the [LICENSE](https://GitHub.com/Steinbeck-Lab/coconut/blob/documentation/LICENSE) file for details
 
 ## Citation
-Sorokina, M., Merseburger, P., Rajan, K. et al. COCONUT online: COlleCtion of Open NatUral producTs database. J Cheminform 13, 2 (2021). https://doi.org/10.1186/s13321-020-00478-9
+Sorokina, M., Merseburger, P., Rajan, K. et al. COCONUT online: COlleCtion of Open Natural prodUcTs database. J Cheminform 13, 2 (2021). https://doi.org/10.1186/s13321-020-00478-9
 
 ## Maintained by
 COCONUT and [Natural Products Online](https://naturalproducts.net) are developed and maintained by the Steinbeck group at the University Friedrich-Schiller in Jena, Germany. 
