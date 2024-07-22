@@ -26,6 +26,8 @@ use Illuminate\Support\Facades\Cache;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
+use Filament\Tables\Actions\BulkAction;
+use Illuminate\Database\Eloquent\Collection;
 
 class MoleculeResource extends Resource
 {
@@ -65,7 +67,7 @@ class MoleculeResource extends Resource
                 ImageColumn::make('structure')->square()
                     ->label('Structure')
                     ->state(function ($record) {
-                        return env('CM_API', 'https://dev.api.naturalproducts.net/latest/').'depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=false&toolkit=cdk';
+                        return env('CM_API', 'https://dev.api.naturalproducts.net/latest/') . 'depict/2D?smiles=' . urlencode($record->canonical_smiles) . '&height=300&width=300&CIP=false&toolkit=cdk';
                     })
                     ->width(200)
                     ->height(200)
@@ -91,12 +93,23 @@ class MoleculeResource extends Resource
                                     }),
                             ])
                             ->action(function (array $data, Molecule $record): void {
-                                $record->comment = json_encode([Auth::user()->id => $data['reason']]);
-                                $record->active = ! $record->active;
+
+                                $record->active = !$record->active;
+
+                                $reasons = json_decode($record->comment, true);
+                                array_push($reasons, [
+                                    'changed_status_to' => $record['active'],
+                                    'changed_by' => Auth::user()->id,
+                                    'changed_at' => now(),
+                                    'reason' => $data['reason'],
+                                    'bulk_action' => false,
+                                ]);
+                                $record->comment = json_encode($reasons);
+
                                 $record->save();
                             })
                             ->modalHidden(function (Molecule $record) {
-                                return ! $record['active'];
+                                return !$record['active'];
                             })
                     )
                     ->searchable(),
@@ -113,6 +126,32 @@ class MoleculeResource extends Resource
 
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    BulkAction::make('Active Status Change')
+                        ->form([
+                            TextArea::make('reason')
+                                ->required(),
+                        ])
+                        ->action(function (array $data, Collection $records): void {
+                            foreach ($records as $record) {
+                                $record->active = !$record->active;
+
+                                $reasons = json_decode($record->comment, true);
+                                array_push($reasons, [
+                                    'changed_status_to' => $record['active'],
+                                    'changed_by' => Auth::user()->id,
+                                    'changed_at' => now(),
+                                    'reason' => $data['reason'],
+                                    'bulk_action' => true,
+                                ]);
+                                $record->comment = json_encode($reasons);
+
+                                $record->save();
+                            }
+                        })
+                        // ->modalHidden(function (Molecule $record) {
+                        //     return !$record['active'];
+                        // })
+                        ->deselectRecordsAfterCompletion(),
                     ExportBulkAction::make()->exports([
                         ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::XLSX)->label('XLSX')->queue(),
                         ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::CSV)->label('CSV')->queue(),
@@ -123,7 +162,8 @@ class MoleculeResource extends Resource
                         ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::MPDF)->label('MPDF')->queue(),
                         // ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::DOMPDF)->label('DOMPDF')->queue(),
                         // ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::TCPDF)->label('TCPDF')->queue(),
-                    ]),
+                    ])
+                        ->deselectRecordsAfterCompletion(),
                 ]),
             ]);
     }
