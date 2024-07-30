@@ -13,6 +13,7 @@ use App\Models\Collection;
 use Filament\Forms\Components\Livewire;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\TextArea;
 use Filament\Forms\Components\TextInput;
@@ -61,6 +62,7 @@ class CollectionResource extends Resource
                                 ->splitKeys(['Tab', ','])
                                 ->type('collections'),
                             TextInput::make('identifier'),
+                            SpatieMediaLibraryFileUpload::make('avatar'),
                         ]),
                     Section::make('Distribution')
                         ->schema([

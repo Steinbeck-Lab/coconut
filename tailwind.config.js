@@ -25,8 +25,8 @@ export default {
                     light: '#92400e'
                 },
                 secondary: {
-                    dark: '#99674d',
-                    light: '#22c55e'
+                    dark: '#32994d',
+                    light: '#32994d'
                 },
                 text: {
                     dark: '#374151',

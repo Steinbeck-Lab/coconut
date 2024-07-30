@@ -8,6 +8,8 @@ class ShowJobStatus extends Component
 {
     public $collection = null;
 
+    public $failMessage = null;
+
     public function mount($record = null)
     {
         $this->collection = $record;
