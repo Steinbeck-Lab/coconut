@@ -67,15 +67,29 @@ class MoleculeResource extends Resource
                 ImageColumn::make('structure')->square()
                     ->label('Structure')
                     ->state(function ($record) {
-                        return env('CM_API', 'https://dev.api.naturalproducts.net/latest/').'depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=false&toolkit=cdk';
+                        return env('CM_API', 'https://dev.api.naturalproducts.net/latest/') . 'depict/2D?smiles=' . urlencode($record->canonical_smiles) . '&height=300&width=300&CIP=false&toolkit=cdk';
                     })
                     ->width(200)
                     ->height(200)
                     ->ring(5)
                     ->defaultImageUrl(url('/images/placeholder.png')),
-                Tables\Columns\TextColumn::make('name')->searchable(),
                 Tables\Columns\TextColumn::make('id')->searchable(),
                 Tables\Columns\TextColumn::make('identifier')->searchable(),
+                Tables\Columns\TextColumn::make('name')->searchable()
+                    ->description(fn (Molecule $molecule): string => $molecule->standard_inchi)
+                    ->wrap(),
+                Tables\Columns\TextColumn::make('synonyms')
+                    ->searchable()
+                    ->wrap()
+                    ->lineClamp(6),
+                Tables\Columns\TextColumn::make('properties.exact_molecular_weight')
+                    ->label('Mol.Wt')
+                    ->numeric()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('properties.np_likeness')
+                    ->label('NP Likeness')
+                    ->numeric()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('status')->searchable(),
                 Tables\Columns\TextColumn::make('active')
                     ->badge()
@@ -94,7 +108,7 @@ class MoleculeResource extends Resource
                             ])
                             ->action(function (array $data, Molecule $record): void {
 
-                                $record->active = ! $record->active;
+                                $record->active = !$record->active;
 
                                 $reasons = json_decode($record->comment, true);
                                 array_push($reasons, [
@@ -109,7 +123,7 @@ class MoleculeResource extends Resource
                                 $record->save();
                             })
                             ->modalHidden(function (Molecule $record) {
-                                return ! $record['active'];
+                                return !$record['active'];
                             })
                     )
                     ->searchable(),
@@ -123,7 +137,6 @@ class MoleculeResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                     BulkAction::make('Active Status Change')
@@ -133,7 +146,7 @@ class MoleculeResource extends Resource
                         ])
                         ->action(function (array $data, Collection $records): void {
                             foreach ($records as $record) {
-                                $record->active = ! $record->active;
+                                $record->active = !$record->active;
 
                                 $reasons = json_decode($record->comment, true);
                                 array_push($reasons, [
