@@ -3,7 +3,7 @@
         setTimeout(() => {
             const editor = OCL.StructureEditor.createSVGEditor('structureSearchEditor', 1);
             if (smiles) {
-            console.log(smiles)
+                console.log(smiles)
                 editor.setSmiles(smiles);
             }
             window.getEditorSmiles = () => editor.getSmiles();

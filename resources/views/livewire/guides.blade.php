@@ -158,8 +158,7 @@
                                 <li class="flex gap-x-3">
                                     <svg class="mt-1 h-5 w-5 flex-none text-indigo-600" viewBox="0 0 20 20"
                                         fill="currentColor" aria-hidden="true">
-                                        <circle cx="12" cy="12" r="10" fill="none"
-                                            stroke="#000" />
+                                        <circle cx="12" cy="12" r="10" fill="none" stroke="#000" />
                                         <path d="M15.5 15.5L19 19" stroke="#000" stroke-width="2" />
                                         <path d="M9 12a3 3 0 1 1 6 0 3 3 0 0 1-6 0zm0 0" fill="#000"
                                             fill-rule="evenodd" />

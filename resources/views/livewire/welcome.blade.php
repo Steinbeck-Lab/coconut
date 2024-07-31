@@ -1,17 +1,20 @@
 <div x-data="{ query: '' }">
-<div class="relative isolate -z-10">
-      <svg class="absolute inset-x-0 -top-52 -z-10 h-[64rem] w-full stroke-gray-200 [mask-image:radial-gradient(32rem_32rem_at_center,white,transparent)]" aria-hidden="true">
-        <defs>
-          <pattern id="1f932ae7-37de-4c0a-a8b0-a6e3b4d44b84" width="200" height="200" x="50%" y="-1" patternUnits="userSpaceOnUse">
-            <path d="M.5 200V.5H200" fill="none" />
-          </pattern>
-        </defs>
-        <svg x="50%" y="-1" class="overflow-visible fill-gray-50">
-          <path d="M-200 0h201v201h-201Z M600 0h201v201h-201Z M-400 600h201v201h-201Z M200 800h201v201h-201Z" stroke-width="0" />
+    <div class="relative isolate -z-10">
+        <svg class="absolute inset-x-0 -top-52 -z-10 h-[64rem] w-full stroke-gray-200 [mask-image:radial-gradient(32rem_32rem_at_center,white,transparent)]"
+            aria-hidden="true">
+            <defs>
+                <pattern id="1f932ae7-37de-4c0a-a8b0-a6e3b4d44b84" width="200" height="200" x="50%" y="-1"
+                    patternUnits="userSpaceOnUse">
+                    <path d="M.5 200V.5H200" fill="none" />
+                </pattern>
+            </defs>
+            <svg x="50%" y="-1" class="overflow-visible fill-gray-50">
+                <path d="M-200 0h201v201h-201Z M600 0h201v201h-201Z M-400 600h201v201h-201Z M200 800h201v201h-201Z"
+                    stroke-width="0" />
+            </svg>
+            <rect width="100%" height="100%" stroke-width="0" fill="url(#1f932ae7-37de-4c0a-a8b0-a6e3b4d44b84)" />
         </svg>
-        <rect width="100%" height="100%" stroke-width="0" fill="url(#1f932ae7-37de-4c0a-a8b0-a6e3b4d44b84)" />
-      </svg>
-      </div>
+    </div>
     <div class="relative mx-auto mt-32 grid w-full max-w-4xl lg:max-w-7xl grid-cols-1 px-4 sm:px-6 lg:px-8">
         <div class="mx-auto w-full py-1 px-4 sm:px-6 sm:py-20 lg:px-8 mb-12">
             <div class="text-center max-w-4xl mx-auto">

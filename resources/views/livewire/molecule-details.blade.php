@@ -234,24 +234,38 @@
                         <div class="divide-y divide-gray-200">
                             <div class="px-4 py-5 sm:px-6">
                                 <h2 id="notes-title" class="text-lg font-medium text-gray-900">Synonyms
-                                    @if($molecule->synonyms)
-                                    ({{ count($molecule->synonyms) }})</h2>
+                                    @if ($molecule->synonyms)
+                                        ({{ count($molecule->synonyms) }})
+                                </h2>
                                 @endif
                             </div>
                             <div class="px-4 py-6 sm:px-6">
-                                @if ($molecule->synonyms && count($molecule->synonyms) > 0 )
-                                <div class="not-prose flex gap-3">
-                                    <div <ul role="list" class="mt-2 leading-8">
-                                        @foreach ($molecule->synonyms as $index => $synonym)
-                                        @if ($synonym != '')
-                                        <li class="inline" x-show="showAllSynonyms || {{ $index }} < 10">
-                                            <a class="text-sm relative mr-2 inline-flex items-center rounded-md border border-gray-300 px-3 py-0.5" target="_blank">
-                                                {{ $synonym }}
-                                            </a>
-                                        </li>
-                                        @endif
-                                        @endforeach
-                                        </ul>
+                                @if ($molecule->synonyms && count($molecule->synonyms) > 0)
+                                    <div class="not-prose flex gap-3">
+                                        <div <ul role="list" class="mt-2 leading-8">
+                                            @foreach ($molecule->synonyms as $index => $synonym)
+                                                @if ($synonym != '')
+                                                    <li class="inline"
+                                                        x-show="showAllSynonyms || {{ $index }} < 10">
+                                                        <a class="text-sm relative mr-2 inline-flex items-center rounded-md border border-gray-300 px-3 py-0.5"
+                                                            target="_blank">
+                                                            {{ $synonym }}
+                                                        </a>
+                                                    </li>
+                                                @endif
+                                            @endforeach
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="justify-center mt-4 ">
+                                        <button @click="showAllSynonyms = true" x-show="!showAllSynonyms"
+                                            class="text-base font-semibold leading-7 text-secondary-dark text-sm">
+                                            View More ↓
+                                        </button>
+                                        <button @click="showAllSynonyms = false" x-show="showAllSynonyms"
+                                            class="text-base font-semibold leading-7 text-secondary-dark  text-sm">
+                                            View Less ↑
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="justify-center mt-4 ">
