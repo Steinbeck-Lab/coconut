@@ -41,10 +41,8 @@ class OrganismResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('rank')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('rank'),
                 Tables\Columns\TextColumn::make('iri')
-                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

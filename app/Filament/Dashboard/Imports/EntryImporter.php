@@ -49,7 +49,7 @@ class EntryImporter extends Importer
             ]);
         }
 
-        $entry = new Entry();
+        $entry = new Entry;
         $entry->collection_id = $this->options['collection_id'];
 
         return $entry;

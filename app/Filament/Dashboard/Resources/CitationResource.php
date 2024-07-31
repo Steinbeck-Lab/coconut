@@ -122,7 +122,11 @@ class CitationResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('title')->wrap()
-                    ->description(fn (Citation $citation): string => $citation->authors.' ~ '.$citation->doi),
+                    ->description(fn (Citation $citation): string => $citation->authors.' ~ '.$citation->doi)
+                    ->searchable(),
+                TextColumn::make('doi')->wrap()
+                    ->label('DOI')
+                    ->searchable(),
             ])
             ->filters([
                 //

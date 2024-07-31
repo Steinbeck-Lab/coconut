@@ -93,7 +93,10 @@ class CollectionResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title')->sortable()->wrap(),
+                Tables\Columns\TextColumn::make('title')
+                    ->sortable()
+                    ->searchable()
+                    ->wrap(),
                 Tables\Columns\TextColumn::make('entries')
                     ->state(function (Model $record) {
                         return Cache::get('stats.collections'.$record->id.'entries.count').'/'.Cache::get('stats.collections'.$record->id.'rejected_entries.count');
@@ -136,7 +139,8 @@ class CollectionResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
-            ->searchable();
+            ->paginated([10, 25, 50, 100, 'all'])
+            ->defaultPaginationPageOption(100);
     }
 
     public static function getRelations(): array

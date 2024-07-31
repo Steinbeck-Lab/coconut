@@ -77,7 +77,7 @@ class MapOrganismNamesToOGG extends Command
             'allMatches' => true,
         ];
 
-        $client = new Client();
+        $client = new Client;
         $url = 'https://finder.globalnames.org/api/v1/find';
 
         $response = $client->post($url, [
