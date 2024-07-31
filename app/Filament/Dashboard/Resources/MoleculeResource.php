@@ -67,7 +67,7 @@ class MoleculeResource extends Resource
                 ImageColumn::make('structure')->square()
                     ->label('Structure')
                     ->state(function ($record) {
-                        return env('CM_API', 'https://dev.api.naturalproducts.net/latest/') . 'depict/2D?smiles=' . urlencode($record->canonical_smiles) . '&height=300&width=300&CIP=false&toolkit=cdk';
+                        return env('CM_API', 'https://dev.api.naturalproducts.net/latest/').'depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=false&toolkit=cdk';
                     })
                     ->width(200)
                     ->height(200)
@@ -108,7 +108,7 @@ class MoleculeResource extends Resource
                             ])
                             ->action(function (array $data, Molecule $record): void {
 
-                                $record->active = !$record->active;
+                                $record->active = ! $record->active;
 
                                 $reasons = json_decode($record->comment, true);
                                 array_push($reasons, [
@@ -123,7 +123,7 @@ class MoleculeResource extends Resource
                                 $record->save();
                             })
                             ->modalHidden(function (Molecule $record) {
-                                return !$record['active'];
+                                return ! $record['active'];
                             })
                     )
                     ->searchable(),
@@ -146,7 +146,7 @@ class MoleculeResource extends Resource
                         ])
                         ->action(function (array $data, Collection $records): void {
                             foreach ($records as $record) {
-                                $record->active = !$record->active;
+                                $record->active = ! $record->active;
 
                                 $reasons = json_decode($record->comment, true);
                                 array_push($reasons, [
