@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\SocialController;
+use App\Livewire\About;
 use App\Livewire\CollectionList;
 use App\Livewire\Guides;
 use App\Livewire\MoleculeDetails;
@@ -32,6 +33,7 @@ Route::get('/', Welcome::class);
 Route::get('/policy', Policy::class);
 Route::get('/terms', Terms::class);
 Route::get('/guidelines', Guides::class);
+Route::get('/about', About::class);
 
 Route::get('/collections', CollectionList::class)->name('collections.index');
 

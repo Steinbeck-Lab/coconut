@@ -53,7 +53,15 @@ class DashWidgetsRefresh extends Command
 
         // Create the cache for all DashboardStatsMid widgets
         Cache::rememberForever('stats.molecules', function () {
-            return DB::table('molecules')->selectRaw('count(*)')->get()[0]->count;
+            return DB::table('molecules')
+                ->where('is_parent', false)
+                ->where('has_stereo', false)
+                ->count()
+            + DB::table('molecules')
+                ->where('is_parent', false)
+                ->where('has_stereo', true)
+                ->whereNotNull('parent_id')
+                ->count();
         });
         Cache::rememberForever('stats.molecules.non_stereo', function () {
             return DB::table('molecules')->selectRaw('count(*)')->whereRaw('has_stereo=false and is_parent=false')->get()[0]->count;

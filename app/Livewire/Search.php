@@ -2,16 +2,14 @@
 
 namespace App\Livewire;
 
-use App\Models\Collection;
-use App\Models\Molecule;
-use App\Models\Organism;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
+use App\Actions\Coconut\SearchMolecule;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Lazy]
 #[Layout('layouts.guest')]
 class Search extends Component
 {
@@ -44,6 +42,34 @@ class Search extends Component
         $this->page = $page;
     }
 
+    public function placeholder()
+    {
+        return <<<'HTML'
+                <div>
+                    <div class="relative isolate -z-10">
+                        <svg class="absolute inset-x-0 -top-52 -z-10 h-[64rem] w-full stroke-gray-200 [mask-image:radial-gradient(32rem_32rem_at_center,white,transparent)]" aria-hidden="true">
+                            <defs>
+                            <pattern id="1f932ae7-37de-4c0a-a8b0-a6e3b4d44b84" width="200" height="200" x="50%" y="-1" patternUnits="userSpaceOnUse">
+                                <path d="M.5 200V.5H200" fill="none" />
+                            </pattern>
+                            </defs>
+                            <svg x="50%" y="-1" class="overflow-visible fill-gray-50">
+                            <path d="M-200 0h201v201h-201Z M600 0h201v201h-201Z M-400 600h201v201h-201Z M200 800h201v201h-201Z" stroke-width="0" />
+                            </svg>
+                            <rect width="100%" height="100%" stroke-width="0" fill="url(#1f932ae7-37de-4c0a-a8b0-a6e3b4d44b84)" />
+                        </svg>
+                    </div>
+                    <div class="w-full h-screen flex items-center justify-center">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        &nbsp; Searching...
+                    </div>
+                </div>
+        HTML;
+    }
+
     protected $listeners = ['updateSmiles' => 'setSmiles'];
 
     public function setSmiles($smiles, $searchType)
@@ -52,314 +78,10 @@ class Search extends Component
         $this->type = $searchType;
     }
 
-    public function render()
+    public function render(SearchMolecule $search)
     {
-
         try {
-            set_time_limit(300);
-
-            $queryType = 'text';
-            $results = [];
-
-            if ($this->query == '') {
-                $this->type = '';
-                $this->tagType = '';
-            }
-
-            $offset =
-                (($this->page != null && $this->page != 'null' && $this->page != 0 ? $this->page : 1) -
-                    1) *
-                $this->size;
-
-            if ($this->type) {
-                $queryType = $this->type;
-            } else {
-                //inchi
-                $re =
-                    '/^((InChI=)?[^J][0-9BCOHNSOPrIFla+\-\(\)\\\\\/,pqbtmsih]{6,})$/i';
-                preg_match_all($re, $this->query, $imatches, PREG_SET_ORDER, 0);
-
-                if (count($imatches) > 0 && substr($this->query, 0, 6) == 'InChI=') {
-                    $queryType = 'inchi';
-                }
-
-                //inchikey
-                $re = '/^([0-9A-Z\-]+)$/i';
-                preg_match_all($re, $this->query, $ikmatches, PREG_SET_ORDER, 0);
-                if (
-                    count($ikmatches) > 0 &&
-                    substr($this->query, 14, 1) == '-' &&
-                    strlen($this->query) == 27
-                ) {
-                    $queryType = 'inchikey';
-                }
-
-                // smiles
-                $re = '/^([^J][0-9BCOHNSOPrIFla@+\-\[\]\(\)\\\\\/%=#$]{6,})$/i';
-                preg_match_all($re, $this->query, $matches, PREG_SET_ORDER, 0);
-
-                if (count($matches) > 0 && substr($this->query, 14, 1) != '-') {
-                    $queryType = 'smiles';
-                }
-            }
-
-            $filterMap = [
-                'mf' => 'molecular_formula',
-
-                'mw' => 'molecular_weight',
-                'hac' => 'heavy_atom_count',
-                'tac' => 'total_atom_count',
-
-                'arc' => 'aromatic_ring_count',
-                'rbc' => 'rotatable_bond_count',
-                'mrc' => 'minimal_number_of_rings',
-                'fc' => 'formal_charge',
-                'cs' => 'contains_sugar',
-                'crs' => 'contains_ring_sugars',
-                'cls' => 'contains_linear_sugars',
-
-                'npl' => 'np_likeness_score',
-                'alogp' => 'alogp',
-                'topopsa' => 'topo_psa',
-                'fsp3' => 'fsp3',
-                'hba' => 'h_bond_acceptor_count',
-                'hbd' => 'h_bond_donor_count',
-                'ro5v' => 'rule_of_5_violations',
-                'lhba' => 'lipinski_h_bond_acceptor_count',
-                'lhbd' => 'lipinski_h_bond_donor_count',
-                'lro5v' => 'lipinski_rule_of_5_violations',
-                'ds' => 'found_in_databases',
-
-                'class' => 'chemical_class',
-                'subclass' => 'chemical_sub_class',
-                'superclass' => 'chemical_super_class',
-                'parent' => 'direct_parent_classification',
-            ];
-
-            $queryType = strtolower($queryType);
-
-            $statement = null;
-
-            if ($queryType == 'smiles' || $queryType == 'substructure') {
-                $statement =
-                    "select id, COUNT(*) OVER () from fps where mfp2%morganbv_fp('".
-                    $this->query.
-                    "') order by morganbv_fp(mol_from_smiles('".
-                    $this->query.
-                    "'))<%>mfp2 limit ".
-                    $this->size.
-                    ' offset '.
-                    $offset;
-            } elseif ($queryType == 'inchi') {
-                $statement =
-                    "select id, COUNT(*) OVER () from molecules where standard_inchi LIKE '%".
-                    $this->query.
-                    "%' limit ".
-                    $this->size.
-                    ' offset '.
-                    $offset;
-            } elseif ($queryType == 'inchikey') {
-                $statement =
-                    "select id, COUNT(*) OVER () from molecules where standard_inchi_key LIKE '%".
-                    $this->query.
-                    "%' limit ".
-                    $this->size.
-                    ' offset '.
-                    $offset;
-            } elseif ($queryType == 'exact') {
-                $statement =
-                    "select id, COUNT(*) OVER () from mols where m@='".
-                    $this->query.
-                    "' limit ".
-                    $this->size.
-                    ' offset '.
-                    $offset;
-            } elseif ($queryType == 'similarity') {
-                $statement =
-                    "select id, COUNT(*) OVER () from fps where mfp2%morganbv_fp('".
-                    $this->query.
-                    "') order by morganbv_fp(mol_from_smiles('".
-                    $this->query.
-                    "'))<%>mfp2 limit ".
-                    $this->size.
-                    ' offset '.
-                    $offset;
-            } elseif ($queryType == 'tags') {
-                if ($this->tagType == 'dataSource') {
-                    $this->collection = Collection::where('title', $this->query)->first();
-                    if ($this->collection) {
-                        $results = $this->collection->molecules()->orderBy('annotation_level', 'desc')->paginate($this->size);
-                    } else {
-                        $results = new LengthAwarePaginator(
-                            [],
-                            0,
-                            $this->size,
-                            $this->page
-                        );
-                    }
-                } elseif ($this->tagType == 'organisms') {
-                    $this->organisms = array_map(function ($name) {
-                        return strtolower(trim($name));
-                    }, explode(',', $this->query));
-
-                    $organismIds = Organism::where(function ($query) {
-                        foreach ($this->organisms as $name) {
-                            $query->orWhereRaw('LOWER(name) = ?', [$name]);
-                        }
-                    })->pluck('id');
-
-                    $results = Molecule::whereHas('organisms', function ($query) use ($organismIds) {
-                        $query->whereIn('organism_id', $organismIds);
-                    })->orderBy('annotation_level', 'DESC')->paginate($this->size);
-
-                } else {
-                    $results = Molecule::withAnyTags([$this->query], $this->tagType)->paginate($this->size);
-                }
-
-            } elseif ($queryType == 'filters') {
-                $orConditions = explode('OR', $this->query);
-                $isORInitial = true;
-                $statement =
-                    'select molecule_id as id, COUNT(*) OVER () from properties where ';
-                foreach ($orConditions as $orCondition) {
-                    if ($isORInitial === false) {
-                        $statement = $statement.' OR ';
-                    }
-                    $isORInitial = false;
-                    $statement = $statement.'(';
-                    $andConditions = explode(' ', trim($orCondition, ' '));
-                    $isANDInitial = true;
-                    foreach ($andConditions as $andCondition) {
-                        if ($isANDInitial === false) {
-                            $statement = $statement.' AND ';
-                        }
-                        $isANDInitial = false;
-                        $_filter = explode(':', $andCondition);
-                        if (str_contains($_filter[1], '..')) {
-                            $range = array_values(explode('..', $_filter[1]));
-                            $statement =
-                                $statement.
-                                '('.
-                                $filterMap[$_filter[0]].
-                                ' between '.
-                                $range[0].
-                                ' and '.
-                                $range[1].
-                                ')';
-                        } elseif (
-                            $_filter[1] === 'true' ||
-                            $_filter[1] === 'false'
-                        ) {
-                            $statement =
-                                $statement.
-                                '('.
-                                $filterMap[$_filter[0]].
-                                ' = '.
-                                $_filter[1].
-                                ')';
-                        } elseif (str_contains($_filter[1], '|')) {
-                            $dbFilters = explode('|', $_filter[1]);
-                            $dbs = explode('+', $dbFilters[0]);
-                            $statement =
-                                $statement.
-                                '('.
-                                $filterMap[$_filter[0]].
-                                " @> '[\"".
-                                implode('","', $dbs).
-                                "\"]')";
-                        } else {
-                            if (str_contains($_filter[1], '+')) {
-                                $_filter[1] = str_replace('+', ' ', $_filter[1]);
-                            }
-                            $statement =
-                                $statement.
-                                '(LOWER(REGEXP_REPLACE('.$filterMap[$_filter[0]].' , \'\s+\', \'-\', \'g\'))::TEXT ILIKE \'%'.$_filter[1].'%\')';
-                        }
-                    }
-                    $statement = $statement.')';
-                }
-                // dd($statement);
-                $statement = $statement.' LIMIT '.$this->size;
-            } else {
-                if ($this->query) {
-                    $this->query = str_replace("'", "''", $this->query);
-                    $statement = "
-    SELECT id, COUNT(*) OVER () 
-    FROM molecules 
-    WHERE 
-        (\"name\"::TEXT ILIKE '%".$this->query."%') 
-        OR (\"synonyms\"::TEXT ILIKE '%".$this->query."%') 
-        OR (\"identifier\"::TEXT ILIKE '%".$this->query."%') 
-    ORDER BY 
-        CASE 
-            WHEN \"name\"::TEXT ILIKE '".$this->query."' THEN 1 
-            WHEN \"synonyms\"::TEXT ILIKE '".$this->query."' THEN 2 
-            WHEN \"identifier\"::TEXT ILIKE '".$this->query."' THEN 3 
-            WHEN \"name\"::TEXT ILIKE '%".$this->query."%' THEN 4 
-            WHEN \"synonyms\"::TEXT ILIKE '%".$this->query."%' THEN 5 
-            WHEN \"identifier\"::TEXT ILIKE '%".$this->query."%' THEN 6 
-            ELSE 7 
-        END
-    LIMIT ".$this->size.' OFFSET '.$offset;
-
-                } else {
-                    $statement =
-                        'select id, COUNT(*) OVER () from molecules ORDER BY annotation_level DESC limit '.
-                        $this->size.
-                        ' offset '.
-                        $offset;
-                }
-            }
-
-            if ($statement) {
-                $expression = DB::raw($statement);
-                $qString = $expression->getValue(
-                    DB::connection()->getQueryGrammar()
-                );
-
-                $hits = DB::select($qString);
-
-                $count = count($hits) > 0 ? $hits[0]->count : 0;
-
-                $ids = implode(
-                    ',',
-                    collect($hits)
-                        ->pluck('id')
-                        ->toArray()
-                );
-
-                if ($ids != '') {
-                    $statement =
-                        'SELECT * FROM molecules WHERE ID IN ('.
-                        implode(
-                            ',',
-                            collect($hits)
-                                ->pluck('id')
-                                ->toArray()
-                        ).
-                        ')';
-                    if ($this->sort == 'recent') {
-                        $statement = $statement.' ORDER BY created_at DESC';
-                    }
-                    $expression = DB::raw($statement);
-                    $string = $expression->getValue(
-                        DB::connection()->getQueryGrammar()
-                    );
-                    $results = new LengthAwarePaginator(
-                        DB::select($string),
-                        $count,
-                        $this->size,
-                        $this->page
-                    );
-                } else {
-                    $results = new LengthAwarePaginator(
-                        [],
-                        0,
-                        $this->size,
-                        $this->page
-                    );
-                }
-            }
+            $results = $search->query($this->query, $this->size, $this->type, $this->sort, $this->tagType);
 
             return view('livewire.search', [
                 'molecules' => $results,

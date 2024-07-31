@@ -1,14 +1,25 @@
 <div x-data="{ query: '' }">
-    <div
-        class="relative mx-auto mt-32 grid w-full max-w-4xl lg:max-w-7xl grid-cols-1 md:grid-cols-2 px-4 sm:px-6 lg:px-8">
-        <img class="opacity-50 invisible md:visible absolute scale-100 -z-10 -mt-20 ml-20 w-100 h-auto" src="/img/bg.png"
-            alt="">
-        <div class="mx-auto py-1 px-4 sm:px-6 sm:py-24 lg:px-8 mb-12">
-            <div class="text-left">
+<div class="relative isolate -z-10">
+      <svg class="absolute inset-x-0 -top-52 -z-10 h-[64rem] w-full stroke-gray-200 [mask-image:radial-gradient(32rem_32rem_at_center,white,transparent)]" aria-hidden="true">
+        <defs>
+          <pattern id="1f932ae7-37de-4c0a-a8b0-a6e3b4d44b84" width="200" height="200" x="50%" y="-1" patternUnits="userSpaceOnUse">
+            <path d="M.5 200V.5H200" fill="none" />
+          </pattern>
+        </defs>
+        <svg x="50%" y="-1" class="overflow-visible fill-gray-50">
+          <path d="M-200 0h201v201h-201Z M600 0h201v201h-201Z M-400 600h201v201h-201Z M200 800h201v201h-201Z" stroke-width="0" />
+        </svg>
+        <rect width="100%" height="100%" stroke-width="0" fill="url(#1f932ae7-37de-4c0a-a8b0-a6e3b4d44b84)" />
+      </svg>
+      </div>
+    <div class="relative mx-auto mt-32 grid w-full max-w-4xl lg:max-w-7xl grid-cols-1 px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto w-full py-1 px-4 sm:px-6 sm:py-20 lg:px-8 mb-12">
+            <div class="text-center max-w-4xl mx-auto">
                 <h1 class="text-3xl font-bold tracking-tight text-primary-dark sm:text-4xl"><span
                         class="block xl:inline">COCONUT: </span><span class="block text-secondary-dark xl:inline">the
-                        COlleCtion of Open Natural prodUcTs</span></h1>
-                <p class="mt-6 text-md leading-6 text-text-light"> An aggregated dataset of elucidated and predicted NPs
+                        COlleCtion of Open NatUral producTs</span></h1>
+                <p class="my-6 mx-auto text-md leading-6 text-text-light"> An aggregated dataset of elucidated and
+                    predicted NPs
                     collected from open sources and a web interface to browse, search and easily and quickly download
                     NPs. </p>
 
@@ -54,14 +65,29 @@
                                 </div>
                             </div>
                         </div>
-                        <small>Try: <a class="underline" href="/search?q=caffeine">Caffeine</a>, <a class="underline"
-                                href="/compounds/CNP0329459">CNP0329459</a></small>
+                        <p><small class="float-left">Try: <a class="underline" href="/search?q=caffeine">Caffeine</a>,
+                                <a class="underline" href="/compounds/CNP0329459">CNP0329459</a></small>
+
+                            <span
+                                class="float-right  text-sm flex items-baseline gap-x-2 text-[0.8125rem]/6 text-gray-500">
+                                Report bugs: <a
+                                    class="group relative isolate flex items-center rounded-lg px-2 py-0.5 text-[0.8125rem]/6 font-medium text-dark/30 transition-colors hover:text-sky-900 gap-x-2"
+                                    target="_blank" href="https://github.com/Steinbeck-Lab/coconut/issues"><span
+                                        class="absolute inset-0 -z-10 scale-75 rounded-lg bg-white/5 opacity-0 transition group-hover:scale-100 group-hover:opacity-100"></span><svg
+                                        viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"
+                                        class="flex-none h-4 w-4">
+                                        <path
+                                            d="M8 .198a8 8 0 0 0-8 8 7.999 7.999 0 0 0 5.47 7.59c.4.076.547-.172.547-.384 0-.19-.007-.694-.01-1.36-2.226.482-2.695-1.074-2.695-1.074-.364-.923-.89-1.17-.89-1.17-.725-.496.056-.486.056-.486.803.056 1.225.824 1.225.824.714 1.224 1.873.87 2.33.666.072-.518.278-.87.507-1.07-1.777-.2-3.644-.888-3.644-3.954 0-.873.31-1.586.823-2.146-.09-.202-.36-1.016.07-2.118 0 0 .67-.214 2.2.82a7.67 7.67 0 0 1 2-.27 7.67 7.67 0 0 1 2 .27c1.52-1.034 2.19-.82 2.19-.82.43 1.102.16 1.916.08 2.118.51.56.82 1.273.82 2.146 0 3.074-1.87 3.75-3.65 3.947.28.24.54.73.54 1.48 0 1.07-.01 1.93-.01 2.19 0 .21.14.46.55.38A7.972 7.972 0 0 0 16 8.199a8 8 0 0 0-8-8Z">
+                                        </path>
+                                    </svg><span class="self-baseline">Issue Tracker</span></a>
+                            </span>
+                        </p>
                     </div>
                 </div>
-                <div class="mt-5 flex items-center gap-x-6">
+                <div class="mt-16 flex items-center gap-x-6 justify-center w-full">
                     <div>
                         <button type="button" onclick="Livewire.dispatch('openModal', { smiles: query })"
-                            class="bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
+                            class="border bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
                             <svg class="w-12 h-12 mx-auto" viewBox="0 0 78 78" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <g clip-path="url(#clip0_1_2)">
@@ -135,7 +161,7 @@
                         </button>
                     </div>
                     <a href="/search"
-                        class="bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
+                        class="border bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -145,7 +171,7 @@
                         </button>
                     </a>
                     <a href="/admin/collections/create"
-                        class="bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
+                        class="border bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -155,16 +181,6 @@
                         </button>
                     </a>
                 </div>
-                <p class="mt-12 text-sm flex items-baseline gap-x-2 text-[0.8125rem]/6 text-gray-500"> Report bugs: <a
-                        class="group relative isolate flex items-center rounded-lg px-2 py-0.5 text-[0.8125rem]/6 font-medium text-dark/30 transition-colors hover:text-sky-900 gap-x-2"
-                        target="_blank" href="https://github.com/Steinbeck-Lab/coconut/issues"><span
-                            class="absolute inset-0 -z-10 scale-75 rounded-lg bg-white/5 opacity-0 transition group-hover:scale-100 group-hover:opacity-100"></span><svg
-                            viewBox="0 0 16 16" aria-hidden="true" fill="currentColor" class="flex-none h-4 w-4">
-                            <path
-                                d="M8 .198a8 8 0 0 0-8 8 7.999 7.999 0 0 0 5.47 7.59c.4.076.547-.172.547-.384 0-.19-.007-.694-.01-1.36-2.226.482-2.695-1.074-2.695-1.074-.364-.923-.89-1.17-.89-1.17-.725-.496.056-.486.056-.486.803.056 1.225.824 1.225.824.714 1.224 1.873.87 2.33.666.072-.518.278-.87.507-1.07-1.777-.2-3.644-.888-3.644-3.954 0-.873.31-1.586.823-2.146-.09-.202-.36-1.016.07-2.118 0 0 .67-.214 2.2.82a7.67 7.67 0 0 1 2-.27 7.67 7.67 0 0 1 2 .27c1.52-1.034 2.19-.82 2.19-.82.43 1.102.16 1.916.08 2.118.51.56.82 1.273.82 2.146 0 3.074-1.87 3.75-3.65 3.947.28.24.54.73.54 1.48 0 1.07-.01 1.93-.01 2.19 0 .21.14.46.55.38A7.972 7.972 0 0 0 16 8.199a8 8 0 0 0-8-8Z">
-                            </path>
-                        </svg><span class="self-baseline">Issue Tracker</span></a>
-                </p>
             </div>
         </div>
     </div>
@@ -219,7 +235,7 @@
                     </p>
                 </a>
                 <!-- Total Collections Section -->
-                <a href="/collections"  class="bg-gray-900 px-8 py-6 sm:px-6 lg:px-8">
+                <a href="/collections" class="bg-gray-900 px-8 py-6 sm:px-6 lg:px-8">
                     <p class="text-sm font-medium leading-6 text-gray-400">
                         <svg class="w-5 h-5 inline" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"
                             fill="currentColor">

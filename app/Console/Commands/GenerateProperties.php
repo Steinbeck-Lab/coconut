@@ -33,10 +33,7 @@ class GenerateProperties extends Command
         Molecule::doesntHave('properties')->select('id')->chunk(30000, function ($mols) use (&$i) {
             $batchJobs = [];
             array_push($batchJobs, new GeneratePropertiesBatch($mols->pluck('id')->toArray()));
-            $batch = Bus::batch($batchJobs)->then(function (Batch $batch) {
-            })->catch(function (Batch $batch, Throwable $e) {
-            })->finally(function (Batch $batch) {
-            })->name('Generate Properties Batch:'.$i)
+            $batch = Bus::batch($batchJobs)->then(function (Batch $batch) {})->catch(function (Batch $batch, Throwable $e) {})->finally(function (Batch $batch) {})->name('Generate Properties Batch:'.$i)
                 ->allowFailures(false)
                 ->onConnection('redis')
                 ->onQueue('default')

@@ -50,9 +50,7 @@ class ImportEntries extends Command
                 array_push($batchJobs, new ImportEntriesBatch($ids->pluck('id')->toArray()));
                 $i = $i + 1;
             });
-            $batch = Bus::batch($batchJobs)->then(function (Batch $batch) {
-            })->catch(function (Batch $batch, Throwable $e) {
-            })->finally(function (Batch $batch) use ($collection) {
+            $batch = Bus::batch($batchJobs)->then(function (Batch $batch) {})->catch(function (Batch $batch, Throwable $e) {})->finally(function (Batch $batch) use ($collection) {
                 $collection->jobs_status = 'INCURATION';
                 $collection->job_info = '';
                 $collection->save();
