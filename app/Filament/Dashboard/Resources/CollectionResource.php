@@ -10,6 +10,7 @@ use App\Filament\Dashboard\Resources\CollectionResource\Widgets\CollectionStats;
 use App\Filament\Dashboard\Resources\CollectionResource\Widgets\EntriesOverview;
 use App\Livewire\ShowJobStatus;
 use App\Models\Collection;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Livewire;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -63,6 +64,19 @@ class CollectionResource extends Resource
                                 ->type('collections'),
                             TextInput::make('identifier'),
                             SpatieMediaLibraryFileUpload::make('avatar'),
+                        ]),
+                    Section::make()
+                        ->schema([
+                            FileUpload::make('image')
+                                ->label('Display image')
+                                ->image()
+                                ->directory(env('AWS_FOLDER').'collections')
+                                ->visibility('private')
+                                ->imageEditor()
+                                ->imageEditorAspectRatios([
+                                    '1:1',
+                                ]),
+
                         ]),
                     Section::make('Distribution')
                         ->schema([

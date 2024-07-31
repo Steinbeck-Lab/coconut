@@ -7,7 +7,7 @@
                         <div class="rounded-lg bg-gray-50 p-6 shadow-lg border">
                             <h1 class="mt-6 text-2xl mb-6 font-bold text-indigo-900 sm:text-2xl">
                                 <center>
-                                    COCONUT (Collection of Open Natural Products) Online
+                                    COCONUT (COlleCtion of Open Natural prodUcTs) Online
                                 </center>
                             </h1>
                             <p class="mb-4">
@@ -37,7 +37,7 @@
                         <div class="rounded-lg bg-gray-50 p-6 border shadow-lg">
                             <p class="text-md leading-6 text-gray-700">
                                 Sorokina, M., Merseburger, P., Rajan, K. et al.
-                                <span class="italic">COCONUT online: Collection of Open Natural Products
+                                <span class="italic">COCONUT online: COlleCtion of Open Natural prodUcTs
                                     database.</span>
                                 <span class="text-gray-600">J Cheminform 13, 2 (2021).</span>
                                 <a href="https://doi.org/10.1186/s13321-020-00478-9"

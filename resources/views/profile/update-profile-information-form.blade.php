@@ -52,11 +52,26 @@
             </div>
         @endif
 
-        <!-- Name -->
+
+        <!-- First Name -->
         <div class="col-span-6 sm:col-span-4">
-            <x-label for="name" value="{{ __('Name') }}" />
-            <x-input id="name" type="text" class="mt-1 block w-full" wire:model="state.name" required autocomplete="name" />
-            <x-input-error for="name" class="mt-2" />
+            <x-label for="first_name" value="{{ __('First Name') }}" />
+            <x-input id="first_name" type="text" class="mt-1 block w-full" wire:model="state.first_name" required autocomplete="first_name" />
+            <x-input-error for="first_name" class="mt-2" />
+        </div>
+
+        <!-- Last Name -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-label for="last_name" value="{{ __('Last Name') }}" />
+            <x-input id="last_name" type="text" class="mt-1 block w-full" wire:model="state.last_name" required autocomplete="last_name" />
+            <x-input-error for="last_name" class="mt-2" />
+        </div>
+
+        <!-- User Name -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-label for="username" value="{{ __('User Name') }}" />
+            <x-input id="username" type="text" class="mt-1 block w-full" wire:model="state.username" required autocomplete="username" />
+            <x-input-error for="username" class="mt-2" />
         </div>
 
         <!-- Email -->
@@ -80,6 +95,20 @@
                     </p>
                 @endif
             @endif
+        </div>
+
+        <!-- ORCID -->
+        <div class="col-span-6 sm:col-span-4">
+            <x-label for="orcid_id" value="{{ __('ORCID') }}" />
+            <x-input id="orcid_id" type="text" class="mt-1 block w-full" wire:model="state.orcid_id" required autocomplete="orcid_id" />
+            <x-input-error for="orcid_id" class="mt-2" />
+        </div>
+
+         <!-- ORCID -->
+         <div class="col-span-6 sm:col-span-4">
+            <x-label for="affiliation" value="{{ __('Affiliation') }}" />
+            <x-input id="affiliation" type="text" class="mt-1 block w-full" wire:model="state.affiliation" required autocomplete="affiliation" />
+            <x-input-error for="affiliation" class="mt-2" />
         </div>
     </x-slot>
 

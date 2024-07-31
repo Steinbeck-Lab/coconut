@@ -18,9 +18,15 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class MoleculeResource extends Resource
@@ -61,17 +67,65 @@ class MoleculeResource extends Resource
                 ImageColumn::make('structure')->square()
                     ->label('Structure')
                     ->state(function ($record) {
-                        return env('CM_API', 'https://dev.api.naturalproducts.net/latest/').'depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=false&toolkit=cdk';
+                        return env('CM_API', 'https://dev.api.naturalproducts.net/latest/') . 'depict/2D?smiles=' . urlencode($record->canonical_smiles) . '&height=300&width=300&CIP=false&toolkit=cdk';
                     })
                     ->width(200)
                     ->height(200)
                     ->ring(5)
                     ->defaultImageUrl(url('/images/placeholder.png')),
-                Tables\Columns\TextColumn::make('name')->searchable(),
                 Tables\Columns\TextColumn::make('id')->searchable(),
                 Tables\Columns\TextColumn::make('identifier')->searchable(),
+                Tables\Columns\TextColumn::make('name')->searchable()
+                    ->description(fn (Molecule $molecule): string => $molecule->standard_inchi)
+                    ->wrap(),
+                Tables\Columns\TextColumn::make('synonyms')
+                    ->searchable()
+                    ->wrap()
+                    ->lineClamp(6),
+                Tables\Columns\TextColumn::make('properties.exact_molecular_weight')
+                    ->label('Mol.Wt')
+                    ->numeric()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('properties.np_likeness')
+                    ->label('NP Likeness')
+                    ->numeric()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('status')->searchable(),
-                Tables\Columns\ToggleColumn::make('active')
+                Tables\Columns\TextColumn::make('active')
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => $state ? 'Active' : 'Inactive')
+                    ->color(fn (string $state): string => match ($state) {
+                        '1' => 'success',
+                        '' => 'warning',
+                    })
+                    ->action(
+                        Action::make('moleculeStausChange')
+                            ->form([
+                                TextArea::make('reason')
+                                    ->required(function (Molecule $record) {
+                                        return $record['active'];
+                                    }),
+                            ])
+                            ->action(function (array $data, Molecule $record): void {
+
+                                $record->active = !$record->active;
+
+                                $reasons = json_decode($record->comment, true);
+                                array_push($reasons, [
+                                    'changed_status_to' => $record['active'],
+                                    'changed_by' => Auth::user()->id,
+                                    'changed_at' => now(),
+                                    'reason' => $data['reason'],
+                                    'bulk_action' => false,
+                                ]);
+                                $record->comment = json_encode($reasons);
+
+                                $record->save();
+                            })
+                            ->modalHidden(function (Molecule $record) {
+                                return !$record['active'];
+                            })
+                    )
                     ->searchable(),
             ])
             ->filters([
@@ -85,6 +139,44 @@ class MoleculeResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    BulkAction::make('Active Status Change')
+                        ->form([
+                            TextArea::make('reason')
+                                ->required(),
+                        ])
+                        ->action(function (array $data, Collection $records): void {
+                            foreach ($records as $record) {
+                                $record->active = !$record->active;
+
+                                $reasons = json_decode($record->comment, true);
+                                array_push($reasons, [
+                                    'changed_status_to' => $record['active'],
+                                    'changed_by' => Auth::user()->id,
+                                    'changed_at' => now(),
+                                    'reason' => $data['reason'],
+                                    'bulk_action' => true,
+                                ]);
+                                $record->comment = json_encode($reasons);
+
+                                $record->save();
+                            }
+                        })
+                        // ->modalHidden(function (Molecule $record) {
+                        //     return !$record['active'];
+                        // })
+                        ->deselectRecordsAfterCompletion(),
+                    ExportBulkAction::make()->exports([
+                        ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::XLSX)->label('XLSX')->queue(),
+                        ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::CSV)->label('CSV')->queue(),
+                        // ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::TSV)->label('TSV')->queue(),
+                        ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::ODS)->label('ODS')->queue(),
+                        ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::XLS)->label('XLS')->queue(),
+                        ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::HTML)->label('HTML')->queue(),
+                        ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::MPDF)->label('MPDF')->queue(),
+                        // ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::DOMPDF)->label('DOMPDF')->queue(),
+                        // ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::TCPDF)->label('TCPDF')->queue(),
+                    ])
+                        ->deselectRecordsAfterCompletion(),
                 ]),
             ]);
     }

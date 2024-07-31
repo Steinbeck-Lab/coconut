@@ -22,7 +22,7 @@ COCONUT descriptors are calculated using our [microservices](https://github.com/
 This project is licensed under the MIT License - see the [LICENSE](https://GitHub.com/Steinbeck-Lab/coconut/blob/documentation/LICENSE) file for details
 
 ## Citation
-Sorokina, M., Merseburger, P., Rajan, K. et al. COCONUT online: Collection of Open Natural Products database. J Cheminform 13, 2 (2021). https://doi.org/10.1186/s13321-020-00478-9
+Sorokina, M., Merseburger, P., Rajan, K. et al. COCONUT online: COlleCtion of Open Natural prodUcTs database. J Cheminform 13, 2 (2021). https://doi.org/10.1186/s13321-020-00478-9
 
 ## Maintained by
 COCONUT and [Natural Products Online](https://naturalproducts.net) are developed and maintained by the Steinbeck group at the University Friedrich-Schiller in Jena, Germany. 

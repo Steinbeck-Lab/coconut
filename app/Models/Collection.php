@@ -38,6 +38,7 @@ class Collection extends Model implements Auditable, HasMedia
         'comments',
         'identifier',
         'url',
+        'image',
         'status',
         'release_date',
     ];

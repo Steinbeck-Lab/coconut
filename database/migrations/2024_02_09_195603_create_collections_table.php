@@ -19,6 +19,7 @@ return new class extends Migration
             $table->longText('comments')->nullable();
             $table->longText('identifier')->nullable();
             $table->string('url', 2048)->nullable();
+            $table->string('image', 2048)->nullable();
             $table->string('photo', 2048)->nullable();
             $table->boolean('is_public')->default(0);
             $table->uuid('uuid')->unique();
