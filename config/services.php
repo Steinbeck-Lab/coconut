@@ -43,4 +43,9 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URL'),
     ],
 
+    'regapp' => [
+        'client_id' => env('NFDI_CLIENT_ID'),
+        'client_secret' => env('NFDI_CLIENT_SECRET'),
+        'redirect' => env('NFDI_REDIRECT_URL'),
+    ],
 ];
