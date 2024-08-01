@@ -90,7 +90,7 @@ class MoleculeResource extends Resource
                     ->label('NP Likeness')
                     ->numeric()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('status')->searchable(),
+                Tables\Columns\TextColumn::make('status'),
                 Tables\Columns\TextColumn::make('active')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => $state ? 'Active' : 'Inactive')
@@ -125,8 +125,7 @@ class MoleculeResource extends Resource
                             ->modalHidden(function (Molecule $record) {
                                 return ! $record['active'];
                             })
-                    )
-                    ->searchable(),
+                    ),
             ])
             ->filters([
                 AdvancedFilter::make()
