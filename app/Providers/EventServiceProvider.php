@@ -31,9 +31,6 @@ class EventServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
-        Event::listen(function (\SocialiteProviders\Manager\SocialiteWasCalled $event) {
-            $event->extendSocialite('regapp', \SocialiteProviders\NFDIAAI\Provider::class);
-        });
     }
 
     /**

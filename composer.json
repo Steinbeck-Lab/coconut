@@ -33,8 +33,6 @@
         "pxlrbt/filament-excel": "^2.3",
         "pxlrbt/filament-spotlight": "^1.2",
         "shuvroroy/filament-spatie-laravel-backup": "^2.1",
-        "socialiteproviders/generators": "^4.7",
-        "socialiteproviders/manager": "^4.6",
         "spatie/laravel-backup": "^8.6",
         "spatie/laravel-cookie-consent": "^3.3",
         "spatie/laravel-permission": "^6.3",
@@ -59,8 +57,7 @@
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/",
-            "SocialiteProviders\\NFDIAAI\\": "SocialiteProviders/src/NFDIAAI/"
+            "Database\\Seeders\\": "database/seeders/"
         }
     },
     "autoload-dev": {

@@ -177,7 +177,6 @@ return [
         Spatie\Permission\PermissionServiceProvider::class,
         OwenIt\Auditing\AuditingServiceProvider::class,
         App\Providers\RestDocumentationServiceProvider::class,
-        SocialiteProviders\Generators\GeneratorsServiceProvider::class,
     ])->toArray(),
 
     /*
