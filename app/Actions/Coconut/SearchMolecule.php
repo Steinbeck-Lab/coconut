@@ -2,6 +2,9 @@
 
 namespace App\Actions\Coconut;
 
+use App\Models\Collection;
+use App\Models\Molecule;
+use App\Models\Organism;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
@@ -56,13 +59,17 @@ class SearchMolecule
 
             $filterMap = $this->getFilterMap();
 
-            $statement = $this->buildStatement($queryType, $offset, $filterMap);
+            if ($queryType == 'tags') {
+                $results = $this->buildTagsStatement($offset);
+            } else {
+                $statement = $this->buildStatement($queryType, $offset, $filterMap);
 
-            if ($statement) {
-                $results = $this->executeQuery($statement);
+                if ($statement) {
+                    $results = $this->executeQuery($statement);
+                }
             }
 
-            return $results;
+            return [$results,  $this->collection];
 
         } catch (QueryException $exception) {
 
@@ -189,10 +196,6 @@ class SearchMolecule
                               LIMIT {$this->size} OFFSET {$offset}";
                 break;
 
-            case 'tags':
-                $statement = $this->buildTagsStatement($offset);
-                break;
-
             case 'filters':
                 $statement = $this->buildFiltersStatement($filterMap);
                 break;
@@ -219,7 +222,6 @@ class SearchMolecule
             }
         } elseif ($this->tagType == 'organisms') {
             $this->organisms = array_map('strtolower', array_map('trim', explode(',', $this->query)));
-
             $organismIds = Organism::where(function ($query) {
                 foreach ($this->organisms as $name) {
                     $query->orWhereRaw('LOWER(name) = ?', [$name]);
@@ -319,13 +321,10 @@ class SearchMolecule
     private function executeQuery($statement)
     {
         $expression = DB::raw($statement);
-        $qString = $expression->getValue(DB::connection()->getQueryGrammar());
-        $hits = DB::select($qString);
+        $hits = $expression->getValue(DB::connection()->getQueryGrammar());
         $count = count($hits) > 0 ? $hits[0]->count : 0;
 
         $ids = implode(',', collect($hits)->pluck('id')->toArray());
-
-        // dd($ids);
 
         if ($ids != '') {
             $statement = "SELECT * FROM molecules WHERE ID IN ({$ids})";

@@ -1,20 +1,19 @@
 <div>
     <div class="mt-24">
-        @if ($tagType == 'dataSource')
-            @if ($collection)
-                <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-                    <p class="mt-4 max-w-7xl text-sm text-gray-700">#COLLECTION</p>
-                    <h1 class="text-3xl font-bold tracking-tight text-gray-900">{{ $collection->title }}</h1>
-                    <p class="mt-4 max-w-7xl text-sm text-gray-700">{{ $collection->description }}</p>
-                    @if ($collection->license)
-                        <p class="mt-4 max-w-7xl text-sm text-gray-700">License: {{ $collection->license->title }}</p>
-                    @endif
-                </div>
-            @endif
-        @elseif ($tagType == 'organisms')
+
+        @if ($tagType == 'dataSource' && $collection)
+            <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+                <p class="mt-4 max-w-7xl text-sm text-gray-700">#COLLECTION</p>
+                <h1 class="text-3xl font-bold tracking-tight text-gray-900">{{ $collection->title }}</h1>
+                <p class="mt-4 max-w-7xl text-sm text-gray-700">{{ $collection->description }}</p>
+                @if ($collection->license)
+                    <p class="mt-4 max-w-7xl text-sm text-gray-700">License: {{ $collection->license->title }}</p>
+                @endif
+            </div>
+        @elseif ($tagType == 'organisms' && $organisms)
             <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
                 <p class="mt-4 max-w-xl text-sm text-gray-700">#ORGANISMS</p>
-                @foreach ($organisms as $index => $organism)
+                @foreach ($organisms as $organism)
                     <span class="text-3xl font-bold text-gray-900"><span
                             class="italic">{{ ucfirst($organism) }}</span></span>
                     @if (!$loop->last)
@@ -96,17 +95,34 @@
     </div>
     <livewire:structure-editor />
 
-    <div class="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-8 lg:max-w-7xl lg:px-8">
-        <div class="p-4 w-full">
-            {{ $molecules->links() }}
+    @if ($molecules)
+        <div class="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-8 lg:max-w-7xl lg:px-8">
+            <div class="p-4 w-full">
+                {{ $molecules->links() }}
+            </div>
+            <div class="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-8">
+                @foreach ($molecules as $molecule)
+                    <livewire:molecule-card :key="$molecule->id" :molecule="json_encode($molecule)" />
+                @endforeach
+            </div>
+            <div class="p-4">
+                {{ $molecules->links() }}
+            </div>
         </div>
-        <div class="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-8">
-            @foreach ($molecules as $molecule)
-                <livewire:molecule-card :key="$molecule->id" :molecule="json_encode($molecule)" />
-            @endforeach
+    @else
+    <div class="text-center pt-10 mt-10">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-semibold text-gray-900">No molecules in this collection</h3>
+        <p class="mt-1 text-sm text-gray-500">Please contact us below to report any issues.</p>
+        <div class="mt-6">
+          <a target="_blank" href="https://cheminf.uni-jena.de/" class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+            Contact
+          </a>
         </div>
-        <div class="p-4">
-            {{ $molecules->links() }}
-        </div>
-    </div>
-</div>
+      </div>
+    @endif
+
+    {{-- 
+</div> --}}

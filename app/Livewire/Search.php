@@ -82,9 +82,10 @@ class Search extends Component
     {
         try {
             $results = $search->query($this->query, $this->size, $this->type, $this->sort, $this->tagType);
+            $this->collection = $results[1];
 
             return view('livewire.search', [
-                'molecules' => $results,
+                'molecules' => $results[0],
             ]);
         } catch (QueryException $exception) {
             $message = $exception->getMessage();
