@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class CopyNameToSynonym extends Command
 {
@@ -44,7 +43,7 @@ class CopyNameToSynonym extends Command
                         $synonyms = json_decode($molecule->synonyms, true) ?: [];
 
                         // Add the new name to the synonyms array if it doesn't already exist
-                        if (!in_array($row->name, $synonyms)) {
+                        if (! in_array($row->name, $synonyms)) {
                             $synonyms[] = $row->name;
                         }
 
@@ -57,7 +56,7 @@ class CopyNameToSynonym extends Command
                 }
 
                 // Bulk update the synonyms column in the molecules table
-                if (!empty($updates)) {
+                if (! empty($updates)) {
                     $cases = [];
                     $ids = [];
                     $bindings = [];
@@ -71,7 +70,7 @@ class CopyNameToSynonym extends Command
 
                     $ids_placeholder = implode(',', array_fill(0, count($ids), '?'));
 
-                    $sql = 'UPDATE molecules SET synonyms = CASE id ' . implode(' ', $cases) . " END WHERE id IN ($ids_placeholder)";
+                    $sql = 'UPDATE molecules SET synonyms = CASE id '.implode(' ', $cases)." END WHERE id IN ($ids_placeholder)";
                     $bindings = array_merge($bindings, $ids);
 
                     DB::update($sql, $bindings);
