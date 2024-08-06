@@ -28,6 +28,9 @@ use Illuminate\Support\Facades\Cache;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
+use Illuminate\Support\Facades\Redirect;
+use Filament\Tables\Actions\ActionGroup;
+use Illuminate\Support\HtmlString;
 
 class MoleculeResource extends Resource
 {
@@ -67,21 +70,26 @@ class MoleculeResource extends Resource
                 ImageColumn::make('structure')->square()
                     ->label('Structure')
                     ->state(function ($record) {
-                        return env('CM_API', 'https://dev.api.naturalproducts.net/latest/').'depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=false&toolkit=cdk';
+                        return env('CM_API', 'https://dev.api.naturalproducts.net/latest/') . 'depict/2D?smiles=' . urlencode($record->canonical_smiles) . '&height=300&width=300&CIP=false&toolkit=cdk';
                     })
                     ->width(200)
                     ->height(200)
                     ->ring(5)
                     ->defaultImageUrl(url('/images/placeholder.png')),
-                Tables\Columns\TextColumn::make('id')->searchable(),
-                Tables\Columns\TextColumn::make('identifier')->searchable(),
+                Tables\Columns\TextColumn::make('id')->searchable()->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('identifier')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('name')->searchable()
+                    ->formatStateUsing(
+                        fn (Molecule $molecule): HtmlString =>
+                        new HtmlString("<strong>ID:</strong> {$molecule->id}<br><strong>Identifier:</strong> {$molecule->identifier}<br><strong>Name:</strong> {$molecule->name}")
+                    )
                     ->description(fn (Molecule $molecule): string => $molecule->standard_inchi)
                     ->wrap(),
                 Tables\Columns\TextColumn::make('synonyms')
                     ->searchable()
                     ->wrap()
-                    ->lineClamp(6),
+                    ->lineClamp(6)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('properties.exact_molecular_weight')
                     ->label('Mol.Wt')
                     ->numeric()
@@ -91,49 +99,50 @@ class MoleculeResource extends Resource
                     ->numeric()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('status'),
-                Tables\Columns\TextColumn::make('active')
-                    ->badge()
-                    ->formatStateUsing(fn (string $state): string => $state ? 'Active' : 'Inactive')
-                    ->color(fn (string $state): string => match ($state) {
-                        '1' => 'success',
-                        '' => 'warning',
-                    })
-                    ->action(
-                        Action::make('moleculeStausChange')
-                            ->form([
-                                TextArea::make('reason')
-                                    ->required(function (Molecule $record) {
-                                        return $record['active'];
-                                    }),
-                            ])
-                            ->action(function (array $data, Molecule $record): void {
-
-                                $record->active = ! $record->active;
-
-                                $reasons = json_decode($record->comment, true);
-                                array_push($reasons, [
-                                    'changed_status_to' => $record['active'],
-                                    'changed_by' => Auth::user()->id,
-                                    'changed_at' => now(),
-                                    'reason' => $data['reason'],
-                                    'bulk_action' => false,
-                                ]);
-                                $record->comment = json_encode($reasons);
-
-                                $record->save();
-                            })
-                            ->modalHidden(function (Molecule $record) {
-                                return ! $record['active'];
-                            })
-                    ),
             ])
             ->filters([
                 AdvancedFilter::make()
                     ->includeColumns(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                    Action::make('report')
+                        ->action(function (Molecule $record) {
+                            Redirect::to(ReportResource::getUrl('create') . '?compound_id=' . $record->identifier);
+                        }),
+                    Action::make('moleculeActivateDeactivate')
+                        ->label(function (Molecule $record) {
+                            return $record['active'] ? 'Deactivate' : 'Activate';
+                        })
+                        ->form([
+                            TextArea::make('reason')
+                                ->required(function (Molecule $record) {
+                                    return $record['active'];
+                                }),
+                        ])
+                        ->action(function (array $data, Molecule $record): void {
+
+                            $record->active = !$record->active;
+
+                            $reasons = json_decode($record->comment, true);
+                            array_push($reasons, [
+                                'changed_status_to' => $record['active'],
+                                'changed_by' => Auth::user()->id,
+                                'changed_at' => now(),
+                                'reason' => $data['reason'],
+                                'bulk_action' => false,
+                            ]);
+                            $record->comment = json_encode($reasons);
+
+                            $record->save();
+                        })
+                        ->modalHidden(function (Molecule $record) {
+                            return !$record['active'];
+                        })
+                ]),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -145,7 +154,7 @@ class MoleculeResource extends Resource
                         ])
                         ->action(function (array $data, Collection $records): void {
                             foreach ($records as $record) {
-                                $record->active = ! $record->active;
+                                $record->active = !$record->active;
 
                                 $reasons = json_decode($record->comment, true);
                                 array_push($reasons, [
@@ -163,6 +172,11 @@ class MoleculeResource extends Resource
                         // ->modalHidden(function (Molecule $record) {
                         //     return !$record['active'];
                         // })
+                        ->deselectRecordsAfterCompletion(),
+                    BulkAction::make('Report Molecules')
+                        ->action(function (array $data, Collection $records): void {
+                            Redirect::to(ReportResource::getUrl('create') . '?compound_id=' . implode(',', $records->pluck('identifier')->toArray()));
+                        })
                         ->deselectRecordsAfterCompletion(),
                     ExportBulkAction::make()->exports([
                         ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::XLSX)->label('XLSX')->queue(),
