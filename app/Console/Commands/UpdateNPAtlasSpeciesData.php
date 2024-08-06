@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Entry;
 use App\Models\Organism;
 use DB;
+use Illuminate\Console\Command;
 
 class UpdateNPAtlasSpeciesData extends Command
 {
@@ -80,16 +80,16 @@ class UpdateNPAtlasSpeciesData extends Command
         DB::transaction(function () use ($data) {
             foreach ($data as $row) {
                 $entry = Entry::where('collection_id', 31)->where('reference_id', $row['REFERENCE_ID'])->first();
-                echo($entry->id . '-' . $entry->organism);
-                echo("\r\n");
+                echo $entry->id.'-'.$entry->organism;
+                echo "\r\n";
                 $organisms = Organism::where('name', $entry->organism)->get();
-                if($organisms){
-                    foreach($organisms as $organism){
-                        echo($organism->id . ' - '. $entry->molecule_id);
-                        echo("\r\n");
+                if ($organisms) {
+                    foreach ($organisms as $organism) {
+                        echo $organism->id.' - '.$entry->molecule_id;
+                        echo "\r\n";
                         DB::table('molecule_organism')->where('organism_id', $organism->id)->where('molecule_id', $entry->molecule_id)->delete();
                     }
-                } 
+                }
 
                 $organism = Organism::firstOrCreate(
                     ['name' => $row['ORGANISM']]

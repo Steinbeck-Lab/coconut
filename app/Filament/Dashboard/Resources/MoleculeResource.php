@@ -19,18 +19,18 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\HtmlString;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
-use Illuminate\Support\Facades\Redirect;
-use Filament\Tables\Actions\ActionGroup;
-use Illuminate\Support\HtmlString;
 
 class MoleculeResource extends Resource
 {
@@ -70,7 +70,7 @@ class MoleculeResource extends Resource
                 ImageColumn::make('structure')->square()
                     ->label('Structure')
                     ->state(function ($record) {
-                        return env('CM_API', 'https://dev.api.naturalproducts.net/latest/') . 'depict/2D?smiles=' . urlencode($record->canonical_smiles) . '&height=300&width=300&CIP=false&toolkit=cdk';
+                        return env('CM_API', 'https://dev.api.naturalproducts.net/latest/').'depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=false&toolkit=cdk';
                     })
                     ->width(200)
                     ->height(200)
@@ -80,8 +80,7 @@ class MoleculeResource extends Resource
                 Tables\Columns\TextColumn::make('identifier')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('name')->searchable()
                     ->formatStateUsing(
-                        fn (Molecule $molecule): HtmlString =>
-                        new HtmlString("<strong>ID:</strong> {$molecule->id}<br><strong>Identifier:</strong> {$molecule->identifier}<br><strong>Name:</strong> {$molecule->name}")
+                        fn (Molecule $molecule): HtmlString => new HtmlString("<strong>ID:</strong> {$molecule->id}<br><strong>Identifier:</strong> {$molecule->identifier}<br><strong>Name:</strong> {$molecule->name}")
                     )
                     ->description(fn (Molecule $molecule): string => $molecule->standard_inchi)
                     ->wrap(),
@@ -110,7 +109,7 @@ class MoleculeResource extends Resource
                     Tables\Actions\EditAction::make(),
                     Action::make('report')
                         ->action(function (Molecule $record) {
-                            Redirect::to(ReportResource::getUrl('create') . '?compound_id=' . $record->identifier);
+                            Redirect::to(ReportResource::getUrl('create').'?compound_id='.$record->identifier);
                         }),
                     Action::make('moleculeActivateDeactivate')
                         ->label(function (Molecule $record) {
@@ -124,7 +123,7 @@ class MoleculeResource extends Resource
                         ])
                         ->action(function (array $data, Molecule $record): void {
 
-                            $record->active = !$record->active;
+                            $record->active = ! $record->active;
 
                             $reasons = json_decode($record->comment, true);
                             array_push($reasons, [
@@ -139,8 +138,8 @@ class MoleculeResource extends Resource
                             $record->save();
                         })
                         ->modalHidden(function (Molecule $record) {
-                            return !$record['active'];
-                        })
+                            return ! $record['active'];
+                        }),
                 ]),
 
             ])
@@ -154,7 +153,7 @@ class MoleculeResource extends Resource
                         ])
                         ->action(function (array $data, Collection $records): void {
                             foreach ($records as $record) {
-                                $record->active = !$record->active;
+                                $record->active = ! $record->active;
 
                                 $reasons = json_decode($record->comment, true);
                                 array_push($reasons, [
@@ -175,7 +174,7 @@ class MoleculeResource extends Resource
                         ->deselectRecordsAfterCompletion(),
                     BulkAction::make('Report Molecules')
                         ->action(function (array $data, Collection $records): void {
-                            Redirect::to(ReportResource::getUrl('create') . '?compound_id=' . implode(',', $records->pluck('identifier')->toArray()));
+                            Redirect::to(ReportResource::getUrl('create').'?compound_id='.implode(',', $records->pluck('identifier')->toArray()));
                         })
                         ->deselectRecordsAfterCompletion(),
                     ExportBulkAction::make()->exports([
