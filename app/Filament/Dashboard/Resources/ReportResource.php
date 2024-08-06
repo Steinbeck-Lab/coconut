@@ -46,7 +46,7 @@ class ReportResource extends Resource
                         'organism' => 'Organism',
                     ])
                     ->hidden(function (string $operation) {
-                        if ($operation == 'create' && (! request()->has('collection_uuid') && ! request()->has('citation_id') && ! request()->has('compound_id') && ! request()->has('organism_id'))) {
+                        if ($operation == 'create' && (!request()->has('collection_uuid') && !request()->has('citation_id') && !request()->has('compound_id') && !request()->has('organism_id'))) {
                             return false;
                         } else {
                             return true;
@@ -71,7 +71,7 @@ class ReportResource extends Resource
                             if ($get('collections') == []) {
                                 return true;
                             }
-                        } elseif (! request()->has('collection_uuid') && $get('report_type') != 'collection') {
+                        } elseif (!request()->has('collection_uuid') && $get('report_type') != 'collection') {
                             return true;
                         }
                     })
@@ -93,7 +93,7 @@ class ReportResource extends Resource
                             if ($get('citations') == []) {
                                 return true;
                             }
-                        } elseif (! request()->has('citation_id') && $get('report_type') != 'citation') {
+                        } elseif (!request()->has('citation_id') && $get('report_type') != 'citation') {
                             return true;
                         }
                     })
@@ -113,7 +113,7 @@ class ReportResource extends Resource
                             if ($get('organisms') == []) {
                                 return true;
                             }
-                        } elseif (! request()->has('organism_id') && $get('report_type') != 'organism') {
+                        } elseif (!request()->has('organism_id') && $get('report_type') != 'organism') {
                             return true;
                         }
                     })
@@ -123,7 +123,7 @@ class ReportResource extends Resource
                         }
                     })
                     ->searchable(),
-                TextInput::make('mol_id_csv')
+                TextArea::make('mol_id_csv')
                     ->label('Molecules')
                     ->placeholder('Enter the Identifiers separated by commas')
                     ->hidden(function (Get $get, string $operation) {
@@ -131,7 +131,7 @@ class ReportResource extends Resource
                             if (is_null($get('mol_id_csv'))) {
                                 return true;
                             }
-                        } elseif (! request()->has('compound_id') && $get('report_type') != 'molecule') {
+                        } elseif (!request()->has('compound_id') && $get('report_type') != 'molecule') {
                             return true;
                         }
                     })
@@ -151,7 +151,7 @@ class ReportResource extends Resource
                         'rejected' => 'Rejected',
                     ])
                     ->hidden(function () {
-                        return ! auth()->user()->hasRole('curator');
+                        return !auth()->user()->hasRole('curator');
                     })
                     ->afterStateUpdated(function (?Report $record, ?string $state, ?string $old) {
                         ReportStatusChanged::dispatch($record, $state, $old);
@@ -159,7 +159,7 @@ class ReportResource extends Resource
                 TextArea::make('comment')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide your comments/observations on anything noteworthy in the Curation process.')
                     ->hidden(function () {
-                        return ! auth()->user()->hasRole('curator');
+                        return !auth()->user()->hasRole('curator');
                     }),
             ])->columns(1);
     }
@@ -222,7 +222,7 @@ class ReportResource extends Resource
     // Define the Eloquent query for retrieving records based on user roles
     public static function getEloquentQuery(): Builder
     {
-        if (! auth()->user()->roles()->exists()) {
+        if (!auth()->user()->roles()->exists()) {
             return parent::getEloquentQuery()->where('user_id', auth()->id());
         }
 
