@@ -63,7 +63,6 @@ class CollectionResource extends Resource
                                 ->splitKeys(['Tab', ','])
                                 ->type('collections'),
                             TextInput::make('identifier'),
-                            SpatieMediaLibraryFileUpload::make('avatar'),
                         ]),
                     Section::make()
                         ->schema([
