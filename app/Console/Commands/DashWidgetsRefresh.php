@@ -32,7 +32,7 @@ class DashWidgetsRefresh extends Command
     public function handle()
     {
         // Clear the cache for all widgets
-        Cache::forget('stats');
+        Cache::flush();
 
         // Create the cache for all DashboardStats widgets
         Cache::rememberForever('stats.collections', function () {
@@ -78,22 +78,7 @@ class DashWidgetsRefresh extends Command
         $this->info('Cache for molecules parent refreshed.');
 
         Cache::rememberForever('stats.molecules', function () {
-            Cache::rememberForever('stats.molecules.non_stereo', function () {
-                return DB::table('molecules')->selectRaw('count(*)')->whereRaw('has_stereo=false and is_parent=false')->get()[0]->count;
-            })
-            // return DB::table('molecules')
-            //     ->where('is_parent', false)
-            //     ->where('has_stereo', false)
-            //     ->count()
-            +
-            Cache::rememberForever('stats.molecules.stereo', function () {
-                return DB::table('molecules')->selectRaw('count(*)')->whereRaw('has_stereo=true')->get()[0]->count;
-            });
-            // DB::table('molecules')
-            //     ->where('is_parent', false)
-            //     ->where('has_stereo', true)
-            //     ->whereNotNull('parent_id')
-            //     ->count();
+            return Cache::get('stats.molecules.non_stereo') + Cache::get('stats.molecules.stereo');
         });
         $this->info('Cache for molecules refreshed.');
 
@@ -180,6 +165,7 @@ class DashWidgetsRefresh extends Command
 
                 return $uniqueGeos->count();
             });
+            $this->info('Cache for each collection refreshed.');
 
         }
 
