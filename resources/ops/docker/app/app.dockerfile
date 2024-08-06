@@ -12,6 +12,7 @@ RUN docker-php-ext-enable apcu
 RUN docker-php-ext-install pcntl
 RUN docker-php-ext-configure intl
 RUN docker-php-ext-install intl
+RUN docker-php-ext-install bcmath
 
 RUN apk --update add postgresql15-client --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main
 

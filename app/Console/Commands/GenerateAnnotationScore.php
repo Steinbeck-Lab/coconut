@@ -110,7 +110,7 @@ class GenerateAnnotationScore extends Command
         $nameScore = $molecule->name ? 1 : 0;
 
         $literatureScore = $literatureCount >= 2 ? 1 : ($literatureCount >= 1 ? 0.5 : 0);
-        $organismScore = $organismCount >= 2 ? 1 : ($organismCount >= 1 ? 0.5 : 0);
+        $organismScore = $organismCount >= 1 ? 0 : ($organismCount >= 1 ? 0.5 : 0);
         $collectionsScore = $collectionsCount >= 2 ? 1 : ($collectionsCount >= 1 ? 0.5 : 0);
 
         $totalScore = ($literatureScore * 0.25) +
