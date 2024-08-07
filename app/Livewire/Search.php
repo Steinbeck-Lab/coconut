@@ -81,7 +81,7 @@ class Search extends Component
     public function render(SearchMolecule $search)
     {
         try {
-            $results = $search->query($this->query, $this->size, $this->type, $this->sort, $this->tagType);
+            $results = $search->query($this->query, $this->size, $this->type, $this->sort, $this->tagType, $this->page);
             $this->collection = $results[1];
 
             return view('livewire.search', [

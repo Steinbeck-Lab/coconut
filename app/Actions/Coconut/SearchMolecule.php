@@ -29,13 +29,14 @@ class SearchMolecule
     /**
      * Search based on given query.
      */
-    public function query($query, $size, $type, $sort, $tagType)
+    public function query($query, $size, $type, $sort, $tagType, $page)
     {
         $this->query = $query;
         $this->size = $size;
         $this->type = $type;
         $this->sort = $sort;
         $this->tagType = $tagType;
+        $this->page = $page;
 
         try {
             set_time_limit(300);

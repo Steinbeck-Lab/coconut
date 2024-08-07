@@ -46,7 +46,7 @@
                                                         clip-rule="evenodd"></path>
                                                 </svg>
                                             </div>
-                                            <input x-model="query" id="query"
+                                            <input @keyup.enter="window.location.href = '/search?q=' + encodeURIComponent(query)" x-model="query" id="query"
                                                 class="rounded-md h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
                                                 placeholder="Search compound name, SMILES, InChI, InChI Key"
                                                 type="search" autofocus>
