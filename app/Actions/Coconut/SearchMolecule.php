@@ -216,7 +216,7 @@ class SearchMolecule
         if ($this->tagType == 'dataSource') {
             $this->collection = Collection::where('title', $this->query)->first();
             if ($this->collection) {
-                return $this->collection->molecules()->orderBy('annotation_level', 'desc')->paginate($this->size);
+                return $this->collection->molecules()->where('active', true)->where('is_parent', false)->orderBy('annotation_level', 'desc')->paginate($this->size);
             } else {
                 return [];
             }
@@ -230,9 +230,9 @@ class SearchMolecule
 
             return Molecule::whereHas('organisms', function ($query) use ($organismIds) {
                 $query->whereIn('organism_id', $organismIds);
-            })->orderBy('annotation_level', 'DESC')->paginate($this->size);
+            })->where('active', true)->where('is_parent', false)->orderBy('annotation_level', 'DESC')->paginate($this->size);
         } else {
-            return Molecule::withAnyTags([$this->query], $this->tagType)->paginate($this->size);
+            return Molecule::withAnyTags([$this->query], $this->tagType)->where('active', true)->where('is_parent', false)->paginate($this->size);
         }
     }
 
@@ -296,6 +296,8 @@ class SearchMolecule
                 (\"name\"::TEXT ILIKE '%{$this->query}%') 
                 OR (\"synonyms\"::TEXT ILIKE '%{$this->query}%') 
                 OR (\"identifier\"::TEXT ILIKE '%{$this->query}%') 
+                AND is_parent = FALSE 
+                AND active = TRUE
             ORDER BY 
                 CASE 
                     WHEN \"name\"::TEXT ILIKE '{$this->query}' THEN 1 
@@ -310,6 +312,7 @@ class SearchMolecule
         } else {
             return "SELECT id, COUNT(*) OVER () 
                 FROM molecules 
+                WHERE is_parent = FALSE AND active = TRUE
                 ORDER BY annotation_level DESC 
                 LIMIT {$this->size} OFFSET {$offset}";
         }

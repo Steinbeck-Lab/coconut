@@ -2,10 +2,6 @@
     if (value) {
         setTimeout(() => {
             const editor = OCL.StructureEditor.createSVGEditor('structureSearchEditor', 1);
-            if (smiles) {
-                console.log(smiles)
-                editor.setSmiles(smiles);
-            }
             window.getEditorSmiles = () => editor.getSmiles();
         }, 100);
     }
@@ -24,6 +20,7 @@
                         <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
                             Structure Editor
                         </h3>
+
                         <div class="py-3">
                             <div id="structureSearchEditor" class="border" style="height: 400px; width: 100%"></div>
                         </div>
