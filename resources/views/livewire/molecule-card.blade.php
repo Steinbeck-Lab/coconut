@@ -1,5 +1,5 @@
 <div class="bg-white rounded-lg hover:shadow-xl shadow border">
-    @if ($molecule->identifier)
+    @if ($molecule && $molecule->identifier)
         <a href="{{ route('compound', $molecule->identifier) }}" wire:navigate>
             <div class="group relative flex flex-col overflow-hidden">
                 <div class="aspect-h-3 aspect-w-3 sm:aspect-none group-hover:opacity-75 h-56">

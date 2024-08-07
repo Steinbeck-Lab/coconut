@@ -16,9 +16,4 @@ class DataSources extends Component
             return Collection::take(10)->get(['title', 'image'])->toArray();
         });
     }
-
-    public function render()
-    {
-        return view('livewire.data-sources');
-    }
 }
