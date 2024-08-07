@@ -95,7 +95,7 @@
             </div>
             <div class="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-8">
                 @foreach ($molecules as $molecule)
-                    <livewire:molecule-card :key="$molecule->id" :molecule="$molecule" lazy="on-load" />
+                    <livewire:molecule-card :key="$molecule->id" :molecule="$molecule" />
                 @endforeach
             </div>
             <div class="p-4">
