@@ -90,7 +90,7 @@
                 </div>
                 <div class="mt-16 flex items-center gap-x-6 justify-center w-full">
                     <div>
-                        <livewire:structure-editor :mode="'button'" lazy="on-load" />
+                        <livewire:structure-editor :mode="'button'" lazy="on-load" :smiles="''" />
                     </div>
                     <a href="/search"
                         class="border bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">

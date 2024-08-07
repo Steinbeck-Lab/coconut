@@ -52,7 +52,7 @@
 
                                     <input name="query" id="query"
                                         class="h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
-                                        wire:model.live="query"
+                                        wire:model.blur="query"
                                         placeholder="Search compound name, SMILES, InChI, InChI Key" type="search"
                                         autofocus="">
                                 </div>
@@ -60,7 +60,7 @@
                         </div>
                         <div class="flex items-center md:ml-6">
                             <div>
-                                <livewire:structure-editor :mode="'inline'" lazy="on-load"/>
+                                <livewire:structure-editor :mode="'inline'" :smiles="$query" lazy="on-load" />
                             </div>
                             {{-- <div><button type="button"
                                     class="rounded-md bg-white text-gray-900 mr-3 py-3 px-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2"><svg
@@ -95,7 +95,7 @@
             </div>
             <div class="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-8">
                 @foreach ($molecules as $molecule)
-                    <livewire:molecule-card :key="$molecule->id" :molecule="$molecule" lazy="on-load"/>
+                    <livewire:molecule-card :key="$molecule->id" :molecule="$molecule" lazy="on-load" />
                 @endforeach
             </div>
             <div class="p-4">
