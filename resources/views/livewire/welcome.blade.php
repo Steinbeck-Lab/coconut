@@ -234,7 +234,9 @@
                     </p>
                     <p class="mt-2 flex items-baseline gap-x-2">
                         <span class="text-4xl font-semibold tracking-tight text-white number"
-                            data-value="{{ $totalMolecules }}"></span>
+                            data-value="{{ $totalMolecules }}">
+                            {{ $totalMolecules }}
+                        </span>
                     </p>
                 </a>
                 <!-- Total Collections Section -->
@@ -249,7 +251,9 @@
                     </p>
                     <p class="mt-2 flex items-baseline gap-x-2">
                         <span class="text-4xl font-semibold tracking-tight text-white number"
-                            data-value="{{ $totalCollections }}"></span>
+                            data-value="{{ $totalCollections }}">
+                            {{ $totalCollections }}
+                        </span>
                     </p>
                 </a>
                 <!-- Unique Organisms Section -->
@@ -315,7 +319,9 @@
                     </p>
                     <p class="mt-2 flex items-baseline gap-x-2">
                         <span class="text-4xl font-semibold tracking-tight text-white number"
-                            data-value="{{ $uniqueOrganisms }}"></span>
+                            data-value="{{ $uniqueOrganisms }}">
+                            {{ $uniqueOrganisms }}
+                        </span>
                     </p>
                 </div>
                 <!-- Citations Mapped Section -->
@@ -334,7 +340,9 @@
                     </p>
                     <p class="mt-2 flex items-baseline gap-x-2">
                         <span class="text-4xl font-semibold tracking-tight text-white number"
-                            data-value="{{ $citationsMapped }}"></span>
+                            data-value="{{ $citationsMapped }}">
+                            {{ $citationsMapped }}
+                        </span>
                     </p>
                 </div>
             </div>

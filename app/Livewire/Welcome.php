@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use Cache;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
@@ -56,8 +56,7 @@ class Welcome extends Component
     #[Layout('layouts.guest')]
     public function render()
     {
-        // Assign values to the variables
-        $this->totalMolecules = Cache::get('stats.molecules', 0);
+        $this->totalMolecules = Cache::get('stats.molecules');
         $this->totalCollections = Cache::get('stats.collections', 0);
         $this->uniqueOrganisms = Cache::get('stats.organisms', 0);
         $this->citationsMapped = Cache::get('stats.citations', 0);

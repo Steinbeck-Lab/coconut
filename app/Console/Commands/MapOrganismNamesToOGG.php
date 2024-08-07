@@ -28,6 +28,13 @@ class MapOrganismNamesToOGG extends Command
      */
     public function handle()
     {
+
+        $organismsWithoutCompounds = Organism::doesntHave('molecules')->get();
+
+        foreach ($organismsWithoutCompounds as $organism) {
+            $organism->delete();
+        }
+
         $chunkSize = 100;
 
         Organism::whereNull('iri')->chunk($chunkSize, function ($organisms) {

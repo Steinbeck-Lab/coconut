@@ -78,7 +78,7 @@ class DashWidgetsRefresh extends Command
         $this->info('Cache for molecules parent refreshed.');
 
         Cache::rememberForever('stats.molecules', function () {
-            Cache::rememberForever('stats.molecules.non_stereo', function () {
+            return Cache::rememberForever('stats.molecules.non_stereo', function () {
                 return DB::table('molecules')->selectRaw('count(*)')->whereRaw('has_stereo=false and is_parent=false')->get()[0]->count;
             })
             // return DB::table('molecules')
@@ -104,7 +104,7 @@ class DashWidgetsRefresh extends Command
         $collection_ids = Collection::pluck('id')->toArray();
 
         foreach ($collection_ids as $collection_id) {
-
+            $this->info('Refreshing Cache: CollectionID - '.$collection_id);
             Cache::rememberForever('stats.collections'.$collection_id.'entries.count', function () use ($collection_id) {
                 return DB::table('entries')->selectRaw('count(*)')->whereRaw('collection_id='.$collection_id)->get()[0]->count;
             });
@@ -117,69 +117,69 @@ class DashWidgetsRefresh extends Command
                 return DB::table('entries')->selectRaw('count(*)')->whereRaw('collection_id='.$collection_id)->whereRaw("status = 'REJECTED'")->get()[0]->count;
             });
 
-            Cache::rememberForever('stats.collections'.$collection_id.'citations.count', function () use ($collection_id) {
-                $entries = DB::table('entries')
-                    ->select('entries.doi')
-                    ->join('collections', 'collections.id', '=', 'entries.collection_id')
-                    ->where('collections.id', $collection_id)
-                    ->pluck('doi');
+            // Cache::rememberForever('stats.collections'.$collection_id.'citations.count', function () use ($collection_id) {
+            //     $entries = DB::table('entries')
+            //         ->select('entries.doi')
+            //         ->join('collections', 'collections.id', '=', 'entries.collection_id')
+            //         ->where('collections.id', $collection_id)
+            //         ->pluck('doi');
 
-                $dois = collect();
+            //     $dois = collect();
 
-                foreach ($entries as $entry) {
-                    $dois = $dois->merge(explode('|', $entry));
-                }
+            //     foreach ($entries as $entry) {
+            //         $dois = $dois->merge(explode('|', $entry));
+            //     }
 
-                $uniqueDois = $dois->filter(function ($doi) {
-                    return ! empty($doi);
-                })->unique();
+            //     $uniqueDois = $dois->filter(function ($doi) {
+            //         return ! empty($doi);
+            //     })->unique();
 
-                return $uniqueDois->count();
-            });
+            //     return $uniqueDois->count();
+            // });
 
             Cache::rememberForever('stats.collections'.$collection_id.'molecules.count', function () use ($collection_id) {
                 return DB::table('collection_molecule')->selectRaw('count(*)')->whereRaw('collection_id ='.$collection_id)->get()[0]->count;
             });
 
-            Cache::rememberForever('stats.collections'.$collection_id.'organisms.count', function () use ($collection_id) {
-                $entries = DB::table('entries')
-                    ->select('entries.organism')
-                    ->join('collections', 'collections.id', '=', 'entries.collection_id')
-                    ->where('collections.id', $collection_id)
-                    ->pluck('organism');
+            // Cache::rememberForever('stats.collections'.$collection_id.'organisms.count', function () use ($collection_id) {
+            //     $entries = DB::table('entries')
+            //         ->select('entries.organism')
+            //         ->join('collections', 'collections.id', '=', 'entries.collection_id')
+            //         ->where('collections.id', $collection_id)
+            //         ->pluck('organism');
 
-                $organisms = collect();
+            //     $organisms = collect();
 
-                foreach ($entries as $entry) {
-                    $organisms = $organisms->merge(explode('|', $entry));
-                }
+            //     foreach ($entries as $entry) {
+            //         $organisms = $organisms->merge(explode('|', $entry));
+            //     }
 
-                $uniqueOrgs = $organisms->filter(function ($organism) {
-                    return ! empty($organism);
-                })->unique();
+            //     $uniqueOrgs = $organisms->filter(function ($organism) {
+            //         return ! empty($organism);
+            //     })->unique();
 
-                return $uniqueOrgs->count();
-            });
+            //     return $uniqueOrgs->count();
+            // });
 
-            Cache::rememberForever('stats.collections'.$collection_id.'geo_locations.count', function () use ($collection_id) {
-                $entries = DB::table('entries')
-                    ->select('entries.geo_location')
-                    ->join('collections', 'collections.id', '=', 'entries.collection_id')
-                    ->where('collections.id', $collection_id)
-                    ->pluck('geo_location');
+            // Cache::rememberForever('stats.collections'.$collection_id.'geo_locations.count', function () use ($collection_id) {
+            //     $entries = DB::table('entries')
+            //         ->select('entries.geo_location')
+            //         ->join('collections', 'collections.id', '=', 'entries.collection_id')
+            //         ->where('collections.id', $collection_id)
+            //         ->pluck('geo_location');
 
-                $geo_locations = collect();
+            //     $geo_locations = collect();
 
-                foreach ($entries as $entry) {
-                    $geo_locations = $geo_locations->merge(explode('|', $entry));
-                }
+            //     foreach ($entries as $entry) {
+            //         $geo_locations = $geo_locations->merge(explode('|', $entry));
+            //     }
 
-                $uniqueGeos = $geo_locations->filter(function ($geo_location) {
-                    return ! empty($geo_location);
-                })->unique();
+            //     $uniqueGeos = $geo_locations->filter(function ($geo_location) {
+            //         return ! empty($geo_location);
+            //     })->unique();
 
-                return $uniqueGeos->count();
-            });
+            //     return $uniqueGeos->count();
+            // });
 
         }
 

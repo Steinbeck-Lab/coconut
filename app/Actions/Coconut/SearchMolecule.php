@@ -63,7 +63,6 @@ class SearchMolecule
                 $results = $this->buildTagsStatement($offset);
             } else {
                 $statement = $this->buildStatement($queryType, $offset, $filterMap);
-
                 if ($statement) {
                     $results = $this->executeQuery($statement);
                 }
@@ -321,10 +320,13 @@ class SearchMolecule
     private function executeQuery($statement)
     {
         $expression = DB::raw($statement);
-        $hits = $expression->getValue(DB::connection()->getQueryGrammar());
+        $string = $expression->getValue(DB::connection()->getQueryGrammar());
+        $hits = DB::select($string);
         $count = count($hits) > 0 ? $hits[0]->count : 0;
 
         $ids = implode(',', collect($hits)->pluck('id')->toArray());
+
+        // dd($ids);
 
         if ($ids != '') {
             $statement = "SELECT * FROM molecules WHERE ID IN ({$ids})";
