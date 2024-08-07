@@ -348,10 +348,10 @@
             </div>
         </div>
     </div>
-    <livewire:recent-molecules />
-    <livewire:compound-classes />
-    <livewire:data-sources />
-    <livewire:faqs />
+    <livewire:recent-molecules lazy />
+    <livewire:compound-classes lazy />
+    <livewire:data-sources lazy />
+    <livewire:faqs lazy/>
 
     <div class="bg-gray-900 border-y">
         <div
