@@ -64,7 +64,7 @@
                                             </svg>
                                             &nbsp;Search</button>
                                     </div>
-                                    <livewire:structure-editor />
+                                    <livewire:structure-editor lazy="on-load"/>
                                 </div>
                             </div>
                         </div>
@@ -349,9 +349,9 @@
         </div>
     </div>
     <livewire:recent-molecules lazy />
-    <livewire:compound-classes lazy />
-    <livewire:data-sources lazy />
-    <livewire:faqs lazy/>
+    <livewire:compound-classes lazy="on-load" />
+    <livewire:data-sources lazy="on-load" />
+    <livewire:faqs lazy="on-load" />
 
     <div class="bg-gray-900 border-y">
         <div
