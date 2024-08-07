@@ -588,7 +588,7 @@
                                 <div class="px-4 pb-5 sm:px-6">
                                     <div class="mx-auto grid mt-6 gap-5 lg:max-w-none md:grid-cols-3 lg:grid-cols-2">
                                         @foreach ($molecule->related as $tautomer)
-                                            <livewire:molecule-card :molecule="json_encode($tautomer)" />
+                                            <livewire:molecule-card :molecule="$tautomer" lazy/>
                                         @endforeach
                                     </div>
                                 </div>
@@ -609,7 +609,7 @@
                                 <div class="px-4 pb-5 sm:px-6">
                                     <div class="mx-auto grid mt-6 gap-5 lg:max-w-none md:grid-cols-3 lg:grid-cols-2">
                                         @foreach ($molecule->variants as $variant)
-                                            <livewire:molecule-card :molecule="json_encode($variant)" />
+                                            <livewire:molecule-card :molecule="$variant" lazy/>
                                         @endforeach
                                     </div>
                                 </div>
@@ -629,7 +629,7 @@
                                 <div class="px-4 pb-5 sm:px-6">
                                     <div class="mx-auto grid mt-6 gap-5 lg:max-w-none md:grid-cols-3 lg:grid-cols-2">
                                         <div class="rounded-lg hover:shadow-lg shadow border">
-                                            <livewire:molecule-card :molecule="json_encode($molecule->parent)" />
+                                            <livewire:molecule-card :molecule="$molecule->parent" lazy/>
                                         </div>
                                     </div>
                                 </div>
@@ -748,10 +748,10 @@
             </div>
             <section aria-labelledby="timeline-title" class="lg:col-span-1 lg:col-start-3">
                 <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg bg-white mb-2">
-                    <livewire:molecule-depict2d :height="300" :smiles="$molecule->canonical_smiles">
+                    <livewire:molecule-depict2d :height="300" :smiles="$molecule->canonical_smiles" lazy="on-load">
                 </div>
                 <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg mb-2">
-                    <livewire:molecule-depict3d :height="300" :smiles="$molecule->canonical_smiles">
+                    <livewire:molecule-depict3d :height="300" :smiles="$molecule->canonical_smiles" lazy="on-load">
                 </div>
                 <div class="bg-white px-4 py-1 shadow sm:rounded-lg sm:px-6 border">
                     <div class="mt-2 flow-root">
