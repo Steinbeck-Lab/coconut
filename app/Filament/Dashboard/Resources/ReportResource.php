@@ -123,7 +123,7 @@ class ReportResource extends Resource
                         }
                     })
                     ->searchable(),
-                TextInput::make('mol_id_csv')
+                TextArea::make('mol_id_csv')
                     ->label('Molecules')
                     ->placeholder('Enter the Identifiers separated by commas')
                     ->hidden(function (Get $get, string $operation) {
