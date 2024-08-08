@@ -24,7 +24,7 @@ https://doi.org/10.1186/s13321-020-00478-9
 
 - Citing software:
 ```md
-Venkata, C., Sharma, N., Schaub, J., Steinbeck, C., & Rajan, K. (2024). 
-COCONUT-2.0 (Version v0.0.1 - prerelease) [Computer software]. 
-https://doi.org/10.5281/zenodo.??
+Venkata, C., Kanakam, S. R. S., Sharma, N., Schaub, J., Steinbeck, C., & Rajan, K. (2023).
+COCONUT (Version v0.0.1 - prerelease) [Computer software].
+https://doi.org/10.5281/zenodo.?? 
 ```
