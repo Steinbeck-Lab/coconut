@@ -4,8 +4,9 @@
 Consequently, there has been a proliferation of generalistic and specialized NP databases over the years. Nevertheless, there is currently no comprehensive online resource that consolidates all known NPs in a single location. Such a resource would greatly facilitate NP research, enabling computational screening and other in-silico applications.
 
 <div style="text-align: center;">
-  <img src="/logo.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));" width="400">
+  <img src="/logo.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5)); display: block; margin: 0 auto;" width="600">
 </div>
+
 
 ::: info
 - The COCONUT logo incorporates a molecule called 6-Amyl-α-pyrone, which is an unsaturated lactone with a COCONUT fragrance. This molecule is produced by Trichoderma species, which are fungi.
@@ -25,7 +26,7 @@ https://doi.org/10.1186/s13321-020-00478-9
 
 - Citing software:
 ```md
-Venkata, C., Kanakam, S. R. S., Sharma, N., Schaub, J., Steinbeck, C., & Rajan, K. (2023).
+Venkata, C., Kanakam, S. R. S., Sharma, N., Schaub, J., Steinbeck, C., & Rajan, K. (2024).
 COCONUT (Version v0.0.1 - prerelease) [Computer software].
 https://doi.org/10.5281/zenodo.?? 
 ```
