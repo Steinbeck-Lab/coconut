@@ -7,7 +7,7 @@ use DB;
 use Illuminate\Console\Command;
 use Log;
 
-class ImportPubChemNames extends Command
+class ImportSTOUTIUPACNames extends Command
 {
     /**
      * The name and signature of the console command.
