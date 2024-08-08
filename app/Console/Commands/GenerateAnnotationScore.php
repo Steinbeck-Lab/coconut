@@ -13,7 +13,7 @@ class GenerateAnnotationScore extends Command
      *
      * @var string
      */
-    protected $signature = 'app:generate-score {offset?} {end?}';
+    protected $signature = 'app:generate-score';
 
     /**
      * The console command description.
@@ -25,33 +25,11 @@ class GenerateAnnotationScore extends Command
     public function handle()
     {
         $batchSize = 1000;
-
-        $offset = 0;
-        $end = 100000000;
-
-        $_offset = $this->argument('offset');
-        $_end = $this->argument('end');
-
-        if ($_offset) {
-            $offset = $_offset;
-        }
-
-        if ($_end) {
-            $end = $_end;
-        }
-
-        while (true) {
-            $molecules = DB::table('molecules')
-                ->offset($offset)
-                ->limit($batchSize)
-                ->get();
-
-            if ($molecules->isEmpty() || $offset >= $end) {
-                break;
-            }
-
-            $data = [];
-
+        $data = [];
+        DB::table('molecules')
+            ->where('active', true)
+            ->orderBy('id')
+            ->chunk($batchSize, function ($molecules) use ($data) {
             foreach ($molecules as $molecule) {
                 $score = $this->calculateAnnotationScore($molecule);
                 array_push($data, [
@@ -59,13 +37,13 @@ class GenerateAnnotationScore extends Command
                     'annotation_level' => $score,
                 ]);
             }
-
-            $this->insertBatch($data);
-
-            $offset += $batchSize;
-            $this->info("Processed batch starting from offset $offset");
-        }
-
+            if (! empty($data)) {
+                $this->info('Updating row:' . $molecule->id);
+                $this->updateBatch($data);
+                $data = [];
+            }
+        });
+        
         $this->info('Annotation scores generated successfully.');
     }
 
@@ -74,7 +52,7 @@ class GenerateAnnotationScore extends Command
      *
      * @return void
      */
-    private function insertBatch(array $data)
+    private function updateBatch(array $data)
     {
         DB::transaction(function () use ($data) {
             foreach ($data as $row) {
@@ -92,26 +70,13 @@ class GenerateAnnotationScore extends Command
 
     protected function calculateAnnotationScore($molecule)
     {
-        $literatureCount = DB::table('citables')
-            ->where('citable_id', $molecule->id)
-            ->where('citable_type', 'App\Models\Molecule')
-            ->count();
-
-        $organismCount = DB::table('molecule_organism')
-            ->where('molecule_id', $molecule->id)
-            ->count();
-
-        $collectionsCount = DB::table('collection_molecule')
-            ->where('molecule_id', $molecule->id)
-            ->count();
-
         $casScore = $molecule->cas ? 1 : 0;
-        $synonymsScore = $molecule->synonyms ? (count(json_decode($molecule->synonyms)) >= 1 ? 1 : 0) : 0;
+        $synonymsScore = $molecule->synonyms ? ( $molecule->synonym_count >= 1 ? 1 : 0) : 0;
         $nameScore = $molecule->name ? 1 : 0;
 
-        $literatureScore = $literatureCount >= 2 ? 1 : ($literatureCount >= 1 ? 0.5 : 0);
-        $organismScore = $organismCount >= 1 ? 0 : ($organismCount >= 1 ? 0.5 : 0);
-        $collectionsScore = $collectionsCount >= 2 ? 1 : ($collectionsCount >= 1 ? 0.5 : 0);
+        $literatureScore = $molecule->citation_count >= 2 ? 1 : ($molecule->citation_count >= 1 ? 0.5 : 0);
+        $organismScore = $molecule->organism_count >= 1 ? 0 : ($molecule->organism_count >= 1 ? 0.5 : 0);
+        $collectionsScore = $molecule->collection_count >= 2 ? 1 : ($molecule->collection_count >= 1 ? 0.5 : 0);
 
         $totalScore = ($literatureScore * 0.25) +
                         ($organismScore * 0.20) +
