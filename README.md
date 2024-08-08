@@ -37,5 +37,20 @@ COCONUT infrastructure code is licensed under the MIT license - see the [LICENSE
 Sorokina, M., Merseburger, P., Rajan, K. et al. COCONUT online: COlleCtion of Open Natural prodUcTs database. J Cheminform 13, 2 (2021). https://doi.org/10.1186/s13321-020-00478-9
 
 ## Maintained by
-The COCONUT database and its infrastructure are developed and maintained by the Steinbeck group at the University Friedrich-Schiller in Jena, Germany.
-<p align="left"><a href="https://cheminf.uni-jena.de/" target="_blank"><img src="https://github.com/Kohulan/DECIMER-Image-to-SMILES/blob/master/assets/CheminfGit.png" width="50%" alt="cheminf Logo"></a></p>
+The COCONUT database and its infrastructure are developed and maintained by the [Steinbeck group](https://cheminf.uni-jena.de) at the [Friedrich Schiller University](https://www.uni-jena.de/en/) Jena, Germany.
+The code for this web application is released under the [MIT license](https://opensource.org/licenses/MIT). Copyright © CC-BY-SA 2024
+<p align="center"><a href="https://cheminf.uni-jena.de/" target="_blank"><img src="https://github.com/Kohulan/DECIMER-Image-to-SMILES/blob/master/assets/CheminfGit.png" width="800" alt="cheminf Logo"></a></p>
+
+## Acknowledgments :bulb:
+
+Funded by the [Deutsche Forschungsgemeinschaft (DFG, German Research Foundation)](https://www.dfg.de/) under the [National Research Data Infrastructure – NFDI4Chem](https://nfdi4chem.de/) – Project number: **441958208** and  [ChemBioSys](https://www.chembiosys.de/en/) (Project INF) - Project number: **239748522 - SFB 1127**.
+
+<div style="display: flex; justify-content: space-between;">
+  <a href="https://www.dfg.de/" target="_blank">
+    <img src="./docs/public/dfg_logo_schriftzug_blau_foerderung_en.gif" width="30%" alt="DFG Logo">
+  </a>
+  <a href="https://nfdi4chem.de/" target="_blank">
+    <img src="https://www.nfdi4chem.de/wp-content/themes/wptheme/assets/img/logo.svg" width="30%" alt="NFDI4Chem Logo">
+  </a>
+  <a href="https://www.chembiosys.de/en/welcome.html" target="_blank">
+    <img src="https://github.com/Steinbeck-Lab/cheminformatics-microservice/assets/30716951/45c8e153-8322-4563-a51d-cbdbe4e08627" width="30%" alt="Chembiosys Logo">
