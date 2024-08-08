@@ -30,20 +30,20 @@ class GenerateAnnotationScore extends Command
             ->where('active', true)
             ->orderBy('id')
             ->chunk($batchSize, function ($molecules) use ($data) {
-            foreach ($molecules as $molecule) {
-                $score = $this->calculateAnnotationScore($molecule);
-                array_push($data, [
-                    'id' => $molecule->id,
-                    'annotation_level' => $score,
-                ]);
-            }
-            if (! empty($data)) {
-                $this->info('Updating row:' . $molecule->id);
-                $this->updateBatch($data);
-                $data = [];
-            }
-        });
-        
+                foreach ($molecules as $molecule) {
+                    $score = $this->calculateAnnotationScore($molecule);
+                    array_push($data, [
+                        'id' => $molecule->id,
+                        'annotation_level' => $score,
+                    ]);
+                }
+                if (! empty($data)) {
+                    $this->info('Updating row:'.$molecule->id);
+                    $this->updateBatch($data);
+                    $data = [];
+                }
+            });
+
         $this->info('Annotation scores generated successfully.');
     }
 
@@ -71,7 +71,7 @@ class GenerateAnnotationScore extends Command
     protected function calculateAnnotationScore($molecule)
     {
         $casScore = $molecule->cas ? 1 : 0;
-        $synonymsScore = $molecule->synonyms ? ( $molecule->synonym_count >= 1 ? 1 : 0) : 0;
+        $synonymsScore = $molecule->synonyms ? ($molecule->synonym_count >= 1 ? 1 : 0) : 0;
         $nameScore = $molecule->name ? 1 : 0;
 
         $literatureScore = $molecule->citation_count >= 2 ? 1 : ($molecule->citation_count >= 1 ? 0.5 : 0);
