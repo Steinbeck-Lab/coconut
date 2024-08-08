@@ -16,7 +16,7 @@
             <div class="px-4">
                 <div class="mx-auto grid mt-6 gap-5 lg:max-w-none md:grid-cols-3 lg:grid-cols-5">
                     @foreach ($molecules as $molecule)
-                        <livewire:molecule-card :key="$molecule->id" :molecule="$molecule" />
+                        <livewire:molecule-card :key="$molecule->identifier" :molecule="$molecule" />
                     @endforeach
                 </div>
             </div>

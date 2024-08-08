@@ -153,11 +153,13 @@ class SearchMolecule
         switch ($queryType) {
             case 'smiles':
             case 'substructure':
-                $statement = "SELECT id, COUNT(*) OVER () 
-                          FROM mols 
-                          WHERE m@>'{$this->query}' 
-                          LIMIT {$this->size} OFFSET {$offset}";
-
+                $statement = "SELECT id, m, 
+                    tanimoto_sml(morganbv_fp(mol_from_smiles('{$this->query}')::mol), morganbv_fp(m::mol)) AS similarity, 
+                    COUNT(*) OVER () AS count 
+                FROM mols 
+                WHERE m@> mol_from_smiles('{$this->query}')::mol 
+                ORDER BY similarity DESC 
+                LIMIT {$this->size} OFFSET {$offset}";
                 break;
 
             case 'inchi':
@@ -328,12 +330,18 @@ class SearchMolecule
         $hits = DB::select($string);
         $count = count($hits) > 0 ? $hits[0]->count : 0;
 
-        $ids = implode(',', collect($hits)->pluck('id')->toArray());
-
+        $ids_array = collect($hits)->pluck('id')->toArray();
+        $ids = implode(',', $ids_array);
         // dd($ids);
 
         if ($ids != '') {
-            $statement = "SELECT * FROM molecules WHERE ID IN ({$ids})";
+
+            $statement = "
+            SELECT identifier, canonical_smiles, annotation_level, name, iupac_name, organism_count, citation_count, geo_count, collection_count
+            FROM molecules
+            WHERE id = ANY (array[{$ids}])
+            ORDER BY array_position(array[{$ids}], id);
+            ";
             if ($this->sort == 'recent') {
                 $statement .= ' ORDER BY created_at DESC';
             }

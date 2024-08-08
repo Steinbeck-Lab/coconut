@@ -291,7 +291,7 @@
                         class="-mb-1 block bg-gradient-to-r from-secondary-dark to-secondary-light bg-clip-text pb-1 text-transparent">Get
                         in touch or create an account.</span></h2>
             </div>
-            <div class="mt-6 space-y-4 sm:flex sm:space-y-0 sm:space-x-5"><a href="https://cheminf.uni-jena.de"
+            <div class="mt-6 space-y-4 sm:flex sm:space-y-0 sm:space-x-5"><a href="mailto:info.coconut@uni-jena.de"
                     target="_blank"
                     class="cursor-pointer flex items-center justify-center rounded-md border border-transparent bg-teal-50 px-4 py-3 text-base font-medium text-teal-800 shadow-sm hover:bg-teal-100">Contact
                     Us</a>
