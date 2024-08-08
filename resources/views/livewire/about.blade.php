@@ -135,8 +135,11 @@
                             under the
                             <a class="text-blue-900 underline" href="https://nfdi4chem.de/">National Research Data
                                 Infrastructure – NFDI4Chem</a>
-                            – Projektnummer
-                            <strong class="text-blue-900">441958208</strong>.
+                            – Project number:
+                            <strong class="text-blue-900">441958208</strong> and 
+                            <a class="text-blue-900 underline" href="https://www.chembiosys.de/en/">(Project INF) 
+                                - Project number:
+                                <strong class="text-blue-900">239748522 - SFB 1127</strong>.
                         </p>
                     </div>
                 </div>
