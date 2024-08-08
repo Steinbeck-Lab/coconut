@@ -32,7 +32,7 @@ class DashWidgetsRefresh extends Command
     public function handle()
     {
         // Clear the cache for all widgets
-        Cache::forget('stats');
+        Cache::flush();
 
         // Create the cache for all DashboardStats widgets
         Cache::rememberForever('stats.collections', function () {
