@@ -85,7 +85,7 @@ class SearchMolecule
     {
         $patterns = [
             'inchi' => '/^((InChI=)?[^J][0-9BCOHNSOPrIFla+\-\(\)\\\\\/,pqbtmsih]{6,})$/i',
-            'inchikey' => '/^([0-9A-Z\-]+)$/i',
+            'inchikey' => '/^([0-9A-Z\-]{27})$/i',  // Modified to ensure exact length
             'smiles' => '/^([^J][0-9BCOHNSOPrIFla@+\-\[\]\(\)\\\\\/%=#$]{6,})$/i',
         ];
 
@@ -94,12 +94,12 @@ class SearchMolecule
         }
 
         foreach ($patterns as $type => $pattern) {
-            if (preg_match_all($pattern, $query, $matches, PREG_SET_ORDER, 0)) {
+            if (preg_match($pattern, $query)) {
                 if ($type == 'inchi' && substr($query, 0, 6) == 'InChI=') {
                     return 'inchi';
                 } elseif ($type == 'inchikey' && substr($query, 14, 1) == '-' && strlen($query) == 27) {
                     return 'inchikey';
-                } elseif ($type == 'smiles' && substr($query, 14, 1) != '-') {
+                } elseif ($type == 'smiles') {
                     return 'smiles';
                 }
             }
@@ -295,9 +295,9 @@ class SearchMolecule
             SELECT id, COUNT(*) OVER () 
             FROM molecules 
             WHERE 
-                (\"name\"::TEXT ILIKE '%{$this->query}%') 
+                ((\"name\"::TEXT ILIKE '%{$this->query}%') 
                 OR (\"synonyms\"::TEXT ILIKE '%{$this->query}%') 
-                OR (\"identifier\"::TEXT ILIKE '%{$this->query}%') 
+                OR (\"identifier\"::TEXT ILIKE '%{$this->query}%')) 
                 AND is_parent = FALSE 
                 AND active = TRUE
             ORDER BY 
