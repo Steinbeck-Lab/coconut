@@ -17,7 +17,5 @@ class DeployEntryProcessingJobs
     /**
      * Handle the event.
      */
-    public function handle(ImportedCSVProcessed $event): void
-    {
-    }
+    public function handle(ImportedCSVProcessed $event): void {}
 }

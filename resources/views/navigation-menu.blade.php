@@ -83,7 +83,7 @@
                                     <button type="button"
                                         class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
                                         <img class="fi-avatar object-cover object-center fi-circular rounded-full h-8 w-8 fi-user-avatar" src="https://ui-avatars.com/api/?name={{
-        substr(explode(' ', Auth::user()->name)[0], 0, 1) . '+' . substr(explode(' ', Auth::user()->name)[1], 0, 1)
+        substr(Auth::user()->first_name, 0, 1) . '+' . substr(Auth::user()->last_name, 0, 1)
     }}&amp;color=FFFFFF&amp;background=09090b">
                                     </button>
                                 </span>

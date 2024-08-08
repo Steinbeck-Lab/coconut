@@ -62,7 +62,7 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                             )
                                     )
                                     ->withResponses(
-                                        (new Responses())
+                                        (new Responses)
                                             ->withDefault(
                                                 (new Response)
                                                     ->withDescription('Login successful')
@@ -97,7 +97,7 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                     ->withSummary('Logout endpoint')
                                     ->withTags(['Authentication'])
                                     ->withResponses(
-                                        (new Responses())
+                                        (new Responses)
                                             ->withDefault((new Response)
                                                 ->withDescription('Logout successful')
                                                 ->withContent([
@@ -140,7 +140,7 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                             )
                                     )
                                     ->withResponses(
-                                        (new Responses())->withDefault((new Response)
+                                        (new Responses)->withDefault((new Response)
                                             ->withDescription('Successfully created user')
                                             ->withContent(
                                                 [
@@ -184,7 +184,7 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                             )
                                     )
                                     ->withResponses(
-                                        (new Responses())
+                                        (new Responses)
                                             ->withDefault(
                                                 (new Response)
                                                     ->withDescription('Login successful')
@@ -249,7 +249,7 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                             )
                                     )
                                     ->withResponses(
-                                        (new Responses())
+                                        (new Responses)
                                             ->withDefault(
                                                 (new Response)
                                                     ->withDescription('OTP verification successful')
@@ -321,17 +321,17 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                                 ]
                                             ))
                                     ->withResponses(
-                                        (new Responses())
+                                        (new Responses)
                                             ->withDefault(
                                                 (new Response)
                                                     ->withHeaders([
                                                         'Location' => (new Header)
                                                             ->withDescription('URL to redirect to')
-                                                            ->withSchema((new SchemaConcrete())
+                                                            ->withSchema((new SchemaConcrete)
                                                                 ->withType('string')),
                                                         'Http-Response-Code' => (new Header)
                                                             ->withDescription('HTTP Response Code')
-                                                            ->withSchema((new SchemaConcrete())
+                                                            ->withSchema((new SchemaConcrete)
                                                                 ->withType('integer')),
                                                     ])
                                                     ->withDescription('Email verification successful and redirected'))
@@ -347,7 +347,7 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                     ->withSummary('Resend email verification endpoint')
                                     ->withTags(['Authentication'])
                                     ->withResponses(
-                                        (new Responses())
+                                        (new Responses)
                                             ->withDefault((new Response)
                                                 ->withDescription('Email verification link sent to your email address')
                                                 ->generate())

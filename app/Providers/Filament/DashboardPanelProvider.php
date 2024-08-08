@@ -11,6 +11,7 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\ActionSize;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -37,7 +38,12 @@ class DashboardPanelProvider extends PanelProvider
                 Pages\Dashboard::class,
             ])
             ->plugins([
-                AdvancedTablesPlugin::make(),
+                AdvancedTablesPlugin::make()
+                    ->persistActiveViewInSession()
+                    ->favoritesBarDivider()
+                    ->favoritesBarSize(ActionSize::Small)
+                    ->favoritesBarDefaultView(false)
+                    ->presetViewsManageable(false),
                 SpotlightPlugin::make(),
             ])
             ->discoverWidgets(in: app_path('Filament/Dashboard/Widgets'), for: 'App\\Filament\\Dashboard\\Widgets')

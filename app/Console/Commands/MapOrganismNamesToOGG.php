@@ -28,6 +28,13 @@ class MapOrganismNamesToOGG extends Command
      */
     public function handle()
     {
+
+        $organismsWithoutCompounds = Organism::doesntHave('molecules')->get();
+
+        foreach ($organismsWithoutCompounds as $organism) {
+            $organism->delete();
+        }
+
         $chunkSize = 100;
 
         Organism::whereNull('iri')->chunk($chunkSize, function ($organisms) {
@@ -77,7 +84,7 @@ class MapOrganismNamesToOGG extends Command
             'allMatches' => true,
         ];
 
-        $client = new Client();
+        $client = new Client;
         $url = 'https://finder.globalnames.org/api/v1/find';
 
         $response = $client->post($url, [

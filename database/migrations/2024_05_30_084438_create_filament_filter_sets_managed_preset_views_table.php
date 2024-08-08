@@ -11,7 +11,7 @@ return new class extends Migration
     {
         Schema::create('filament_filter_sets_managed_preset_views', function (Blueprint $table) {
             $userClass = Config::getUser();
-            $user = new $userClass();
+            $user = new $userClass;
 
             $table->id();
 

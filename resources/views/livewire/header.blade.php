@@ -11,29 +11,34 @@
                     <span class="sr-only">Open main menu</span>
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                         aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     </svg>
                 </button>
             </div>
             <div class="hidden lg:flex lg:gap-x-12">
-                <a href="/search" class="text-sm font-semibold leading-6 text-gray-900">Browse</a>
+                <a href="/search" class="text-sm font-semibold leading-6 text-gray-900">Search</a>
                 <a href="/api-documentation" class="text-sm font-semibold leading-6 text-gray-900">API</a>
-                <a href="/guidelines" class="text-sm font-semibold leading-6 text-gray-900">Guidelines</a>
-                <a href="https://cheminf.uni-jena.de/" class="text-sm font-semibold leading-6 text-gray-900">About us</a>
+                <a href="https://" class="text-sm font-semibold leading-6 text-gray-900">Documentation</a>
+                <a href="/about" class="text-sm font-semibold leading-6 text-gray-900">About
+                    us</a>
                 <a href="/download" class="text-sm font-semibold leading-6 text-gray-900">Download</a>
             </div>
             <div class="hidden lg:flex lg:flex-1 lg:justify-end">
                 @if (!auth()->user())
-                    <a href="/login" class="text-sm font-semibold leading-6 text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
+                    <a href="/login" class="text-sm font-semibold leading-6 text-gray-900">Log in <span
+                            aria-hidden="true">&rarr;</span></a>
                 @endif
                 @if (auth()->user())
-                    <a href="/dashboard" class="text-sm font-semibold leading-6 text-gray-900">Dashboard&emsp;<span aria-hidden="true">&rarr;</span></a>
+                    <a href="/dashboard" class="text-sm font-semibold leading-6 text-gray-900">Dashboard&emsp;<span
+                            aria-hidden="true">&rarr;</span></a>
                 @endif
             </div>
         </nav>
         <div class="lg:hidden" role="dialog" aria-modal="true" x-show="open">
             <div class="fixed inset-0 z-50" @click="open = false"></div>
-            <div class="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
+            <div
+                class="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
                 <div class="flex items-center justify-between">
                     <a href="/" class="-m-1.5 p-1.5">
                         <x-authentication-card-logo />
@@ -49,18 +54,27 @@
                 <div class="mt-6 flow-root">
                     <div class="-my-6 divide-y divide-gray-500/10">
                         <div class="space-y-2 py-6">
-                            <a href="/search" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Browse</a>
-                            <a href="/api-documentation" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">API</a>
-                            <a href="/guidelines" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Guidelines</a>
-                            <a href="https://cheminf.uni-jena.de/" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">About us</a>
-                            <a href="/download" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Download</a>
+                            <a href="/search"
+                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Browse</a>
+                            <a href="/api-documentation"
+                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">API</a>
+                            <a href="https://"
+                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Documentation</a>
+                            <a href="/about"
+                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">About
+                                us</a>
+                            <a href="/download"
+                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Download</a>
                         </div>
                         <div class="py-6">
                             @if (!auth()->user())
-                                <a href="/login" class="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Log in</a>
+                                <a href="/login"
+                                    class="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Log
+                                    in</a>
                             @endif
                             @if (auth()->user())
-                                <a href="/dashboard" class="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Dashboard</a>
+                                <a href="/dashboard"
+                                    class="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Dashboard</a>
                             @endif
                         </div>
                     </div>

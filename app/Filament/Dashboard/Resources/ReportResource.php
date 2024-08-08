@@ -35,7 +35,7 @@ class ReportResource extends Resource
     {
         return $form
             ->schema([
-                Select::make('choice')
+                Select::make('report_type')
                     ->label('You want to report:')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select what you want to report. Ex: Molecule, Citation, Collection, Organism.')
                     ->live()
@@ -71,7 +71,7 @@ class ReportResource extends Resource
                             if ($get('collections') == []) {
                                 return true;
                             }
-                        } elseif (! request()->has('collection_uuid') && $get('choice') != 'collection') {
+                        } elseif (! request()->has('collection_uuid') && $get('report_type') != 'collection') {
                             return true;
                         }
                     })
@@ -93,7 +93,7 @@ class ReportResource extends Resource
                             if ($get('citations') == []) {
                                 return true;
                             }
-                        } elseif (! request()->has('citation_id') && $get('choice') != 'citation') {
+                        } elseif (! request()->has('citation_id') && $get('report_type') != 'citation') {
                             return true;
                         }
                     })
@@ -113,7 +113,7 @@ class ReportResource extends Resource
                             if ($get('organisms') == []) {
                                 return true;
                             }
-                        } elseif (! request()->has('organism_id') && $get('choice') != 'organism') {
+                        } elseif (! request()->has('organism_id') && $get('report_type') != 'organism') {
                             return true;
                         }
                     })
@@ -123,7 +123,7 @@ class ReportResource extends Resource
                         }
                     })
                     ->searchable(),
-                TextInput::make('mol_id_csv')
+                TextArea::make('mol_id_csv')
                     ->label('Molecules')
                     ->placeholder('Enter the Identifiers separated by commas')
                     ->hidden(function (Get $get, string $operation) {
@@ -131,7 +131,7 @@ class ReportResource extends Resource
                             if (is_null($get('mol_id_csv'))) {
                                 return true;
                             }
-                        } elseif (! request()->has('compound_id') && $get('choice') != 'molecule') {
+                        } elseif (! request()->has('compound_id') && $get('report_type') != 'molecule') {
                             return true;
                         }
                     })

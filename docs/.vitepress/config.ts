@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "COCONUT Docs",
-  description: "COCONUT: the COlleCtion of Open NatUral producTs",
+  description: "COCONUT: the COlleCtion of Open Natural prodUcTs",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     logo: '/logo.png',

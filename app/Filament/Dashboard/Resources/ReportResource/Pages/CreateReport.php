@@ -37,25 +37,25 @@ class CreateReport extends CreateRecord
 
     protected function beforeCreate(): void
     {
-        if ($this->data['choice'] == 'collection') {
+        if ($this->data['report_type'] == 'collection') {
             $this->data['citations'] = [];
-            $this->data['molecules'] = null;
+            $this->data['mol_id_csv'] = null;
             $this->data['organisms'] = [];
-        } elseif ($this->data['choice'] == 'citation') {
+        } elseif ($this->data['report_type'] == 'citation') {
             $this->data['collections'] = [];
-            $this->data['molecules'] = null;
+            $this->data['mol_id_csv'] = null;
             $this->data['organisms'] = [];
-        } elseif ($this->data['choice'] == 'molecule') {
-            $this->data['collections'] = [];
-            $this->data['citations'] = [];
-            $this->data['organisms'] = [];
-        } elseif ($this->data['choice'] == 'organism') {
+        } elseif ($this->data['report_type'] == 'molecule') {
             $this->data['collections'] = [];
             $this->data['citations'] = [];
-            $this->data['molecules'] = null;
+            $this->data['organisms'] = [];
+        } elseif ($this->data['report_type'] == 'organism') {
+            $this->data['collections'] = [];
+            $this->data['citations'] = [];
+            $this->data['mol_id_csv'] = null;
         }
 
-        if (! ($this->data['collections'] || $this->data['citations'] || $this->data['molecules'] || $this->data['organisms'])) {
+        if (! ($this->data['collections'] || $this->data['citations'] || $this->data['mol_id_csv'] || $this->data['organisms'])) {
             Notification::make()
                 ->danger()
                 ->title('Select at least one Collection/Citation/Molecule/Organism')

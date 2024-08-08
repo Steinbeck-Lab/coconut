@@ -1,30 +1,118 @@
-<div>
-    <div
-        class="relative mx-auto mt-32 grid w-full max-w-4xl lg:max-w-7xl grid-cols-1 md:grid-cols-2 px-4 sm:px-6 lg:px-8">
-        <img class="invisible md:visible absolute scale-110 -z-10 -mt-20 -ml-20 w-100 h-auto" src="/img/bg.png"
-            alt="">
-        <div class="mx-auto py-1 px-4 sm:px-6 sm:py-24 lg:px-8 mb-12">
-            <div class="text-left">
-                <h1 class="text-3xl font-bold tracking-tight text-primary-dark sm:text-5xl"><span
+<div x-data="{ query: '' }">
+    <div class="relative isolate -z-10">
+        <svg class="absolute inset-x-0 -top-52 -z-10 h-[64rem] w-full stroke-gray-200 [mask-image:radial-gradient(32rem_32rem_at_center,white,transparent)]"
+            aria-hidden="true">
+            <defs>
+                <pattern id="1f932ae7-37de-4c0a-a8b0-a6e3b4d44b84" width="200" height="200" x="50%" y="-1"
+                    patternUnits="userSpaceOnUse">
+                    <path d="M.5 200V.5H200" fill="none" />
+                </pattern>
+            </defs>
+            <svg x="50%" y="-1" class="overflow-visible fill-gray-50">
+                <path d="M-200 0h201v201h-201Z M600 0h201v201h-201Z M-400 600h201v201h-201Z M200 800h201v201h-201Z"
+                    stroke-width="0" />
+            </svg>
+            <rect width="100%" height="100%" stroke-width="0" fill="url(#1f932ae7-37de-4c0a-a8b0-a6e3b4d44b84)" />
+        </svg>
+    </div>
+    <div class="relative mx-auto mt-32 grid w-full max-w-4xl lg:max-w-7xl grid-cols-1 px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto w-full py-1 px-4 sm:px-6 sm:py-20 lg:px-8 mb-12">
+            <div class="text-center max-w-4xl mx-auto">
+                <h1 class="text-3xl font-bold tracking-tight text-primary-dark sm:text-4xl"><span
                         class="block xl:inline">COCONUT: </span><span class="block text-secondary-dark xl:inline">the
                         COlleCtion of Open NatUral producTs</span></h1>
-                <p class="mt-6 text-lg leading-8 text-text-light"> An aggregated dataset of elucidated and predicted NPs
+                <p class="my-6 mx-auto text-md leading-6 text-text-light"> An aggregated dataset of elucidated and
+                    predicted NPs
                     collected from open sources and a web interface to browse, search and easily and quickly download
                     NPs. </p>
-                <div class="mt-10 flex items-center gap-x-6"><a href="/search"
-                        class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Browse</a>
-                    or <a href="/admin/collections/create"
-                        class="text-base font-semibold leading-7 text-gray-900">Submit data <span
-                            aria-hidden="true">→</span></a></div>
-                <p class="mt-12 text-sm flex items-baseline gap-x-2 text-[0.8125rem]/6 text-gray-500"> Report bugs: <a
-                        class="group relative isolate flex items-center rounded-lg px-2 py-0.5 text-[0.8125rem]/6 font-medium text-dark/30 transition-colors hover:text-sky-900 gap-x-2"
-                        target="_blank" href="https://github.com/Steinbeck-Lab/coconut/issues"><span
-                            class="absolute inset-0 -z-10 scale-75 rounded-lg bg-white/5 opacity-0 transition group-hover:scale-100 group-hover:opacity-100"></span><svg
-                            viewBox="0 0 16 16" aria-hidden="true" fill="currentColor" class="flex-none h-4 w-4">
-                            <path
-                                d="M8 .198a8 8 0 0 0-8 8 7.999 7.999 0 0 0 5.47 7.59c.4.076.547-.172.547-.384 0-.19-.007-.694-.01-1.36-2.226.482-2.695-1.074-2.695-1.074-.364-.923-.89-1.17-.89-1.17-.725-.496.056-.486.056-.486.803.056 1.225.824 1.225.824.714 1.224 1.873.87 2.33.666.072-.518.278-.87.507-1.07-1.777-.2-3.644-.888-3.644-3.954 0-.873.31-1.586.823-2.146-.09-.202-.36-1.016.07-2.118 0 0 .67-.214 2.2.82a7.67 7.67 0 0 1 2-.27 7.67 7.67 0 0 1 2 .27c1.52-1.034 2.19-.82 2.19-.82.43 1.102.16 1.916.08 2.118.51.56.82 1.273.82 2.146 0 3.074-1.87 3.75-3.65 3.947.28.24.54.73.54 1.48 0 1.07-.01 1.93-.01 2.19 0 .21.14.46.55.38A7.972 7.972 0 0 0 16 8.199a8 8 0 0 0-8-8Z">
-                            </path>
-                        </svg><span class="self-baseline">Issue Tracker</span></a></p>
+
+                <div class="mt-3">
+                    <div class="bg-white">
+                        <div class="flex h-16 flex-shrink-0 rounded-md">
+                            <div
+                                class="flex flex-1 justify-between border-b-4 border border-gray-400 rounded-md px-4 md:px-0">
+                                <div class="flex flex-1">
+                                    <div class="flex w-full md:ml-0">
+                                        <label for="search-field" class="sr-only">Find natural products</label>
+                                        <div class="relative w-full text-gray-400 focus-within:text-gray-600">
+                                            <div
+                                                class="px-2 pointer-events-none absolute inset-y-0 left-0 flex items-center">
+                                                <svg class="h-5 w-5 flex-shrink-0"
+                                                    x-description="Heroicon name: mini/magnifying-glass"
+                                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                                    fill="currentColor" aria-hidden="true">
+                                                    <path fill-rule="evenodd"
+                                                        d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                                                        clip-rule="evenodd"></path>
+                                                </svg>
+                                            </div>
+                                            <input
+                                                @keyup.enter="window.location.href = '/search?q=' + encodeURIComponent(query)"
+                                                x-model="query" id="query"
+                                                class="rounded-md h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
+                                                placeholder="Search compound name, SMILES, InChI, InChI Key"
+                                                type="search" autofocus>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center mx-3">
+                                    <div>
+                                        <button @click="window.location.href = '/search?q=' + encodeURIComponent(query)"
+                                            class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"><svg
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor" class="size-4 inline">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                            </svg>
+                                            &nbsp;Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><small class="float-left">Try: <a class="underline" href="/search?q=caffeine">Caffeine</a>,
+                                <a class="underline" href="/compounds/CNP0228556">CNP0228556</a></small>
+
+                            <span
+                                class="float-right  text-sm flex items-baseline gap-x-2 text-[0.8125rem]/6 text-gray-500">
+                                Report bugs: <a
+                                    class="group relative isolate flex items-center rounded-lg px-2 py-0.5 text-[0.8125rem]/6 font-medium text-dark/30 transition-colors hover:text-sky-900 gap-x-2"
+                                    target="_blank" href="https://github.com/Steinbeck-Lab/coconut/issues"><span
+                                        class="absolute inset-0 -z-10 scale-75 rounded-lg bg-white/5 opacity-0 transition group-hover:scale-100 group-hover:opacity-100"></span><svg
+                                        viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"
+                                        class="flex-none h-4 w-4">
+                                        <path
+                                            d="M8 .198a8 8 0 0 0-8 8 7.999 7.999 0 0 0 5.47 7.59c.4.076.547-.172.547-.384 0-.19-.007-.694-.01-1.36-2.226.482-2.695-1.074-2.695-1.074-.364-.923-.89-1.17-.89-1.17-.725-.496.056-.486.056-.486.803.056 1.225.824 1.225.824.714 1.224 1.873.87 2.33.666.072-.518.278-.87.507-1.07-1.777-.2-3.644-.888-3.644-3.954 0-.873.31-1.586.823-2.146-.09-.202-.36-1.016.07-2.118 0 0 .67-.214 2.2.82a7.67 7.67 0 0 1 2-.27 7.67 7.67 0 0 1 2 .27c1.52-1.034 2.19-.82 2.19-.82.43 1.102.16 1.916.08 2.118.51.56.82 1.273.82 2.146 0 3.074-1.87 3.75-3.65 3.947.28.24.54.73.54 1.48 0 1.07-.01 1.93-.01 2.19 0 .21.14.46.55.38A7.972 7.972 0 0 0 16 8.199a8 8 0 0 0-8-8Z">
+                                        </path>
+                                    </svg><span class="self-baseline">Issue Tracker</span></a>
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <div class="mt-16 flex items-center gap-x-6 justify-center w-full">
+                    <div>
+                        <livewire:structure-editor :mode="'button'" lazy="on-load" :smiles="''" />
+                    </div>
+                    <a href="/search"
+                        class="border bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-12 h-12 mx-auto">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+                        </svg>
+                        <small class="text-base font-semibold leading-7">Browse Data</small>
+                        </button>
+                    </a>
+                    <a href="/admin/collections/create"
+                        class="border bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-12 h-12 mx-auto">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3 4.5h14.25M3 9h9.75M3 13.5h5.25m5.25-.75L17.25 9m0 0L21 12.75M17.25 9v12" />
+                        </svg>
+                        <small class="text-base font-semibold leading-7">Submit Data</small>
+                        </button>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -33,7 +121,7 @@
         <div class="mx-auto max-w-7xl">
             <div class="grid grid-cols-1 gap-px bg-white/5 sm:grid-cols-2 lg:grid-cols-4">
                 <!-- Total Molecules Section -->
-                <div class="bg-gray-900 py-6 px-8 sm:px-6 lg:px-8">
+                <a href="/search" class="bg-gray-900 py-6 px-8 sm:px-6 lg:px-8">
                     <p class="text-sm font-medium leading-6 text-gray-400">
                         <svg fill="currentColor" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
                             xmlns:xlink="http://www.w3.org/1999/xlink" class="w-5 h-5 inline"
@@ -75,11 +163,13 @@
                     </p>
                     <p class="mt-2 flex items-baseline gap-x-2">
                         <span class="text-4xl font-semibold tracking-tight text-white number"
-                            data-value="{{ $totalMolecules }}"></span>
+                            data-value="{{ $totalMolecules }}">
+                            {{ $totalMolecules }}
+                        </span>
                     </p>
-                </div>
+                </a>
                 <!-- Total Collections Section -->
-                <div class="bg-gray-900 px-8 py-6 sm:px-6 lg:px-8">
+                <a href="/collections" class="bg-gray-900 px-8 py-6 sm:px-6 lg:px-8">
                     <p class="text-sm font-medium leading-6 text-gray-400">
                         <svg class="w-5 h-5 inline" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"
                             fill="currentColor">
@@ -90,9 +180,11 @@
                     </p>
                     <p class="mt-2 flex items-baseline gap-x-2">
                         <span class="text-4xl font-semibold tracking-tight text-white number"
-                            data-value="{{ $totalCollections }}"></span>
+                            data-value="{{ $totalCollections }}">
+                            {{ $totalCollections }}
+                        </span>
                     </p>
-                </div>
+                </a>
                 <!-- Unique Organisms Section -->
                 <div class="bg-gray-900 px-8 py-6 sm:px-6 lg:px-8">
                     <p class="text-sm font-medium leading-6 text-gray-400">
@@ -156,7 +248,9 @@
                     </p>
                     <p class="mt-2 flex items-baseline gap-x-2">
                         <span class="text-4xl font-semibold tracking-tight text-white number"
-                            data-value="{{ $uniqueOrganisms }}"></span>
+                            data-value="{{ $uniqueOrganisms }}">
+                            {{ $uniqueOrganisms }}
+                        </span>
                     </p>
                 </div>
                 <!-- Citations Mapped Section -->
@@ -175,16 +269,18 @@
                     </p>
                     <p class="mt-2 flex items-baseline gap-x-2">
                         <span class="text-4xl font-semibold tracking-tight text-white number"
-                            data-value="{{ $citationsMapped }}"></span>
+                            data-value="{{ $citationsMapped }}">
+                            {{ $citationsMapped }}
+                        </span>
                     </p>
                 </div>
             </div>
         </div>
     </div>
-    <livewire:recent-molecules />
-    <livewire:compound-classes />
-    <livewire:data-sources />
-    <livewire:faqs />
+    <livewire:recent-molecules lazy />
+    <livewire:compound-classes lazy="on-load" />
+    <livewire:data-sources lazy="on-load" />
+    <livewire:faqs lazy="on-load" />
 
     <div class="bg-gray-900 border-y">
         <div
@@ -195,7 +291,7 @@
                         class="-mb-1 block bg-gradient-to-r from-secondary-dark to-secondary-light bg-clip-text pb-1 text-transparent">Get
                         in touch or create an account.</span></h2>
             </div>
-            <div class="mt-6 space-y-4 sm:flex sm:space-y-0 sm:space-x-5"><a href="https://cheminf.uni-jena.de"
+            <div class="mt-6 space-y-4 sm:flex sm:space-y-0 sm:space-x-5"><a href="mailto:info.coconut@uni-jena.de"
                     target="_blank"
                     class="cursor-pointer flex items-center justify-center rounded-md border border-transparent bg-teal-50 px-4 py-3 text-base font-medium text-teal-800 shadow-sm hover:bg-teal-100">Contact
                     Us</a>
