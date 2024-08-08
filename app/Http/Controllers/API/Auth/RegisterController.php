@@ -25,7 +25,7 @@ class RegisterController extends Controller
             'last_name' => $validatedData['last_name'],
             'email' => $validatedData['email'],
             'username' => $validatedData['username'],
-            'name' => $validatedData['username'],
+            'name' => $validatedData['first_name']. ' ' . $validatedData['last_name'],
             'orcid_id' => $request['orcid_id'],
             'affiliation' => $request['affiliation'],
             'password' => Hash::make($validatedData['password']),
