@@ -76,7 +76,7 @@
                                         </svg>
                                         <div x-show="tooltip"
                                             class="text-sm text-white absolute bg-green-400 rounded-lg p-2 transform -translate-y-8 translate-x-8">
-                                            This is calculated using RDKit.
+                                            Exact Isotopic Mass is calculated using RDKit - <a href="https://www.rdkit.org/docs/source/rdkit.Chem.Descriptors.html">https://www.rdkit.org/docs/source/rdkit.Chem.Descriptors.html</a>
                                         </div>
                                     </div>
                                 </div>

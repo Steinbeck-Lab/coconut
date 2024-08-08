@@ -70,7 +70,7 @@
                             </div>
                         </div>
                         <p><small class="float-left">Try: <a class="underline" href="/search?q=caffeine">Caffeine</a>,
-                                <a class="underline" href="/compounds/CNP0329459">CNP0329459</a></small>
+                                <a class="underline" href="/compounds/CNP0228556">CNP0228556</a></small>
 
                             <span
                                 class="float-right  text-sm flex items-baseline gap-x-2 text-[0.8125rem]/6 text-gray-500">
