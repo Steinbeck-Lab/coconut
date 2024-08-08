@@ -141,6 +141,7 @@
                                             @endif
                                         @endforeach
                                     </ul>
+                                    @if(count($molecule->organisms) > 10)
                                     <div class="mt-4">
                                         <button @click="showAll = true" x-show="!showAll"
                                             class="text-base font-semibold leading-7 text-secondary-dark text-sm">
@@ -151,6 +152,7 @@
                                             View Less ↑
                                         </button>
                                     </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -262,6 +264,44 @@
                                                     </div>
                                                 </div>
                                             @endif
+                                            @if ($molecule->organisms && count($molecule->organisms) > 0)
+                                                <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                                    <dt
+                                                        class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
+                                                        Synonyms
+                                                    </dt>
+
+                                                    <div x-data="{ showAll: false }">
+                                                        <div class="no-scrollbar min-w-0">
+                                                            <ul role="list" class="mt-2 leading-8">
+                                                                @foreach ($molecule->synonyms as $index => $synonym)
+                                                                    @if ($synonym != '')
+                                                                        <li class="inline"
+                                                                            x-show="showAll || {{ $index }} < 10">
+                                                                            <span
+                                                                                class="border px-4 bg-white isolate inline-flex rounded-md shadow-sm mb-2">
+                                                                                    {{ $synonym }}
+                                                                            </span>
+                                                                        </li>
+                                                                    @endif
+                                                                @endforeach
+                                                            </ul>
+                                                            @if($molecule->synonym_count > 10)
+                                                            <div class="mt-4">
+                                                                <button @click="showAll = true" x-show="!showAll"
+                                                                    class="text-base font-semibold leading-7 text-secondary-dark text-sm">
+                                                                    View More ↓
+                                                                </button>
+                                                                <button @click="showAll = false" x-show="showAll"
+                                                                    class="text-base font-semibold leading-7 text-secondary-dark  text-sm">
+                                                                    View Less ↑
+                                                                </button>
+                                                            </div>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
                                         </section>
                                     </div>
                                 </article>
@@ -270,106 +310,37 @@
                     </div>
                 </section>
 
-
                 @if ($molecule->properties)
                     <section aria-labelledby="notes-title">
                         <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
                             <div class="divide-y divide-gray-200">
                                 <div class="px-4 py-5 sm:px-6">
-                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">Molecular
-                                        Properties
+                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">Chemical
+                                        classification
                                     </h2>
                                 </div>
                                 <div class="px-4 py-6 sm:px-6">
-                                    <div>
-                                        <ul role="list" class="px-0">
-                                            <li class="py-5 flex md:py-0"><span
-                                                    class="ml-3 text-base text-gray-500">Total
-                                                    atom number : {{ $molecule->properties->total_atom_count }}</span>
-                                            </li>
-                                            <li class="py-5 flex md:py-0"><span
-                                                    class="ml-3 text-base text-gray-500">Heavy
-                                                    atom number :
-                                                    {{ $molecule->properties->heavy_atom_count }}</span></li>
-                                            <li class="py-5 flex md:py-0"><span
-                                                    class="ml-3 text-base text-gray-500">Aromatic Ring Count :
-                                                    {{ $molecule->properties->aromatic_rings_count }}</span></li>
-                                            <li class="py-5 flex md:py-0"><span
-                                                    class="ml-3 text-base text-gray-500">Rotatable Bond count :
-                                                    {{ $molecule->properties->rotatable_bond_count }}</span></li>
-                                            <li class="py-5 flex md:py-0"><span
-                                                    class="ml-3 text-base text-gray-500">Minimal number of rings
-                                                    : {{ $molecule->properties->number_of_minimal_rings }}</span></li>
-                                            <li class="py-5 flex md:py-0"><span
-                                                    class="ml-3 text-base text-gray-500">Formal Charge :
-                                                    {{ $molecule->properties->total_atom_count }}</span></li>
-                                            <li class="py-5 flex md:py-0"><span
-                                                    class="ml-3 text-base text-gray-500">Contains Sugar :
-                                                    {{ $molecule->properties->contains_sugar ? 'True' : 'False' }}</span>
-                                            </li>
-                                            <li class="py-5 flex md:py-0"><span
-                                                    class="ml-3 text-base text-gray-500">Contains Ring Sugars :
-                                                    {{ $molecule->properties->contains_ring_sugars ? 'True' : 'False' }}</span>
-                                            </li>
-                                            <li class="py-5 flex md:py-0"><span
-                                                    class="ml-3 text-base text-gray-500">Contains Linear Sugars
-                                                    :
-                                                    {{ $molecule->properties->contains_linear_sugars ? 'True' : 'False' }}</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section aria-labelledby="notes-title">
-                        <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
-                            <div class="divide-y divide-gray-200">
-                                <div class="px-4 py-5 sm:px-6">
-                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">Molecular
-                                        Descriptors
-                                    </h2>
-                                </div>
-                                <div class="px-4 py-6 sm:px-6">
-                                    <ul role="list" class="">
-                                        <li class="py-5 flex md:py-0"><span
-                                                class="ml-3 text-base text-gray-500">NP-likeness scores :
-                                                {{ $molecule->properties->np_likeness }}</span></li>
-                                        <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Alogp
-                                                :
-                                                {{ $molecule->properties->alogp }}</span></li>
-                                        <li class="py-5 flex md:py-0"><span
-                                                class="ml-3 text-base text-gray-500">TopoPSA :
-                                                {{ $molecule->properties->topological_polar_surface_area }}</span></li>
-                                        <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Fsp3
-                                                :
-                                                {{ $molecule->properties->total_atom_count }}</span></li>
-                                        <li class="py-5 flex md:py-0"><span
-                                                class="ml-3 text-base text-gray-500">Hydrogen
-                                                Bond Acceptor Count
-                                                : {{ $molecule->properties->hydrogen_bond_acceptors }}</span></li>
-                                        <li class="py-5 flex md:py-0"><span
-                                                class="ml-3 text-base text-gray-500">Hydrogen
-                                                Bond Donor Count :
-                                                {{ $molecule->properties->hydrogen_bond_donors }}</span>
+                                    <ul role="list" class="px-0">
+                                        <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">
+                                                <b>Super class</b>:
+                                                {{ $molecule->properties && $molecule->properties['chemical_super_class'] ? $molecule->properties['chemical_super_class'] : '-' }}
+                                            </span>
                                         </li>
                                         <li class="py-5 flex md:py-0"><span
-                                                class="ml-3 text-base text-gray-500">Lipinski
-                                                Hydrogen Bond
-                                                Acceptor Count :
-                                                {{ $molecule->properties->hydrogen_bond_acceptors_lipinski }}</span>
+                                                class="ml-3 text-base text-gray-500"><b>Class</b>:
+                                                {{ $molecule->properties && $molecule->properties['chemical_class'] ? $molecule->properties['chemical_class'] : '-' }}</span>
                                         </li>
                                         <li class="py-5 flex md:py-0"><span
-                                                class="ml-3 text-base text-gray-500">Lipinski
-                                                Hydrogen Bond Donor
-                                                Count :
-                                                {{ $molecule->properties->hydrogen_bond_donors_lipinski }}</span>
+                                                class="ml-3 text-base text-gray-500"><b>Sub
+                                                    class</b>:
+                                                {{ $molecule->properties && $molecule->properties['chemical_sub_class'] ? $molecule->properties['chemical_sub_class'] : '-' }}
+                                            </span>
                                         </li>
                                         <li class="py-5 flex md:py-0"><span
-                                                class="ml-3 text-base text-gray-500">Lipinski
-                                                RO5 Violations :
-                                                {{ $molecule->properties->lipinski_rule_of_five_violations }}</span>
+                                                class="ml-3 text-base text-gray-500"><b>Direct
+                                                    parent</b>:
+                                                {{ $molecule->properties && $molecule->properties['direct_parent_classification'] ? $molecule->properties['direct_parent_classification'] : '-' }}
+                                            </span>
                                         </li>
                                     </ul>
                                 </div>
@@ -508,16 +479,13 @@
                                         <div class="not-prose grid grid-cols-1 gap-6 sm:grid-cols-1"
                                             x-data="{ showAllCollections: false }">
                                             @foreach ($molecule->collections as $index => $collection)
-                                                <a href="/search?type=tags&amp;q={{ $collection->title }}&amp;tagType=dataSource"
+                                                <div
                                                     x-show="showAllCollections || {{ $index }} < 6">
                                                     <div class="group relative rounded-xl border border-slate-200">
-                                                        <div
-                                                            class="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 [background:linear-gradient(var(--quick-links-hover-bg,theme(colors.sky.50)),var(--quick-links-hover-bg,theme(colors.sky.50)))_padding-box,linear-gradient(to_top,theme(colors.indigo.400),theme(colors.cyan.400),theme(colors.sky.500))_border-box] group-hover:opacity-100">
-                                                        </div>
                                                         <div class="relative overflow-hidden rounded-xl p-6">
                                                             <svg aria-hidden="true" viewBox="0 0 32 32"
                                                                 fill="none"
-                                                                class="h-8 w-8 [--icon-foreground:theme(colors.slate.900)] [--icon-background:theme(colors.white)]">
+                                                                class="mb-2 h-8 w-8 [--icon-foreground:theme(colors.slate.900)] [--icon-background:theme(colors.white)]">
                                                                 <defs>
                                                                     <radialGradient cx="0" cy="0"
                                                                         r="1" gradientUnits="userSpaceOnUse"
@@ -570,21 +538,25 @@
                                                                         fill="url(#:R1k19n6:-gradient-dark)"></path>
                                                                 </g>
                                                             </svg>
-                                                            <h2 class="mt-2 font-bold text-base text-gray-900">
-                                                                <span
-                                                                    class="absolute -inset-px rounded-xl"></span>{{ $collection->title }}
+                                                            <a href="/search?type=tags&amp;q={{ $collection->title }}&amp;tagType=dataSource" class="hover:pointer font-bold text-base text-xl text-gray-900">
+                                                                {{ $collection->title }} <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 inline">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m9 9 6-6m0 0 6 6m-6-6v12a6 6 0 0 1-12 0v-3"></path>
+                                                                </svg>
+                                                            </a>
+                                                            <h2 x-show="$collection->description" class="mt-2 font-display text-base text-slate-900">
+                                                                {{ $collection->description }}
                                                             </h2>
-                                                            <h2 class="mt-2 font-display text-base text-slate-900">
-                                                                <span
-                                                                    class="absolute -inset-px rounded-xl"></span>{{ $collection->description }}
+                                                            <h2 x-show="$collection->doi" class="mt-2 font-display text-base text-slate-900">
+                                                                {{ $collection->doi }}
                                                             </h2>
-                                                            <h2 class="mt-2 font-display text-base text-slate-900">
-                                                                <span
-                                                                    class="absolute -inset-px rounded-xl"></span>{{ $collection->doi }}
+                                                            <h2  x-show="$collection->pivot->reference" class="hover:text-blue-500 mt-1 font-display text-base text-slate-900">
+                                                                Reference: <a href="{{ $collection->pivot->url }}" target="_blank">{{ $collection->pivot->reference }} <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 inline">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"></path>
+                                                                </svg></a>
                                                             </h2>
                                                         </div>
                                                     </div>
-                                                </a>
+                                                </div>
                                             @endforeach
                                             @if (count($molecule->collections) > 6)
                                                 <div class="flex justify-center mt-4">
@@ -611,45 +583,6 @@
                     </div>
                 </section>
 
-                @if ($molecule->properties)
-                    <section aria-labelledby="notes-title">
-                        <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
-                            <div class="divide-y divide-gray-200">
-                                <div class="px-4 py-5 sm:px-6">
-                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">Chemical
-                                        classification
-                                    </h2>
-                                </div>
-                                <div class="px-4 py-6 sm:px-6">
-                                    <ul role="list" class="px-0">
-                                        <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">
-                                                <b>Super class</b>:
-                                                {{ $molecule->properties && $molecule->properties['chemical_super_class'] ? $molecule->properties['chemical_super_class'] : '-' }}
-                                            </span>
-                                        </li>
-                                        <li class="py-5 flex md:py-0"><span
-                                                class="ml-3 text-base text-gray-500"><b>Class</b>:
-                                                {{ $molecule->properties && $molecule->properties['chemical_class'] ? $molecule->properties['chemical_class'] : '-' }}</span>
-                                        </li>
-                                        <li class="py-5 flex md:py-0"><span
-                                                class="ml-3 text-base text-gray-500"><b>Sub
-                                                    class</b>:
-                                                {{ $molecule->properties && $molecule->properties['chemical_sub_class'] ? $molecule->properties['chemical_sub_class'] : '-' }}
-                                            </span>
-                                        </li>
-                                        <li class="py-5 flex md:py-0"><span
-                                                class="ml-3 text-base text-gray-500"><b>Direct
-                                                    parent</b>:
-                                                {{ $molecule->properties && $molecule->properties['direct_parent_classification'] ? $molecule->properties['direct_parent_classification'] : '-' }}
-                                            </span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                @endif
-
                 @if ($molecule->related && count($molecule->related) > 0)
                     <section aria-labelledby="notes-title">
                         <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
@@ -660,7 +593,7 @@
                                 <div class="px-4 pb-5 sm:px-6">
                                     <div class="mx-auto grid mt-6 gap-5 lg:max-w-none md:grid-cols-3 lg:grid-cols-2">
                                         @foreach ($molecule->related as $tautomer)
-                                            <livewire:molecule-card :molecule="json_encode($tautomer)" />
+                                            <livewire:molecule-card :molecule="$tautomer" lazy/>
                                         @endforeach
                                     </div>
                                 </div>
@@ -681,7 +614,7 @@
                                 <div class="px-4 pb-5 sm:px-6">
                                     <div class="mx-auto grid mt-6 gap-5 lg:max-w-none md:grid-cols-3 lg:grid-cols-2">
                                         @foreach ($molecule->variants as $variant)
-                                            <livewire:molecule-card :molecule="json_encode($variant)" />
+                                            <livewire:molecule-card :molecule="$variant" lazy/>
                                         @endforeach
                                     </div>
                                 </div>
@@ -695,15 +628,122 @@
                         <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
                             <div class="divide-y divide-gray-200">
                                 <div class="px-4 py-5 sm:px-6">
-                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">Parent
+                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">Parent (With our stereo definitions)
                                     </h2>
                                 </div>
                                 <div class="px-4 pb-5 sm:px-6">
                                     <div class="mx-auto grid mt-6 gap-5 lg:max-w-none md:grid-cols-3 lg:grid-cols-2">
                                         <div class="rounded-lg hover:shadow-lg shadow border">
-                                            <livewire:molecule-card :molecule="json_encode($molecule->parent)" />
+                                            <livewire:molecule-card :molecule="$molecule->parent" lazy/>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                @endif
+
+                @if ($molecule->properties)
+                    <section aria-labelledby="notes-title">
+                        <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
+                            <div class="divide-y divide-gray-200">
+                                <div class="px-4 py-5 sm:px-6">
+                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">Molecular
+                                        Properties
+                                    </h2>
+                                </div>
+                                <div class="px-4 py-6 sm:px-6">
+                                    <div>
+                                        <ul role="list" class="px-0">
+                                            <li class="py-5 flex md:py-0"><span
+                                                    class="ml-3 text-base text-gray-500">Total
+                                                    atom number : {{ $molecule->properties->total_atom_count }}</span>
+                                            </li>
+                                            <li class="py-5 flex md:py-0"><span
+                                                    class="ml-3 text-base text-gray-500">Heavy
+                                                    atom number :
+                                                    {{ $molecule->properties->heavy_atom_count }}</span></li>
+                                            <li class="py-5 flex md:py-0"><span
+                                                    class="ml-3 text-base text-gray-500">Aromatic Ring Count :
+                                                    {{ $molecule->properties->aromatic_rings_count }}</span></li>
+                                            <li class="py-5 flex md:py-0"><span
+                                                    class="ml-3 text-base text-gray-500">Rotatable Bond count :
+                                                    {{ $molecule->properties->rotatable_bond_count }}</span></li>
+                                            <li class="py-5 flex md:py-0"><span
+                                                    class="ml-3 text-base text-gray-500">Minimal number of rings
+                                                    : {{ $molecule->properties->number_of_minimal_rings }}</span></li>
+                                            <li class="py-5 flex md:py-0"><span
+                                                    class="ml-3 text-base text-gray-500">Formal Charge :
+                                                    {{ $molecule->properties->total_atom_count }}</span></li>
+                                            <li class="py-5 flex md:py-0"><span
+                                                    class="ml-3 text-base text-gray-500">Contains Sugar :
+                                                    {{ $molecule->properties->contains_sugar ? 'True' : 'False' }}</span>
+                                            </li>
+                                            <li class="py-5 flex md:py-0"><span
+                                                    class="ml-3 text-base text-gray-500">Contains Ring Sugars :
+                                                    {{ $molecule->properties->contains_ring_sugars ? 'True' : 'False' }}</span>
+                                            </li>
+                                            <li class="py-5 flex md:py-0"><span
+                                                    class="ml-3 text-base text-gray-500">Contains Linear Sugars
+                                                    :
+                                                    {{ $molecule->properties->contains_linear_sugars ? 'True' : 'False' }}</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section aria-labelledby="notes-title">
+                        <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
+                            <div class="divide-y divide-gray-200">
+                                <div class="px-4 py-5 sm:px-6">
+                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">Molecular
+                                        Descriptors
+                                    </h2>
+                                </div>
+                                <div class="px-4 py-6 sm:px-6">
+                                    <ul role="list" class="">
+                                        <li class="py-5 flex md:py-0"><span
+                                                class="ml-3 text-base text-gray-500">NP-likeness scores :
+                                                {{ $molecule->properties->np_likeness }}</span></li>
+                                        <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Alogp
+                                                :
+                                                {{ $molecule->properties->alogp }}</span></li>
+                                        <li class="py-5 flex md:py-0"><span
+                                                class="ml-3 text-base text-gray-500">TopoPSA :
+                                                {{ $molecule->properties->topological_polar_surface_area }}</span></li>
+                                        <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Fsp3
+                                                :
+                                                {{ $molecule->properties->total_atom_count }}</span></li>
+                                        <li class="py-5 flex md:py-0"><span
+                                                class="ml-3 text-base text-gray-500">Hydrogen
+                                                Bond Acceptor Count
+                                                : {{ $molecule->properties->hydrogen_bond_acceptors }}</span></li>
+                                        <li class="py-5 flex md:py-0"><span
+                                                class="ml-3 text-base text-gray-500">Hydrogen
+                                                Bond Donor Count :
+                                                {{ $molecule->properties->hydrogen_bond_donors }}</span>
+                                        </li>
+                                        <li class="py-5 flex md:py-0"><span
+                                                class="ml-3 text-base text-gray-500">Lipinski
+                                                Hydrogen Bond
+                                                Acceptor Count :
+                                                {{ $molecule->properties->hydrogen_bond_acceptors_lipinski }}</span>
+                                        </li>
+                                        <li class="py-5 flex md:py-0"><span
+                                                class="ml-3 text-base text-gray-500">Lipinski
+                                                Hydrogen Bond Donor
+                                                Count :
+                                                {{ $molecule->properties->hydrogen_bond_donors_lipinski }}</span>
+                                        </li>
+                                        <li class="py-5 flex md:py-0"><span
+                                                class="ml-3 text-base text-gray-500">Lipinski
+                                                RO5 Violations :
+                                                {{ $molecule->properties->lipinski_rule_of_five_violations }}</span>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -713,10 +753,10 @@
             </div>
             <section aria-labelledby="timeline-title" class="lg:col-span-1 lg:col-start-3">
                 <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg bg-white mb-2">
-                    <livewire:molecule-depict2d :height="300" :smiles="$molecule->canonical_smiles">
+                    <livewire:molecule-depict2d :height="300" :smiles="$molecule->canonical_smiles" lazy="on-load">
                 </div>
                 <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg mb-2">
-                    <livewire:molecule-depict3d :height="300" :smiles="$molecule->canonical_smiles">
+                    <livewire:molecule-depict3d :height="300" :smiles="$molecule->canonical_smiles" lazy="on-load">
                 </div>
                 <div class="bg-white px-4 py-1 shadow sm:rounded-lg sm:px-6 border">
                     <div class="mt-2 flow-root">

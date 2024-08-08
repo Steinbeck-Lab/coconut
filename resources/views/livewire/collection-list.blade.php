@@ -41,7 +41,9 @@
             @foreach ($collections as $collection)
             <a href="search?type=tags&amp;q={{ $collection->title }}&amp;tagType=dataSource" class="relative border mb-5 flex h-80 w-56 flex-col overflow-hidden rounded-lg p-6 hover:opacity-75 xl:w-auto">
                 <span aria-hidden="true" class="absolute inset-0">
-                    <img src="https://s3.uni-jena.de/coconut/{{ $collection->image }}" alt="{{ $collection->title }}">
+                    @if($collection['image'] && $collection['image'] != '')
+                        <img src="https://s3.uni-jena.de/coconut/{{ $collection->image }}" alt="{{ $collection->title }}">
+                    @endif
                 </span>
                 <span aria-hidden="true" class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-gray-800 opacity-50"></span>
                 <span class="relative mt-auto text-left text-xl font-bold text-dark">{{ $collection->title }}</span>

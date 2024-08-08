@@ -61,9 +61,7 @@ class MoleculeDetails extends Component
     #[Layout('layouts.guest')]
     public function render()
     {
-        return view('livewire.molecule-details', [
-            'molecule' => $this->molecule,
-        ])
+        return view('livewire.molecule-details')
             ->layoutData([
                 'title' => $this->molecule->name ? $this->molecule->name : $this->molecule->iupac_name,
                 'description' => $this->molecule->description ?? 'Molecule details for '.($this->molecule->name ? $this->molecule->name : $this->molecule->iupac_name),

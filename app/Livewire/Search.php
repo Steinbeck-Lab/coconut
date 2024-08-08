@@ -15,32 +15,27 @@ class Search extends Component
 {
     use WithPagination;
 
-    #[Url(except: '', keep: true, history: true, as: 'q')]
+    #[Url(except: '', as: 'q')]
     public $query = '';
 
     #[Url(as: 'limit')]
     public $size = 20;
 
-    #[Url()]
+    #[Url(as: 'sort')]
     public $sort = null;
 
-    #[Url()]
+    #[Url(as: 'page')]
     public $page = null;
 
-    #[Url()]
+    #[Url(as: 'type')]
     public $type = null;
 
-    #[Url()]
+    #[Url(as: 'tagType')]
     public $tagType = null;
 
     public $collection = null;
 
     public $organisms = null;
-
-    public function gotoPage($page)
-    {
-        $this->page = $page;
-    }
 
     public function placeholder()
     {
@@ -76,12 +71,21 @@ class Search extends Component
     {
         $this->query = $smiles;
         $this->type = $searchType;
+        $this->page = null;
+        $this->tagType = null;
+    }
+
+    public function updatedQuery()
+    {
+        $this->page = 1;
+        $this->type = null;
+        $this->tagType = null;
     }
 
     public function render(SearchMolecule $search)
     {
         try {
-            $results = $search->query($this->query, $this->size, $this->type, $this->sort, $this->tagType);
+            $results = $search->query($this->query, $this->size, $this->type, $this->sort, $this->tagType, $this->page);
             $this->collection = $results[1];
 
             return view('livewire.search', [

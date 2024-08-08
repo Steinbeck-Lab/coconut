@@ -1,4 +1,5 @@
 <div class="max-w-4xl lg:max-w-7xl mx-auto">
+    @if($molecules)
     <div class="px-4 py-8">
         <div class="mx-6 border-gray-200 py-5 sm:flex sm:items-center sm:justify-between">
             <h2 class="text-2xl pb-0 font-bold tracking-tight text-white sm:text-2xl">
@@ -15,10 +16,11 @@
             <div class="px-4">
                 <div class="mx-auto grid mt-6 gap-5 lg:max-w-none md:grid-cols-3 lg:grid-cols-5">
                     @foreach ($molecules as $molecule)
-                        <livewire:molecule-card :key="$molecule->id" :molecule="json_encode($molecule)" />
+                        <livewire:molecule-card :key="$molecule->identifier" :molecule="$molecule" />
                     @endforeach
                 </div>
             </div>
         </div>
     </div>
+    @endif
 </div>

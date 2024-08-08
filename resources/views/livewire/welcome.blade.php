@@ -46,7 +46,9 @@
                                                         clip-rule="evenodd"></path>
                                                 </svg>
                                             </div>
-                                            <input x-model="query" id="query"
+                                            <input
+                                                @keyup.enter="window.location.href = '/search?q=' + encodeURIComponent(query)"
+                                                x-model="query" id="query"
                                                 class="rounded-md h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
                                                 placeholder="Search compound name, SMILES, InChI, InChI Key"
                                                 type="search" autofocus>
@@ -64,7 +66,6 @@
                                             </svg>
                                             &nbsp;Search</button>
                                     </div>
-                                    <livewire:structure-editor />
                                 </div>
                             </div>
                         </div>
@@ -89,84 +90,12 @@
                 </div>
                 <div class="mt-16 flex items-center gap-x-6 justify-center w-full">
                     <div>
-                        <button type="button" onclick="Livewire.dispatch('openModal', { smiles: query })"
-                            class="border bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
-                            <svg class="w-12 h-12 mx-auto" viewBox="0 0 78 78" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <g clip-path="url(#clip0_1_2)">
-                                    <path d="M70.1638 11.819L66.3621 23.4827" stroke="black" stroke-width="1.13386"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M68.0431 32.4052L74.8966 41.819" stroke="black" stroke-width="1.13386"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M68.0431 51.2586L74.8966 41.819" stroke="black" stroke-width="1.13386"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M65.8448 49.6293L71.5086 41.819" stroke="black" stroke-width="1.13386"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M61.0603 54.3621L48.6983 50.3793" stroke="black" stroke-width="1.13386"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M48.6983 50.3793V33.2845" stroke="black" stroke-width="1.13386"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M45.9828 48.8017V34.8621" stroke="black" stroke-width="1.13386"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M61.0603 29.3017L48.6983 33.2845" stroke="black" stroke-width="1.13386"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M48.6983 33.2845L33.9052 24.75" stroke="black" stroke-width="1.13386"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M32.5345 25.5259V12.4397" stroke="black" stroke-width="1.13386"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M35.2759 25.5259V12.4397" stroke="black" stroke-width="1.13386"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M33.9052 24.75L22.7845 31.1638" stroke="black" stroke-width="1.13386"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M19.1121 37.9397V50.3793" stroke="black" stroke-width="1.13386"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M20.4828 51.1552L9.10345 57.7241" stroke="black" stroke-width="1.13386"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M19.1121 48.8017L7.73276 55.3707" stroke="black" stroke-width="1.13386"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M19.1121 50.3793L30.2069 56.7672" stroke="black" stroke-width="1.13386"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M48.6983 50.3793L37.6034 56.7672" stroke="black" stroke-width="1.13386"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M33.9052 63.569V75.9828" stroke="black" stroke-width="1.13386"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M15.4138 31.1638L4.31897 24.75" stroke="black" stroke-width="1.13386"
-                                        stroke-linecap="round" stroke-linejoin="round" />
-                                    <path
-                                        d="M62.5345 24.9569H63.6466L66.3879 30.1552V24.9569H67.2155V31.1638H66.0776L63.3362 25.9914V31.1638H62.5345V24.9569Z"
-                                        fill="black" />
-                                    <path
-                                        d="M62.5345 52.5H63.6466L66.3879 57.6983V52.5H67.2155V58.7069H66.0776L63.3362 53.5345V58.7069H62.5345V52.5Z"
-                                        fill="black" />
-                                    <path
-                                        d="M33.9052 5.12069C33.2845 5.12069 32.7931 5.34482 32.431 5.7931C32.069 6.24138 31.8879 6.86207 31.8879 7.65517C31.8879 8.43103 32.069 9.05172 32.431 9.51724C32.7931 9.96551 33.2845 10.1897 33.9052 10.1897C34.5086 10.1897 34.9914 9.96551 35.3535 9.51724C35.7155 9.06896 35.8966 8.44827 35.8966 7.65517C35.8966 6.87931 35.7155 6.25862 35.3535 5.7931C34.9914 5.34482 34.5086 5.12069 33.9052 5.12069ZM33.9052 4.44827C34.7672 4.44827 35.4569 4.74138 35.9741 5.32758C36.4914 5.91379 36.75 6.69827 36.75 7.68103C36.75 8.66379 36.4914 9.44827 35.9741 10.0345C35.4569 10.6207 34.7672 10.9138 33.9052 10.9138C33.0259 10.9138 32.3276 10.6207 31.8103 10.0345C31.2931 9.44827 31.0345 8.66379 31.0345 7.68103C31.0345 6.69827 31.2931 5.91379 31.8103 5.32758C32.3276 4.74138 33.0259 4.44827 33.9052 4.44827Z"
-                                        fill="black" />
-                                    <path
-                                        d="M16.7586 30.181H17.8707L20.6121 35.3793V30.181H21.4397V36.3879H20.3017L17.5603 31.2155V36.3879H16.7586V30.181Z"
-                                        fill="black" />
-                                    <path
-                                        d="M4.31897 56.3793C3.69828 56.3793 3.2069 56.6034 2.84483 57.0517C2.48276 57.5 2.30172 58.1207 2.30172 58.9138C2.30172 59.6897 2.48276 60.3103 2.84483 60.7759C3.2069 61.2241 3.69828 61.4483 4.31897 61.4483C4.92241 61.4483 5.40517 61.2241 5.76724 60.7759C6.12931 60.3276 6.31035 59.7069 6.31035 58.9138C6.31035 58.1379 6.12931 57.5172 5.76724 57.0517C5.40517 56.6034 4.92241 56.3793 4.31897 56.3793ZM4.31897 55.681C5.18103 55.681 5.87069 55.9741 6.38793 56.5603C6.90517 57.1465 7.16379 57.931 7.16379 58.9138C7.16379 59.8965 6.90517 60.681 6.38793 61.2672C5.87069 61.8534 5.18103 62.1465 4.31897 62.1465C3.43966 62.1465 2.74138 61.8534 2.22414 61.2672C1.7069 60.681 1.44828 59.8965 1.44828 58.9138C1.44828 57.931 1.7069 57.1465 2.22414 56.5603C2.74138 55.9741 3.43966 55.681 4.31897 55.681Z"
-                                        fill="black" />
-                                    <path
-                                        d="M31.5517 55.8103H32.6638L35.4052 61.0086V55.8103H36.2328V62.0172H35.0948L32.3535 56.8448V62.0172H31.5517V55.8103Z"
-                                        fill="black" />
-                                    <path fill-rule="evenodd" clip-rule="evenodd"
-                                        d="M61.194 0.892153L70.1146 9.91002C70.6816 10.4859 71 11.2659 71 12.0792C71 12.8924 70.6816 13.6724 70.1146 14.2483L65.1786 19.2692L51.9689 5.89107L56.932 0.892153C57.502 0.320612 58.2717 0 59.0739 0C59.876 0 60.6457 0.320612 61.2157 0.892153H61.194ZM43.5211 41.1808L32.7957 44.5391C25.2666 46.1907 25.3319 47.9249 26.729 40.7348L30.3385 27.8301L49.4682 8.42906L62.678 21.8072L43.532 41.1973L43.5211 41.1808ZM32.5891 30.1149L41.2869 38.9235L34.2199 41.1257C28.7023 42.8489 28.7295 43.9995 30.2298 38.6207L32.5891 30.1424V30.1149Z"
-                                        fill="black" />
-                                </g>
-                                <defs>
-                                    <clipPath id="clip0_1_2">
-                                        <rect width="77.5862" height="78" fill="white" />
-                                    </clipPath>
-                                </defs>
-                            </svg>
-                            <small class="text-base font-semibold leading-7">Draw Structure</small>
-                        </button>
+                        <livewire:structure-editor :mode="'button'" lazy="on-load" :smiles="''" />
                     </div>
                     <a href="/search"
                         class="border bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-12 h-12 mx-auto">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
                         </svg>
@@ -175,8 +104,8 @@
                     </a>
                     <a href="/admin/collections/create"
                         class="border bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-12 h-12 mx-auto">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M3 4.5h14.25M3 9h9.75M3 13.5h5.25m5.25-.75L17.25 9m0 0L21 12.75M17.25 9v12" />
                         </svg>
@@ -234,7 +163,9 @@
                     </p>
                     <p class="mt-2 flex items-baseline gap-x-2">
                         <span class="text-4xl font-semibold tracking-tight text-white number"
-                            data-value="{{ $totalMolecules }}"></span>
+                            data-value="{{ $totalMolecules }}">
+                            {{ $totalMolecules }}
+                        </span>
                     </p>
                 </a>
                 <!-- Total Collections Section -->
@@ -249,7 +180,9 @@
                     </p>
                     <p class="mt-2 flex items-baseline gap-x-2">
                         <span class="text-4xl font-semibold tracking-tight text-white number"
-                            data-value="{{ $totalCollections }}"></span>
+                            data-value="{{ $totalCollections }}">
+                            {{ $totalCollections }}
+                        </span>
                     </p>
                 </a>
                 <!-- Unique Organisms Section -->
@@ -315,7 +248,9 @@
                     </p>
                     <p class="mt-2 flex items-baseline gap-x-2">
                         <span class="text-4xl font-semibold tracking-tight text-white number"
-                            data-value="{{ $uniqueOrganisms }}"></span>
+                            data-value="{{ $uniqueOrganisms }}">
+                            {{ $uniqueOrganisms }}
+                        </span>
                     </p>
                 </div>
                 <!-- Citations Mapped Section -->
@@ -334,16 +269,18 @@
                     </p>
                     <p class="mt-2 flex items-baseline gap-x-2">
                         <span class="text-4xl font-semibold tracking-tight text-white number"
-                            data-value="{{ $citationsMapped }}"></span>
+                            data-value="{{ $citationsMapped }}">
+                            {{ $citationsMapped }}
+                        </span>
                     </p>
                 </div>
             </div>
         </div>
     </div>
-    <livewire:recent-molecules />
-    <livewire:compound-classes />
-    <livewire:data-sources />
-    <livewire:faqs />
+    <livewire:recent-molecules lazy />
+    <livewire:compound-classes lazy="on-load" />
+    <livewire:data-sources lazy="on-load" />
+    <livewire:faqs lazy="on-load" />
 
     <div class="bg-gray-900 border-y">
         <div
@@ -354,7 +291,7 @@
                         class="-mb-1 block bg-gradient-to-r from-secondary-dark to-secondary-light bg-clip-text pb-1 text-transparent">Get
                         in touch or create an account.</span></h2>
             </div>
-            <div class="mt-6 space-y-4 sm:flex sm:space-y-0 sm:space-x-5"><a href="https://cheminf.uni-jena.de"
+            <div class="mt-6 space-y-4 sm:flex sm:space-y-0 sm:space-x-5"><a href="mailto:info.coconut@uni-jena.de"
                     target="_blank"
                     class="cursor-pointer flex items-center justify-center rounded-md border border-transparent bg-teal-50 px-4 py-3 text-base font-medium text-teal-800 shadow-sm hover:bg-teal-100">Contact
                     Us</a>

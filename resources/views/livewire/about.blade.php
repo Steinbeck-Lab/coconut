@@ -46,38 +46,28 @@
                     <div class="mx-auto max-w-2xl gap-x-14 lg:mx-0 lg:flex lg:max-w-none lg:items-center">
                         <div class="w-full max-w-xl lg:shrink-0 xl:max-w-2xl">
                             <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-                                We’re changing the way chemists publish NMR data.
+                                COCONUT 2.0: The Comprehensive Resource for Open Natural Products
                             </h1>
                             <p class="relative mt-6 text-lg leading-7 text-gray-600 sm:max-w-md lg:max-w-none">
-                                While several attempts have been made recently to create NMR
-                                databases from literature, they fall short of meeting the needs of
-                                modern chemical and related scientific communities. nmrXiv is the
-                                first open archive to preserve NMR data in its original instrument
-                                format, while offering tools for their analysis and promoting open
-                                data and standards for long-term sustainability and accessibility.
+                                Natural products (NPs) are small molecules produced by living organisms with significant
+                                potential in pharmacology and various industries due to their bioactivity. This
+                                potential has sparked extensive NP research worldwide, leading to the creation of
+                                numerous general and thematic NP databases. However, until now, there has been no single
+                                online resource consolidating all known NPs, which would greatly enhance NP research and
+                                facilitate computational screening and other in silico applications.
                                 <br /><br />
-                                nmrXiv revolutionizes NMR data management and archival by providing
-                                an open-access, standardized, and user-friendly platform. Our
-                                platform is public and interoperable to ensure that NMR data is
-                                freely accessible, transparent, and reproducible. We support
-                                standardized data formats to enhance consistency and facilitate data
-                                comparison and integration. Our platform includes processing and
-                                quality control tools to verify the integrity and accuracy of NMR
-                                data before and after publication. With advanced search and
-                                retrieval features powered by comprehensive metadata, nmrXiv allows
-                                researchers to efficiently locate and utilize specific datasets,
-                                fostering greater collaboration and accelerating scientific
-                                discovery. nmrXiv serves as core platform for the nmrXiv Project
-                                Group, an international collaborative that seeks to advance the
-                                utility of structural and quantitative NMR analysis for chemical,
-                                pharmaceutical, and natural research and applications.
+                                We are excited to introduce the COlleCtion of Open Natural prodUcTs (COCONUT) 2.0 -
+                                platform: a comprehensive dataset of elucidated and predicted NPs sourced from open
+                                databases, accompanied by a user-friendly web based curation and submission interface.
+                                COCONUT allows for easy
+                                browsing, searching, and downloading of NPs, streamlining your research process.
                             </p>
                         </div>
                         <div class="mt-14 flex justify-end gap-8 sm:-mt-44 sm:justify-start sm:pl-20 lg:mt-0 lg:pl-0">
                             <div
                                 class="ml-auto w-44 flex-none space-y-8 pt-32 sm:ml-0 sm:pt-80 lg:order-last lg:pt-36 xl:order-none xl:pt-80">
                                 <div class="relative">
-                                    <img src="img/about1.jpeg" alt=""
+                                    <img src="img/collections/1.png" alt=""
                                         class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg" />
                                     <div
                                         class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10">
@@ -86,14 +76,14 @@
                             </div>
                             <div class="mr-auto w-44 flex-none space-y-8 sm:mr-0 sm:pt-52 lg:pt-36">
                                 <div class="relative">
-                                    <img src="img/about5.jpeg" alt=""
+                                    <img src="img/collections/2.png" alt=""
                                         class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg" />
                                     <div
                                         class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10">
                                     </div>
                                 </div>
                                 <div class="relative">
-                                    <img src="img/about3.jpeg" alt=""
+                                    <img src="img/collections/3.png" alt=""
                                         class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg" />
                                     <div
                                         class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10">
@@ -102,14 +92,14 @@
                             </div>
                             <div class="w-44 flex-none space-y-8 pt-32 sm:pt-0">
                                 <div class="relative">
-                                    <img src="img/about4.jpeg" alt=""
+                                    <img src="img/collections/4.png" alt=""
                                         class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg" />
                                     <div
                                         class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10">
                                     </div>
                                 </div>
                                 <div class="relative">
-                                    <img src="img/about2.jpeg" alt=""
+                                    <img src="img/collections/5.png" alt=""
                                         class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg" />
                                     <div
                                         class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10">
@@ -130,10 +120,7 @@
                 <div class="mt-6 flex flex-col gap-x-8 gap-y-20 lg:flex-row">
                     <div class="lg:w-full lg:max-w-2xl lg:flex-auto">
                         <p class="text-xl leading-8 text-gray-600">
-                            <b>All chemists publish FAIR NMR data.</b>
-                            To get there, we will support chemists and scientists from related
-                            disciplines in their efforts to collect, store, process, analyse,
-                            publish, and re-use NMR data.<br />
+                            Empowering researchers to unlock the full potential of natural products. We aim to support scientists in the collection, storage, processing, analysis, publication, and re-use of natural product data, making it accessible and useful for various applications. Our mission is to provide a unified, open platform that simplifies natural product research and enhances computational screening and other in silico applications.<br />
                         </p>
                         <p class="italic text-md leading-7 text-gray-600 mt-4">
                             Developed at
@@ -163,13 +150,11 @@
                 <div>
                     <dt class="font-semibold text-gray-900">License</dt>
                     <dd class="mt-1 text-gray-600">
-                        nmrXiv infrastucture
-                        <a class="text-blue-900 underline" href="https://github.com/NFDI4Chem/nmrxiv">code</a>
+                        COCONUT infrastucture
+                        <a class="text-blue-900 underline" href="https://github.com/Steinbeck-Lab/coconut">code</a>
                         is licensed under the
                         <a class="text-blue-900 underline" href="https://opensource.org/licenses/MIT">MIT license</a>.
-                        Every dataset on nmrXiv comes with its own specific license. It is
-                        essential to review the license details for each dataset before using
-                        it.
+                        Complete curated dataset is available for download under <a href="https://creativecommons.org/public-domain/cc0/" target="_blank">CC0 License</a>.
                     </dd>
                     <br />
                     <dt class="font-semibold text-gray-900">Help Desk</dt>
@@ -178,7 +163,7 @@
                         <a class="text-blue-900 underline" href="https://helpdesk.nfdi4chem.de/">Help Desk</a>
                         or write to us at
                         <a class="text-blue-900 underline"
-                            href="mailto:info.nmrxiv@uni-jena.de">info.nmrxiv@uni-jena.de</a>.
+                            href="mailto:info.COCONUT@uni-jena.de">info.COCONUT@uni-jena.de</a>.
                     </dd>
                 </div>
                 <div>
@@ -186,12 +171,12 @@
                         Contributors and Steering Committee
                     </dt>
                     <dd class="mt-1 text-gray-600">
-                        At nmrXiv, our global contributors bring a wealth of diverse expertise
+                        At COCONUT, our global contributors bring a wealth of diverse expertise
                         to our platform. Guided by a seasoned Steering Committee, we ensure
                         strategic oversight, foster innovation, and drive continuous improvement
                         in all our endeavors.
                         <br /><a class="text-blue-900 underline"
-                            href="https://docs.nmrxiv.org/contribution/contributors.html">View →</a>
+                            href="https://docs.COCONUT.org/contribution/contributors.html">View →</a>
                     </dd>
                 </div>
                 <div>
@@ -201,7 +186,7 @@
                         collaborate on proposed features, ensuring implementations accurately
                         address real-world use cases.
                         <br /><a class="text-blue-900 underline"
-                            href="https://docs.nmrxiv.org/introduction/intro.html">More details →</a>
+                            href="https://docs.COCONUT.org/introduction/intro.html">More details →</a>
                     </dd>
                 </div>
             </dl>

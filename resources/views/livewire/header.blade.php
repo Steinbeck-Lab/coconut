@@ -17,10 +17,10 @@
                 </button>
             </div>
             <div class="hidden lg:flex lg:gap-x-12">
-                <a href="/search" class="text-sm font-semibold leading-6 text-gray-900">Browse</a>
+                <a href="/search" class="text-sm font-semibold leading-6 text-gray-900">Search</a>
                 <a href="/api-documentation" class="text-sm font-semibold leading-6 text-gray-900">API</a>
-                <a href="/guidelines" class="text-sm font-semibold leading-6 text-gray-900">Guidelines</a>
-                <a href="https://cheminf.uni-jena.de/" class="text-sm font-semibold leading-6 text-gray-900">About
+                <a href="https://" class="text-sm font-semibold leading-6 text-gray-900">Guidelines</a>
+                <a href="/about" class="text-sm font-semibold leading-6 text-gray-900">About
                     us</a>
                 <a href="/download" class="text-sm font-semibold leading-6 text-gray-900">Download</a>
             </div>

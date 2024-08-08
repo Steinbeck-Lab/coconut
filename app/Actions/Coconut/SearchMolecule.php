@@ -29,13 +29,14 @@ class SearchMolecule
     /**
      * Search based on given query.
      */
-    public function query($query, $size, $type, $sort, $tagType)
+    public function query($query, $size, $type, $sort, $tagType, $page)
     {
         $this->query = $query;
         $this->size = $size;
         $this->type = $type;
         $this->sort = $sort;
         $this->tagType = $tagType;
+        $this->page = $page;
 
         try {
             set_time_limit(300);
@@ -63,7 +64,6 @@ class SearchMolecule
                 $results = $this->buildTagsStatement($offset);
             } else {
                 $statement = $this->buildStatement($queryType, $offset, $filterMap);
-
                 if ($statement) {
                     $results = $this->executeQuery($statement);
                 }
@@ -85,7 +85,7 @@ class SearchMolecule
     {
         $patterns = [
             'inchi' => '/^((InChI=)?[^J][0-9BCOHNSOPrIFla+\-\(\)\\\\\/,pqbtmsih]{6,})$/i',
-            'inchikey' => '/^([0-9A-Z\-]+)$/i',
+            'inchikey' => '/^([0-9A-Z\-]{27})$/i',  // Modified to ensure exact length
             'smiles' => '/^([^J][0-9BCOHNSOPrIFla@+\-\[\]\(\)\\\\\/%=#$]{6,})$/i',
         ];
 
@@ -94,12 +94,12 @@ class SearchMolecule
         }
 
         foreach ($patterns as $type => $pattern) {
-            if (preg_match_all($pattern, $query, $matches, PREG_SET_ORDER, 0)) {
+            if (preg_match($pattern, $query)) {
                 if ($type == 'inchi' && substr($query, 0, 6) == 'InChI=') {
                     return 'inchi';
                 } elseif ($type == 'inchikey' && substr($query, 14, 1) == '-' && strlen($query) == 27) {
                     return 'inchikey';
-                } elseif ($type == 'smiles' && substr($query, 14, 1) != '-') {
+                } elseif ($type == 'smiles') {
                     return 'smiles';
                 }
             }
@@ -153,11 +153,13 @@ class SearchMolecule
         switch ($queryType) {
             case 'smiles':
             case 'substructure':
-                $statement = "SELECT id, COUNT(*) OVER () 
-                          FROM mols 
-                          WHERE m@>'{$this->query}' 
-                          LIMIT {$this->size} OFFSET {$offset}";
-
+                $statement = "SELECT id, m, 
+                    tanimoto_sml(morganbv_fp(mol_from_smiles('{$this->query}')::mol), morganbv_fp(m::mol)) AS similarity, 
+                    COUNT(*) OVER () AS count 
+                FROM mols 
+                WHERE m@> mol_from_smiles('{$this->query}')::mol 
+                ORDER BY similarity DESC 
+                LIMIT {$this->size} OFFSET {$offset}";
                 break;
 
             case 'inchi':
@@ -216,7 +218,7 @@ class SearchMolecule
         if ($this->tagType == 'dataSource') {
             $this->collection = Collection::where('title', $this->query)->first();
             if ($this->collection) {
-                return $this->collection->molecules()->orderBy('annotation_level', 'desc')->paginate($this->size);
+                return $this->collection->molecules()->where('active', true)->where('is_parent', false)->orderBy('annotation_level', 'desc')->paginate($this->size);
             } else {
                 return [];
             }
@@ -230,9 +232,9 @@ class SearchMolecule
 
             return Molecule::whereHas('organisms', function ($query) use ($organismIds) {
                 $query->whereIn('organism_id', $organismIds);
-            })->orderBy('annotation_level', 'DESC')->paginate($this->size);
+            })->where('active', true)->where('is_parent', false)->orderBy('annotation_level', 'DESC')->paginate($this->size);
         } else {
-            return Molecule::withAnyTags([$this->query], $this->tagType)->paginate($this->size);
+            return Molecule::withAnyTags([$this->query], $this->tagType)->where('active', true)->where('is_parent', false)->paginate($this->size);
         }
     }
 
@@ -293,9 +295,11 @@ class SearchMolecule
             SELECT id, COUNT(*) OVER () 
             FROM molecules 
             WHERE 
-                (\"name\"::TEXT ILIKE '%{$this->query}%') 
+                ((\"name\"::TEXT ILIKE '%{$this->query}%') 
                 OR (\"synonyms\"::TEXT ILIKE '%{$this->query}%') 
-                OR (\"identifier\"::TEXT ILIKE '%{$this->query}%') 
+                OR (\"identifier\"::TEXT ILIKE '%{$this->query}%')) 
+                AND is_parent = FALSE 
+                AND active = TRUE
             ORDER BY 
                 CASE 
                     WHEN \"name\"::TEXT ILIKE '{$this->query}' THEN 1 
@@ -310,6 +314,7 @@ class SearchMolecule
         } else {
             return "SELECT id, COUNT(*) OVER () 
                 FROM molecules 
+                WHERE is_parent = FALSE AND active = TRUE
                 ORDER BY annotation_level DESC 
                 LIMIT {$this->size} OFFSET {$offset}";
         }
@@ -321,13 +326,22 @@ class SearchMolecule
     private function executeQuery($statement)
     {
         $expression = DB::raw($statement);
-        $hits = $expression->getValue(DB::connection()->getQueryGrammar());
+        $string = $expression->getValue(DB::connection()->getQueryGrammar());
+        $hits = DB::select($string);
         $count = count($hits) > 0 ? $hits[0]->count : 0;
 
-        $ids = implode(',', collect($hits)->pluck('id')->toArray());
+        $ids_array = collect($hits)->pluck('id')->toArray();
+        $ids = implode(',', $ids_array);
+        // dd($ids);
 
         if ($ids != '') {
-            $statement = "SELECT * FROM molecules WHERE ID IN ({$ids})";
+
+            $statement = "
+            SELECT identifier, canonical_smiles, annotation_level, name, iupac_name, organism_count, citation_count, geo_count, collection_count
+            FROM molecules
+            WHERE id = ANY (array[{$ids}])
+            ORDER BY array_position(array[{$ids}], id);
+            ";
             if ($this->sort == 'recent') {
                 $statement .= ' ORDER BY created_at DESC';
             }
