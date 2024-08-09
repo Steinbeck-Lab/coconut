@@ -123,15 +123,9 @@
                             Empowering researchers to unlock the full potential of natural products. We aim to support scientists in the collection, storage, processing, analysis, publication, and re-use of natural product data, making it accessible and useful for various applications. Our mission is to provide a unified, open platform that simplifies natural product research and enhances computational screening and other in silico applications.<br />
                         </p>
                         <p class="italic text-md leading-7 text-gray-600 mt-4">
-                            Developed at
-                            <a class="text-blue-900" href="https://www.uni-jena.de/en">Friedrich Schiller University,
-                                Jena</a>
-                            in Germany, under the leadership of
-                            <a class="text-blue-900" href="https://cheminf.uni-jena.de/">Professor Christoph
-                                Steinbeck</a>. Funded by the
-                            <a class="text-blue-900 underline" href="https://www.chembiosys.de/en/">Chembiosys (Project INF) 
-                                - Project number:
-                                <strong class="text-blue-900">239748522 - SFB 1127</strong>.
+                        <i>Cheminformatics Microservice and <a href="https://naturalproducts.net/" target="_blank" rel="noreferrer">Natural Products Online</a> are developed and maintained by the <a href="https://cheminf.uni-jena.de/" target="_blank" rel="noreferrer">Steinbeck group</a> at the <a href="https://www.uni-jena.de/en/" target="_blank" rel="noreferrer">Friedrich Schiller University</a> Jena, Germany.</i>
+                        <i>Funded by <a href="https://docs.api.naturalproducts.net/introduction.html" target="_blank" rel="noreferrer">ChemBioSys</a> (Project INF) - Project number: 239748522 - SFB 1127.</i>
+
                         </p>
                     </div>
                 </div>
@@ -154,7 +148,9 @@
                     <br />
                     <dt class="font-semibold text-gray-900">Help Desk</dt>
                     <dd class="mt-1 text-gray-600">
-                        Write to us for any issues or support requests
+                        Any issues or support requests can be raised at our
+                        <a class="text-blue-900 underline" href="https://helpdesk.nfdi4chem.de/">Help Desk</a>
+                        or write to us at
                         <a class="text-blue-900 underline"
                             href="mailto:info.COCONUT@uni-jena.de">info.COCONUT@uni-jena.de</a>.
                     </dd>
