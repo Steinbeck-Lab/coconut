@@ -1,10 +1,16 @@
-<div x-data="{ isOpen: false, searchType: 'exact', smiles: @entangle('smiles'), fetchClipboardText() { 
+<div x-data="{
+    isOpen: false,
+    mode: @entangle('mode'),
+    searchType: 'exact',
+    smiles: @entangle('smiles'),
+    type: @entangle('type'),
+    fetchClipboardText() {
         navigator.clipboard.readText().then(text => {
             window.editor.setSmiles(text);
         }).catch(err => {
             console.error('Failed to read clipboard contents: ', err);
         });
-    } 
+    }
 }">
     <div x-init="$watch('isOpen', value => {
         if (value) {
@@ -17,7 +23,7 @@
             }, 100);
         }
     });">
-        <div x-show="isOpen" x-cloak class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+        <div x-show="isOpen" x-cloak class="fixed z-20 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
             aria-modal="true">
             <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                 <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
@@ -25,15 +31,17 @@
                 <!-- This element is to trick the browser into centering the modal contents. -->
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
                 <div
-                    class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                    class="z-20 inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
                     <div class="sm:flex sm:items-start">
                         <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
                             <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
                                 Structure Editor
                             </h3>
                             <div class="py-3">
-                                <div id="structureSearchEditor" class="border mb-3" style="height: 400px; width: 100%"></div>
-                                <button @click="fetchClipboardText" class="mt-3 w-full inline-flex justify-center rounded-md shadow-sm px-4 py-2 bg-white-600 text-base font-medium hover:bg-white-700 focus:outline-none sm:w-auto sm:text-sm border">
+                                <div id="structureSearchEditor" class="border mb-3" style="height: 400px; width: 100%">
+                                </div>
+                                <button @click="fetchClipboardText"
+                                    class="mt-3 w-full inline-flex justify-center rounded-md shadow-sm px-4 py-2 bg-white-600 text-base font-medium hover:bg-white-700 focus:outline-none sm:w-auto sm:text-sm border">
                                     Paste from Clipboard
                                 </button>
                             </div>
@@ -45,7 +53,7 @@
                                     <div class="flex items-center">
                                         <label for="search-type-exact"
                                             class="block cursor-pointer text-sm font-medium text-gray-700">
-                                            <input id="search-type-exact" name="search-type" x-model="searchType"
+                                            <input id="search-type-exact" name="search-type" x-model="type"
                                                 value="exact" type="radio"
                                                 class="mr-3 h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
                                             Exact match
@@ -54,7 +62,7 @@
                                     <div class="flex items-center">
                                         <label for="search-type-sub"
                                             class="block cursor-pointer text-sm font-medium text-gray-700">
-                                            <input id="search-type-sub" name="search-type" x-model="searchType"
+                                            <input id="search-type-sub" name="search-type" x-model="type"
                                                 value="substructure" type="radio"
                                                 class="mr-3 h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
                                             Substructure Search
@@ -63,7 +71,7 @@
                                     <div class="flex items-center">
                                         <label for="search-type-similar"
                                             class="block cursor-pointer text-sm font-medium text-gray-700">
-                                            <input id="search-type-similar" name="search-type" x-model="searchType"
+                                            <input id="search-type-similar" name="search-type" x-model="type"
                                                 value="similarity" type="radio"
                                                 class="mr-3 h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
                                             Similarity Search (tanimoto_threshold=0.5)
@@ -79,7 +87,7 @@
                             Close
                         </button>
                         <button
-                            @click="const smiles = window.getEditorSmiles(); window.location.href = `/search?type=${searchType}&q=${encodeURIComponent(smiles)}`"
+                            @click="const smiles = window.getEditorSmiles(); window.location.href = `/search?type=${type}&q=${encodeURIComponent(smiles)}`"
                             type="button"
                             class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                             Search
@@ -90,7 +98,7 @@
         </div>
     </div>
     @if ($mode && $mode == 'inline')
-        <button x-if="$mode != 'inline'" type="button" @click="isOpen = true"
+        <button type="button" @click="isOpen = true"
             class="rounded-md text-gray-900 bg-white mr-3 py-3 px-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                 stroke="currentColor" class="mr-3 ml-2 h-6 w-6">
@@ -99,7 +107,7 @@
             </svg>
         </button>
     @else
-        <button x-if="$mode && $mode == 'inline'" type="button" @click="isOpen = true"
+        <button type="button" @click="isOpen = true"
             class="border bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
             <svg class="w-12 h-12 mx-auto" viewBox="0 0 78 78" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clip-path="url(#clip0_1_2)">
