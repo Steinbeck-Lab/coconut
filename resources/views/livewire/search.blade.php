@@ -137,7 +137,7 @@
                                                 <input name="q" id="q"
                                                     class="h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
                                                     wire:model="query"
-                                                    placeholder="Search compound name, SMILES, InChI, InChI Key"
+                                                    placeholder="Search Organisms (Genus or Species or any Taxonomic Rank)"
                                                     type="search" autofocus="">
                                                 <input type="hidden" name="tagType" value="organisms">
                                                 <input type="hidden" name="type" value="tags">
@@ -185,7 +185,7 @@
                                                 <input name="q" id="q"
                                                     class="h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
                                                     wire:model="query"
-                                                    placeholder="Search compound name, SMILES, InChI, InChI Key"
+                                                    placeholder="Search DOI or Title"
                                                     type="search" autofocus="">
                                                 <input type="hidden" name="tagType" value="citations">
                                                 <input type="hidden" name="type" value="tags">
