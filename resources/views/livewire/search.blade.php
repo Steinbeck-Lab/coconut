@@ -1,4 +1,4 @@
-<div>
+<div x-data="{ activeTab: @entangle('activeTab') }">
     <div class="mt-24">
         @if ($tagType == 'dataSource' && $collection)
             <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
@@ -30,51 +30,188 @@
         @endif
     </div>
     <div class="mx-auto max-w-2xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
-        <form wire:submit="search">
-            <div class="bg-white">
-                <div class="px-4 mx-auto max-w-7xl">
-                    <div class="flex h-16 flex-shrink-0 rounded-md border border-zinc-900/5 border-b-4">
-                        <div class="flex flex-1 justify-between px-4 md:px-0">
-                            <div class="flex flex-1">
-                                <div class="flex w-full md:ml-0"><label for="search-field"
-                                        class="sr-only">Search</label>
-                                    <div class="relative w-full text-gray-400 focus-within:text-gray-600">
-                                        <div
-                                            class="px-2 pointer-events-none absolute inset-y-0 left-0 flex items-center">
-                                            <svg class="h-5 w-5 flex-shrink-0"
-                                                x-description="Heroicon name: mini/magnifying-glass"
-                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                fill="currentColor" aria-hidden="true">
-                                                <path fill-rule="evenodd"
-                                                    d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
-                                                    clip-rule="evenodd"></path>
-                                            </svg>
+        <div>
+            <div class="sm:hidden">
+                <label for="tabs" class="sr-only">Select a tab</label>
+                <select id="tabs" name="tabs" x-model="activeTab"
+                    class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                    @change="window.location.search = `?tab=${activeTab}`">
+                    <option value="molecules">Molecules</option>
+                    <option value="organism">Organism</option>
+                    <option value="citations">Citations</option>
+                </select>
+            </div>
+            <div class="hidden sm:block">
+                <div class="border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                        <a @click="activeTab = 'molecules'"
+                            class="cursor-pointer whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium"
+                            :class="activeTab === 'molecules' ? 'border-indigo-500 text-indigo-600' :
+                                'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'">
+                            Molecules
+                        </a>
+                        <a @click="activeTab = 'organism'"
+                            class="cursor-pointer whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium"
+                            :class="activeTab === 'organism' ? 'border-indigo-500 text-indigo-600' :
+                                'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'">
+                            Organism
+                        </a>
+                        <a @click="activeTab = 'citations'"
+                            class="cursor-pointer whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium"
+                            :class="activeTab === 'citations' ? 'border-indigo-500 text-indigo-600' :
+                                'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'">
+                            Citations
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Tab content -->
+            <div class="p-5" x-show="activeTab === 'molecules'">
+                <form wire:submit="search">
+                    <div class="bg-white">
+                        <div class="mx-auto max-w-7xl">
+                            <div class="flex h-16 flex-shrink-0 rounded-md border border-zinc-900/5 border-b-4">
+                                <div class="flex flex-1 justify-between px-4 md:px-0">
+                                    <div class="flex flex-1">
+                                        <div class="flex w-full md:ml-0"><label for="search-field"
+                                                class="sr-only">Search</label>
+                                            <div class="relative w-full text-gray-400 focus-within:text-gray-600">
+                                                <div
+                                                    class="px-2 pointer-events-none absolute inset-y-0 left-0 flex items-center">
+                                                    <svg class="h-5 w-5 flex-shrink-0"
+                                                        x-description="Heroicon name: mini/magnifying-glass"
+                                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                                        fill="currentColor" aria-hidden="true">
+                                                        <path fill-rule="evenodd"
+                                                            d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                                                            clip-rule="evenodd"></path>
+                                                    </svg>
+                                                </div>
+                                                <input name="q" id="q"
+                                                    class="h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
+                                                    wire:model="query"
+                                                    placeholder="Search compound name, SMILES, InChI, InChI Key"
+                                                    type="search" autofocus="">
+                                            </div>
                                         </div>
-                                        <input name="q" id="q"
-                                            class="h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
-                                            wire:model="query"
-                                            placeholder="Search compound name, SMILES, InChI, InChI Key" type="search"
-                                            autofocus="">
+                                    </div>
+                                    <div class="flex items-center md:ml-1">
+                                        <livewire:structure-editor :mode="'inline'" :smiles="$query" lazy="on-load" />
+                                        <button type="submit"
+                                            class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3"><svg
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor" class="size-4 inline">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                            </svg>
+                                            &nbsp;Search</button>
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex items-center md:ml-6">
-                                <livewire:structure-editor :mode="'inline'" :smiles="$query" lazy="on-load" />
-                                <button
-                                    type="submit"
-                                    class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3"><svg
-                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="size-4 inline">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                                    </svg>
-                                    &nbsp;Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="p-5" x-show="activeTab === 'organism'">
+                <form>
+                    <div class="bg-white">
+                        <div class="mx-auto max-w-7xl">
+                            <div class="flex h-16 flex-shrink-0 rounded-md border border-zinc-900/5 border-b-4">
+                                <div class="flex flex-1 justify-between px-4 md:px-0">
+                                    <div class="flex flex-1">
+                                        <div class="flex w-full md:ml-0"><label for="search-field"
+                                                class="sr-only">Search</label>
+                                            <div class="relative w-full text-gray-400 focus-within:text-gray-600">
+                                                <div
+                                                    class="px-2 pointer-events-none absolute inset-y-0 left-0 flex items-center">
+                                                    <svg class="h-5 w-5 flex-shrink-0"
+                                                        x-description="Heroicon name: mini/magnifying-glass"
+                                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                                        fill="currentColor" aria-hidden="true">
+                                                        <path fill-rule="evenodd"
+                                                            d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                                                            clip-rule="evenodd"></path>
+                                                    </svg>
+                                                </div>
+                                                <input name="q" id="q"
+                                                    class="h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
+                                                    wire:model="query"
+                                                    placeholder="Search compound name, SMILES, InChI, InChI Key"
+                                                    type="search" autofocus="">
+                                                <input type="hidden" name="tagType" value="organisms">
+                                                <input type="hidden" name="type" value="tags">
+                                                <input type="hidden" name="activeTab" value="organism">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center md:ml-1">
+                                        <button type="submit"
+                                            class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3"><svg
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor" class="size-4 inline">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                            </svg>
+                                            &nbsp;Search</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
-        </form>
+            <div class="p-5" x-show="activeTab === 'citations'">
+                <form>
+                    <div class="bg-white">
+                        <div class="mx-auto max-w-7xl">
+                            <div class="flex h-16 flex-shrink-0 rounded-md border border-zinc-900/5 border-b-4">
+                                <div class="flex flex-1 justify-between px-4 md:px-0">
+                                    <div class="flex flex-1">
+                                        <div class="flex w-full md:ml-0"><label for="search-field"
+                                                class="sr-only">Search</label>
+                                            <div class="relative w-full text-gray-400 focus-within:text-gray-600">
+                                                <div
+                                                    class="px-2 pointer-events-none absolute inset-y-0 left-0 flex items-center">
+                                                    <svg class="h-5 w-5 flex-shrink-0"
+                                                        x-description="Heroicon name: mini/magnifying-glass"
+                                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                                        fill="currentColor" aria-hidden="true">
+                                                        <path fill-rule="evenodd"
+                                                            d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                                                            clip-rule="evenodd"></path>
+                                                    </svg>
+                                                </div>
+                                                <input name="q" id="q"
+                                                    class="h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
+                                                    wire:model="query"
+                                                    placeholder="Search compound name, SMILES, InChI, InChI Key"
+                                                    type="search" autofocus="">
+                                                <input type="hidden" name="tagType" value="citations">
+                                                <input type="hidden" name="type" value="tags">
+                                                <input type="hidden" name="activeTab" value="citations">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center md:ml-1">
+                                        <button type="submit"
+                                            class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3"><svg
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor" class="size-4 inline">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                            </svg>
+                                            &nbsp;Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
     </div>
     @if ($molecules && count($molecules) > 0)
         <div class="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-8 lg:max-w-7xl lg:px-8">

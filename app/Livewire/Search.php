@@ -37,6 +37,9 @@ class Search extends Component
 
     public $organisms = null;
 
+    #[Url(as: 'activeTab')]
+    public $activeTab = 'molecules';
+
     public function placeholder()
     {
         return <<<'HTML'
