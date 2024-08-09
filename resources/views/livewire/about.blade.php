@@ -128,7 +128,10 @@
                                 Jena</a>
                             in Germany, under the leadership of
                             <a class="text-blue-900" href="https://cheminf.uni-jena.de/">Professor Christoph
-                                Steinbeck</a>. 
+                                Steinbeck</a>. Funded by the
+                            <a class="text-blue-900 underline" href="https://www.chembiosys.de/en/">Chembiosys (Project INF) 
+                                - Project number:
+                                <strong class="text-blue-900">239748522 - SFB 1127</strong>.
                         </p>
                     </div>
                 </div>
