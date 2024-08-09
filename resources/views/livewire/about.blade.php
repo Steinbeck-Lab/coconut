@@ -128,15 +128,7 @@
                                 Jena</a>
                             in Germany, under the leadership of
                             <a class="text-blue-900" href="https://cheminf.uni-jena.de/">Professor Christoph
-                                Steinbeck</a>. Funded by the
-                            <a class="text-blue-900 underline" href="https://www.dfg.de/">Deutsche
-                                Forschungsgemeinschaft (DFG, German Research
-                                Foundation)</a>
-                            under the
-                            <a class="text-blue-900 underline" href="https://nfdi4chem.de/">National Research Data
-                                Infrastructure – NFDI4Chem</a>
-                            – Projektnummer
-                            <strong class="text-blue-900">441958208</strong>.
+                                Steinbeck</a>. 
                         </p>
                     </div>
                 </div>
@@ -159,9 +151,7 @@
                     <br />
                     <dt class="font-semibold text-gray-900">Help Desk</dt>
                     <dd class="mt-1 text-gray-600">
-                        Any issues or support requests can be raised at our
-                        <a class="text-blue-900 underline" href="https://helpdesk.nfdi4chem.de/">Help Desk</a>
-                        or write to us at
+                        Write to us for any issues or support requests
                         <a class="text-blue-900 underline"
                             href="mailto:info.COCONUT@uni-jena.de">info.COCONUT@uni-jena.de</a>.
                     </dd>

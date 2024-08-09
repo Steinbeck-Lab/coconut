@@ -1,6 +1,6 @@
 import {
   useMediaQuery
-} from "./chunk-ZEI2HCB7.js";
+} from "./chunk-EH6DYICA.js";
 import {
   computed,
   ref,
@@ -9,32 +9,32 @@ import {
 } from "./chunk-RY5ODQAQ.js";
 
 // node_modules/vitepress/dist/client/theme-default/index.js
-import "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/styles/fonts.css";
+import "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/styles/fonts.css";
 
 // node_modules/vitepress/dist/client/theme-default/without-fonts.js
-import "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/styles/vars.css";
-import "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/styles/base.css";
-import "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/styles/icons.css";
-import "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/styles/utils.css";
-import "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/styles/components/custom-block.css";
-import "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/styles/components/vp-code.css";
-import "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/styles/components/vp-code-group.css";
-import "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/styles/components/vp-doc.css";
-import "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/styles/components/vp-sponsor.css";
-import VPBadge from "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/components/VPBadge.vue";
-import Layout from "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/Layout.vue";
-import { default as default2 } from "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/components/VPBadge.vue";
-import { default as default3 } from "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/components/VPImage.vue";
-import { default as default4 } from "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/components/VPButton.vue";
-import { default as default5 } from "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/components/VPHomeHero.vue";
-import { default as default6 } from "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/components/VPHomeFeatures.vue";
-import { default as default7 } from "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/components/VPHomeSponsors.vue";
-import { default as default8 } from "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/components/VPDocAsideSponsors.vue";
-import { default as default9 } from "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/components/VPSponsors.vue";
-import { default as default10 } from "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/components/VPTeamPage.vue";
-import { default as default11 } from "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/components/VPTeamPageTitle.vue";
-import { default as default12 } from "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/components/VPTeamPageSection.vue";
-import { default as default13 } from "/Users/chandu-jena/Development/nfdi4chem/coconut/node_modules/vitepress/dist/client/theme-default/components/VPTeamMembers.vue";
+import "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/styles/vars.css";
+import "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/styles/base.css";
+import "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/styles/icons.css";
+import "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/styles/utils.css";
+import "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/styles/components/custom-block.css";
+import "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/styles/components/vp-code.css";
+import "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/styles/components/vp-code-group.css";
+import "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/styles/components/vp-doc.css";
+import "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/styles/components/vp-sponsor.css";
+import VPBadge from "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/components/VPBadge.vue";
+import Layout from "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/Layout.vue";
+import { default as default2 } from "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/components/VPBadge.vue";
+import { default as default3 } from "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/components/VPImage.vue";
+import { default as default4 } from "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/components/VPButton.vue";
+import { default as default5 } from "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/components/VPHomeHero.vue";
+import { default as default6 } from "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/components/VPHomeFeatures.vue";
+import { default as default7 } from "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/components/VPHomeSponsors.vue";
+import { default as default8 } from "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/components/VPDocAsideSponsors.vue";
+import { default as default9 } from "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/components/VPSponsors.vue";
+import { default as default10 } from "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/components/VPTeamPage.vue";
+import { default as default11 } from "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/components/VPTeamPageTitle.vue";
+import { default as default12 } from "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/components/VPTeamPageSection.vue";
+import { default as default13 } from "/Users/sagar/Development/NFDI4Chem/coconut-docs/node_modules/vitepress/dist/client/theme-default/components/VPTeamMembers.vue";
 
 // node_modules/vitepress/dist/client/theme-default/support/utils.js
 import { withBase } from "vitepress";

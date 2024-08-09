@@ -10,6 +10,8 @@ class StructureEditor extends Component
 
     public $smiles;
 
+    public $type = 'substructure';
+
     public function mount($smiles)
     {
         $this->smiles = $smiles;
