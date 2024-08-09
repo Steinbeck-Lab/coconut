@@ -87,4 +87,16 @@ class User extends Authenticatable implements Auditable
     {
         return $this->hasMany(LinkedSocialAccount::class);
     }
+
+    /**
+     * Check if user can access a particular panel.
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        if ($panel->getId() === 'control-panel') {
+            return $this->roles()->exists();
+        }
+
+        return true;
+    }
 }

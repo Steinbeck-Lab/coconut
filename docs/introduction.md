@@ -1,4 +1,4 @@
-# COCONUT (COlleCtion of Open Natural prodUcTs) Online
+# COCONUT (Collection of Open Natural Products) Online
 
 [COlleCtion of Open Natural prodUcTs (COCONUT)](https://dev.coconut.naturalproducts.net) is an aggregated dataset that comprises elucidated and predicted natural products (NPs) sourced from open repositories. It also provides a user-friendly web interface for browsing, searching, and efficiently downloading NPs. The database encompasses more than 50 open NP resources, granting unrestricted access to the data without any associated charges. Each entry in the database represents a "flat" NP structure and is accompanied by information on its known stereochemical forms, relevant literature, producing organisms, natural geographical distribution, and [precomputed](https://api.naturalproducts.net/docs) molecular properties. NPs are small bioactive molecules produced by living organisms, holding potential applications in pharmacology and various industries. The significance of these compounds has fueled global interest in NP research across diverse fields. Consequently, there has been a proliferation of generalistic and specialized NP databases over the years. Nevertheless, there is currently no comprehensive online resource that consolidates all known NPs in a single location. Such a resource would greatly facilitate NP research, enabling computational screening and other in silico applications.
 
@@ -17,7 +17,7 @@
 - Citing paper:
 ```md
 Sorokina, M., Merseburger, P., Rajan, K. et al. 
-COCONUT online: COlleCtion of Open Natural prodUcTs database. 
+COCONUT online: Collection of Open Natural Products database. 
 J Cheminform 13, 2 (2021). 
 https://doi.org/10.1186/s13321-020-00478-9
 ```
@@ -28,3 +28,11 @@ Venkata, C., Sharma, N., Schaub, J., Steinbeck, C., & Rajan, K. (2023).
 COCONUT-2.0 (Version v0.0.1 - prerelease) [Computer software]. 
 https://doi.org/10.5281/zenodo.??
 ```
+
+## Acknowledgments and Maintainence
+
+Cheminformatics Microservice and [Natural Products Online](https://naturalproducts.net/) are developed and maintained by the [Steinbeck group](https://cheminf.uni-jena.de/) at the [Friedrich Schiller University](https://www.uni-jena.de/en/) Jena, Germany.
+
+Funded by [ChemBioSys](https://docs.api.naturalproducts.net/introduction.html) (Project INF) - Project number: 239748522 - SFB 1127.
+
+![Cheming and Computational Metabolomics logo](/CheminfGit.png)

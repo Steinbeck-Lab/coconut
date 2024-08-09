@@ -3,27 +3,23 @@
 layout: home
 
 hero:
-  name: "COCONUT"
-  text: "COlleCtion of Open Natural prodUcTs"
-  tagline: An aggregated dataset of elucidated and predicted NPs collected from open sources and a web interface to browse, search and easily and quickly download NPs.
+  name: "COCONUT Docs"
+  text: ""
+  tagline: The Comprehensive Resource for Open Natural Products
   actions:
     - theme: brand
-      text: Documentation
+      text: Get started
       link: /introduction
     - theme: alt
-      text: Submission Guides
-      link: /web-submission
+      text: Search Compounds
+      link: https://coconut.cheminf.studio/search
 
 features:
-  - title: Curation
-    details: Community driven curation, while maintaining the quality of a expert curators.
-  - title: Submission
-    details: Submit new compounds through Web, API, CLI or Chrome extension. Integrate in your workflow at ease.
-  - title: Bugs / Issue tracking
-    details: Report issues with data or bugs in our web application and get help from the community to resolve them.
-  - title: API
-    details: Search, retrieve or submit compounds programatically. Integrate COCONUT API's in your LIMS.
-  - title: Rich Annotations
-    details: Ontology driven annotations and provenance information. 
+  - title: Online Submission and Curation
+    details: Allows users to contribute new data, ensuring the database remains current and comprehensive.
+  - title: Search and Filter
+    details: Advanced search and filtering options to find compounds based on specific criteria easily.
+  - title: API Access
+    details: Provides API access for seamless integration with other tools and databases.
 ---
 

@@ -1,4 +1,4 @@
-    <header class="absolute inset-x-0 top-0 z-50" x-data="{ open: false }">
+    <header class="absolute inset-x-0 top-0" x-data="{ open: false }">
         <nav class="flex items-center justify-between p-6 lg:px-8 max-w-4xl lg:max-w-7xl mx-auto" aria-label="Global">
             <div class="flex lg:flex-1">
                 <a href="/" class="-m-1.5 p-1.5">
@@ -19,7 +19,7 @@
             <div class="hidden lg:flex lg:gap-x-12">
                 <a href="/search" class="text-sm font-semibold leading-6 text-gray-900">Search</a>
                 <a href="/api-documentation" class="text-sm font-semibold leading-6 text-gray-900">API</a>
-                <a href="https://" class="text-sm font-semibold leading-6 text-gray-900">Documentation</a>
+                <a href="https://steinbeck-lab.github.io/coconut/introduction.html" class="text-sm font-semibold leading-6 text-gray-900">Documentation</a>
                 <a href="/about" class="text-sm font-semibold leading-6 text-gray-900">About
                     us</a>
                 <a href="/download" class="text-sm font-semibold leading-6 text-gray-900">Download</a>
@@ -58,7 +58,7 @@
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Browse</a>
                             <a href="/api-documentation"
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">API</a>
-                            <a href="https://"
+                            <a href="https://steinbeck-lab.github.io/coconut/introduction.html"
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Documentation</a>
                             <a href="/about"
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">About

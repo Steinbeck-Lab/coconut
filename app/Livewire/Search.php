@@ -37,6 +37,9 @@ class Search extends Component
 
     public $organisms = null;
 
+    #[Url(as: 'activeTab')]
+    public $activeTab = 'molecules';
+
     public function placeholder()
     {
         return <<<'HTML'
@@ -65,21 +68,16 @@ class Search extends Component
         HTML;
     }
 
-    protected $listeners = ['updateSmiles' => 'setSmiles'];
-
-    public function setSmiles($smiles, $searchType)
-    {
-        $this->query = $smiles;
-        $this->type = $searchType;
-        $this->page = null;
-        $this->tagType = null;
-    }
-
     public function updatedQuery()
     {
         $this->page = 1;
         $this->type = null;
         $this->tagType = null;
+    }
+
+    public function search(SearchMolecule $search)
+    {
+        $this->render($search);
     }
 
     public function render(SearchMolecule $search)
