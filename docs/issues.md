@@ -6,7 +6,7 @@ outline: deep
 
 ## Feature Request
 
-Thank you for your interest in improving COCONUT Database! Please use the template below to submit your feature request either by email or on our [github](https://github.com/Steinbeck-Lab/coconut-2.0/issues). We appreciate your feedback and suggestions.
+Thank you for your interest in improving COCONUT Database! Please use the template below to submit your feature request either by email or on our [github](https://github.com/Steinbeck-Lab/coconut/issues). We appreciate your feedback and suggestions.
 
 **Feature Request Template:**
 
@@ -48,7 +48,7 @@ Thank you for taking the time to submit your feature request. We value your inpu
 
 ## Report Issues/Bugs
 
-We appreciate your help in improving our product. If you have encountered any issues or bugs, please use the template below to report them either by email or on our [github](https://github.com/NFDI4Chem/ontology-elements/issues). Your feedback is valuable to us in ensuring a smooth user experience.
+We appreciate your help in improving our product. If you have encountered any issues or bugs, please use the template below to report them either by email or on our [github](https://github.com/Steinbeck-Lab/coconut/issues). Your feedback is valuable to us in ensuring a smooth user experience.
 
 **Issue Template:**
 
