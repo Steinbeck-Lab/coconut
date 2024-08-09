@@ -19,3 +19,4 @@ yarn-error.log
 /.vscode
 storage/*.tsv
 storage/*.csv
+.DS_store
