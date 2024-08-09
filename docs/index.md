@@ -3,27 +3,23 @@
 layout: home
 
 hero:
-  name: "COCONUT"
-  text: "COlleCtion of Open Natural prodUcTs"
-  tagline: An aggregated dataset of elucidated and predicted NPs collected from open sources and a web interface to browse, search and easily and quickly download NPs.
+  name: "COCONUT Docs"
+  text: "A VitePress Site"
+  tagline: My great project tagline
   actions:
     - theme: brand
-      text: Documentation
-      link: /introduction
+      text: Markdown Examples
+      link: /markdown-examples
     - theme: alt
-      text: Submission Guides
-      link: /web-submission
+      text: API Examples
+      link: /api-examples
 
 features:
-  - title: Curation
-    details: Community driven curation, while maintaining the quality of a expert curators.
-  - title: Submission
-    details: Submit new compounds through Web, API, CLI or Chrome extension. Integrate in your workflow at ease.
-  - title: Bugs / Issue tracking
-    details: Report issues with data or bugs in our web application and get help from the community to resolve them.
-  - title: API
-    details: Search, retrieve or submit compounds programatically. Integrate COCONUT API's in your LIMS.
-  - title: Rich Annotations
-    details: Ontology driven annotations and provenance information. 
+  - title: Feature A
+    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: Feature B
+    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: Feature C
+    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
 ---
 
