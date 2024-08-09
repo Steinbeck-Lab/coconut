@@ -19,7 +19,7 @@
             <div class="hidden lg:flex lg:gap-x-12">
                 <a href="/search" class="text-sm font-semibold leading-6 text-gray-900">Search</a>
                 <a href="/api-documentation" class="text-sm font-semibold leading-6 text-gray-900">API</a>
-                <a href="https://steinbeck-lab.github.io/coconut-docs/introduction.html" class="text-sm font-semibold leading-6 text-gray-900">Documentation</a>
+                <a href="https://steinbeck-lab.github.io/coconut/introduction.html" class="text-sm font-semibold leading-6 text-gray-900">Documentation</a>
                 <a href="/about" class="text-sm font-semibold leading-6 text-gray-900">About
                     us</a>
                 <a href="/download" class="text-sm font-semibold leading-6 text-gray-900">Download</a>
@@ -58,7 +58,7 @@
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Browse</a>
                             <a href="/api-documentation"
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">API</a>
-                            <a href="https://steinbeck-lab.github.io/coconut-docs/introduction.html"
+                            <a href="https://steinbeck-lab.github.io/coconut/introduction.html"
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Documentation</a>
                             <a href="/about"
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">About

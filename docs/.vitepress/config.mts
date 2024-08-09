@@ -4,7 +4,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "COCONUT Docs",
   description: "COCONUT: the COlleCtion of Open NatUral producTs",
-  base: '/coconut-docs/',
+  base: '/coconut/',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     logo: '/logo.png',
@@ -24,11 +24,11 @@ export default defineConfig({
     ],
 
     nav: [
-      { text: 'Home', link: '/' },
-      { text: 'Guides', link: '/single-submission' },
-      { text: 'API', link: '/auth-api' },
-      { text: 'About', link: '/about' },
-      { text: 'Contact', link: '/contact' }
+      { text: 'Home', link: '/introduction' },
+      { text: 'Guides', link: '/collection-submission' },
+      { text: 'API', link: 'https://coconut.cheminf.studio/api-documentation' },
+      { text: 'About', link: 'https://coconut.cheminf.studio/about' },
+      { text: 'Download', link: 'https://coconut.cheminf.studio/download' }
     ],
 
     sidebar: [
@@ -94,7 +94,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/Steinbeck-Lab/coconut-docs' }
+      { icon: 'github', link: 'https://github.com/Steinbeck-Lab/coconut' }
     ]
   }
 })
