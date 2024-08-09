@@ -8,6 +8,7 @@
 [![RDKit badge](https://img.shields.io/badge/Powered%20by-RDKit-3838ff.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAFVBMVEXc3NwUFP8UPP9kZP+MjP+0tP////9ZXZotAAAAAXRSTlMAQObYZgAAAAFiS0dEBmFmuH0AAAAHdElNRQfmAwsPGi+MyC9RAAAAQElEQVQI12NgQABGQUEBMENISUkRLKBsbGwEEhIyBgJFsICLC0iIUdnExcUZwnANQWfApKCK4doRBsKtQFgKAQC5Ww1JEHSEkAAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMi0wMy0xMVQxNToyNjo0NyswMDowMDzr2J4AAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjItMDMtMTFUMTU6MjY6NDcrMDA6MDBNtmAiAAAAAElFTkSuQmCC)](https://www.rdkit.org/)
 ![Workflow](https://GitHub.com/Steinbeck-Lab/coconut/actions/workflows/dev-build.yml/badge.svg)
 [![Powered by Laravel](https://img.shields.io/badge/Powered%20by-Laravel-red.svg?style=flat&logo=Laravel)](https://laravel.com)
+[![DOI](https://zenodo.org/badge/778260166.svg)](https://zenodo.org/doi/10.5281/zenodo.13283948)
 
 <!---
 ![Workflow](https://GitHub.com/Steinbeck-Lab/coconut/actions/workflows/prod-build.yml/badge.svg)
@@ -16,12 +17,12 @@
 
 ## About COCONUT
 
-COCONUT is an open-access database dedicated to the collection and dissemination of natural products. It aims to provide researchers, scientists, and enthusiasts with comprehensive and easily accessible data on a wide variety of natural compounds. The database includes detailed information on the chemical structures, literature references and sources of these compounds, facilitating research and discovery in the field of natural products.
+COCONUT is an open-access database dedicated to collecting and disseminating natural products. It aims to provide researchers, scientists, and enthusiasts with comprehensive and easily accessible data on a wide variety of natural compounds. The database includes detailed information on the chemical structures, literature references and sources of these compounds, facilitating research and discovery in natural products.
 
 ## Features
 
 - **Extensive Database**: Contains information on thousands of natural products from diverse sources (63).
-- **Chemical Structures**: Provides detailed chemical structures for each natural product, aiding in research and identification.
+- **Chemical Structures**: Provides detailed chemical structures for each natural product, aiding research and identification.
 - **Search and Filter**: Advanced search and filtering options to find compounds based on specific criteria easily.
 - **Online Submission and Curation**: Allows users to contribute new data, ensuring the database remains current and comprehensive.
 - **API Access**: Provides API access for seamless integration with other tools and databases.
@@ -43,14 +44,11 @@ The code for this web application is released under the [MIT license](https://op
 
 ## Acknowledgments :bulb:
 
-Funded by the [Deutsche Forschungsgemeinschaft (DFG, German Research Foundation)](https://www.dfg.de/) under the [National Research Data Infrastructure – NFDI4Chem](https://nfdi4chem.de/) – Project number: **441958208** and  [ChemBioSys](https://www.chembiosys.de/en/) (Project INF) - Project number: **239748522 - SFB 1127**.
+Funded by the [Deutsche Forschungsgemeinschaft (DFG, German Research Foundation)](https://www.dfg.de/) under the [ChemBioSys](https://www.chembiosys.de/en/) (Project INF) - Project number: **239748522 - SFB 1127**.
 
 <div style="display: flex; justify-content: space-between;">
   <a href="https://www.dfg.de/" target="_blank">
-    <img src="https://github.com/Steinbeck-Lab/cheminformatics-microservice/blob/main/docs/public/dfg_logo_schriftzug_blau_foerderung_en.gif" width="30%" alt="DFG Logo">
-  </a>
-  <a href="https://nfdi4chem.de/" target="_blank">
-    <img src="https://www.nfdi4chem.de/wp-content/themes/wptheme/assets/img/logo.svg" width="30%" alt="NFDI4Chem Logo">
+    <img src="https://github.com/Steinbeck-Lab/cheminformatics-microservice/blob/main/docs/public/dfg_logo_schriftzug_blau_foerderung_en.gif" width="40%" alt="DFG Logo">
   </a>
   <a href="https://www.chembiosys.de/en/welcome.html" target="_blank">
-    <img src="https://github.com/Steinbeck-Lab/cheminformatics-microservice/assets/30716951/45c8e153-8322-4563-a51d-cbdbe4e08627" width="30%" alt="Chembiosys Logo">
+    <img src="https://github.com/Steinbeck-Lab/cheminformatics-microservice/assets/30716951/45c8e153-8322-4563-a51d-cbdbe4e08627" width="40%" alt="Chembiosys Logo">
