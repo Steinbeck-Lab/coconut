@@ -2,6 +2,7 @@
 
 namespace App\Actions\Coconut;
 
+use App\Models\Citation;
 use App\Models\Collection;
 use App\Models\Molecule;
 use App\Models\Organism;
@@ -25,6 +26,8 @@ class SearchMolecule
     public $collection = null;
 
     public $organisms = null;
+
+    public $citations = null;
 
     /**
      * Search based on given query.
@@ -140,6 +143,8 @@ class SearchMolecule
             'subclass' => 'chemical_sub_class',
             'superclass' => 'chemical_super_class',
             'parent' => 'direct_parent_classification',
+            'org' => 'organism',
+            'cite' => 'ciatation',
         ];
     }
 
@@ -232,6 +237,18 @@ class SearchMolecule
 
             return Molecule::whereHas('organisms', function ($query) use ($organismIds) {
                 $query->whereIn('organism_id', $organismIds);
+            })->where('active', true)->where('is_parent', false)->orderBy('annotation_level', 'DESC')->paginate($this->size);
+        } elseif ($this->tagType == 'citations') {
+            $this->citations = array_map('strtolower', array_map('trim', explode(',', $this->query)));
+            $citationIds = Citation::where(function ($query) {
+                foreach ($this->citations as $name) {
+                    $query->orWhereRaw('LOWER(doi) LIKE ?', ['%'.strtolower($name).'%'])
+                        ->orWhereRaw('LOWER(title) LIKE ?', ['%'.strtolower($name).'%']);
+                }
+            })->pluck('id');
+
+            return Molecule::whereHas('citations', function ($query) use ($citationIds) {
+                $query->whereIn('citation_id', $citationIds);
             })->where('active', true)->where('is_parent', false)->orderBy('annotation_level', 'DESC')->paginate($this->size);
         } else {
             return Molecule::withAnyTags([$this->query], $this->tagType)->where('active', true)->where('is_parent', false)->paginate($this->size);
