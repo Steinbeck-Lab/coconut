@@ -28,5 +28,5 @@ https://doi.org/10.1186/s13321-020-00478-9
 ```md
 Venkata, C., Kanakam, S. R. S., Sharma, N., Schaub, J., Steinbeck, C., & Rajan, K. (2024).
 COCONUT (Version v0.0.1 - prerelease) [Computer software].
-https://doi.org/10.5281/zenodo.?? 
+https://doi.org/10.5281/zenodo.13283949
 ```
