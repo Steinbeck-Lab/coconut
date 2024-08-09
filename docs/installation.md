@@ -4,7 +4,8 @@
 
 Before you begin, make sure you have the following prerequisites installed on your system:
 
-- PHP (>= 8.1.2)
+- PHP (>= 8.3)
+- Node
 - Composer
 - Docker
 
@@ -13,21 +14,27 @@ Before you begin, make sure you have the following prerequisites installed on yo
 Clone the COCONUT project repository from Github using the following command:
 
 ```bash
-git clone https://github.com/Steinbeck-Lab/coconut-2.0
+git clone https://github.com/Steinbeck-Lab/coconut.git
 ```
 
 ## Step 2: Navigate to Project Directory
 
 ```bash
-cd coconut-2.0
+cd coconut
 ```
 
 ## Step 3: Install Dependencies
 
-Install the project dependencies using Composer:
+Install the PHP dependencies using Composer:
 
 ```
 composer install
+```
+
+Install the JS dependencies using NPM:
+
+```
+npm install
 ```
 
 ## Step 4: Configure Environment Variables
