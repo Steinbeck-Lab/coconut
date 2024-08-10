@@ -264,7 +264,7 @@
                                                     </div>
                                                 </div>
                                             @endif
-                                            @if ($molecule->organisms && count($molecule->organisms) > 0)
+                                            @if ($molecule->synonyms && count($molecule->synonyms) > 0)
                                                 <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
                                                     <dt
                                                         class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
