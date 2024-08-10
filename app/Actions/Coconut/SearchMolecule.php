@@ -231,7 +231,7 @@ class SearchMolecule
             $this->organisms = array_map('strtolower', array_map('trim', explode(',', $this->query)));
             $organismIds = Organism::where(function ($query) {
                 foreach ($this->organisms as $name) {
-                    $query->orWhereRaw('LOWER(name) = ?', [$name]);
+                    $query->orWhereRaw('LOWER(name) LIKE ?', ['%'.strtolower($name).'%']);
                 }
             })->pluck('id');
 
