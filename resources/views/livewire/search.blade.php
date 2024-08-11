@@ -10,15 +10,49 @@
                 @endif
             </div>
         @elseif ($tagType == 'organisms' && $organisms)
-            <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+            <div x-data="{ showAll: false }" class="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
                 <p class="mt-4 max-w-xl text-sm text-gray-700">#ORGANISMS</p>
-                @foreach ($organisms as $organism)
-                    <span class="text-3xl font-bold text-gray-900"><span
-                            class="italic">{{ ucfirst($organism) }}</span></span>
-                    @if (!$loop->last)
-                        ,
-                    @endif
-                @endforeach
+                <ul role="list" class="mt-2 leading-8">
+                    @foreach ($organisms as $index => $organism)
+                        @if ($organism != '')
+                            <li class="inline" x-show="showAll || {{ $index }} < 10">
+                                <span class="isolate inline-flex rounded-md shadow-sm mb-2">
+                                    <a href="/search?type=tags&amp;q={{ urlencode($organism->name) }}&amp;tagType=organisms"
+                                        target="_blank"
+                                        class="relative inline-flex items-center rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 organism">
+                                        {{ $organism->name }}&nbsp;
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="size-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="m9 9 6-6m0 0 6 6m-6-6v12a6 6 0 0 1-12 0v-3" />
+                                        </svg>
+                                    </a>
+                                    <a href="{{ urldecode($organism->iri) }}" target="_blank"
+                                        class="relative -ml-px inline-flex items-center rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 capitalize">
+                                        {{ $organism->rank }}&nbsp;
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="size-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                        </svg>
+                                    </a>
+                                </span>
+                            </li>
+                        @endif
+                    @endforeach
+                </ul>
+                @if (count($organisms) > 10)
+                    <div class="mt-0">
+                        <button @click="showAll = true" x-show="!showAll"
+                            class="text-base font-semibold leading-7 text-secondary-dark text-sm">
+                            View More ↓
+                        </button>
+                        <button @click="showAll = false" x-show="showAll"
+                            class="text-base font-semibold leading-7 text-secondary-dark  text-sm">
+                            View Less ↑
+                        </button>
+                    </div>
+                @endif
             </div>
         @else
             <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
@@ -97,7 +131,8 @@
                                         </div>
                                     </div>
                                     <div class="flex items-center md:ml-1">
-                                        <livewire:structure-editor :mode="'inline'" :smiles="$query" lazy="on-load" />
+                                        <livewire:structure-editor :mode="'inline'" :smiles="$query"
+                                            lazy="on-load" />
                                         <button type="submit"
                                             class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3"><svg
                                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -184,8 +219,7 @@
                                                 </div>
                                                 <input name="q" id="q"
                                                     class="h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
-                                                    wire:model="query"
-                                                    placeholder="Search DOI or Title"
+                                                    wire:model="query" placeholder="Search DOI or Title"
                                                     type="search" autofocus="">
                                                 <input type="hidden" name="tagType" value="citations">
                                                 <input type="hidden" name="type" value="tags">
