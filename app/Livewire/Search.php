@@ -85,6 +85,7 @@ class Search extends Component
         try {
             $results = $search->query($this->query, $this->size, $this->type, $this->sort, $this->tagType, $this->page);
             $this->collection = $results[1];
+            $this->organisms = $results[2];
 
             return view('livewire.search', [
                 'molecules' => $results[0],

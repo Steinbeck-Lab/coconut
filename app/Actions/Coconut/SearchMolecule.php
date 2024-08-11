@@ -72,7 +72,7 @@ class SearchMolecule
                 }
             }
 
-            return [$results,  $this->collection];
+            return [$results,  $this->collection, $this->organisms];
 
         } catch (QueryException $exception) {
 
@@ -228,12 +228,14 @@ class SearchMolecule
                 return [];
             }
         } elseif ($this->tagType == 'organisms') {
-            $this->organisms = array_map('strtolower', array_map('trim', explode(',', $this->query)));
-            $organismIds = Organism::where(function ($query) {
+            $query_organisms = array_map('strtolower', array_map('trim', explode(',', $this->query)));
+            $this->organisms = Organism::where(function ($query) {
                 foreach ($this->organisms as $name) {
                     $query->orWhereRaw('LOWER(name) LIKE ?', ['%'.strtolower($name).'%']);
                 }
-            })->pluck('id');
+            });
+            
+            $organismIds = $this->organisms->pluck('id');
 
             return Molecule::whereHas('organisms', function ($query) use ($organismIds) {
                 $query->whereIn('organism_id', $organismIds);
