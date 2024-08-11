@@ -12,8 +12,10 @@ use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Permission\Traits\HasRoles;
+use Filament\Panel;
+use Filament\Models\Contracts\FilamentUser;
 
-class User extends Authenticatable implements Auditable
+class User extends Authenticatable implements Auditable, FilamentUser
 {
     use HasApiTokens;
     use HasFactory;
