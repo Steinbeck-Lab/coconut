@@ -234,7 +234,7 @@ class SearchMolecule
                     $query->orWhereRaw('LOWER(name) LIKE ?', ['%'.strtolower($name).'%']);
                 }
             });
-            
+
             $organismIds = $this->organisms->pluck('id');
 
             return Molecule::whereHas('organisms', function ($query) use ($organismIds) {
