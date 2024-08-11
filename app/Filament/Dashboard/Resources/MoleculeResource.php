@@ -13,7 +13,7 @@ use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\RelatedRe
 use App\Filament\Dashboard\Resources\MoleculeResource\Widgets\MoleculeStats;
 use App\Models\Molecule;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
-use Filament\Forms\Components\TextArea;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -58,7 +58,7 @@ class MoleculeResource extends Resource
                     ->label('Canonical SMILES'),
                 TextInput::make('murcko_framework')
                     ->label('Murcko Framework'),
-                TextArea::make('synonyms'),
+                Textarea::make('synonyms'),
             ]);
     }
 
@@ -116,7 +116,7 @@ class MoleculeResource extends Resource
                             return $record['active'] ? 'Deactivate' : 'Activate';
                         })
                         ->form([
-                            TextArea::make('reason')
+                            Textarea::make('reason')
                                 ->required(function (Molecule $record) {
                                     return $record['active'];
                                 }),
@@ -148,7 +148,7 @@ class MoleculeResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                     BulkAction::make('Active Status Change')
                         ->form([
-                            TextArea::make('reason')
+                            Textarea::make('reason')
                                 ->required(),
                         ])
                         ->action(function (array $data, Collection $records): void {

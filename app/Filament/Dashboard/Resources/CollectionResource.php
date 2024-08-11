@@ -15,7 +15,7 @@ use Filament\Forms\Components\Livewire;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieTagsInput;
-use Filament\Forms\Components\TextArea;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Set;
@@ -53,7 +53,7 @@ class CollectionResource extends Resource
                                 ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))
                                 ),
                             TextInput::make('slug'),
-                            TextArea::make('description'),
+                            Textarea::make('description'),
                             TextInput::make('url'),
                         ]),
                     Section::make('Meta data')

@@ -8,7 +8,7 @@ use App\Filament\Dashboard\Resources\CitationResource\RelationManagers\MoleculeR
 use App\Models\Citation;
 use Closure;
 use Filament\Forms\Components\Section;
-use Filament\Forms\Components\TextArea;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -104,7 +104,7 @@ class CitationResource extends Resource
                                     return true;
                                 }
                             }),
-                        TextArea::make('citation_text')
+                        Textarea::make('citation_text')
                             ->label('Citation text / URL')
                             ->disabled(function ($get, string $operation) {
                                 if ($operation = 'edit' || $get('failMessage') == 'No citation found. Please fill in the details manually') {

@@ -53,7 +53,7 @@ class EntriesRelationManager extends RelationManager
                 Forms\Components\TextInput::make('molecular_formula')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextArea::make('structural_comments')
+                Forms\Components\Textarea::make('structural_comments')
                     ->required(),
                 Forms\Components\TextInput::make('geo_location')
                     ->required()
@@ -61,7 +61,7 @@ class EntriesRelationManager extends RelationManager
                 Forms\Components\TextInput::make('location')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextArea::make('errors')
+                Forms\Components\Textarea::make('errors')
                     ->required(),
                 Forms\Components\TextInput::make('standardized_canonical_smiles')
                     ->required()
