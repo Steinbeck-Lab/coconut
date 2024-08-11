@@ -9,7 +9,7 @@ use App\Models\Citation;
 use App\Models\Report;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieTagsInput;
-use Filament\Forms\Components\TextArea;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -55,7 +55,7 @@ class ReportResource extends Resource
                 TextInput::make('title')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Title of the report. This is required.')
                     ->required(),
-                TextArea::make('evidence')
+                Textarea::make('evidence')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Please provide Evidence/Comment to support your claims in this report. This will help our Curators in reviewing your report.')
                     ->label('Evidence/Comment'),
                 TextInput::make('url')
@@ -123,7 +123,7 @@ class ReportResource extends Resource
                         }
                     })
                     ->searchable(),
-                TextArea::make('mol_id_csv')
+                Textarea::make('mol_id_csv')
                     ->label('Molecules')
                     ->placeholder('Enter the Identifiers separated by commas')
                     ->hidden(function (Get $get, string $operation) {
@@ -156,7 +156,7 @@ class ReportResource extends Resource
                     ->afterStateUpdated(function (?Report $record, ?string $state, ?string $old) {
                         ReportStatusChanged::dispatch($record, $state, $old);
                     }),
-                TextArea::make('comment')
+                Textarea::make('comment')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide your comments/observations on anything noteworthy in the Curation process.')
                     ->hidden(function () {
                         return ! auth()->user()->hasRole('curator');
