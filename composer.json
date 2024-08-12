@@ -30,7 +30,7 @@
         "mpdf/mpdf": "^8.2",
         "owen-it/laravel-auditing": "^13.6",
         "predis/predis": "^2.2",
-        "pxlrbt/filament-excel": "^2.3",
+        "pxlrbt/filament-excel": "^2.3.3",
         "pxlrbt/filament-spotlight": "^1.2",
         "shuvroroy/filament-spatie-laravel-backup": "^2.1",
         "spatie/laravel-backup": "^8.6",
