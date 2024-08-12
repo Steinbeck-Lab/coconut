@@ -27,6 +27,7 @@ class CreateNewUser implements CreatesNewUsers
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255'],
+            'affiliation' => ['required', 'string', 'max:255'],
         ])->validate();
 
         return User::create([
