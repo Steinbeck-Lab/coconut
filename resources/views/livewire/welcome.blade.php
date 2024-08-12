@@ -1,4 +1,4 @@
-<div x-data="{ query: '' }">
+<div x-data="{ query: '', isOpen: false, activeTab: @entangle('activeTab') }">
     <div class="relative mx-auto mt-32 grid w-full max-w-4xl lg:max-w-7xl grid-cols-1 px-4 sm:px-6 lg:px-8">
         <div class="mx-auto w-full py-1 px-4 sm:px-6 sm:py-20 lg:px-8 mb-12">
             <div class="text-center max-w-4xl mx-auto">
@@ -9,67 +9,238 @@
                     predicted NPs
                     collected from open sources and a web interface to browse, search and easily and quickly download
                     NPs. </p>
+                <div class="mx-auto">
+                    <div>
+                        <div class="sm:hidden">
+                            <label for="tabs" class="sr-only">Select a tab</label>
+                            <select id="tabs" name="tabs" x-model="activeTab"
+                                class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
+                                <option value="molecules">Molecules</option>
+                                <option value="organism">Organism</option>
+                                <option value="citations">Citations</option>
+                            </select>
+                        </div>
+                        <div class="hidden sm:block">
+                            <div class="border-b border-gray-200">
+                                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                                    <a @click="activeTab = 'molecules'"
+                                        class="cursor-pointer whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium"
+                                        :class="activeTab === 'molecules' ? 'border-indigo-500 text-indigo-600' :
+                                            'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'">
+                                        Molecules
+                                    </a>
+                                    <a @click="activeTab = 'organism'"
+                                        class="cursor-pointer whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium"
+                                        :class="activeTab === 'organism' ? 'border-indigo-500 text-indigo-600' :
+                                            'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'">
+                                        Organism
+                                    </a>
+                                    <a @click="activeTab = 'citations'"
+                                        class="cursor-pointer whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium"
+                                        :class="activeTab === 'citations' ? 'border-indigo-500 text-indigo-600' :
+                                            'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'">
+                                        Citations
+                                    </a>
+                                </nav>
+                            </div>
+                        </div>
 
-                <div class="mt-3">
-                    <div class="bg-white">
-                        <div class="flex h-16 flex-shrink-0 rounded-md">
-                            <div
-                                class="flex flex-1 justify-between border-b-4 border border-gray-400 rounded-md px-4 md:px-0">
-                                <div class="flex flex-1">
-                                    <div class="flex w-full md:ml-0">
-                                        <label for="search-field" class="sr-only">Find natural products</label>
-                                        <div class="relative w-full text-gray-400 focus-within:text-gray-600">
-                                            <div
-                                                class="px-2 pointer-events-none absolute inset-y-0 left-0 flex items-center">
-                                                <svg class="h-5 w-5 flex-shrink-0"
-                                                    x-description="Heroicon name: mini/magnifying-glass"
-                                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                    fill="currentColor" aria-hidden="true">
-                                                    <path fill-rule="evenodd"
-                                                        d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
-                                                        clip-rule="evenodd"></path>
-                                                </svg>
+                        <!-- Tab content -->
+                        <div class="py-5" x-show="activeTab === 'molecules'">
+                            <div class="bg-white">
+                                <div class="mx-auto max-w-7xl">
+                                    <div class="flex h-16 flex-shrink-0 rounded-md border border-gray-900 border-b-4">
+                                        <div class="flex flex-1 justify-between md:px-2">
+                                            <div class="flex flex-1">
+                                                <div class="flex w-full md:ml-0"><label for="search-field"
+                                                        class="sr-only">Search</label>
+                                                    <div
+                                                        class="relative w-full text-gray-400 focus-within:text-gray-600">
+                                                        <div
+                                                            class="px-2 pointer-events-none absolute inset-y-0 left-0 flex items-center">
+                                                            <svg class="h-5 w-5 flex-shrink-0"
+                                                                x-description="Heroicon name: mini/magnifying-glass"
+                                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                                                fill="currentColor" aria-hidden="true">
+                                                                <path fill-rule="evenodd"
+                                                                    d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                                                                    clip-rule="evenodd"></path>
+                                                            </svg>
+                                                        </div>
+                                                        <input
+                                                            @keyup.enter="window.location.href = '/search?q=' + encodeURIComponent(query)"
+                                                            x-model="query" id="query"
+                                                            class="rounded-md h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
+                                                            placeholder="Search compound name, SMILES, InChI, InChI Key"
+                                                            type="search" autofocus>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <input
-                                                @keyup.enter="window.location.href = '/search?q=' + encodeURIComponent(query)"
-                                                x-model="query" id="query"
-                                                class="rounded-md h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
-                                                placeholder="Search compound name, SMILES, InChI, InChI Key"
-                                                type="search" autofocus>
+                                            <div class="flex items-center md:ml-1">
+                                                <button
+                                                    @click="window.location.href = '/search?q=' + encodeURIComponent(query)"
+                                                    class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"><svg
+                                                        xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                        class="size-4 inline">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                                    </svg>
+                                                    &nbsp;Search</button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="flex items-center mx-3">
-                                    <div>
-                                        <button @click="window.location.href = '/search?q=' + encodeURIComponent(query)"
-                                            class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"><svg
-                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                stroke-width="1.5" stroke="currentColor" class="size-4 inline">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                                            </svg>
-                                            &nbsp;Search</button>
-                                    </div>
+                                    <p><small class="float-left">Try: <a class="underline"
+                                                href="/search?q=caffeine">Caffeine</a>,
+                                            <a class="underline" href="/compounds/CNP0228556">CNP0228556</a></small>
+
+                                        <span
+                                            class="float-right  text-sm flex items-baseline gap-x-2 text-[0.8125rem]/6 text-gray-500">
+                                            Report bugs: <a
+                                                class="group relative isolate flex items-center rounded-lg px-2 py-0.5 text-[0.8125rem]/6 font-medium text-dark/30 transition-colors hover:text-sky-900 gap-x-2"
+                                                target="_blank"
+                                                href="https://github.com/Steinbeck-Lab/coconut/issues"><span
+                                                    class="absolute inset-0 -z-10 scale-75 rounded-lg bg-white/5 opacity-0 transition group-hover:scale-100 group-hover:opacity-100"></span><svg
+                                                    viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"
+                                                    class="flex-none h-4 w-4">
+                                                    <path
+                                                        d="M8 .198a8 8 0 0 0-8 8 7.999 7.999 0 0 0 5.47 7.59c.4.076.547-.172.547-.384 0-.19-.007-.694-.01-1.36-2.226.482-2.695-1.074-2.695-1.074-.364-.923-.89-1.17-.89-1.17-.725-.496.056-.486.056-.486.803.056 1.225.824 1.225.824.714 1.224 1.873.87 2.33.666.072-.518.278-.87.507-1.07-1.777-.2-3.644-.888-3.644-3.954 0-.873.31-1.586.823-2.146-.09-.202-.36-1.016.07-2.118 0 0 .67-.214 2.2.82a7.67 7.67 0 0 1 2-.27 7.67 7.67 0 0 1 2 .27c1.52-1.034 2.19-.82 2.19-.82.43 1.102.16 1.916.08 2.118.51.56.82 1.273.82 2.146 0 3.074-1.87 3.75-3.65 3.947.28.24.54.73.54 1.48 0 1.07-.01 1.93-.01 2.19 0 .21.14.46.55.38A7.972 7.972 0 0 0 16 8.199a8 8 0 0 0-8-8Z">
+                                                    </path>
+                                                </svg><span class="self-baseline">Issue Tracker</span></a>
+                                        </span>
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                        <p><small class="float-left">Try: <a class="underline" href="/search?q=caffeine">Caffeine</a>,
-                                <a class="underline" href="/compounds/CNP0228556">CNP0228556</a></small>
-
-                            <span
-                                class="float-right  text-sm flex items-baseline gap-x-2 text-[0.8125rem]/6 text-gray-500">
-                                Report bugs: <a
-                                    class="group relative isolate flex items-center rounded-lg px-2 py-0.5 text-[0.8125rem]/6 font-medium text-dark/30 transition-colors hover:text-sky-900 gap-x-2"
-                                    target="_blank" href="https://github.com/Steinbeck-Lab/coconut/issues"><span
-                                        class="absolute inset-0 -z-10 scale-75 rounded-lg bg-white/5 opacity-0 transition group-hover:scale-100 group-hover:opacity-100"></span><svg
-                                        viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"
-                                        class="flex-none h-4 w-4">
-                                        <path
-                                            d="M8 .198a8 8 0 0 0-8 8 7.999 7.999 0 0 0 5.47 7.59c.4.076.547-.172.547-.384 0-.19-.007-.694-.01-1.36-2.226.482-2.695-1.074-2.695-1.074-.364-.923-.89-1.17-.89-1.17-.725-.496.056-.486.056-.486.803.056 1.225.824 1.225.824.714 1.224 1.873.87 2.33.666.072-.518.278-.87.507-1.07-1.777-.2-3.644-.888-3.644-3.954 0-.873.31-1.586.823-2.146-.09-.202-.36-1.016.07-2.118 0 0 .67-.214 2.2.82a7.67 7.67 0 0 1 2-.27 7.67 7.67 0 0 1 2 .27c1.52-1.034 2.19-.82 2.19-.82.43 1.102.16 1.916.08 2.118.51.56.82 1.273.82 2.146 0 3.074-1.87 3.75-3.65 3.947.28.24.54.73.54 1.48 0 1.07-.01 1.93-.01 2.19 0 .21.14.46.55.38A7.972 7.972 0 0 0 16 8.199a8 8 0 0 0-8-8Z">
-                                        </path>
-                                    </svg><span class="self-baseline">Issue Tracker</span></a>
-                            </span>
-                        </p>
+                        <div class="py-5" x-show="activeTab === 'organism'">
+                            <div class="bg-white">
+                                <div class="mx-auto max-w-7xl">
+                                    <div class="flex h-16 flex-shrink-0 rounded-md border border-gray-900 border-b-4">
+                                        <div class="flex flex-1 justify-between md:px-2">
+                                            <div class="flex flex-1">
+                                                <div class="flex w-full md:ml-0"><label for="search-field"
+                                                        class="sr-only">Search</label>
+                                                    <div
+                                                        class="relative w-full text-gray-400 focus-within:text-gray-600">
+                                                        <div
+                                                            class="px-2 pointer-events-none absolute inset-y-0 left-0 flex items-center">
+                                                            <svg class="h-5 w-5 flex-shrink-0"
+                                                                x-description="Heroicon name: mini/magnifying-glass"
+                                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                                                fill="currentColor" aria-hidden="true">
+                                                                <path fill-rule="evenodd"
+                                                                    d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                                                                    clip-rule="evenodd"></path>
+                                                            </svg>
+                                                        </div>
+                                                        <input
+                                                            class="h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
+                                                            x-model="query" id="query"
+                                                            @keyup.enter="window.location.href = '/search?q=' + encodeURIComponent(query) + '&tagType=organisms&type=tags&activeTab=organism'"
+                                                            placeholder="Search Organisms (Genus or Species or any Taxonomic Rank)"
+                                                            type="search" autofocus="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center md:ml-1">
+                                                <button
+                                                    @click="window.location.href = '/search?q=' + encodeURIComponent(query) + '&tagType=organisms&type=tags&activeTab=organism'"
+                                                    class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3"><svg
+                                                        xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                        class="size-4 inline">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                                    </svg>
+                                                    &nbsp;Search</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p><small class="float-left">Try: <a class="underline"
+                                                href="/search?q=Papaver+somniferum+L.&tagType=organisms&type=tags&activeTab=organism"><i>Papaver
+                                                    somniferum L.</i></a></small>
+                                        <span
+                                            class="float-right  text-sm flex items-baseline gap-x-2 text-[0.8125rem]/6 text-gray-500">
+                                            Report bugs: <a
+                                                class="group relative isolate flex items-center rounded-lg px-2 py-0.5 text-[0.8125rem]/6 font-medium text-dark/30 transition-colors hover:text-sky-900 gap-x-2"
+                                                target="_blank"
+                                                href="https://github.com/Steinbeck-Lab/coconut/issues"><span
+                                                    class="absolute inset-0 -z-10 scale-75 rounded-lg bg-white/5 opacity-0 transition group-hover:scale-100 group-hover:opacity-100"></span><svg
+                                                    viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"
+                                                    class="flex-none h-4 w-4">
+                                                    <path
+                                                        d="M8 .198a8 8 0 0 0-8 8 7.999 7.999 0 0 0 5.47 7.59c.4.076.547-.172.547-.384 0-.19-.007-.694-.01-1.36-2.226.482-2.695-1.074-2.695-1.074-.364-.923-.89-1.17-.89-1.17-.725-.496.056-.486.056-.486.803.056 1.225.824 1.225.824.714 1.224 1.873.87 2.33.666.072-.518.278-.87.507-1.07-1.777-.2-3.644-.888-3.644-3.954 0-.873.31-1.586.823-2.146-.09-.202-.36-1.016.07-2.118 0 0 .67-.214 2.2.82a7.67 7.67 0 0 1 2-.27 7.67 7.67 0 0 1 2 .27c1.52-1.034 2.19-.82 2.19-.82.43 1.102.16 1.916.08 2.118.51.56.82 1.273.82 2.146 0 3.074-1.87 3.75-3.65 3.947.28.24.54.73.54 1.48 0 1.07-.01 1.93-.01 2.19 0 .21.14.46.55.38A7.972 7.972 0 0 0 16 8.199a8 8 0 0 0-8-8Z">
+                                                    </path>
+                                                </svg><span class="self-baseline">Issue Tracker</span></a>
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="py-5" x-show="activeTab === 'citations'">
+                            <div class="bg-white">
+                                <div class="mx-auto max-w-7xl">
+                                    <div class="flex h-16 flex-shrink-0 rounded-md border border-gray-900 border-b-4">
+                                        <div class="flex flex-1 justify-between md:px-2">
+                                            <div class="flex flex-1">
+                                                <div class="flex w-full md:ml-0"><label for="search-field"
+                                                        class="sr-only">Search</label>
+                                                    <div
+                                                        class="relative w-full text-gray-400 focus-within:text-gray-600">
+                                                        <div
+                                                            class="px-2 pointer-events-none absolute inset-y-0 left-0 flex items-center">
+                                                            <svg class="h-5 w-5 flex-shrink-0"
+                                                                x-description="Heroicon name: mini/magnifying-glass"
+                                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                                                fill="currentColor" aria-hidden="true">
+                                                                <path fill-rule="evenodd"
+                                                                    d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+                                                                    clip-rule="evenodd"></path>
+                                                            </svg>
+                                                        </div>
+                                                        <input
+                                                            class="h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
+                                                            x-model="query" id="query"
+                                                            @keyup.enter="window.location.href = '/search?q=' + encodeURIComponent(query) + '&tagType=citations&type=tags&activeTab=citations'"
+                                                            placeholder="Search DOI or Title" type="search"
+                                                            autofocus="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center md:ml-1">
+                                                <button type="submit"
+                                                    @click="window.location.href = '/search?q=' + encodeURIComponent(query) + '&tagType=citation&type=tags&activeTab=citation'"
+                                                    class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3"><svg
+                                                        xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                        class="size-4 inline">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                                    </svg>
+                                                    &nbsp;Search</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p><small class="float-left">Try: <a class="underline"
+                                            href="/search?q=10.1021/np300740h&tagType=citations&type=tags&activeTab=citations">10.1021/np300740h</a></small>
+                                    <span
+                                        class="float-right  text-sm flex items-baseline gap-x-2 text-[0.8125rem]/6 text-gray-500">
+                                        Report bugs: <a
+                                            class="group relative isolate flex items-center rounded-lg px-2 py-0.5 text-[0.8125rem]/6 font-medium text-dark/30 transition-colors hover:text-sky-900 gap-x-2"
+                                            target="_blank"
+                                            href="https://github.com/Steinbeck-Lab/coconut/issues"><span
+                                                class="absolute inset-0 -z-10 scale-75 rounded-lg bg-white/5 opacity-0 transition group-hover:scale-100 group-hover:opacity-100"></span><svg
+                                                viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"
+                                                class="flex-none h-4 w-4">
+                                                <path
+                                                    d="M8 .198a8 8 0 0 0-8 8 7.999 7.999 0 0 0 5.47 7.59c.4.076.547-.172.547-.384 0-.19-.007-.694-.01-1.36-2.226.482-2.695-1.074-2.695-1.074-.364-.923-.89-1.17-.89-1.17-.725-.496.056-.486.056-.486.803.056 1.225.824 1.225.824.714 1.224 1.873.87 2.33.666.072-.518.278-.87.507-1.07-1.777-.2-3.644-.888-3.644-3.954 0-.873.31-1.586.823-2.146-.09-.202-.36-1.016.07-2.118 0 0 .67-.214 2.2.82a7.67 7.67 0 0 1 2-.27 7.67 7.67 0 0 1 2 .27c1.52-1.034 2.19-.82 2.19-.82.43 1.102.16 1.916.08 2.118.51.56.82 1.273.82 2.146 0 3.074-1.87 3.75-3.65 3.947.28.24.54.73.54 1.48 0 1.07-.01 1.93-.01 2.19 0 .21.14.46.55.38A7.972 7.972 0 0 0 16 8.199a8 8 0 0 0-8-8Z">
+                                                </path>
+                                            </svg><span class="self-baseline">Issue Tracker</span></a>
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="mt-16 flex items-center gap-x-6 justify-center w-full">
@@ -78,18 +249,18 @@
                     </div>
                     <a href="/search"
                         class="border bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="w-12 h-12 mx-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
                         </svg>
                         <small class="text-base font-semibold leading-7">Browse Data</small>
                         </button>
                     </a>
-                    <a href="/admin/collections/create"
-                        class="border bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="w-12 h-12 mx-auto">
+                    <a @click="isOpen = true"
+                        class="cursor-pointer border bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M3 4.5h14.25M3 9h9.75M3 13.5h5.25m5.25-.75L17.25 9m0 0L21 12.75M17.25 9v12" />
                         </svg>
@@ -265,7 +436,6 @@
     <livewire:compound-classes lazy="on-load" />
     <livewire:data-sources lazy="on-load" />
     <livewire:faqs lazy="on-load" />
-
     <div class="bg-gray-900 border-y">
         <div
             class="mx-auto max-w-4xl py-16 px-4 sm:px-6 sm:py-24 lg:flex lg:max-w-7xl lg:items-center lg:justify-between lg:px-8">
@@ -279,6 +449,45 @@
                     target="_blank"
                     class="cursor-pointer flex items-center justify-center rounded-md border border-transparent bg-teal-50 px-4 py-3 text-base font-medium text-teal-800 shadow-sm hover:bg-teal-100">Contact
                     Us</a>
+            </div>
+        </div>
+    </div>
+    <div x-show="isOpen" x-cloak class="fixed z-20 inset-0 overflow-y-auto" aria-labelledby="modal-title"
+        role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <!-- This element is to trick the browser into centering the modal contents. -->
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div
+                class="z-20 inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                <div class="sm:flex sm:items-start">
+                    <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                            Structure Editor
+                        </h3>
+                        <div class="py-3">
+                            You are welcome to submit your natural product collection in CSV format to the COCONUT
+                            database. Please send your data via email to <a class="text-blue-600"
+                                href="mailto:info.coconut@uni-jena.de">info.coconut@uni-jena.de</a>. To assist you in
+                            preparing your submission, an example CSV template is available for download below,
+                            detailing the required format and fields. We value your contribution and appreciate your
+                            effort in enriching the COCONUT database.
+                            <br />
+                            <br />
+                            <i>Online submissions will be available soon.</i>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                    <button @click="isOpen = false" type="button"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Close
+                    </button>
+                    <a href="https://coconut.s3.uni-jena.de/np-collection-example.csv" target="_blank" type="button"
+                        class="cursor-pointer mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Download example CSV file
+                    </a>
+                </div>
             </div>
         </div>
     </div>

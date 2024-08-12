@@ -69,7 +69,7 @@
                 <label for="tabs" class="sr-only">Select a tab</label>
                 <select id="tabs" name="tabs" x-model="activeTab"
                     class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                    @change="window.location.search = `?tab=${activeTab}`">
+                    >
                     <option value="molecules">Molecules</option>
                     <option value="organism">Organism</option>
                     <option value="citations">Citations</option>
@@ -101,12 +101,12 @@
             </div>
 
             <!-- Tab content -->
-            <div class="p-5" x-show="activeTab === 'molecules'">
+            <div class="py-5" x-show="activeTab === 'molecules'">
                 <form wire:submit="search">
                     <div class="bg-white">
                         <div class="mx-auto max-w-7xl">
-                            <div class="flex h-16 flex-shrink-0 rounded-md border border-zinc-900/5 border-b-4">
-                                <div class="flex flex-1 justify-between px-4 md:px-0">
+                            <div class="flex h-16 flex-shrink-0 rounded-md border border-gray-900 border-b-4">
+                                <div class="flex flex-1 justify-between md:px-4">
                                     <div class="flex flex-1">
                                         <div class="flex w-full md:ml-0"><label for="search-field"
                                                 class="sr-only">Search</label>
@@ -148,12 +148,12 @@
                     </div>
                 </form>
             </div>
-            <div class="p-5" x-show="activeTab === 'organism'">
+            <div class="py-5" x-show="activeTab === 'organism'">
                 <form>
                     <div class="bg-white">
                         <div class="mx-auto max-w-7xl">
-                            <div class="flex h-16 flex-shrink-0 rounded-md border border-zinc-900/5 border-b-4">
-                                <div class="flex flex-1 justify-between px-4 md:px-0">
+                            <div class="flex h-16 flex-shrink-0 rounded-md border border-gray-900 border-b-4">
+                                <div class="flex flex-1 justify-between md:px-4">
                                     <div class="flex flex-1">
                                         <div class="flex w-full md:ml-0"><label for="search-field"
                                                 class="sr-only">Search</label>
@@ -196,12 +196,12 @@
                     </div>
                 </form>
             </div>
-            <div class="p-5" x-show="activeTab === 'citations'">
+            <div class="py-5" x-show="activeTab === 'citations'">
                 <form>
                     <div class="bg-white">
                         <div class="mx-auto max-w-7xl">
-                            <div class="flex h-16 flex-shrink-0 rounded-md border border-zinc-900/5 border-b-4">
-                                <div class="flex flex-1 justify-between px-4 md:px-0">
+                            <div class="flex h-16 flex-shrink-0 rounded-md border border-gray-900 border-b-4">
+                                <div class="flex flex-1 justify-between md:px-4">
                                     <div class="flex flex-1">
                                         <div class="flex w-full md:ml-0"><label for="search-field"
                                                 class="sr-only">Search</label>

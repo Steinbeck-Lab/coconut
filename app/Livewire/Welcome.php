@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Lazy;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 #[Lazy]
@@ -17,6 +18,9 @@ class Welcome extends Component
     public $uniqueOrganisms;
 
     public $citationsMapped;
+
+    #[Url(as: 'activeTab')]
+    public $activeTab = 'molecules';
 
     public function placeholder()
     {
