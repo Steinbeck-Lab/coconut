@@ -20,6 +20,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
+use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Toggle;
 
 class ReportResource extends Resource
 {
@@ -35,18 +37,24 @@ class ReportResource extends Resource
     {
         return $form
             ->schema([
+                Toggle::make('is_change')
+                    ->live()
+                    ->label(function ($state) {
+                        if ($state == true) {
+                            return 'Request changes to data';
+                        } else {
+                            return 'Report false data';
+                        }
+                    }),
                 Select::make('report_type')
-                    ->label('You want to report:')
+                    ->label('Choose')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select what you want to report. Ex: Molecule, Citation, Collection, Organism.')
                     ->live()
-                    ->options([
-                        'molecule' => 'Molecule',
-                        'citation' => 'Citation',
-                        'collection' => 'Collection',
-                        'organism' => 'Organism',
-                    ])
+                    ->options(function () {
+                        return getReportTypes();
+                    })
                     ->hidden(function (string $operation) {
-                        if ($operation == 'create' && (! request()->has('collection_uuid') && ! request()->has('citation_id') && ! request()->has('compound_id') && ! request()->has('organism_id'))) {
+                        if ($operation == 'create' ) {
                             return false;
                         } else {
                             return true;
@@ -57,7 +65,17 @@ class ReportResource extends Resource
                     ->required(),
                 Textarea::make('evidence')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Please provide Evidence/Comment to support your claims in this report. This will help our Curators in reviewing your report.')
-                    ->label('Evidence/Comment'),
+                    ->label('Evidence/Comment')
+                    ->hidden(function (Get $get) {
+                        return $get('is_change');
+                    }),
+                KeyValue::make('suggested_changes')
+                    ->addActionLabel('Add property')
+                    ->keyLabel('Property')
+                    ->valueLabel('Suggested change')
+                    ->hidden(function (Get $get) {
+                        return ! $get('is_change');
+                    }),
                 TextInput::make('url')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide a link to the webpage that supports your claims.')
                     ->label('URL'),
@@ -66,6 +84,11 @@ class ReportResource extends Resource
                     ->relationship('collections', 'title')
                     ->multiple()
                     ->preload()
+                    ->required(function (Get $get) {
+                        if ($get('report_type') == 'collection') {
+                            return true;
+                        }
+                    })
                     ->hidden(function (Get $get, string $operation) {
                         if ($operation == 'edit' || $operation == 'view') {
                             if ($get('collections') == []) {
@@ -88,6 +111,11 @@ class ReportResource extends Resource
                         return Citation::whereNotNull('title')->pluck('title', 'id');
                     })
                     ->multiple()
+                    ->required(function (Get $get) {
+                        if ($get('report_type') == 'citation') {
+                            return true;
+                        }
+                    })
                     ->hidden(function (Get $get, string $operation) {
                         if ($operation == 'edit' || $operation == 'view') {
                             if ($get('citations') == []) {
@@ -108,6 +136,11 @@ class ReportResource extends Resource
                     ->relationship('organisms', 'name')
                     ->multiple()
                     ->searchable()
+                    ->required(function (Get $get) {
+                        if ($get('report_type') == 'organism') {
+                            return true;
+                        }
+                    })
                     ->hidden(function (Get $get, string $operation) {
                         if ($operation == 'edit' || $operation == 'view') {
                             if ($get('organisms') == []) {
@@ -126,6 +159,11 @@ class ReportResource extends Resource
                 Textarea::make('mol_id_csv')
                     ->label('Molecules')
                     ->placeholder('Enter the Identifiers separated by commas')
+                    ->required(function (Get $get) {
+                        if ($get('report_type') == 'molecule') {
+                            return true;
+                        }
+                    })
                     ->hidden(function (Get $get, string $operation) {
                         if ($operation == 'edit' || $operation == 'view') {
                             if (is_null($get('mol_id_csv'))) {
@@ -169,9 +207,9 @@ class ReportResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('title')
-                    ->description(fn (Report $record): string => Str::of($record->evidence)->words(10)),
+                    ->description(fn(Report $record): string => Str::of($record->evidence)->words(10)),
                 TextColumn::make('url')
-                    ->url(fn (Report $record) => $record->url)
+                    ->url(fn(Report $record) => $record->url)
                     ->openUrlInNewTab(),
                 TextColumn::make('status')
                     ->badge()

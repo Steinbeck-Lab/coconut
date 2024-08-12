@@ -12,6 +12,15 @@ function npScore($old_value)
     return ($old_value - $old_min) / ($old_max - $old_min) * ($new_max - $new_min) + $new_min;
 }
 
+function getReportTypes() {
+    return [
+        'molecule' => 'Molecule',
+        'citation' => 'Citation',
+        'collection' => 'Collection',
+        'organism' => 'Organism',
+    ];
+}
+
 function doiRegxMatch($doi)
 {
     $doiRegex = '/\b(10[.][0-9]{4,}(?:[.][0-9]+)*)\b/';
