@@ -7,10 +7,12 @@ use App\Filament\Dashboard\Resources\ReportResource\Pages;
 use App\Filament\Dashboard\Resources\ReportResource\RelationManagers;
 use App\Models\Citation;
 use App\Models\Report;
+use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
@@ -20,8 +22,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
-use Filament\Forms\Components\KeyValue;
-use Filament\Forms\Components\Toggle;
 
 class ReportResource extends Resource
 {
@@ -54,7 +54,7 @@ class ReportResource extends Resource
                         return getReportTypes();
                     })
                     ->hidden(function (string $operation) {
-                        if ($operation == 'create' ) {
+                        if ($operation == 'create') {
                             return false;
                         } else {
                             return true;
@@ -207,9 +207,9 @@ class ReportResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('title')
-                    ->description(fn(Report $record): string => Str::of($record->evidence)->words(10)),
+                    ->description(fn (Report $record): string => Str::of($record->evidence)->words(10)),
                 TextColumn::make('url')
-                    ->url(fn(Report $record) => $record->url)
+                    ->url(fn (Report $record) => $record->url)
                     ->openUrlInNewTab(),
                 TextColumn::make('status')
                     ->badge()

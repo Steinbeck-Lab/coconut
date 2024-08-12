@@ -12,7 +12,8 @@ function npScore($old_value)
     return ($old_value - $old_min) / ($old_max - $old_min) * ($new_max - $new_min) + $new_min;
 }
 
-function getReportTypes() {
+function getReportTypes()
+{
     return [
         'molecule' => 'Molecule',
         'citation' => 'Citation',

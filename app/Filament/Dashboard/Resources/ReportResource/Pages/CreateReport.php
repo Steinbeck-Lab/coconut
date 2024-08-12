@@ -8,7 +8,6 @@ use App\Models\Citation;
 use App\Models\Collection;
 use App\Models\Molecule;
 use App\Models\Organism;
-use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateReport extends CreateRecord
@@ -18,8 +17,8 @@ class CreateReport extends CreateRecord
     protected function afterFill(): void
     {
         $request = request();
-        if($request->type == 'change'){
-            $this->data['is_change'] = true; 
+        if ($request->type == 'change') {
+            $this->data['is_change'] = true;
         }
         if ($request->has('collection_uuid')) {
             $collection = Collection::where('uuid', $request->collection_uuid)->get();
