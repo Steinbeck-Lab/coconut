@@ -115,6 +115,9 @@ class MoleculeResource extends Resource
                         ->label(function (Molecule $record) {
                             return $record['active'] ? 'Deactivate' : 'Activate';
                         })
+                        ->hidden(function () {
+                            return !auth()->user()->hasRole('super_admin');
+                        })
                         ->form([
                             Textarea::make('reason')
                                 ->required(function (Molecule $record) {
