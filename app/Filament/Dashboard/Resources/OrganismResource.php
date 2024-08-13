@@ -6,6 +6,7 @@ use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\Molecul
 use App\Filament\Dashboard\Resources\OrganismResource\Pages;
 use App\Filament\Dashboard\Resources\OrganismResource\Widgets\OrganismStats;
 use App\Models\Organism;
+use Archilex\AdvancedTables\Filters\AdvancedFilter;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,7 +14,6 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\HtmlString;
-use Archilex\AdvancedTables\Filters\AdvancedFilter;
 
 class OrganismResource extends Resource
 {
