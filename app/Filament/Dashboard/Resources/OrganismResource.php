@@ -13,6 +13,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\HtmlString;
+use Archilex\AdvancedTables\Filters\AdvancedFilter;
 
 class OrganismResource extends Resource
 {
@@ -49,25 +50,26 @@ class OrganismResource extends Resource
                     ->formatStateUsing(function (Organism $organism) {
                         $url = urldecode($organism->iri);
 
-                        return new HtmlString("<strong>{$organism->rank}</strong> <br> <a href={$url} target='_blank'>{$url}</a>");
+                        return new HtmlString("<div><strong>{$organism->rank}</strong></div> <br/> <div><a href={$url} target='_blank'>{$url}</a></div>");
                     }),
-                Tables\Columns\TextColumn::make('iri')
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                // Tables\Columns\TextColumn::make('iri')
+                //     ->toggleable(isToggledHiddenByDefault: true),
+                // Tables\Columns\TextColumn::make('created_at')
+                //     ->dateTime()
+                //     ->sortable()
+                //     ->toggleable(isToggledHiddenByDefault: true),
+                // Tables\Columns\TextColumn::make('updated_at')
+                //     ->dateTime()
+                //     ->sortable()
+                //     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                AdvancedFilter::make()
+                    ->includeColumns(),
             ])
             ->actions([
                 // Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
