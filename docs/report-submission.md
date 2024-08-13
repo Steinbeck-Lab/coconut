@@ -6,9 +6,13 @@ The COCONUT platform provides users with the ability to report discrepancies in 
 
 1. **Log in to your COCONUT account.**
 2. In the dashboard's left pane, select **"Reports."**
+![Dashboard](/dashboard-reports.png)
 3. On the Reports page, click the **"New Report"** button at the top right.
+![New Report Buttion](/new-report-button.png)
 4. Complete the **"Create Report"** form:
+![New Report](/new-report.png)
    - **Report Type:** Select the category of the item you wish to report.
+![Select Field](/report-select-field.png)
    - **Title:** Provide a concise title summarizing the issue.
    - **Evidence/Comment:** Offer evidence or comments supporting your observation of the discrepancy.
    - **URL:** Include any relevant links to substantiate your report.
@@ -26,10 +30,14 @@ There are two methods available for reporting compounds:
 This method allows you to report a single compound directly from its detail page:
 
 1. On the COCONUT homepage, click **"Browse"** at the top of the page.
+![Browse](/browse.png)
 2. Locate and click on the compound you wish to report.
+![Browse Page](/browse-page.png)
 3. On the right pane, beneath the compound images, click **"Report this compound."**
+![Report Compound Page](/report-compond-page.png)
 4. Log in if prompted.
 5. Complete the **"Create Report"** form:
+![Report Molecule Page](/report-molecule-form.png)
    - **Title:** Provide a concise title summarizing the issue.
    - **Evidence/Comment:** Offer evidence or comments supporting your observation of the discrepancy.
    - **URL:** Include any relevant links to substantiate your report.
@@ -45,6 +53,7 @@ You can report one or more compounds from the Reports page:
 2. In the dashboard's left pane, select **"Reports."**
 3. On the Reports page, click the **"New Report"** button at the top right.
 4. Complete the **"Create Report"** form:
+![Report Molecules Page](/report-multiple-molecules.png)
    - **Report Type:** Select **"Molecule."**
    - **Title:** Provide a concise title summarizing the issue.
    - **Evidence/Comment:** Offer evidence or comments supporting your observation of the discrepancy.
