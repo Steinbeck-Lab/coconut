@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('organisms', function (Blueprint $table) {
             $table->string('name')->unique()->change();
+            $table->integer('molecule_count')->default(0);
         });
     }
 
@@ -21,8 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('reports', function (Blueprint $table) {
-            $table->string('name')->change();
+        Schema::table('organisms', function (Blueprint $table) {
+            $table->dropUnique('organisms_name_unique');
+            $table->dropColumn(['molecule_count']);
         });
     }
 };
