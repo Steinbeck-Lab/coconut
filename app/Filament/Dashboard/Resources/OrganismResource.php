@@ -48,6 +48,7 @@ class OrganismResource extends Resource
                 Tables\Columns\TextColumn::make('rank')
                     ->formatStateUsing(function (Organism $organism) {
                         $url = urldecode($organism->iri);
+
                         return new HtmlString("<strong>{$organism->rank}</strong> <br> <a href={$url} target='_blank'>{$url}</a>");
                     }),
                 Tables\Columns\TextColumn::make('iri')

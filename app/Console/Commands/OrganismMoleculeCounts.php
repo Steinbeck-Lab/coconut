@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Organism;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -30,10 +29,10 @@ class OrganismMoleculeCounts extends Command
         $this->info('Starting the update process...');
         $i = 0;
         $moleculeCounts = DB::table('molecule_organism')
-        ->select(DB::raw('organism_id as id, COUNT(molecule_id) as count'))
-        ->groupBy('organism_id')
-        ->orderBy('organism_id')
-        ->get();
+            ->select(DB::raw('organism_id as id, COUNT(molecule_id) as count'))
+            ->groupBy('organism_id')
+            ->orderBy('organism_id')
+            ->get();
 
         foreach ($moleculeCounts as $count) {
             $this->info($count->id);
@@ -44,5 +43,4 @@ class OrganismMoleculeCounts extends Command
 
         $this->info('Update process completed.');
     }
-   
 }
