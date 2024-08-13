@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\HtmlString;
 
 class OrganismResource extends Resource
 {
@@ -42,7 +43,11 @@ class OrganismResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('rank'),
+                Tables\Columns\TextColumn::make('rank')
+                ->formatStateUsing(function(Organism $organism) {
+                    $url = urldecode($organism->iri);
+                    return new HtmlString("<strong>{$organism->rank}</strong> <br> <a href={$url} target='_blank'>{$url}</a>");
+                }),
                 Tables\Columns\TextColumn::make('iri')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')
