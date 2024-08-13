@@ -13,7 +13,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\HtmlString;
 
 class OrganismResource extends Resource
 {
@@ -46,30 +45,29 @@ class OrganismResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('rank')
-                    ->formatStateUsing(function (Organism $organism) {
-                        $url = urldecode($organism->iri);
-
-                        return new HtmlString("<div><strong>{$organism->rank}</strong></div> <br/> <div><a href={$url} target='_blank'>{$url}</a></div>");
-                    }),
-                // Tables\Columns\TextColumn::make('iri')
-                //     ->toggleable(isToggledHiddenByDefault: true),
-                // Tables\Columns\TextColumn::make('created_at')
-                //     ->dateTime()
-                //     ->sortable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
-                // Tables\Columns\TextColumn::make('updated_at')
-                //     ->dateTime()
-                //     ->sortable()
-                //     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('rank')->wrap()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 AdvancedFilter::make()
                     ->includeColumns(),
             ])
             ->actions([
+                Tables\Actions\Action::make('iri')
+                    ->label('IRI')
+                    ->url(fn (Organism $record) => $record->iri ? urldecode($record->iri) : null, true)
+                    ->color('info')
+                    ->icon('heroicon-o-link'),
                 // Tables\Actions\ViewAction::make(),
-                // Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -80,9 +78,6 @@ class OrganismResource extends Resource
 
     public static function getRelations(): array
     {
-        // $record = static::getOwner();
-        // dd(static::getOwner());
-        // dd(static::$model::molecules()->get());
         $arr = [
             MoleculesRelationManager::class,
         ];
