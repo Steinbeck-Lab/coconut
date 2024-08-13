@@ -1,22 +1,31 @@
 # COCONUT (Collection of Open Natural Products) Online
 
-[COlleCtion of Open Natural prodUcTs (COCONUT)](https://dev.coconut.naturalproducts.net) is an aggregated dataset that comprises elucidated and predicted natural products (NPs) sourced from open repositories. It also provides a user-friendly web interface for browsing, searching, and efficiently downloading NPs. The latest database encompasses more than 63 open NP resources, granting unrestricted access to the data without any associated charges. Each entry in the database represents a "flat" NP structure and is accompanied by information on its known stereochemical forms, relevant literature, producing organisms, natural geographical distribution, and [precomputed](https://api.naturalproducts.net/docs) molecular properties. NPs are small bioactive molecules produced by living organisms, holding potential applications in pharmacology and various industries. The significance of these compounds has fueled global interest in NP research across diverse fields.
-Consequently, there has been a proliferation of generalistic and specialized NP databases over the years. Nevertheless, there is currently no comprehensive online resource that consolidates all known NPs in a single location. Such a resource would greatly facilitate NP research, enabling computational screening and other in-silico applications.
+[COlleCtion of Open NatUral producTs (COCONUT)](https://coconut.naturalproducts.net) is an aggregated dataset comprising elucidated and predicted natural products (NPs) sourced from open repositories. It offers a user-friendly web interface for browsing, searching, and efficiently downloading NPs. The latest database integrates more than 63 open NP resources, providing unrestricted access to data free of charge. Each entry in the database represents a "flat" NP structure, accompanied by information on its known stereochemical forms, relevant literature, producing organisms, natural geographical distribution, and [precomputed](https://api.naturalproducts.net/docs) molecular properties. 
+
+Natural products are small bioactive molecules produced by living organisms with potential applications in pharmacology and various industries. The significance of these compounds has driven global interest in NP research across diverse fields. However, despite the growing number of general and specialized NP databases, no comprehensive online resource has consolidated all known NPs in one place—until COCONUT. This became a resource facilitates NP research, enabling computational screening and other in-silico applications.
 
 <div style="text-align: center;">
-  <img src="/logo.png" alt="Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5)); display: block; margin: 0 auto;" width="600">
+  <img src="/logo.png" alt="COCONUT Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5)); margin: 20px auto;" width="600">
 </div>
 
-
 ::: info
-- The COCONUT logo incorporates a molecule called 6-Amyl-α-pyrone, which is an unsaturated lactone with a COCONUT fragrance. This molecule is produced by Trichoderma species, which are fungi.
+**New COCONUT Logo** features a minimalistic design, simplifying the original logo first introduced with [version 1.0](https://github.com/Steinbeck-Lab/cheminf-jena-logos/blob/main/COCONUT/coconut.png?raw=true).
 :::
 
-## Citation guidelines
+## Contact Us
 
-**By appropriately citing the COCONUT Database, readers are provided with the means to easily locate the original source of the data utilized.**
+> **Help Desk**  
+> Any issues or support requests can be raised at our Help Desk or write to us at <a href="mailto:info.COCONUT@uni-jena.de">info.COCONUT@uni-jena.de</a>
+> 
+>
+> **Discussion Forum**  
+> Join our COCONUT Discussion Forum at <a href="mailto:coconut-discuss@listserv.uni-jena.de">coconut-discuss@listserv.uni-jena.de</a>.
 
-- Citing paper:
+## Citation Guidelines
+
+**Properly citing the COCONUT Database ensures readers can easily locate the original source of the data used.**
+
+- **Citing Paper:**
 ```md
 Sorokina, M., Merseburger, P., Rajan, K. et al. 
 COCONUT online: Collection of Open Natural Products database. 
@@ -31,10 +40,23 @@ COCONUT (Version v0.0.1 - prerelease) [Computer software].
 https://doi.org/10.5281/zenodo.13283949
 ```
 
-## Acknowledgments and Maintainence
+## Acknowledgments and Maintenance
 
 Cheminformatics Microservice and [Natural Products Online](https://naturalproducts.net/) are developed and maintained by the [Steinbeck group](https://cheminf.uni-jena.de/) at the [Friedrich Schiller University](https://www.uni-jena.de/en/) Jena, Germany.
 
-Funded by [ChemBioSys](https://docs.api.naturalproducts.net/introduction.html) (Project INF) - Project number: 239748522 - SFB 1127.
+<div style="display: flex; justify-content: center; margin: 20px 0;">
+  <img src="/CheminfGit.png" alt="Cheminf and Computational Metabolomics Logo" width="500">
+</div>
 
-![Cheming and Computational Metabolomics logo](/CheminfGit.png)
+
+<p><strong>Funded by the <a href="https://www.dfg.de/" target="_blank">Deutsche Forschungsgemeinschaft (DFG, German Research Foundation)</a> under the <a href="https://www.chembiosys.de/en/" target="_blank">ChemBioSys</a> (Project INF) - Project number: 239748522 - SFB 1127</strong>.</p>
+
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-top: 20px;">
+  <a href="https://www.dfg.de/" target="_blank" style="flex: 1;">
+    <img src="https://github.com/Steinbeck-Lab/cheminformatics-microservice/blob/main/docs/public/dfg_logo_schriftzug_blau_foerderung_en.gif?raw=true" style="width: 100%; max-width: 300px;" alt="DFG Logo">
+  </a>
+  <a href="https://www.chembiosys.de/en/welcome.html" target="_blank" style="flex: 1;">
+    <img src="https://github.com/Steinbeck-Lab/cheminformatics-microservice/assets/30716951/45c8e153-8322-4563-a51d-cbdbe4e08627" style="width: 100%; max-width: 300px;" alt="Chembiosys Logo">
+  </a>
+</div>
+
