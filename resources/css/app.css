@@ -302,3 +302,23 @@
 .organism {
   font-style: italic;
 }
+
+.feedback {
+  position: fixed;
+  left: 0;
+  bottom: 30%;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  padding-right: 1px;
+  padding-left: 1px;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  writing-mode: vertical-lr;
+
+  background-color: #55E;
+  color: #d1d1d1;
+}
+
+.feedback:hover {
+  color: #fff;
+}
