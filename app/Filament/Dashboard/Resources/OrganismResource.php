@@ -6,6 +6,7 @@ use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\Molecul
 use App\Filament\Dashboard\Resources\OrganismResource\Pages;
 use App\Filament\Dashboard\Resources\OrganismResource\Widgets\OrganismStats;
 use App\Models\Organism;
+use Archilex\AdvancedTables\Filters\AdvancedFilter;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -29,8 +30,11 @@ class OrganismResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()
+                    ->unique()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('ontology')
+                Forms\Components\TextInput::make('iri')
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('rank')
                     ->maxLength(255),
             ]);
     }
@@ -41,9 +45,8 @@ class OrganismResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('rank'),
-                Tables\Columns\TextColumn::make('iri')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('rank')->wrap()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -54,10 +57,16 @@ class OrganismResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                AdvancedFilter::make()
+                    ->includeColumns(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                Tables\Actions\Action::make('iri')
+                    ->label('IRI')
+                    ->url(fn (Organism $record) => $record->iri ? urldecode($record->iri) : null, true)
+                    ->color('info')
+                    ->icon('heroicon-o-link'),
+                // Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -69,9 +78,6 @@ class OrganismResource extends Resource
 
     public static function getRelations(): array
     {
-        // $record = static::getOwner();
-        // dd(static::getOwner());
-        // dd(static::$model::molecules()->get());
         $arr = [
             MoleculesRelationManager::class,
         ];
@@ -85,7 +91,7 @@ class OrganismResource extends Resource
             'index' => Pages\ListOrganisms::route('/'),
             'create' => Pages\CreateOrganism::route('/create'),
             'edit' => Pages\EditOrganism::route('/{record}/edit'),
-            'view' => Pages\ViewOrganism::route('/{record}'),
+            // 'view' => Pages\ViewOrganism::route('/{record}'),
         ];
     }
 
