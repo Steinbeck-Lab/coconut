@@ -18,6 +18,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\HtmlString;
+use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class CitationResource extends Resource
 {
@@ -146,6 +147,7 @@ class CitationResource extends Resource
         return [
             CollectionRelationManager::class,
             MoleculeRelationManager::class,
+            AuditsRelationManager::class,
         ];
     }
 

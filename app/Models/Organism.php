@@ -32,4 +32,9 @@ class Organism extends Model implements Auditable
     {
         return $this->morphToMany(Report::class, 'reportable');
     }
+
+    public function getIriAttribute($value)
+    {
+        return urldecode($value);
+    }
 }

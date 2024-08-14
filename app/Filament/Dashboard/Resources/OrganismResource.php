@@ -2,17 +2,21 @@
 
 namespace App\Filament\Dashboard\Resources;
 
-use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\MoleculesRelationManager;
 use App\Filament\Dashboard\Resources\OrganismResource\Pages;
+use App\Filament\Dashboard\Resources\OrganismResource\RelationManagers\MoleculesRelationManager;
 use App\Filament\Dashboard\Resources\OrganismResource\Widgets\OrganismStats;
 use App\Models\Organism;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
 use Filament\Forms;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Group;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Cache;
+use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class OrganismResource extends Resource
 {
@@ -28,14 +32,35 @@ class OrganismResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->unique()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('iri')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('rank')
-                    ->maxLength(255),
+                Grid::make()
+                    ->schema([
+                        Group::make()
+                            ->schema([
+                                Section::make('')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('name')
+                                            ->required()
+                                            ->unique()
+                                            ->maxLength(255),
+                                        Forms\Components\TextInput::make('iri')
+                                            ->label('IRI')
+                                            ->maxLength(255),
+                                        Forms\Components\TextInput::make('rank')
+                                            ->maxLength(255),
+                                    ]),
+                            ])
+                            ->columnSpan(1),
+
+                        Group::make()
+                            ->schema([
+                                Section::make('Similar Organisms')
+                                    ->schema([
+
+                                    ]),
+                            ])
+                            ->columnSpan(1),
+                    ])
+                    ->columns(2),  // Defines the number of columns in the grid
             ]);
     }
 
@@ -80,6 +105,7 @@ class OrganismResource extends Resource
     {
         $arr = [
             MoleculesRelationManager::class,
+            AuditsRelationManager::class,
         ];
 
         return $arr;
