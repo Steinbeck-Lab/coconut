@@ -3,12 +3,15 @@
 namespace App\Filament\Dashboard\Resources\OrganismResource\RelationManagers;
 
 use App\Models\Molecule;
+use App\Models\Organism;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\HtmlString;
 
 class MoleculesRelationManager extends RelationManager
@@ -75,6 +78,24 @@ class MoleculesRelationManager extends RelationManager
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DissociateBulkAction::make(),
+                    BulkAction::make('Change Association')
+                        ->form([
+                            Forms\Components\Select::make('name')
+                                ->options(function () {
+                                    return Organism::where('name', 'ilike', '%'.$this->getOwnerRecord()->name.'%')->pluck('name', 'id');
+                                })
+                                ->live(onBlur: true)
+                                ->afterStateUpdated(function (callable $set, $state) {
+                                    $set('part', null);
+                                })
+                                ->required(),
+                            Forms\Components\TextInput::make('part'),
+
+                        ])
+                        ->action(function (array $data, Collection $records): void {
+                            // $organism = Organism::find($data['name']);
+                            // $organism->molecules()->syncWithoutDetaching($records->pluck('id'));
+                        }),
                 ]),
             ]);
     }
