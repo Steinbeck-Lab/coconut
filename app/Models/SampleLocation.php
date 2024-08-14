@@ -4,9 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use OwenIt\Auditing\Contracts\Auditable;
 
-class OrganismPart extends Model implements Auditable
+class SampleLocation extends Model implements Auditable
 {
     use HasFactory;
     use \OwenIt\Auditing\Auditable;
@@ -19,4 +20,13 @@ class OrganismPart extends Model implements Auditable
     protected $fillable = [
         'name',
     ];
+
+    protected $casts = [
+        'collection_ids' => 'array',
+    ];
+
+    public function organisms(): HasOne
+    {
+        return $this->hasOne(Organism::class);
+    }
 }
