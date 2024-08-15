@@ -12,6 +12,7 @@ use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 
 class MoleculesRelationManager extends RelationManager
@@ -80,21 +81,68 @@ class MoleculesRelationManager extends RelationManager
                     Tables\Actions\DissociateBulkAction::make(),
                     BulkAction::make('Change Association')
                         ->form([
-                            Forms\Components\Select::make('name')
+                            Forms\Components\Select::make('org_id')
+                                ->label('Name')
                                 ->options(function () {
-                                    return Organism::where('name', 'ilike', '%'.$this->getOwnerRecord()->name.'%')->pluck('name', 'id');
+                                    return Organism::where([
+                                        ['name', 'ilike', '%'.$this->getOwnerRecord()->name.'%'],
+                                        ['name', '<>', $this->getOwnerRecord()->name],
+                                    ])->pluck('name', 'id');
                                 })
                                 ->live(onBlur: true)
-                                ->afterStateUpdated(function (callable $set, $state) {
-                                    $set('part', null);
-                                })
                                 ->required(),
-                            Forms\Components\TextInput::make('part'),
+                            Forms\Components\Select::make('part')
+                                ->options(function (callable $get) {
+                                    return DB::table('molecule_organism')->where([
+                                        ['organism_id', $get('org_id')],
+                                        ['organism_parts', '<>', null],
+                                        ['organism_parts', '<>', ''],
+                                    ])->pluck('organism_parts', 'id');
+                                })
+                                ->multiple()
+                            // ->createOptionForm([
+                            //     Forms\Components\TextInput::make('add_part')
+                            //         ->required(),
+                            // ])
+                            // ->createOptionUsing(function (array $data, $livewire): int {
+                            //     // dd($livewire->getSelectedTableRecords());
+                            //     return DB::table('molecule_organism')->insert([
+                            //         'organism_id' => $data['org_id'],
+                            //         'molecule_id' => 2147483640,
+                            //         'organism_parts' => $data['add_part'],
+                            //     ]);
+                            // })
+                            ,
 
                         ])
                         ->action(function (array $data, Collection $records): void {
-                            // $organism = Organism::find($data['name']);
-                            // $organism->molecules()->syncWithoutDetaching($records->pluck('id'));
+                            DB::transaction(function () use ($data, $records) {
+                                foreach ($records as $record) {
+                                    foreach ($data['part'] as $part) {
+                                        $existing_record = $this->getOwnerRecord()->molecules()
+                                            // ->wherePivot('molecule_id', $record->id)
+                                            // ->wherePivot('organism_id', $data['org_id'])
+                                            // ->wherePivot('organism_parts', $part)
+                                            ->wherePivot('molecule_id', 260)
+                                            ->wherePivot('organism_id', 892)
+                                            ->wherePivot('organism_parts', 'Stem')
+                                            ->first();
+                                        if ($existing_record !== null) {
+                                            dd($existing_record);
+                                            $this->getOwnerRecord()->molecules()->attch($record->id, ['organism_parts' => $part]);
+                                        } else {
+                                            // $this->getOwnerRecord()->molecules()->syncWithPivotValues($record->id, ['organism_parts' => $part]);
+                                        }
+                                        // DB::table('molecule_organism')->insert([
+                                        //     'organism_id' => $data['org_id'],
+                                        //     'molecule_id' => $record->id,
+                                        //     'organism_parts' => $part,
+                                        // ]);
+                                    }
+                                }
+                            });
+
+                            // $this->getOwnerRecord()->molecules()->detach($records->pluck('id'));
                         }),
                 ]),
             ]);
