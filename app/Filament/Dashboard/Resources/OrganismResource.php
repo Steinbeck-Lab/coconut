@@ -54,16 +54,15 @@ class OrganismResource extends Resource
 
                         Group::make()
                             ->schema([
-                                Section::make('Similar Organisms')
+                                Section::make('')
                                     ->schema([
                                         OrganismsTable::make('Custom Table'),
                                         // \Livewire\Livewire::mount('similar-organisms', ['organismId' => function ($get) {
-                                        //     dd($get('name'));
                                         //     return $get('name');
                                         // }]),
                                     ]),
                             ])
-                            ->hidden(function($operation) {
+                            ->hidden(function ($operation) {
                                 return $operation === 'create';
                             })
                             ->columnSpan(1),
