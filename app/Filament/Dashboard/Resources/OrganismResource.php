@@ -5,6 +5,7 @@ namespace App\Filament\Dashboard\Resources;
 use App\Filament\Dashboard\Resources\OrganismResource\Pages;
 use App\Filament\Dashboard\Resources\OrganismResource\RelationManagers\MoleculesRelationManager;
 use App\Filament\Dashboard\Resources\OrganismResource\Widgets\OrganismStats;
+use App\Forms\Components\OrganismsTable;
 use App\Models\Organism;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
 use Filament\Forms;
@@ -55,9 +56,16 @@ class OrganismResource extends Resource
                             ->schema([
                                 Section::make('Similar Organisms')
                                     ->schema([
-
+                                        OrganismsTable::make('Custom Table'),
+                                        // \Livewire\Livewire::mount('similar-organisms', ['organismId' => function ($get) {
+                                        //     dd($get('name'));
+                                        //     return $get('name');
+                                        // }]),
                                     ]),
                             ])
+                            ->hidden(function($operation) {
+                                return $operation === 'create';
+                            })
                             ->columnSpan(1),
                     ])
                     ->columns(2),  // Defines the number of columns in the grid
