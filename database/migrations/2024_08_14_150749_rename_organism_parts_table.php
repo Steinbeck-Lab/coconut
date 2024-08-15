@@ -32,8 +32,8 @@ return new class extends Migration
             $table->dropColumn(['collection_ids']);
         });
         Schema::table('sample_locations', function (Blueprint $table) {
-            $table->renameColumn('iri','ontology');
-            $table->dropColumn(['collection_ids','molecule_count']);
+            $table->renameColumn('iri', 'ontology');
+            $table->dropColumn(['collection_ids', 'molecule_count']);
         });
         Schema::rename('sample_locations', 'organism_parts');
     }

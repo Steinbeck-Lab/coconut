@@ -19,6 +19,9 @@ class SampleLocation extends Model implements Auditable
      */
     protected $fillable = [
         'name',
+        'iri',
+        'collection_ids',
+        'molecule_count'
     ];
 
     protected $casts = [
