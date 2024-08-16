@@ -26,7 +26,7 @@ class Organism extends Model implements Auditable
 
     public function molecules()
     {
-        return $this->belongsToMany(Molecule::class)->withPivot('id', 'organism_parts')->withTimestamps();
+        return $this->belongsToMany(Molecule::class)->withPivot('id', 'organism_id', 'molecule_id', 'organism_parts')->withTimestamps();
     }
 
     public function reports(): MorphToMany

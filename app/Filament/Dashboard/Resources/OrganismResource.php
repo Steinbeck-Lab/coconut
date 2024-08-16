@@ -18,6 +18,13 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Cache;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
+use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\Actions;
+use Filament\Support\Enums\VerticalAlignment;
+use Filament\Support\Enums\Alignment;
+use GuzzleHttp\Client;
+use Log;
+use Illuminate\Contracts\View\View;
 
 class OrganismResource extends Resource
 {
@@ -42,7 +49,88 @@ class OrganismResource extends Resource
                                         Forms\Components\TextInput::make('name')
                                             ->required()
                                             ->unique()
-                                            ->maxLength(255),
+                                            ->maxLength(255)
+                                            ->suffixAction(
+                                                Action::make('infoFromSources')
+                                                    ->icon('heroicon-m-clipboard')
+                                                    // ->fillForm(function ($record, callable $get): array {
+                                                    //     $entered_name = $get('name');
+                                                    //     $name = ucfirst(trim($entered_name));
+                                                    //     $data = null;
+                                                    //     $iri = null;
+                                                    //     $organism = null;
+                                                    //     $rank = null;
+
+                                                    //     if ($name && $name != '') {
+                                                    //         $data = Self::getOLSIRI($name, 'species');
+                                                    //         if ($data) {
+                                                    //             Self::updateOrganismModel($name, $data, $record, 'species');
+                                                    //             Self::info("Mapped and updated: $name");
+                                                    //         } else {
+                                                    //             $data = Self::getOLSIRI(explode(' ', $name)[0], 'genus');
+                                                    //             if ($data) {
+                                                    //                 Self::updateOrganismModel($name, $data, $record, 'genus');
+                                                    //                 Self::info("Mapped and updated: $name");
+                                                    //             } else {
+                                                    //                 $data = Self::getOLSIRI(explode(' ', $name)[0], 'family');
+                                                    //                 if ($data) {
+                                                    //                     Self::updateOrganismModel($name, $data, $record, 'genus');
+                                                    //                     Self::info("Mapped and updated: $name");
+                                                    //                 } else {
+                                                    //                     [$name, $iri, $organism, $rank] = Self::getGNFMatches($name, $record);
+                                                    //                 }
+                                                    //             }
+                                                    //         }
+                                                    //     }
+                                                    //     return [
+                                                    //         'name' => $name,
+                                                    //         'iri' => $iri,
+                                                    //         'rank' => $rank,
+                                                    //     ];
+                                                    // })
+                                                    // ->form([
+                                                    //     Forms\Components\TextInput::make('name')->readOnly(),
+                                                    //     Forms\Components\TextInput::make('iri')->readOnly(),
+                                                    //     Forms\Components\TextInput::make('rank')->readOnly(),
+                                                    // ])
+                                                    // ->action(fn ( $record) => $record->advance())
+                                                    ->modalContent(function ( $record, $get): View {
+                                                        $name = ucfirst(trim($get('name')));
+                                                        $data = null;
+                                                        // $iri = null;
+                                                        // $organism = null;
+                                                        // $rank = null;
+
+                                                        if ($name && $name != '') {
+                                                            $data = Self::getOLSIRI($name, 'species');
+                                                            // if ($data) {
+                                                            //     Self::updateOrganismModel($name, $data, $record, 'species');
+                                                            // } else {
+                                                            //     $data = Self::getOLSIRI(explode(' ', $name)[0], 'genus');
+                                                            //     if ($data) {
+                                                            //         Self::updateOrganismModel($name, $data, $record, 'genus');
+                                                            //     } else {
+                                                            //         $data = Self::getOLSIRI(explode(' ', $name)[0], 'family');
+                                                            //         if ($data) {
+                                                            //             Self::updateOrganismModel($name, $data, $record, 'genus');
+                                                            //         } else {
+                                                            //             [$name, $iri, $organism, $rank] = Self::getGNFMatches($name, $record);
+                                                            //         }
+                                                            //     }
+                                                            // }
+                                                        }
+                                                        return view(
+                                                            'forms.components.organism-info',
+                                                            [
+                                                                'data' => $data,
+                                                            ],
+                                                        );
+                                                    })
+                                                    ->action(function (array $data, Organism $record): void {
+                                                        // Self::updateOrganismModel($data['name'], $data['iri'], $record, $data['rank']);
+                                                    })
+                                                    ->slideOver()
+                                            ),
                                         Forms\Components\TextInput::make('iri')
                                             ->label('IRI')
                                             ->maxLength(255),
@@ -95,7 +183,7 @@ class OrganismResource extends Resource
             ->actions([
                 Tables\Actions\Action::make('iri')
                     ->label('IRI')
-                    ->url(fn (Organism $record) => $record->iri ? urldecode($record->iri) : null, true)
+                    ->url(fn(Organism $record) => $record->iri ? urldecode($record->iri) : null, true)
                     ->color('info')
                     ->icon('heroicon-o-link'),
                 // Tables\Actions\ViewAction::make(),
@@ -138,5 +226,131 @@ class OrganismResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         return Cache::get('stats.organisms');
+    }
+
+    protected static function getGNFMatches($name, $organism)
+    {
+        $data = [
+            'text' => $name,
+            'bytesOffset' => false,
+            'returnContent' => false,
+            'uniqueNames' => true,
+            'ambiguousNames' => true,
+            'noBayes' => false,
+            'oddsDetails' => false,
+            'language' => 'eng',
+            'wordsAround' => 2,
+            'verification' => true,
+            'allMatches' => true,
+        ];
+
+        $client = new Client;
+        $url = 'https://finder.globalnames.org/api/v1/find';
+
+        $response = $client->post($url, [
+            'json' => $data,
+        ]);
+
+        $responseBody = json_decode($response->getBody(), true);
+        return $responseBody;
+        // dd($responseBody);
+
+        // if (isset($responseBody['names']) && count($responseBody['names']) > 0) {
+        //     $r_name = $responseBody['names'][0];
+        //     $matchType = $r_name['verification']['matchType'];
+        //     if ($matchType == 'Exact' || $matchType == 'Fuzzy') {
+        //         $iri = $r_name['verification']['bestResult']['outlink'] ?? $r_name['verification']['bestResult']['dataSourceTitleShort'];
+        //         $ranks = $r_name['verification']['bestResult']['classificationRanks'] ?? null;
+        //         $ranks = rtrim($ranks, '|');
+        //         $ranks = explode('|', $ranks);
+        //         $rank = end($ranks);
+        //         if ($matchType == 'Fuzzy') {
+        //             $rank = $rank . ' (fuzzy)';
+        //         }
+        //         return [$name, $iri, $organism, $rank];
+        //     } elseif ($matchType == 'PartialFuzzy' || $matchType == 'PartialExact') {
+        //         $iri = $r_name['verification']['bestResult']['dataSourceTitleShort'];
+        //         if (isset($r_name['verification']['bestResult']['classificationRanks'])) {
+        //             $ranks = rtrim($r_name['verification']['bestResult']['classificationRanks'], '|') ?? null;
+        //             $paths = rtrim($r_name['verification']['bestResult']['classificationPath'], '|') ?? null;
+        //             $ids = rtrim($r_name['verification']['bestResult']['classificationIds'], '|') ?? null;
+        //             $ranks = explode('|', $ranks);
+        //             $ranksLength = count($ranks);
+        //             if ($ranksLength > 0) {
+        //                 $parentRank = $ranks[$ranksLength - 2];
+        //                 $parentName = $paths[$ranksLength - 2];
+        //                 $parentId = $ids[$ranksLength - 2];
+
+        //                 return [$name, $iri, $organism, $parentRank];
+        //             }
+        //         }
+        //     }
+        // } else {
+        //     Self::error("Could not map: $name");
+        // }
+    }
+    protected static function updateOrganismModel($name, $iri, $organism = null, $rank = null)
+    {
+        // dd($name, $iri, $organism, $rank);
+        if (! $organism) {
+            $organism = Organism::where('name', $name)->first();
+        }
+
+        if ($organism) {
+            $organism->name = $name;
+            $organism->iri = $iri;
+            $organism->rank = $rank;
+            $organism->save();
+        } else {
+            Self::error("Organism not found in the database: $name");
+        }
+    }
+
+    protected static function getOLSIRI($name, $rank)
+    {
+        $client = new Client([
+            'base_uri' => 'https://www.ebi.ac.uk/ols4/api/',
+        ]);
+
+        try {
+            $response = $client->get('search', [
+                'query' => [
+                    'q' => $name,
+                    'ontology' => ['ncbitaxon', 'efo', 'obi', 'uberon', 'taxrank'],
+                    'exact' => false,
+                    'obsoletes' => false,
+                    'format' => 'json',
+                ],
+            ]);
+
+            $data = json_decode($response->getBody(), true);
+            return $data;
+        // var_dump($data);
+
+            // if (isset($data['elements']) && count($data['elements']) > 0) {
+
+            //     $element = $data['elements'][0];
+            //     if (isset($element['iri'], $element['ontologyId']) && $element['isObsolete'] === 'false') {
+            //         if ($rank && $rank == 'species') {
+            //             if (isset($element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank']) && $element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank'] == 'http://purl.obolibrary.org/obo/NCBITaxon_species') {
+            //                 return urlencode($element['iri']);
+            //             }
+            //         } elseif ($rank && $rank == 'genus') {
+            //             if (isset($element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank']) && $element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank'] == 'http://purl.obolibrary.org/obo/NCBITaxon_genus') {
+            //                 return urlencode($element['iri']);
+            //             }
+            //         } elseif ($rank && $rank == 'family') {
+            //             if (isset($element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank']) && $element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank'] == 'http://purl.obolibrary.org/obo/NCBITaxon_family') {
+            //                 return urlencode($element['iri']);
+            //             }
+            //         }
+            //     }
+            // }
+        } catch (\Exception $e) {
+            // Self::error("Error fetching IRI for $name: " . $e->getMessage());
+            Log::error("Error fetching IRI for $name: " . $e->getMessage());
+        }
+
+        return null;
     }
 }

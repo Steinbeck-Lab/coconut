@@ -119,16 +119,24 @@ class MoleculesRelationManager extends RelationManager
                             DB::transaction(function () use ($data, $records) {
                                 foreach ($records as $record) {
                                     foreach ($data['part'] as $part) {
+                                        $sql = $this->getOwnerRecord()->molecules()
+                                            ->wherePivot('molecule_id', '=', 192)
+                                            ->wherePivot('organism_id', '=', 5599)
+                                            ->wherePivot('organism_parts', '=', 'Seed')
+                                            ->toSql();
+
+                                        dd($sql);
+                                        dd($this->getOwnerRecord()->molecules()->where('molecule_id', 192)->get());
                                         $existing_record = $this->getOwnerRecord()->molecules()
-                                            // ->wherePivot('molecule_id', $record->id)
-                                            // ->wherePivot('organism_id', $data['org_id'])
-                                            // ->wherePivot('organism_parts', $part)
-                                            ->wherePivot('molecule_id', 260)
-                                            ->wherePivot('organism_id', 892)
-                                            ->wherePivot('organism_parts', 'Stem')
+                                            ->wherePivot('molecule_id', $record->id)
+                                            ->wherePivot('organism_id', $data['org_id'])
+                                            ->wherePivot('organism_parts', $part)
+                                            ->wherePivot('molecule_id', 192)
+                                            ->wherePivot('organism_id', 5599)
+                                            ->wherePivot('organism_parts', 'Seed')
                                             ->first();
+                                        dd($existing_record);
                                         if ($existing_record !== null) {
-                                            dd($existing_record);
                                             $this->getOwnerRecord()->molecules()->attch($record->id, ['organism_parts' => $part]);
                                         } else {
                                             // $this->getOwnerRecord()->molecules()->syncWithPivotValues($record->id, ['organism_parts' => $part]);
