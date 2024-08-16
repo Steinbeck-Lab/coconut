@@ -4,6 +4,7 @@ namespace App\Filament\Dashboard\Resources\OrganismResource\RelationManagers;
 
 use App\Models\Molecule;
 use App\Models\Organism;
+use App\Models\SampleLocation;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -11,9 +12,11 @@ use Filament\Tables;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Str;
 
 class MoleculesRelationManager extends RelationManager
 {
@@ -70,11 +73,11 @@ class MoleculesRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\AssociateAction::make()->multiple(),
+                Tables\Actions\AttachAction::make()->multiple(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DissociateAction::make(),
+                Tables\Actions\DetachAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -83,70 +86,87 @@ class MoleculesRelationManager extends RelationManager
                         ->form([
                             Forms\Components\Select::make('org_id')
                                 ->label('Name')
-                                ->options(function () {
-                                    return Organism::where([
-                                        ['name', 'ilike', '%'.$this->getOwnerRecord()->name.'%'],
-                                        ['name', '<>', $this->getOwnerRecord()->name],
-                                    ])->pluck('name', 'id');
+                                ->getSearchResultsUsing(function (string $search): array {
+                                    return Organism::query()
+                                        ->where(function (Builder $builder) use ($search) {
+                                            $searchString = "%$search%";
+                                            $builder->where('name', 'ilike', $searchString);
+                                        })
+
+                                        ->limit(10)
+                                        ->get()
+                                        ->mapWithKeys(function (Organism $organism) {
+                                            return [$organism->id => $organism->name];
+                                        })
+                                        ->toArray();
                                 })
+                                ->searchable()
                                 ->live(onBlur: true)
                                 ->required(),
-                            Forms\Components\Select::make('part')
-                                ->options(function (callable $get) {
-                                    return DB::table('molecule_organism')->where([
-                                        ['organism_id', $get('org_id')],
-                                        ['organism_parts', '<>', null],
-                                        ['organism_parts', '<>', ''],
-                                    ])->pluck('organism_parts', 'id');
+                            Forms\Components\Select::make('locations')
+                                ->relationship('sampleLocations', 'name')
+                                ->getSearchResultsUsing(function (string $search, $get): array {
+                                    return SampleLocation::query()
+                                        ->where(function (Builder $builder) use ($search, $get) {
+                                            $searchString = "%$search%";
+                                            $builder->where('name', 'ilike', $searchString)
+                                                ->where('organism_id', '=', $get('org_id'));
+                                        })
+                                        ->limit(10)
+                                        ->get()
+                                        ->mapWithKeys(function (SampleLocation $location) {
+                                            return [$location->id => $location->name];
+                                        })
+                                        ->toArray();
                                 })
                                 ->multiple()
-                            // ->createOptionForm([
-                            //     Forms\Components\TextInput::make('add_part')
-                            //         ->required(),
-                            // ])
-                            // ->createOptionUsing(function (array $data, $livewire): int {
-                            //     // dd($livewire->getSelectedTableRecords());
-                            //     return DB::table('molecule_organism')->insert([
-                            //         'organism_id' => $data['org_id'],
-                            //         'molecule_id' => 2147483640,
-                            //         'organism_parts' => $data['add_part'],
-                            //     ]);
-                            // })
-                            ,
-
-                        ])
-                        ->action(function (array $data, Collection $records): void {
-                            DB::transaction(function () use ($data, $records) {
-                                foreach ($records as $record) {
-                                    foreach ($data['part'] as $part) {
-                                        $sql = $this->getOwnerRecord()->molecules()
-                                            ->wherePivot('molecule_id', '=', 192)
-                                            ->wherePivot('organism_id', '=', 5599)
-                                            ->wherePivot('organism_parts', '=', 'Seed')
-                                            ->toSql();
-
-                                        dd($sql);
-                                        dd($this->getOwnerRecord()->molecules()->where('molecule_id', 192)->get());
-                                        $existing_record = $this->getOwnerRecord()->molecules()
-                                            ->wherePivot('molecule_id', $record->id)
-                                            ->wherePivot('organism_id', $data['org_id'])
-                                            ->wherePivot('organism_parts', $part)
-                                            ->wherePivot('molecule_id', 192)
-                                            ->wherePivot('organism_id', 5599)
-                                            ->wherePivot('organism_parts', 'Seed')
-                                            ->first();
-                                        dd($existing_record);
-                                        if ($existing_record !== null) {
-                                            $this->getOwnerRecord()->molecules()->attch($record->id, ['organism_parts' => $part]);
-                                        } else {
-                                            // $this->getOwnerRecord()->molecules()->syncWithPivotValues($record->id, ['organism_parts' => $part]);
-                                        }
-                                        // DB::table('molecule_organism')->insert([
-                                        //     'organism_id' => $data['org_id'],
-                                        //     'molecule_id' => $record->id,
-                                        //     'organism_parts' => $part,
-                                        // ]);
+                                ->createOptionForm([
+                                    Forms\Components\TextInput::make('name')
+                                        ->required(),
+                                    Forms\Components\TextInput::make('iri')
+                                        ->required(),
+                                ])
+                                ->createOptionUsing(function (array $data, $livewire): int {
+                                    $slug = Str::slug($data['name']);
+                                    $location_exists = SampleLocation::where('slug', $slug)->where('organism_id', $livewire->mountedTableBulkActionData['org_id'])->first();
+                                    if ($location_exists) {
+                                        return $location_exists->id;
                                     }
+
+                                    return SampleLocation::create([
+                                        'name' => $data['name'],
+                                        'slug' => $slug,
+                                        'iri' => $data['iri'],
+                                        'organism_id' => $livewire->mountedTableBulkActionData['org_id'],
+                                    ])->getKey();
+                                }),
+                        ])
+                        ->action(function (array $data, Collection $records, $livewire): void {
+                            DB::transaction(function () use ($data, $records, $livewire) {
+                                DB::beginTransaction();
+                                try {
+                                    $moleculeIds = $records->pluck('id')->toArray();
+                                    $currentOrganism = $this->getOwnerRecord();
+                                    $currentOrganism->molecules()->detach($moleculeIds);
+
+                                    foreach ($currentOrganism->sampleLocations as $location) {
+                                        $location->molecules()->detach($moleculeIds);
+                                    }
+                                    $newOrganism = Organism::findOrFail($data['org_id']);
+
+                                    $locations = $livewire->mountedTableBulkActionData['locations'];
+                                    if ($locations) {
+                                        $sampleLocations = SampleLocation::findOrFail($locations);
+                                        foreach ($sampleLocations as $location) {
+                                            $location->molecules()->syncWithoutDetaching($moleculeIds);
+                                        }
+                                    }
+                                    $newOrganism->molecules()->syncWithoutDetaching($moleculeIds);
+                                    DB::commit();
+                                } catch (\Exception $e) {
+                                    // Rollback the transaction in case of any error
+                                    DB::rollBack();
+                                    throw $e; // Optionally rethrow the exception
                                 }
                             });
 
