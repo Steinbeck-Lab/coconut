@@ -145,7 +145,6 @@ class MapOrganismNamesToOGG extends Command
             $data = json_decode($response->getBody(), true);
 
             if (isset($data['elements']) && count($data['elements']) > 0) {
-            dd($data);
 
                 $element = $data['elements'][0];
                 if (isset($element['iri'], $element['ontologyId']) && $element['isObsolete'] === 'false') {

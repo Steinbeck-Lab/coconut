@@ -9,6 +9,7 @@ use App\Forms\Components\OrganismsTable;
 use App\Models\Organism;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
 use Filament\Forms;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Section;
@@ -16,15 +17,11 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Cache;
-use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
-use Filament\Forms\Components\Actions\Action;
-use Filament\Forms\Components\Actions;
-use Filament\Support\Enums\VerticalAlignment;
-use Filament\Support\Enums\Alignment;
 use GuzzleHttp\Client;
-use Log;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Cache;
+use Log;
+use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class OrganismResource extends Resource
 {
@@ -94,7 +91,7 @@ class OrganismResource extends Resource
                                                     //     Forms\Components\TextInput::make('rank')->readOnly(),
                                                     // ])
                                                     // ->action(fn ( $record) => $record->advance())
-                                                    ->modalContent(function ( $record, $get): View {
+                                                    ->modalContent(function ($record, $get): View {
                                                         $name = ucfirst(trim($get('name')));
                                                         $data = null;
                                                         // $iri = null;
@@ -102,7 +99,7 @@ class OrganismResource extends Resource
                                                         // $rank = null;
 
                                                         if ($name && $name != '') {
-                                                            $data = Self::getOLSIRI($name, 'species');
+                                                            $data = self::getOLSIRI($name, 'species');
                                                             // if ($data) {
                                                             //     Self::updateOrganismModel($name, $data, $record, 'species');
                                                             // } else {
@@ -119,6 +116,7 @@ class OrganismResource extends Resource
                                                             //     }
                                                             // }
                                                         }
+
                                                         return view(
                                                             'forms.components.organism-info',
                                                             [
@@ -183,7 +181,7 @@ class OrganismResource extends Resource
             ->actions([
                 Tables\Actions\Action::make('iri')
                     ->label('IRI')
-                    ->url(fn(Organism $record) => $record->iri ? urldecode($record->iri) : null, true)
+                    ->url(fn (Organism $record) => $record->iri ? urldecode($record->iri) : null, true)
                     ->color('info')
                     ->icon('heroicon-o-link'),
                 // Tables\Actions\ViewAction::make(),
@@ -252,6 +250,7 @@ class OrganismResource extends Resource
         ]);
 
         $responseBody = json_decode($response->getBody(), true);
+
         return $responseBody;
         // dd($responseBody);
 
@@ -289,6 +288,7 @@ class OrganismResource extends Resource
         //     Self::error("Could not map: $name");
         // }
     }
+
     protected static function updateOrganismModel($name, $iri, $organism = null, $rank = null)
     {
         // dd($name, $iri, $organism, $rank);
@@ -302,7 +302,7 @@ class OrganismResource extends Resource
             $organism->rank = $rank;
             $organism->save();
         } else {
-            Self::error("Organism not found in the database: $name");
+            self::error("Organism not found in the database: $name");
         }
     }
 
@@ -324,8 +324,9 @@ class OrganismResource extends Resource
             ]);
 
             $data = json_decode($response->getBody(), true);
+
             return $data;
-        // var_dump($data);
+            // var_dump($data);
 
             // if (isset($data['elements']) && count($data['elements']) > 0) {
 
@@ -348,7 +349,7 @@ class OrganismResource extends Resource
             // }
         } catch (\Exception $e) {
             // Self::error("Error fetching IRI for $name: " . $e->getMessage());
-            Log::error("Error fetching IRI for $name: " . $e->getMessage());
+            Log::error("Error fetching IRI for $name: ".$e->getMessage());
         }
 
         return null;

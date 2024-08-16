@@ -47,7 +47,7 @@ class ImportChEBINames extends Command
                     try {
                         $data[] = array_combine($header, $row);
                     } catch (\ValueError $e) {
-                        Log::info('An error occurred: ' . $e->getMessage());
+                        Log::info('An error occurred: '.$e->getMessage());
                     }
                 }
             }
