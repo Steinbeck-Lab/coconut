@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -24,9 +25,9 @@ class Organism extends Model implements Auditable
         'rank',
     ];
 
-    public function molecules()
+    public function molecules(): BelongsToMany
     {
-        return $this->belongsToMany(Molecule::class)->withPivot('id', 'organism_parts')->withTimestamps();
+        return $this->belongsToMany(Molecule::class)->withTimestamps();
     }
 
     public function reports(): MorphToMany
@@ -34,7 +35,7 @@ class Organism extends Model implements Auditable
         return $this->morphToMany(Report::class, 'reportable');
     }
 
-    public function sample_locations(): HasMany
+    public function sampleLocations(): HasMany
     {
         return $this->hasMany(SampleLocation::class);
     }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -20,8 +21,10 @@ class SampleLocation extends Model implements Auditable
     protected $fillable = [
         'name',
         'iri',
+        'slug',
+        'organism_id',
         'collection_ids',
-        'molecule_count'
+        'molecule_count',
     ];
 
     protected $casts = [
@@ -31,5 +34,10 @@ class SampleLocation extends Model implements Auditable
     public function organisms(): HasOne
     {
         return $this->hasOne(Organism::class);
+    }
+
+    public function molecules(): BelongsToMany
+    {
+        return $this->belongsToMany(Molecule::class);
     }
 }
