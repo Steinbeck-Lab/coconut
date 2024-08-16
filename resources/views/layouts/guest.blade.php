@@ -13,6 +13,12 @@
         content="{{ $description ?? 'An aggregated dataset of elucidated and predicted natural products collected from open sources and a web interface to browse, search, and easily download NPs.' }}">
     <meta name="keywords" content="{{ $keywords ?? 'natural products, COCONUT, open data, molecule database' }}">
     <meta name="author" content="{{ $author ?? 'COCONUT Team' }}">
+    <meta name="inchi" content="{{ $inchi ?? '' }}">
+    <meta name="inchi_key" content="{{ $inchiKey ?? '' }}">
+    <meta name="iupac_name" content="{{ $iupacName ?? '' }}">
+    <meta name="molecular_formula" content="{{ $molecularFormula ?? '' }}">
+    <meta name="molecular_weight" content="{{ $molecularWeight ?? '' }}">
+    <meta name="smiles" content="{{ $smiles ?? '' }}">
     <meta property="og:title" content="{{ $ogTitle ?? 'COCONUT: COlleCtion of Open Natural prodUcTs' }}">
     <meta property="og:description"
         content="{{ $ogDescription ?? 'An aggregated dataset of elucidated and predicted natural products collected from open sources and a web interface to browse, search, and easily download NPs.' }}">
