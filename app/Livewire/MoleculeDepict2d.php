@@ -13,12 +13,14 @@ class MoleculeDepict2d extends Component
 
     public $width = 200;
 
+    public $toolkit = 'cdk';
+
     public $CIP = true;
 
     #[Computed]
     public function source()
     {
-        return env('CM_API').'depict/2D?smiles='.urlencode($this->smiles).'&height='.$this->height.'&width='.$this->width.'&toolkit=cdk';
+        return env('CM_API').'depict/2D?smiles='.urlencode($this->smiles).'&height='.$this->height.'&width='.$this->width;
     }
 
     public function render()

@@ -480,6 +480,7 @@
                                             x-data="{ showAllCollections: false }">
                                             @foreach ($molecule->collections as $index => $collection)
                                                 <div
+                                                    x-data="{ collection: {{$collection}} }"
                                                     x-show="showAllCollections || {{ $index }} < 6">
                                                     <div class="group relative rounded-xl border border-slate-200">
                                                         <div class="relative overflow-hidden rounded-xl p-6">
@@ -538,18 +539,18 @@
                                                                         fill="url(#:R1k19n6:-gradient-dark)"></path>
                                                                 </g>
                                                             </svg>
-                                                            <a href="/search?type=tags&amp;q={{ $collection->title }}&amp;tagType=dataSource" class="hover:pointer font-bold text-base text-xl text-gray-900">
+                                                            <a href="/search?type=tags&amp;q={{$collection->title}}&amp;tagType=dataSource" class="hover:pointer font-bold text-base text-xl text-gray-900">
                                                                 {{ $collection->title }} <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 inline">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" d="m9 9 6-6m0 0 6 6m-6-6v12a6 6 0 0 1-12 0v-3"></path>
                                                                 </svg>
                                                             </a>
-                                                            <h2 x-show="$collection->description" class="mt-2 font-display text-base text-slate-900">
+                                                            <h2 x-show="collection.description" class="mt-2 font-display text-base text-slate-900">
                                                                 {{ $collection->description }}
                                                             </h2>
-                                                            <h2 x-show="$collection->doi" class="mt-2 font-display text-base text-slate-900">
+                                                            <h2 x-show="collection.doi" class="mt-2 font-display text-base text-slate-900">
                                                                 {{ $collection->doi }}
                                                             </h2>
-                                                            <h2  x-show="$collection->pivot->reference" class="hover:text-blue-500 mt-1 font-display text-base text-slate-900">
+                                                            <h2  x-show="collection.pivot.reference" class="hover:text-blue-500 mt-1 font-display text-base text-slate-900">
                                                                 Reference: <a href="{{ $collection->pivot->url }}" target="_blank">{{ $collection->pivot->reference }} <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 inline">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"></path>
                                                                 </svg></a>
@@ -755,16 +756,16 @@
                 <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg bg-white mb-2">
                     <livewire:molecule-depict2d :height="300" :smiles="$molecule->canonical_smiles" lazy="on-load">
                 </div>
-                <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg mb-2">
+                <div>
                     <livewire:molecule-depict3d :height="300" :smiles="$molecule->canonical_smiles" lazy="on-load">
                 </div>
-                <div class="bg-white px-4 py-1 shadow sm:rounded-lg sm:px-6 border">
+                <div class="bg-white px-4 py-1 mt-2 shadow sm:rounded-lg sm:px-6 border">
                     <div class="mt-2 flow-root">
                         <ul role="list" class="-mb-8">
                             <li>
                                 <div class="relative pb-8">
                                     <div class="relative flex space-x-3">
-                                        <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+                                        <div class="flex min-w-0 flex-1 justify-between space-x-4 py-1.5">
                                             <div>
                                                 <p class="text-sm text-gray-500">Created at <a href="#"
                                                         class="font-medium text-gray-900"></a></p>
@@ -778,10 +779,10 @@
 
                         </ul>
                     </div>
-                    <div class="my-2 flex flex-col justify-stretch">
+                    {{-- <div class="my-2 flex flex-col justify-stretch">
                         <a class="inline-flex right py-2 text-sm font-semibold">View
                             complete history</a>
-                    </div>
+                    </div> --}}
                 </div>
 
                 <dl class="mt-5 flex w-full">
