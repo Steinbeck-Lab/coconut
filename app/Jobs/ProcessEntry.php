@@ -40,7 +40,7 @@ class ProcessEntry implements ShouldQueue
         $data = null;
         $has_stereocenters = false;
         $error_code = -1;
-        $API_URL = env('API_URL', 'https://dev.api.naturalproducts.net/latest/');
+        $API_URL = env('API_URL', 'https://api.cheminf.studio/latest/');
         $ENDPOINT = $API_URL.'chem/coconut/pre-processing?smiles='.urlencode($canonical_smiles).'&_3d_mol=false&descriptors=false';
 
         try {

@@ -114,7 +114,7 @@ class Molecule extends Model implements Auditable
      */
     public function organisms(): BelongsToMany
     {
-        return $this->belongsToMany(Organism::class)->withPivot('id', 'organism_parts')->withTimestamps();
+        return $this->belongsToMany(Organism::class)->withTimestamps();
     }
 
     /**
@@ -123,6 +123,11 @@ class Molecule extends Model implements Auditable
     public function geo_locations(): BelongsToMany
     {
         return $this->belongsToMany(GeoLocation::class)->withPivot('locations')->withTimestamps();
+    }
+
+    public function sampleLocations(): BelongsToMany
+    {
+        return $this->belongsToMany(SampleLocation::class);
     }
 
     /**
