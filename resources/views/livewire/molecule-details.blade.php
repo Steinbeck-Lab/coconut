@@ -754,7 +754,7 @@
             </div>
             <section aria-labelledby="timeline-title" class="lg:col-span-1 lg:col-start-3">
                 <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg bg-white mb-2">
-                    <livewire:molecule-depict2d :height="300" :smiles="$molecule->canonical_smiles" lazy="on-load">
+                    <livewire:molecule-depict2d :height="300" :smiles="$molecule->canonical_smiles" :options="true" lazy="on-load">
                 </div>
                 <div>
                     <livewire:molecule-depict3d :height="300" :smiles="$molecule->canonical_smiles" lazy="on-load">

@@ -15,6 +15,8 @@ class MoleculeDepict2d extends Component
 
     public $toolkit = 'cdk';
 
+    public $options = false;
+
     public $CIP = true;
 
     #[Computed]

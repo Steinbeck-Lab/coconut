@@ -1,5 +1,5 @@
-<div x-data="{ toolkit: @entangle('toolkit') }">
-    <fieldset class="px-4 float-right">
+<div x-data="{ toolkit: @entangle('toolkit'), options:  @entangle('options') }">
+    <fieldset x-show="options" class="px-4 w-full">
         <div class="mt-4 grid grid-cols-1 gap-y-6 sm:grid-cols-3 sm:gap-x-4">
             <label @click="toolkit= 'cdk'" aria-label="Newsletter"
                 aria-description="Last message sent an hour ago to 621 users"
