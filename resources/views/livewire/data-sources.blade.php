@@ -22,15 +22,15 @@
                     <div class="relative box-content py-2">
                         <div class="md:space-x-8 px-4 sm:px-6 lg:px-8 xl:relative xl:grid xl:grid-cols-5 xl:gap-x-8 xl:space-x-0 xl:px-0">
                             @foreach ($collections as $collection)
-                            <a href="search?type=tags&amp;q={{ $collection['title'] }}&amp;tagType=dataSource" class="relative border mb-5 flex h-80 w-full flex-col overflow-hidden rounded-lg p-6 hover:opacity-75 xl:w-auto">
-                                <span aria-hidden="true" class="absolute inset-0">
+                                <a href="search?type=tags&amp;q={{ $collection['title'] }}&amp;tagType=dataSource" class="border relative flex h-80 w-56 flex-col overflow-hidden rounded-lg p-6 hover:opacity-75 xl:w-auto">
                                     @if($collection['image'] && $collection['image'] != '')
-                                        <img src="https://s3.uni-jena.de/coconut/{{ $collection->image }}" alt="{{ $collection->title }}">
+                                        <span aria-hidden="true" class="absolute inset-0">
+                                        <img src="https://s3.uni-jena.de/coconut/{{ $collection['image'] }}" alt="" class="h-full w-full object-cover object-center">
+                                    </span>
                                     @endif
-                                </span>
-                                <span aria-hidden="true" class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-gray-800 opacity-50"></span>
-                                <span class="relative mt-auto text-center text-xl font-bold text-dark">{{ $collection['title'] }}</span>
-                            </a>
+                                    <span aria-hidden="true" class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-gray-800 opacity-100"></span>
+                                    <span class="relative mt-auto text-left text-xl font-bold text-white">{{ $collection['title'] }}</span>
+                                </a>
                             @endforeach
                         </div>
                     </div>

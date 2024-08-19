@@ -68,8 +68,8 @@ class CollectionResource extends Resource
                             FileUpload::make('image')
                                 ->label('Display image')
                                 ->image()
-                                ->directory(env('AWS_FOLDER').'collections')
-                                ->visibility('private')
+                                ->directory('collections')
+                                ->visibility('public')
                                 ->imageEditor()
                                 ->imageEditorAspectRatios([
                                     '1:1',
