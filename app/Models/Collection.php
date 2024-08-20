@@ -15,6 +15,7 @@ use Str;
 
 class Collection extends Model implements Auditable, HasMedia
 {
+    use HasDOI;
     use HasFactory;
     use HasTags;
     use InteractsWithMedia;
