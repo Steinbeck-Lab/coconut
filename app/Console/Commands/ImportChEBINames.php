@@ -65,7 +65,7 @@ class ImportChEBINames extends Command
             ->chunkById($batchSize, function ($rows) use ($updates) {
                 DB::transaction(function () use ($rows, $updates) {
                     foreach ($rows as $row) {
-                        $row->name = $updates[$row->name];
+                        $row->name = $updates[strtoupper($row->name)];
                         DB::table('molecules')
                             ->where('id', $row->id)
                             ->update(['name' => $row->name]);

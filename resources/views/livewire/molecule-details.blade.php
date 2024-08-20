@@ -629,7 +629,7 @@
                         <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
                             <div class="divide-y divide-gray-200">
                                 <div class="px-4 py-5 sm:px-6">
-                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">Parent (With our stereo definitions)
+                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">Parent (With out stereo definitions)
                                     </h2>
                                 </div>
                                 <div class="px-4 pb-5 sm:px-6">
