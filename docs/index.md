@@ -11,7 +11,7 @@ hero:
   text: The COlleCtion of Open NatUral producTs database documentation
   tagline: Your Comprehensive Resource for Open Natural Products
   image:
-    src: public/logo.png
+    src: /logo.png
     alt: COCONUT Logo
   actions:
     - theme: brand

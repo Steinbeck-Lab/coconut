@@ -59,7 +59,6 @@
   visibility: visible;
 }
 
-
 .tooltip .tooltiptextbottom {
   display: flex;
   visibility: hidden;
@@ -87,7 +86,6 @@
 .tooltip:hover .tooltiptextright {
   visibility: visible;
 }
-
 
 .wrap {
   margin: 20px auto;

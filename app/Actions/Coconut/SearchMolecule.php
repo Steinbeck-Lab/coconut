@@ -332,7 +332,7 @@ class SearchMolecule
         } else {
             return "SELECT id, COUNT(*) OVER () 
                 FROM molecules 
-                WHERE is_parent = FALSE AND active = TRUE
+                WHERE active = TRUE AND NOT (is_parent = TRUE AND has_variants = TRUE)
                 ORDER BY annotation_level DESC 
                 LIMIT {$this->size} OFFSET {$offset}";
         }

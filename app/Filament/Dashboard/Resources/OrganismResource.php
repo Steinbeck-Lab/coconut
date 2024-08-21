@@ -9,6 +9,7 @@ use App\Forms\Components\OrganismsTable;
 use App\Models\Organism;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
 use Filament\Forms;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Section;
@@ -16,7 +17,10 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use GuzzleHttp\Client;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
+use Log;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 use App\Livewire\ShowSourceOrganisms;
 use Filament\Forms\Components\Livewire;
@@ -105,7 +109,7 @@ class OrganismResource extends Resource
             ->actions([
                 Tables\Actions\Action::make('iri')
                     ->label('IRI')
-                    ->url(fn(Organism $record) => $record->iri ? urldecode($record->iri) : null, true)
+                    ->url(fn (Organism $record) => $record->iri ? urldecode($record->iri) : null, true)
                     ->color('info')
                     ->icon('heroicon-o-link'),
                 // Tables\Actions\ViewAction::make(),

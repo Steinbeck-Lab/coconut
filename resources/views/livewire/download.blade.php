@@ -21,19 +21,19 @@
                                 <a href="https://coconut.s3.uni-jena.de/prod/downloads/coconut-08-2024.sdf.zip"
                                     type="button"
                                     class="font-semibold text-indigo-600 hover:text-indigo-500">Download <br />
-                                    coconut-08-2024.sdf - 364.1 MB</a>
+                                    coconut-08-2024.sdf - 297.1 MB</a>
                             </dd>
                         </div>
                         <div class="pt-6 sm:flex">
-                            <dt class="font-medium text-gray-900 sm:w-64 sm:flex-none sm:pr-6">Download the complete
+                            <dt class="font-medium text-gray-900 sm:w-64 sm:flex-none sm:pr-6">Download the complete (active/inactive)
                                 COCONUT dataset as a PostgreSQL dump
                             </dt>
                             <dd class="mt-1 flex justify-between gap-x-6 sm:mt-0 sm:flex-auto text-right">
                                 <div class="text-gray-900">&emsp;</div>
-                                <a href="https://coconut.s3.uni-jena.de/prod/downloads/coconut-08-2024.sql"
+                                <a href="https://coconut.s3.uni-jena.de/prod/downloads/coconut-08-2024-dump.sql.zip"
                                     type="button"
                                     class="font-semibold text-indigo-600 hover:text-indigo-500">Download <br />
-                                    coconut-08-2024.sql - 20.94 GB</a>
+                                    coconut-08-2024.sql - 1.82 GB</a>
                             </dd>
                         </div>
                         <div class="pt-6 sm:flex">
@@ -41,10 +41,10 @@
                                 Products Structures in CSV format</dt>
                             <dd class="mt-1 flex justify-between gap-x-6 sm:mt-0 sm:flex-auto  text-right">
                                 <div class="text-gray-900">&emsp;</div>
-                                <a href="https://coconut.s3.uni-jena.de/prod/downloads/coconut-08-2024.csv"
+                                <a href="https://coconut.s3.uni-jena.de/prod/downloads/coconut-08-2024.csv.zip"
                                     type="button"
                                     class="font-semibold text-indigo-600 hover:text-indigo-500">Download <br />
-                                    coconut-08-2024.csv - 209.2 MB</a>
+                                    coconut-08-2024.csv - 88.9 MB</a>
                             </dd>
                         </div>
                     </dl>

@@ -78,7 +78,7 @@ class DashWidgetsRefresh extends Command
         $this->info('Cache for molecules parent refreshed.');
 
         Cache::rememberForever('stats.molecules', function () {
-            return DB::table('molecules')->selectRaw('count(*)')->whereRaw('has_stereo=false and is_parent=false and active=true')->get()[0]->count + DB::table('molecules')->selectRaw('count(*)')->whereRaw('has_stereo=true and active=true')->get()[0]->count;
+            return DB::table('molecules')->selectRaw('count(*)')->whereRaw('active=true and NOT (is_parent=true AND has_variants=true)')->get()[0]->count;
         });
         $this->info('Cache for molecules refreshed.');
 

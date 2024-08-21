@@ -39,15 +39,15 @@
         </div>
         <div class="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-8">
             @foreach ($collections as $collection)
-            <a href="search?type=tags&amp;q={{ $collection->title }}&amp;tagType=dataSource" class="relative border mb-5 flex h-80 w-56 flex-col overflow-hidden rounded-lg p-6 hover:opacity-75 xl:w-auto">
-                <span aria-hidden="true" class="absolute inset-0">
-                    @if($collection['image'] && $collection['image'] != '')
-                        <img src="https://s3.uni-jena.de/coconut/{{ $collection->image }}" alt="{{ $collection->title }}">
-                    @endif
-                </span>
-                <span aria-hidden="true" class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-gray-800 opacity-50"></span>
-                <span class="relative mt-auto text-left text-xl font-bold text-dark">{{ $collection->title }}</span>
-                <span class="relative mt-1 text-left text-sm text-dark">{{ Str::limit($collection->description, 80, '...') }}</span>
+            <a href="search?type=tags&amp;q={{ $collection->title }}&amp;tagType=dataSource" class="border relative flex h-80 w-56 flex-col overflow-hidden rounded-lg p-6 hover:opacity-75 xl:w-auto">
+                @if($collection['image'] && $collection['image'] != '')
+                    <span aria-hidden="true" class="absolute inset-0">
+                    <img src="https://s3.uni-jena.de/coconut/{{ $collection->image }}" alt="" class="h-full w-full object-cover object-center">
+                  </span>
+                @endif
+                <span aria-hidden="true" class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-gray-800 opacity-100"></span>
+                <span class="relative mt-auto text-left text-xl font-bold text-white">{{ $collection->title }}</span>
+                <span class="relative mt-1 text-left text-sm text-white ">{{ Str::limit($collection->description, 80, '...') }}</span>
             </a>
             @endforeach
         </div>
