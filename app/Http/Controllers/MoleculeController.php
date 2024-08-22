@@ -13,7 +13,11 @@ class MoleculeController extends Controller
      */
     public function __invoke(Request $request, $id)
     {
-        $molecule = Cache::remember('molecules.'.$id, 1440, function () use ($id) {
+        if (strpos($id, '.') === false) {
+            $id .= '.0';
+        }
+
+        $molecule = Cache::rememberForever('molecules.'.$id, function () use ($id) {
             return Molecule::where('identifier', $id)->first();
         });
 
