@@ -1,15 +1,15 @@
 <?php
 
+use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Auth\SocialController;
+use App\Http\Controllers\MoleculeController;
 use App\Livewire\About;
 use App\Livewire\CollectionList;
 use App\Livewire\Download;
 use App\Livewire\Guides;
-use App\Livewire\MoleculeDetails;
 use App\Livewire\Policy;
 use App\Livewire\Search;
 use App\Livewire\Terms;
-use App\Livewire\Welcome;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,7 +30,8 @@ Route::group([
     Route::get('/login/{service}/callback', [SocialController::class, 'handleProviderCallback']);
 });
 
-Route::get('/', Welcome::class);
+Route::get('/', ApplicationController::class);
+
 Route::get('/policy', Policy::class);
 Route::get('/terms', Terms::class);
 Route::get('/guidelines', Guides::class);
@@ -40,5 +41,5 @@ Route::get('/download', Download::class);
 Route::get('/collections', CollectionList::class)->name('collections.index');
 
 // Compound pages
-Route::get('compounds/{id}', MoleculeDetails::class)->name('compound');
+Route::get('compounds/{id}', MoleculeController::class)->name('compound');
 Route::get('/search', Search::class)->name('browse');

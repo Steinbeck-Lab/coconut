@@ -2,9 +2,8 @@
 
 namespace App\Livewire;
 
-use App\Models\Molecule;
 use Cache;
-use Livewire\Attributes\Layout;
+use Illuminate\View\View;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
 
@@ -13,21 +12,22 @@ class MoleculeDetails extends Component
 {
     public $molecule;
 
-    public function mount($id)
+    public function mount($molecule)
     {
-        $this->molecule = Cache::remember('molecules.'.$id, 1440, function () use ($id) {
-            return Molecule::with('properties')->where('identifier', $id)->first();
-        });
-    }
-
-    public function loadAdditionalRelations()
-    {
-        return $this->molecule->load('citations', 'collections', 'audits', 'variants', 'organisms', 'geo_locations', 'related');
+        $this->molecule = $molecule;
     }
 
     public function rendered()
     {
-        $this->loadAdditionalRelations();
+        $molecule = $this->molecule;
+        $id = $molecule->identifier;
+        $_molecule = Cache::get('molecules.'.$id);
+        if (! $_molecule->relationLoaded('properties')) {
+            Cache::forget('molecules.'.$id);
+            Cache::rememberForever('molecules.'.$id, function () use ($molecule) {
+                return $molecule;
+            });
+        }
     }
 
     public function placeholder()
@@ -58,19 +58,8 @@ class MoleculeDetails extends Component
         HTML;
     }
 
-    #[Layout('layouts.guest')]
-    public function render()
+    public function render(): View
     {
-        return view('livewire.molecule-details')
-            ->layoutData([
-                'title' => $this->molecule->name ? $this->molecule->name : $this->molecule->iupac_name,
-                'description' => $this->molecule->description ?? 'Molecule details for '.($this->molecule->name ? $this->molecule->name : $this->molecule->iupac_name),
-                'keywords' => 'natural products, '.$this->molecule->name.', '.$this->molecule->iupac_name.', '.implode(',', $this->molecule->synonyms ?? []),
-                'author' => $this->molecule->author ?? 'COCONUT Team',
-                'ogTitle' => $this->molecule->name ? $this->molecule->name : $this->molecule->iupac_name,
-                'ogDescription' => $this->molecule->description ?? 'Molecule details for '.($this->molecule->name ? $this->molecule->name : $this->molecule->iupac_name),
-                'ogImage' => env('CM_API').'depict/2D?smiles='.urlencode($this->molecule->canonical_smiles).'&height=200&width=200&toolkit=cdk' ?? asset('img/coconut-og-image.png'),
-                'ogSiteName' => 'Coconut 2.0',
-            ]);
+        return view('livewire.molecule-details');
     }
 }
