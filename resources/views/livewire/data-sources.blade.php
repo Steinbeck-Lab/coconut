@@ -22,7 +22,7 @@
                     <div class="relative box-content py-2">
                         <div class="md:space-x-8 px-4 sm:px-6 lg:px-8 xl:relative xl:grid xl:grid-cols-5 xl:gap-x-8 xl:space-x-0 xl:px-0">
                             @foreach ($collections as $collection)
-                                <a href="search?type=tags&amp;q={{ $collection['title'] }}&amp;tagType=dataSource" class="border relative flex h-80 w-56 flex-col overflow-hidden rounded-lg p-6 hover:opacity-75 xl:w-auto">
+                                <a href="search?type=tags&amp;q={{ $collection['title'] }}&amp;tagType=dataSource" class="border relative flex h-80 w-full flex-col overflow-hidden rounded-lg p-6 hover:opacity-75 xl:w-auto mb-10">
                                     @if($collection['image'] && $collection['image'] != '')
                                         <span aria-hidden="true" class="absolute inset-0">
                                         <img src="https://s3.uni-jena.de/coconut/{{ $collection['image'] }}" alt="" class="h-full w-full object-cover object-center">
