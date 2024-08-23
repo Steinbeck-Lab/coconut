@@ -9,6 +9,8 @@ class MoleculeDepict2d extends Component
 {
     public $smiles = null;
 
+    public $name = null;
+
     public $height = 200;
 
     public $width = 200;
