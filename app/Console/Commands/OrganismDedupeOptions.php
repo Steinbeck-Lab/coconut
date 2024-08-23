@@ -4,8 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use App\Models\Organism;
+use function Laravel\Prompts\select;
 
 class OrganismDedupeOptions extends Command
 {
@@ -39,22 +39,22 @@ class OrganismDedupeOptions extends Command
 
 
         $this->info('Finding duplicate records...');
+
         // Query to find duplicates case-insensitively
         $duplicates = Organism::selectRaw('slug, COUNT(*) as count')
             ->whereRaw('molecule_count > 0')
             ->groupBy('slug')
             ->havingRaw('COUNT(*) > 1')
-            ->pluck('slug')->toArray();
+            ->pluck('slug')
+            ->toArray();
 
-        if (!count($duplicates)) {
+        if (count($duplicates) === 0) {
             $this->info('No duplicates found.');
             return 0;
         }
 
-
         // Fetch all records that have duplicates
-        $records = Organism::whereIn('slug', $duplicates)
-            ->get();
+        $records = Organism::whereIn('slug', $duplicates)->get();
 
         // Group records by the lowercase version of the duplicate column for easier processing
         $groupedRecords = $records->groupBy('slug');
@@ -62,58 +62,43 @@ class OrganismDedupeOptions extends Command
         foreach ($groupedRecords as $columnValue => $group) {
             $this->info("Duplicate records found for: {$columnValue}");
 
+            $choices = [];
             foreach ($group as $index => $record) {
-                $this->info("{$index}: ID = {$record->id}, Column Value = {$record->name}, rank = {$record->rank}, molucule count = {$record->molecule_count}, IRI = {$record->iri}");
+                $choices[$index] = "ID = {$record->id}, Name = {$record->name}, Rank = {$record->rank}, Molecule Count = {$record->molecule_count}, IRI = {$record->iri}";
             }
 
-            $retainIndex = $this->ask('Enter the number of the record you want to retain');
+            $retainValue = select(
+                'Select the record you want to retain:',
+                $choices
+            );
+            $retainIndex = array_keys($choices, $retainValue)[0];
 
-            if (is_numeric($retainIndex) && isset($group[$retainIndex])) {
+            if (isset($group[$retainIndex])) {
+                $selectedOrganism = $group[$retainIndex];
+                $restOfTheOrganisms = $group->forget($retainIndex);
 
-                $selected_organism = $group[$retainIndex];
-                $rest_of_the_organisms = $group->forget($retainIndex);
-
-                foreach ($rest_of_the_organisms as $removable_organism) {
-
-                    DB::transaction(function () use ($selected_organism, $removable_organism) {
-                        DB::beginTransaction();
+                foreach ($restOfTheOrganisms as $removableOrganism) {
+                    DB::transaction(function () use ($selectedOrganism, $removableOrganism) {
                         try {
-                            $moleculeIds = $removable_organism->molecules->pluck('id')->toArray();
-                            // $removable_organism = $this->getOwnerRecord();
-                            $removable_organism->molecules()->detach($moleculeIds);
+                            $moleculeIds = $removableOrganism->molecules->pluck('id')->toArray();
 
-                            // foreach ($currentOrganism->sampleLocations as $location) {
-                            //     $location->molecules()->detach($moleculeIds);
-                            // }
-                            // $newOrganism = Organism::findOrFail($data['org_id']);
+                            $removableOrganism->molecules()->detach($moleculeIds);
+                            $selectedOrganism->molecules()->syncWithoutDetaching($moleculeIds);
 
-                            // $locations = $livewire->mountedTableBulkActionData['locations'];
-                            // if ($locations) {
-                            //     $sampleLocations = SampleLocation::findOrFail($locations);
-                            //     foreach ($sampleLocations as $location) {
-                            //         $location->molecules()->syncWithoutDetaching($moleculeIds);
-                            //     }
-                            // }
-                            $selected_organism->molecules()->syncWithoutDetaching($moleculeIds);
-
-                            $removable_organism->refresh();
-                            $selected_organism->refresh();
-
-                            $removable_organism->molecule_count = $removable_organism->molecules()->count();
-                            $removable_organism->save();
-                            $selected_organism->molecule_count = $selected_organism->molecules()->count();
-                            $selected_organism->save();
+                            $removableOrganism->molecule_count = $removableOrganism->molecules()->count();
+                            $removableOrganism->save();
+                            $selectedOrganism->molecule_count = $selectedOrganism->molecules()->count();
+                            $selectedOrganism->save();
 
                             DB::commit();
                         } catch (\Exception $e) {
-                            // Rollback the transaction in case of any error
                             DB::rollBack();
-                            throw $e; // Optionally rethrow the exception
+                            throw $e;
                         }
                     });
                 }
 
-                $this->info("Reassigned molecules to Organism {$selected_organism->name} with ID = {$selected_organism->id}");
+                $this->info("Reassigned molecules to Organism {$selectedOrganism->name} with ID = {$selectedOrganism->id}");
             } else {
                 $this->warn("Invalid selection. No records were deleted for {$columnValue}.");
             }
