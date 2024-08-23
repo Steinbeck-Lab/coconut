@@ -22,10 +22,13 @@
                         <li class="p-4 lg:px-8">
                             <a class="text-slate-800 hover:text-slate-900" href="/search">Search</a>
                         </li>
+                        <li class="p-4 lg:px-8">
+                            <a class="text-slate-800 hover:text-slate-900" href="/collections">Collections</a>
+                        </li>
                         <li class="p-4 lg:px-8 relative flex items-center space-x-1" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
                             <a class="text-slate-800 hover:text-slate-900" href="#0" :aria-expanded="open" aria-expanded="false">Docs</a>
                             <button class="shrink-0 p-1" :aria-expanded="open" @click.prevent="open = !open" aria-expanded="false">
-                                <span class="sr-only">Show submenu for "Flyout Menu"</span>
+                                <span class="sr-only">Docs</span>
                                 <svg class="w-3 h-3 fill-slate-500" xmlns="http://www.w3.org/2000/svg" width="12" height="12">
                                     <path d="M10 2.586 11.414 4 6 9.414.586 4 2 2.586l4 4z"></path>
                                 </svg>
