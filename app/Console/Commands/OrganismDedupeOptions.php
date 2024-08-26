@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Organism;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use App\Models\Organism;
+
 use function Laravel\Prompts\select;
 
 class OrganismDedupeOptions extends Command
@@ -37,7 +38,6 @@ class OrganismDedupeOptions extends Command
         WHERE slug = '' or slug is null;"
         );
 
-
         $this->info('Finding duplicate records...');
 
         // Query to find duplicates case-insensitively
@@ -50,6 +50,7 @@ class OrganismDedupeOptions extends Command
 
         if (count($duplicates) === 0) {
             $this->info('No duplicates found.');
+
             return 0;
         }
 
@@ -58,6 +59,8 @@ class OrganismDedupeOptions extends Command
 
         // Group records by the lowercase version of the duplicate column for easier processing
         $groupedRecords = $records->groupBy('slug');
+
+        $this->info('Found '.count($groupedRecords).' duplicate records.');
 
         foreach ($groupedRecords as $columnValue => $group) {
             $this->info("Duplicate records found for: {$columnValue}");
@@ -82,11 +85,14 @@ class OrganismDedupeOptions extends Command
                         try {
                             $moleculeIds = $removableOrganism->molecules->pluck('id')->toArray();
 
-                            $removableOrganism->molecules()->detach($moleculeIds);
-                            $selectedOrganism->molecules()->syncWithoutDetaching($moleculeIds);
+                            // $removableOrganism->molecules()->detach($moleculeIds);
+                            // $selectedOrganism->molecules()->syncWithoutDetaching($moleculeIds);
+
+                            $removableOrganism->auditDetach('molecules', $moleculeIds);
+                            $selectedOrganism->auditSyncWithoutDetaching('molecules', $moleculeIds);
 
                             $removableOrganism->molecule_count = $removableOrganism->molecules()->count();
-                            $removableOrganism->save();
+                            $removableOrganism->delete();
                             $selectedOrganism->molecule_count = $selectedOrganism->molecules()->count();
                             $selectedOrganism->save();
 
@@ -105,6 +111,7 @@ class OrganismDedupeOptions extends Command
         }
 
         $this->info('Duplicate handling complete.');
+
         return 0;
     }
 }

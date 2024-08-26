@@ -40,7 +40,7 @@ class MoleculesRelationManager extends RelationManager
                 ImageColumn::make('structure')->square()
                     ->label('Structure')
                     ->state(function ($record) {
-                        return env('CM_API', 'https://api.cheminf.studio/latest/') . 'depict/2D?smiles=' . urlencode($record->canonical_smiles) . '&height=300&width=300&CIP=true&toolkit=cdk';
+                        return env('CM_API', 'https://api.cheminf.studio/latest/').'depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=true&toolkit=cdk';
                     })
                     ->width(200)
                     ->height(200)
@@ -50,9 +50,9 @@ class MoleculesRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('identifier')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('name')->searchable()
                     ->formatStateUsing(
-                        fn(Molecule $molecule): HtmlString => new HtmlString("<strong>ID:</strong> {$molecule->id}<br><strong>Identifier:</strong> {$molecule->identifier}<br><strong>Name:</strong> {$molecule->name}")
+                        fn (Molecule $molecule): HtmlString => new HtmlString("<strong>ID:</strong> {$molecule->id}<br><strong>Identifier:</strong> {$molecule->identifier}<br><strong>Name:</strong> {$molecule->name}")
                     )
-                    ->description(fn(Molecule $molecule): string => $molecule->standard_inchi)
+                    ->description(fn (Molecule $molecule): string => $molecule->standard_inchi)
                     ->wrap(),
                 Tables\Columns\TextColumn::make('synonyms')
                     ->searchable()

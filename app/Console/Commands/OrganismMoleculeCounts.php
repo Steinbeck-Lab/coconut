@@ -41,11 +41,10 @@ class OrganismMoleculeCounts extends Command
         }
 
         $this->info('Updatin the residual organisms.');
-        
+
         DB::table('organisms')
             ->whereNotIn('id', $moleculeCounts->pluck('id'))
             ->update(['molecule_count' => 0]);
-
 
         $this->info('Update process completed.');
     }
