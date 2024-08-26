@@ -4,15 +4,12 @@ namespace App\Filament\Dashboard\Resources;
 
 use App\Filament\Dashboard\Resources\SampleLocationResource\Pages;
 use App\Filament\Dashboard\Resources\SampleLocationResource\RelationManagers\MoleculesRelationManager;
-use App\Filament\Dashboard\Resources\SampleLocationResource\RelationManagers;
 use App\Models\SampleLocation;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class SampleLocationResource extends Resource
@@ -20,7 +17,9 @@ class SampleLocationResource extends Resource
     protected static ?string $model = SampleLocation::class;
 
     protected static bool $shouldRegisterNavigation = false;
+
     protected static ?string $navigationGroup = 'Data';
+
     protected static ?int $navigationSort = 6;
 
     protected static ?string $navigationIcon = 'heroicon-s-viewfinder-circle';
@@ -35,8 +34,8 @@ class SampleLocationResource extends Resource
                 Forms\Components\TextInput::make('iri')
                     ->maxLength(255),
                 Forms\Components\Select::make('organism_id')
-                ->relationship('organisms', 'name')
-                ->searchable()
+                    ->relationship('organisms', 'name')
+                    ->searchable()
                     ->required(),
                 Forms\Components\TextInput::make('collection_ids')
                     ->maxLength(255),
