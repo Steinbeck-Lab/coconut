@@ -36,6 +36,7 @@
         "spatie/laravel-backup": "^8.6",
         "spatie/laravel-cookie-consent": "^3.3",
         "spatie/laravel-permission": "^6.3",
+        "spatie/schema-org": "^3.23",
         "stechstudio/filament-impersonate": "*",
         "stephenjude/filament-debugger": "^3.0",
         "tapp/filament-auditing": "^3.0",
