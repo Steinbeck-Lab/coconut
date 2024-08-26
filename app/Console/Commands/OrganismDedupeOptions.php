@@ -72,44 +72,52 @@ class OrganismDedupeOptions extends Command
                 $choices[$index] = "ID = {$record->id}, Name = {$record->name}, Rank = {$record->rank}, Molecule Count = {$record->molecule_count}, IRI = {$record->iri}";
             }
 
+            array_unshift($choices, 'Skip');
+
+            // dd($choices);
+
             $retainValue = select(
                 'Select the record you want to retain:',
                 $choices
             );
             $retainIndex = array_keys($choices, $retainValue)[0];
+            if ($retainValue === 'Skip') {
+                $this->info("Skipping...{$columnValue}.");
 
-            if (isset($group[$retainIndex])) {
-                $selectedOrganism = $group[$retainIndex];
-                $restOfTheOrganisms = $group->forget($retainIndex);
-
-                foreach ($restOfTheOrganisms as $removableOrganism) {
-                    DB::transaction(function () use ($selectedOrganism, $removableOrganism) {
-                        try {
-                            $moleculeIds = $removableOrganism->molecules->pluck('id')->toArray();
-
-                            // $removableOrganism->molecules()->detach($moleculeIds);
-                            // $selectedOrganism->molecules()->syncWithoutDetaching($moleculeIds);
-
-                            $removableOrganism->auditDetach('molecules', $moleculeIds);
-                            $selectedOrganism->auditSyncWithoutDetaching('molecules', $moleculeIds);
-
-                            $removableOrganism->molecule_count = $removableOrganism->molecules()->count();
-                            $removableOrganism->delete();
-                            $selectedOrganism->molecule_count = $selectedOrganism->molecules()->count();
-                            $selectedOrganism->save();
-
-                            DB::commit();
-                        } catch (\Exception $e) {
-                            DB::rollBack();
-                            throw $e;
-                        }
-                    });
-                }
-
-                $this->info("Reassigned molecules to Organism {$selectedOrganism->name} with ID = {$selectedOrganism->id}");
+                continue;
             } else {
-                $this->warn("Invalid selection. No records were deleted for {$columnValue}.");
+                $retainIndex = $retainIndex - 1;
+                if (isset($group[$retainIndex])) {
+                    $selectedOrganism = $group[$retainIndex];
+                    $restOfTheOrganisms = $group->forget($retainIndex);
+
+                    foreach ($restOfTheOrganisms as $removableOrganism) {
+                        DB::transaction(function () use ($selectedOrganism, $removableOrganism) {
+                            try {
+                                $moleculeIds = $removableOrganism->molecules->pluck('id')->toArray();
+
+                                $removableOrganism->auditDetach('molecules', $moleculeIds);
+                                $selectedOrganism->auditSyncWithoutDetaching('molecules', $moleculeIds);
+
+                                $removableOrganism->molecule_count = $removableOrganism->molecules()->count();
+                                $removableOrganism->delete();
+                                $selectedOrganism->molecule_count = $selectedOrganism->molecules()->count();
+                                $selectedOrganism->save();
+
+                                DB::commit();
+                            } catch (\Exception $e) {
+                                DB::rollBack();
+                                throw $e;
+                            }
+                        });
+                    }
+
+                    $this->info("Reassigned molecules to Organism {$selectedOrganism->name} with ID = {$selectedOrganism->id}");
+                } else {
+                    $this->warn("Invalid selection. No records were deleted for {$columnValue}.");
+                }
             }
+
         }
 
         $this->info('Duplicate handling complete.');
