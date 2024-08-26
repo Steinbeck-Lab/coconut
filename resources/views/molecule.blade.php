@@ -11,7 +11,7 @@
         <meta property="og:type" content="website">
         <meta property="og:url" content="{{ url()->current() }}">
         <meta property="og:image"
-            content="{{ env('CM_API') . 'depict/2D?smiles=' . urlencode($molecule->canonical_smiles) . '&height=200&width=200&toolkit=cdk' ?? asset('img/coconut-og-image.png') }}">
+            content="{{ env('CM_API') . 'depict/2D?smiles=' . urlencode($molecule->canonical_smiles) . '&height=630&width=1200&toolkit=cdk' ?? asset('img/coconut-og-image.png') }}">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="630">
         <meta property="og:site_name" content="{{ config('app.name', 'COCONUT') }}">
