@@ -147,10 +147,10 @@ class MoleculesRelationManager extends RelationManager
                                 try {
                                     $moleculeIds = $records->pluck('id')->toArray();
                                     $currentOrganism = $this->getOwnerRecord();
-                                    $currentOrganism->molecules()->detach($moleculeIds);
+                                    $currentOrganism->auditDetach('molecules', $moleculeIds);
 
                                     foreach ($currentOrganism->sampleLocations as $location) {
-                                        $location->molecules()->detach($moleculeIds);
+                                        $location->auditDetach('molecules', $moleculeIds);
                                     }
                                     $newOrganism = Organism::findOrFail($data['org_id']);
 
@@ -158,10 +158,10 @@ class MoleculesRelationManager extends RelationManager
                                     if ($locations) {
                                         $sampleLocations = SampleLocation::findOrFail($locations);
                                         foreach ($sampleLocations as $location) {
-                                            $location->molecules()->syncWithoutDetaching($moleculeIds);
+                                            $location->auditSyncWithoutDetaching('molecules', $moleculeIds);
                                         }
                                     }
-                                    $newOrganism->molecules()->syncWithoutDetaching($moleculeIds);
+                                    $newOrganism->auditSyncWithoutDetaching('molecules', $moleculeIds);
 
                                     $currentOrganism->refresh();
                                     $newOrganism->refresh();
