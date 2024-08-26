@@ -1,14 +1,14 @@
 <div class="mx-auto max-w-4xl lg:max-w-7xl px-4 md:px-10">
-    <div class="py-10 bg-white mt-32 rounded-lg border">
+    <div class="py-10 bg-white mt-20 rounded-lg border">
         <div
             class="mx-auto max-w-3xl px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-7xl lg:px-8">
             <div class="flex items-center space-x-5">
                 <div>
                     <p class="text-secondary-dark text-lg my-0">{{ $molecule->identifier }}</p>
-                    <h2
+                    <h1
                         class="mb-2 text-2xl break-all font-bold leading-7 break-words text-gray-900 sm:text-3xl sm:tracking-tight">
                         {{ $molecule->name ? $molecule->name : $molecule->iupac_name }}
-                    </h2>
+                    </h1>
                     <p class="text-sm font-medium text-gray-500">Created on <time
                             datetime="{{ $molecule->created_at }}">{{ $molecule->created_at }}</time> &middot; Last
                         update on <time datetime="{{ $molecule->updated_at }}">{{ $molecule->updated_at }}</time></p>
@@ -76,7 +76,8 @@
                                         </svg>
                                         <div x-show="tooltip"
                                             class="text-sm text-white absolute bg-green-400 rounded-lg p-2 transform -translate-y-8 translate-x-8">
-                                            Exact Isotopic Mass is calculated using RDKit - <a href="https://www.rdkit.org/docs/source/rdkit.Chem.Descriptors.html">https://www.rdkit.org/docs/source/rdkit.Chem.Descriptors.html</a>
+                                            Exact Isotopic Mass is calculated using RDKit - <a
+                                                href="https://www.rdkit.org/docs/source/rdkit.Chem.Descriptors.html">https://www.rdkit.org/docs/source/rdkit.Chem.Descriptors.html</a>
                                         </div>
                                     </div>
                                 </div>
@@ -141,17 +142,17 @@
                                             @endif
                                         @endforeach
                                     </ul>
-                                    @if(count($molecule->organisms) > 10)
-                                    <div class="mt-4">
-                                        <button @click="showAll = true" x-show="!showAll"
-                                            class="text-base font-semibold leading-7 text-secondary-dark text-sm">
-                                            View More ↓
-                                        </button>
-                                        <button @click="showAll = false" x-show="showAll"
-                                            class="text-base font-semibold leading-7 text-secondary-dark  text-sm">
-                                            View Less ↑
-                                        </button>
-                                    </div>
+                                    @if (count($molecule->organisms) > 10)
+                                        <div class="mt-4">
+                                            <button @click="showAll = true" x-show="!showAll"
+                                                class="text-base font-semibold leading-7 text-secondary-dark text-sm">
+                                                View More ↓
+                                            </button>
+                                            <button @click="showAll = false" x-show="showAll"
+                                                class="text-base font-semibold leading-7 text-secondary-dark  text-sm">
+                                                View Less ↑
+                                            </button>
+                                        </div>
                                     @endif
                                 </div>
                             </div>
@@ -280,23 +281,23 @@
                                                                             x-show="showAll || {{ $index }} < 10">
                                                                             <span
                                                                                 class="border px-4 bg-white isolate inline-flex rounded-md shadow-sm mb-2">
-                                                                                    {{ $synonym }}
+                                                                                {{ $synonym }}
                                                                             </span>
                                                                         </li>
                                                                     @endif
                                                                 @endforeach
                                                             </ul>
-                                                            @if($molecule->synonym_count > 10)
-                                                            <div class="mt-4">
-                                                                <button @click="showAll = true" x-show="!showAll"
-                                                                    class="text-base font-semibold leading-7 text-secondary-dark text-sm">
-                                                                    View More ↓
-                                                                </button>
-                                                                <button @click="showAll = false" x-show="showAll"
-                                                                    class="text-base font-semibold leading-7 text-secondary-dark  text-sm">
-                                                                    View Less ↑
-                                                                </button>
-                                                            </div>
+                                                            @if ($molecule->synonym_count > 10)
+                                                                <div class="mt-4">
+                                                                    <button @click="showAll = true" x-show="!showAll"
+                                                                        class="text-base font-semibold leading-7 text-secondary-dark text-sm">
+                                                                        View More ↓
+                                                                    </button>
+                                                                    <button @click="showAll = false" x-show="showAll"
+                                                                        class="text-base font-semibold leading-7 text-secondary-dark  text-sm">
+                                                                        View Less ↑
+                                                                    </button>
+                                                                </div>
                                                             @endif
                                                         </div>
                                                     </div>
@@ -479,8 +480,7 @@
                                         <div class="not-prose grid grid-cols-1 gap-6 sm:grid-cols-1"
                                             x-data="{ showAllCollections: false }">
                                             @foreach ($molecule->collections as $index => $collection)
-                                                <div
-                                                    x-data="{ collection: {{$collection}} }"
+                                                <div x-data="{ collection: {{ $collection }} }"
                                                     x-show="showAllCollections || {{ $index }} < 6">
                                                     <div class="group relative rounded-xl border border-slate-200">
                                                         <div class="relative overflow-hidden rounded-xl p-6">
@@ -539,21 +539,39 @@
                                                                         fill="url(#:R1k19n6:-gradient-dark)"></path>
                                                                 </g>
                                                             </svg>
-                                                            <a href="/search?type=tags&amp;q={{$collection->title}}&amp;tagType=dataSource" class="hover:pointer font-bold text-base text-xl text-gray-900">
-                                                                {{ $collection->title }} <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 inline">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m9 9 6-6m0 0 6 6m-6-6v12a6 6 0 0 1-12 0v-3"></path>
+                                                            <a href="/search?type=tags&amp;q={{ $collection->title }}&amp;tagType=dataSource"
+                                                                class="hover:pointer font-bold text-base text-xl text-gray-900">
+                                                                {{ $collection->title }} <svg
+                                                                    xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                    viewBox="0 0 24 24" stroke-width="1.5"
+                                                                    stroke="currentColor" class="size-4 inline">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round"
+                                                                        d="m9 9 6-6m0 0 6 6m-6-6v12a6 6 0 0 1-12 0v-3">
+                                                                    </path>
                                                                 </svg>
                                                             </a>
-                                                            <h2 x-show="collection.description" class="mt-2 font-display text-base text-slate-900">
+                                                            <h2 x-show="collection.description"
+                                                                class="mt-2 font-display text-base text-slate-900">
                                                                 {{ $collection->description }}
                                                             </h2>
-                                                            <h2 x-show="collection.doi" class="mt-2 font-display text-base text-slate-900">
+                                                            <h2 x-show="collection.doi"
+                                                                class="mt-2 font-display text-base text-slate-900">
                                                                 {{ $collection->doi }}
                                                             </h2>
-                                                            <h2  x-show="collection.pivot.reference" class="hover:text-blue-500 mt-1 font-display text-base text-slate-900">
-                                                                Reference: <a href="{{ $collection->pivot->url }}" target="_blank">{{ $collection->pivot->reference }} <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 inline">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"></path>
-                                                                </svg></a>
+                                                            <h2 x-show="collection.pivot.reference"
+                                                                class="hover:text-blue-500 mt-1 font-display text-base text-slate-900">
+                                                                Reference: <a href="{{ $collection->pivot->url }}"
+                                                                    target="_blank">{{ $collection->pivot->reference }}
+                                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                                        fill="none" viewBox="0 0 24 24"
+                                                                        stroke-width="1.5" stroke="currentColor"
+                                                                        class="size-4 inline">
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round"
+                                                                            d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25">
+                                                                        </path>
+                                                                    </svg></a>
                                                             </h2>
                                                         </div>
                                                     </div>
@@ -594,7 +612,7 @@
                                 <div class="px-4 pb-5 sm:px-6">
                                     <div class="mx-auto grid mt-6 gap-5 lg:max-w-none md:grid-cols-3 lg:grid-cols-2">
                                         @foreach ($molecule->related as $tautomer)
-                                            <livewire:molecule-card :molecule="$tautomer" lazy/>
+                                            <livewire:molecule-card :molecule="$tautomer" lazy />
                                         @endforeach
                                     </div>
                                 </div>
@@ -615,7 +633,7 @@
                                 <div class="px-4 pb-5 sm:px-6">
                                     <div class="mx-auto grid mt-6 gap-5 lg:max-w-none md:grid-cols-3 lg:grid-cols-2">
                                         @foreach ($molecule->variants as $variant)
-                                            <livewire:molecule-card :molecule="$variant" lazy/>
+                                            <livewire:molecule-card :molecule="$variant" lazy />
                                         @endforeach
                                     </div>
                                 </div>
@@ -629,13 +647,14 @@
                         <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
                             <div class="divide-y divide-gray-200">
                                 <div class="px-4 py-5 sm:px-6">
-                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">Parent (With our stereo definitions)
+                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">Parent (With out
+                                        stereo definitions)
                                     </h2>
                                 </div>
                                 <div class="px-4 pb-5 sm:px-6">
                                     <div class="mx-auto grid mt-6 gap-5 lg:max-w-none md:grid-cols-3 lg:grid-cols-2">
                                         <div class="rounded-lg hover:shadow-lg shadow border">
-                                            <livewire:molecule-card :molecule="$molecule->parent" lazy/>
+                                            <livewire:molecule-card :molecule="$molecule->parent" lazy />
                                         </div>
                                     </div>
                                 </div>
@@ -656,6 +675,28 @@
                                 <div class="px-4 py-6 sm:px-6">
                                     <div>
                                         <ul role="list" class="px-0">
+                                            <li class="py-5 flex md:py-0"><span
+                                                    class="ml-3 text-base text-gray-500">Mol. Formula :
+                                                    {{ $molecule->properties->molecular_formula }}</span>
+                                            </li>
+                                            <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">
+                                                    Mol. Weight
+                                                    <span x-data="{ tooltip: false }" x-on:mouseover="tooltip = true"
+                                                        x-on:mouseleave="tooltip = false"
+                                                        class="h-5 w-5 cursor-pointer inline">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline"
+                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                        <div x-show="tooltip"
+                                                            class="text-sm text-white absolute bg-green-400 rounded-lg p-2 transform -translate-y-8 translate-x-8">
+                                                            Exact Isotopic Mass is calculated using RDKit - <a
+                                                                href="https://www.rdkit.org/docs/source/rdkit.Chem.Descriptors.html">https://www.rdkit.org/docs/source/rdkit.Chem.Descriptors.html</a>
+                                                        </div>
+                                                    </span>{{ $molecule->properties->exact_molecular_weight }}</span>
+                                            </li>
                                             <li class="py-5 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Total
                                                     atom number : {{ $molecule->properties->total_atom_count }}</span>
@@ -754,7 +795,7 @@
             </div>
             <section aria-labelledby="timeline-title" class="lg:col-span-1 lg:col-start-3">
                 <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg bg-white mb-2">
-                    <livewire:molecule-depict2d :height="300" :smiles="$molecule->canonical_smiles" :options="true" lazy="on-load">
+                    <livewire:molecule-depict2d :height="300" :smiles="$molecule->canonical_smiles" :name="$molecule->name" :options="true" lazy="on-load">
                 </div>
                 <div>
                     <livewire:molecule-depict3d :height="300" :smiles="$molecule->canonical_smiles" lazy="on-load">
@@ -784,7 +825,6 @@
                             complete history</a>
                     </div> --}}
                 </div>
-
                 <dl class="mt-5 flex w-full">
                     <div class="text-center md:text-left">
                         <dd class="mt-1"><a class="text-base font-semibold text-text-dark hover:text-slate-600"

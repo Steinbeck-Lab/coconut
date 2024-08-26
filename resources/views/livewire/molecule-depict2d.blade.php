@@ -37,6 +37,6 @@
             </label>
         </div>
     </fieldset>
-    <img class="mx-auto w-100" :src="'{{ $this->source }}&toolkit=' + toolkit + '&CIP=true&unicolor=false'"
+    <img alt="{{ $this->name }}" class="mx-auto w-100" :src="'{{ $this->source }}&toolkit=' + toolkit + '&CIP=true&unicolor=false'"
         alt="smiles" />
 </div>

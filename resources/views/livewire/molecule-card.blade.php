@@ -3,7 +3,7 @@
         <a href="{{ route('compound', $molecule->identifier) }}" wire:navigate>
             <div class="group relative flex flex-col overflow-hidden">
                 <div class="aspect-h-3 aspect-w-3 sm:aspect-none group-hover:opacity-75 h-56">
-                    <livewire:molecule-depict2d :smiles="$molecule->canonical_smiles">
+                    <livewire:molecule-depict2d :name="$molecule->name" :smiles="$molecule->canonical_smiles">
                 </div>
                 <div class="flex flex-1 border-t flex-col p-4 pb-2">
                     <div class="flex items-center">

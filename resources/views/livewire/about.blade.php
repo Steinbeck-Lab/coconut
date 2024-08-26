@@ -67,7 +67,7 @@
                             <div
                                 class="ml-auto w-44 flex-none space-y-8 pt-32 sm:ml-0 sm:pt-80 lg:order-last lg:pt-36 xl:order-none xl:pt-80">
                                 <div class="relative">
-                                    <img src="img/collections/1.png" alt=""
+                                    <img src="img/collections/1.png" alt="About us image"
                                         class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg" />
                                     <div
                                         class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10">
@@ -76,14 +76,14 @@
                             </div>
                             <div class="mr-auto w-44 flex-none space-y-8 sm:mr-0 sm:pt-52 lg:pt-36">
                                 <div class="relative">
-                                    <img src="img/collections/2.png" alt=""
+                                    <img src="img/collections/2.png" alt="About us image"
                                         class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg" />
                                     <div
                                         class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10">
                                     </div>
                                 </div>
                                 <div class="relative">
-                                    <img src="img/collections/3.png" alt=""
+                                    <img src="img/collections/3.png" alt="About us image"
                                         class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg" />
                                     <div
                                         class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10">
@@ -92,14 +92,14 @@
                             </div>
                             <div class="w-44 flex-none space-y-8 pt-32 sm:pt-0">
                                 <div class="relative">
-                                    <img src="img/collections/4.png" alt=""
+                                    <img src="img/collections/4.png" alt="About us image"
                                         class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg" />
                                     <div
                                         class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10">
                                     </div>
                                 </div>
                                 <div class="relative">
-                                    <img src="img/collections/5.png" alt=""
+                                    <img src="img/collections/5.png" alt="About us image"
                                         class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg" />
                                     <div
                                         class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10">
@@ -143,14 +143,12 @@
                         <a class="text-blue-900 underline" href="https://github.com/Steinbeck-Lab/coconut">code</a>
                         is licensed under the
                         <a class="text-blue-900 underline" href="https://opensource.org/licenses/MIT">MIT license</a>.
-                        Complete curated dataset is available for download under <a href="https://creativecommons.org/public-domain/cc0/" target="_blank">CC0 License</a>.
+                        Complete curated dataset is available for download under <a class="text-blue-900 underline" href="https://creativecommons.org/public-domain/cc0/" target="_blank">CC0 License</a>.
                     </dd>
                     <br />
                     <dt class="font-semibold text-gray-900">Help Desk</dt>
                     <dd class="mt-1 text-gray-600">
-                        Any issues or support requests can be raised at our
-                        <a class="text-blue-900 underline" href="https://helpdesk.nfdi4chem.de/">Help Desk</a>
-                        or write to us at
+                        Any issues or need support? write to us at
                         <a class="text-blue-900 underline"
                             href="mailto:info.COCONUT@uni-jena.de">info.COCONUT@uni-jena.de</a>.
                     </dd>
@@ -165,7 +163,7 @@
                         strategic oversight, foster innovation, and drive continuous improvement
                         in all our endeavors.
                         <br /><a class="text-blue-900 underline"
-                            href="https://docs.COCONUT.org/contribution/contributors.html">View →</a>
+                            href="https://steinbeck-lab.github.io/coconut/contributors.html">View →</a>
                     </dd>
                 </div>
                 <div>
@@ -175,7 +173,7 @@
                         collaborate on proposed features, ensuring implementations accurately
                         address real-world use cases.
                         <br /><a class="text-blue-900 underline"
-                            href="https://docs.COCONUT.org/introduction/intro.html">More details →</a>
+                            href="https://steinbeck-lab.github.io/coconut/introduction.html">More details →</a>
                     </dd>
                 </div>
             </dl>
