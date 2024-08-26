@@ -6,6 +6,7 @@ use App\Models\Organism;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Str;
+
 use function Laravel\Prompts\select;
 
 class OrganismDedupeOptions extends Command
@@ -31,12 +32,13 @@ class OrganismDedupeOptions extends Command
     {
         $this->info('Updating missing slugs...');
 
-        Organism::whereNotNull('slug')->chunk(100, function ($organisms) {
-            $organisms->each(function ($organism) {
-                $slug = Str::slug($organism->name);
-                $organism->update(['slug' => $slug]);
+        Organism::whereNotNull('slug')
+            ->chunk(100, function ($organisms) {
+                $organisms->each(function ($organism) {
+                    $slug = Str::slug($organism->name);
+                    $organism->update(['slug' => $slug]);
+                });
             });
-        });
 
         $this->info('Finding duplicate records...');
 
