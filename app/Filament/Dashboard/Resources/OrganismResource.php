@@ -4,6 +4,7 @@ namespace App\Filament\Dashboard\Resources;
 
 use App\Filament\Dashboard\Resources\OrganismResource\Pages;
 use App\Filament\Dashboard\Resources\OrganismResource\RelationManagers\MoleculesRelationManager;
+use App\Filament\Dashboard\Resources\OrganismResource\RelationManagers\SampleLocationsRelationManager;
 use App\Filament\Dashboard\Resources\OrganismResource\Widgets\OrganismStats;
 use App\Forms\Components\OrganismsTable;
 use App\Models\Organism;
@@ -198,6 +199,7 @@ class OrganismResource extends Resource
     {
         $arr = [
             MoleculesRelationManager::class,
+            SampleLocationsRelationManager::class,
             AuditsRelationManager::class,
         ];
 
