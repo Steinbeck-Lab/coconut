@@ -23,24 +23,24 @@
                         <div class="hidden sm:block">
                             <div class="border-b border-gray-200">
                                 <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                                    <a @click="activeTab = 'molecules'"
+                                    <div @click="activeTab = 'molecules'"
                                         class="cursor-pointer whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium"
                                         :class="activeTab === 'molecules' ? 'border-indigo-500 text-indigo-600' :
                                             'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'">
                                         Molecules
-                                    </a>
-                                    <a @click="activeTab = 'organism'"
+                                    </div>
+                                    <div @click="activeTab = 'organism'"
                                         class="cursor-pointer whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium"
                                         :class="activeTab === 'organism' ? 'border-indigo-500 text-indigo-600' :
                                             'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'">
                                         Organism
-                                    </a>
-                                    <a @click="activeTab = 'citations'"
+                                    </div>
+                                    <div @click="activeTab = 'citations'"
                                         class="cursor-pointer whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium"
                                         :class="activeTab === 'citations' ? 'border-indigo-500 text-indigo-600' :
                                             'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'">
                                         Citations
-                                    </a>
+                                    </div>
                                 </nav>
                             </div>
                         </div>
@@ -462,9 +462,6 @@
                 class="z-20 inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
                 <div class="sm:flex sm:items-start">
                     <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                            Structure Editor
-                        </h3>
                         <div class="py-3">
                             You are welcome to submit your natural product collection in CSV format to the COCONUT
                             database. Please send your data via email to <a class="text-blue-600"
