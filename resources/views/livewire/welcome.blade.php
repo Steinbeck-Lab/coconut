@@ -462,9 +462,6 @@
                 class="z-20 inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
                 <div class="sm:flex sm:items-start">
                     <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                            Structure Editor
-                        </h3>
                         <div class="py-3">
                             You are welcome to submit your natural product collection in CSV format to the COCONUT
                             database. Please send your data via email to <a class="text-blue-600"
