@@ -16,7 +16,7 @@ class OrganismDedupeOptions extends Command
      *
      * @var string
      */
-    protected $signature = 'app:organism-molecule-counts';
+    protected $signature = 'app:organism-dedupe';
 
     /**
      * The console command description.
