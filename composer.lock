@@ -74,12 +74,12 @@
         },
         {
             "name": "archilex/filament-filter-sets",
-            "version": "3.7.19",
+            "version": "3.7.20",
             "dist": {
                 "type": "zip",
-                "url": "https://filament-filter-sets.composer.sh/download/9cd30c85-2ac4-4297-ad7d-6b0bfc47a479/advanced-tables-for-filament-3.7.19.zip",
-                "reference": "fd72d86ccc79f0fbcda001f55f10efe4fd8e3fef",
-                "shasum": "517618b811e7aae886f6aa4a53c4e015850ef071"
+                "url": "https://filament-filter-sets.composer.sh/download/9cdf1bdd-b31b-412f-b4aa-d2abb0f713fa/advanced-tables-for-filament-3.7.20.zip",
+                "reference": "ebad87dc24160bdcaf3464baae45e8ca57fb275f",
+                "shasum": "2cb7530073dfdbacb4d60cc682428866b4f0f690"
             },
             "require": {
                 "archilex/filament-toggle-icon-column": "^3.0",
@@ -155,7 +155,7 @@
                 "tables",
                 "views"
             ],
-            "time": "2024-08-22T04:57:02+00:00"
+            "time": "2024-08-28T04:49:52+00:00"
         },
         {
             "name": "archilex/filament-toggle-icon-column",
@@ -291,16 +291,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.320.8",
+            "version": "3.320.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "c833a686c339eec17aac712f2788406798de5f37"
+                "reference": "1284cecc00d4ac80815c542ef3882d3a7a25ac50"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c833a686c339eec17aac712f2788406798de5f37",
-                "reference": "c833a686c339eec17aac712f2788406798de5f37",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/1284cecc00d4ac80815c542ef3882d3a7a25ac50",
+                "reference": "1284cecc00d4ac80815c542ef3882d3a7a25ac50",
                 "shasum": ""
             },
             "require": {
@@ -383,9 +383,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.320.8"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.320.9"
             },
-            "time": "2024-08-26T18:08:08+00:00"
+            "time": "2024-08-27T18:06:27+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -9101,16 +9101,16 @@
         },
         {
             "name": "spatie/laravel-package-tools",
-            "version": "1.16.4",
+            "version": "1.16.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-package-tools.git",
-                "reference": "ddf678e78d7f8b17e5cdd99c0c3413a4a6592e53"
+                "reference": "c7413972cf22ffdff97b68499c22baa04eddb6a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-package-tools/zipball/ddf678e78d7f8b17e5cdd99c0c3413a4a6592e53",
-                "reference": "ddf678e78d7f8b17e5cdd99c0c3413a4a6592e53",
+                "url": "https://api.github.com/repos/spatie/laravel-package-tools/zipball/c7413972cf22ffdff97b68499c22baa04eddb6a2",
+                "reference": "c7413972cf22ffdff97b68499c22baa04eddb6a2",
                 "shasum": ""
             },
             "require": {
@@ -9149,7 +9149,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/laravel-package-tools/issues",
-                "source": "https://github.com/spatie/laravel-package-tools/tree/1.16.4"
+                "source": "https://github.com/spatie/laravel-package-tools/tree/1.16.5"
             },
             "funding": [
                 {
@@ -9157,7 +9157,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-03-20T07:29:11+00:00"
+            "time": "2024-08-27T18:56:10+00:00"
         },
         {
             "name": "spatie/laravel-permission",
@@ -9604,16 +9604,16 @@
         },
         {
             "name": "stechstudio/filament-impersonate",
-            "version": "3.13",
+            "version": "3.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stechstudio/filament-impersonate.git",
-                "reference": "c0549153a83ee883e4126c0b86dec7c7d1e73f64"
+                "reference": "40538e1617232449e264b8dc17d266e9a96fd440"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stechstudio/filament-impersonate/zipball/c0549153a83ee883e4126c0b86dec7c7d1e73f64",
-                "reference": "c0549153a83ee883e4126c0b86dec7c7d1e73f64",
+                "url": "https://api.github.com/repos/stechstudio/filament-impersonate/zipball/40538e1617232449e264b8dc17d266e9a96fd440",
+                "reference": "40538e1617232449e264b8dc17d266e9a96fd440",
                 "shasum": ""
             },
             "require": {
@@ -9640,9 +9640,9 @@
             "description": "A Filament package to impersonate your users.",
             "support": {
                 "issues": "https://github.com/stechstudio/filament-impersonate/issues",
-                "source": "https://github.com/stechstudio/filament-impersonate/tree/3.13"
+                "source": "https://github.com/stechstudio/filament-impersonate/tree/3.14"
             },
-            "time": "2024-07-23T19:42:27+00:00"
+            "time": "2024-08-27T12:29:07+00:00"
         },
         {
             "name": "stephenjude/filament-debugger",
@@ -12383,16 +12383,16 @@
         },
         {
             "name": "tecnickcom/tc-lib-pdf",
-            "version": "8.0.75",
+            "version": "8.0.77",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/tc-lib-pdf.git",
-                "reference": "58de3e1df3234506335ceda51571b7dbf1f6b0a1"
+                "reference": "29aff776b584cdb72ea51dd96dbfa3a827e4adbe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf/zipball/58de3e1df3234506335ceda51571b7dbf1f6b0a1",
-                "reference": "58de3e1df3234506335ceda51571b7dbf1f6b0a1",
+                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf/zipball/29aff776b584cdb72ea51dd96dbfa3a827e4adbe",
+                "reference": "29aff776b584cdb72ea51dd96dbfa3a827e4adbe",
                 "shasum": ""
             },
             "require": {
@@ -12406,7 +12406,7 @@
                 "tecnickcom/tc-lib-pdf-font": "^2.5",
                 "tecnickcom/tc-lib-pdf-graph": "^2.1",
                 "tecnickcom/tc-lib-pdf-image": "^2.1",
-                "tecnickcom/tc-lib-pdf-page": "^4.1",
+                "tecnickcom/tc-lib-pdf-page": "^4.2",
                 "tecnickcom/tc-lib-unicode": "^2.0",
                 "tecnickcom/tc-lib-unicode-data": "^2.0"
             },
@@ -12444,7 +12444,7 @@
             ],
             "support": {
                 "issues": "https://github.com/tecnickcom/tc-lib-pdf/issues",
-                "source": "https://github.com/tecnickcom/tc-lib-pdf/tree/8.0.75"
+                "source": "https://github.com/tecnickcom/tc-lib-pdf/tree/8.0.77"
             },
             "funding": [
                 {
@@ -12452,7 +12452,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2024-08-26T14:55:46+00:00"
+            "time": "2024-08-27T08:33:13+00:00"
         },
         {
             "name": "tecnickcom/tc-lib-pdf-encrypt",
@@ -12725,16 +12725,16 @@
         },
         {
             "name": "tecnickcom/tc-lib-pdf-page",
-            "version": "4.1.1",
+            "version": "4.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/tc-lib-pdf-page.git",
-                "reference": "6c9bf07664101a5bb24d8cabda768d5c56984d23"
+                "reference": "df9f7f0b17eeb7eba526dbaa4ce4a32f49317c97"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf-page/zipball/6c9bf07664101a5bb24d8cabda768d5c56984d23",
-                "reference": "6c9bf07664101a5bb24d8cabda768d5c56984d23",
+                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf-page/zipball/df9f7f0b17eeb7eba526dbaa4ce4a32f49317c97",
+                "reference": "df9f7f0b17eeb7eba526dbaa4ce4a32f49317c97",
                 "shasum": ""
             },
             "require": {
@@ -12777,7 +12777,7 @@
             ],
             "support": {
                 "issues": "https://github.com/tecnickcom/tc-lib-pdf-page/issues",
-                "source": "https://github.com/tecnickcom/tc-lib-pdf-page/tree/4.1.1"
+                "source": "https://github.com/tecnickcom/tc-lib-pdf-page/tree/4.2.0"
             },
             "funding": [
                 {
@@ -12785,7 +12785,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2024-08-26T12:21:29+00:00"
+            "time": "2024-08-27T08:29:02+00:00"
         },
         {
             "name": "tecnickcom/tc-lib-unicode",
