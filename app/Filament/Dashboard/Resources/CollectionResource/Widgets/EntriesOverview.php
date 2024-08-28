@@ -15,13 +15,13 @@ class EntriesOverview extends BaseWidget
     protected function getStats(): array
     {
         return [
-            Stat::make('Entries', $this->record->entries->count())
+            Stat::make('Entries', $this->record->total_entries)
                 ->description('Total count')
                 ->color('primary'),
-            Stat::make('Passed Entries', $this->record->entries->where('status', 'PASSED')->count())
+            Stat::make('Passed Entries', $this->record->successful_entries)
                 ->description('Successful count')
                 ->color('success'),
-            Stat::make('Entries', $this->record->entries->where('status', 'REJECTED')->count())
+            Stat::make('Entries', $this->record->failed_entries)
                 ->description('Failed entries')
                 ->color('danger'),
         ];

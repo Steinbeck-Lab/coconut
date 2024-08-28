@@ -97,24 +97,12 @@ class CollectionResource extends Resource
                     ->wrap(),
                 Tables\Columns\TextColumn::make('entries')
                     ->state(function (Model $record) {
-                        return Cache::get('stats.collections'.$record->id.'entries.count').'/'.Cache::get('stats.collections'.$record->id.'rejected_entries.count');
+                        return $record->total_entries.'/'.$record->failed_entries;
                     }),
-                Tables\Columns\TextColumn::make('molecules')
-                    ->state(function (Model $record) {
-                        return Cache::get('stats.collections'.$record->id.'molecules.count');
-                    }),
-                Tables\Columns\TextColumn::make('citations')
-                    ->state(function (Model $record) {
-                        return Cache::get('stats.collections'.$record->id.'citations.count');
-                    }),
-                Tables\Columns\TextColumn::make('organisms')
-                    ->state(function (Model $record) {
-                        return Cache::get('stats.collections'.$record->id.'organisms.count');
-                    }),
-                Tables\Columns\TextColumn::make('geo_locations')
-                    ->state(function (Model $record) {
-                        return Cache::get('stats.collections'.$record->id.'geo_locations.count');
-                    }),
+                Tables\Columns\TextColumn::make('molecules_count')->label('Molecules'),
+                Tables\Columns\TextColumn::make('citations_count')->label('Citations'),
+                Tables\Columns\TextColumn::make('organisms_count')->label('Organisms'),
+                Tables\Columns\TextColumn::make('geo_count')->label('Geo Locations'),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {

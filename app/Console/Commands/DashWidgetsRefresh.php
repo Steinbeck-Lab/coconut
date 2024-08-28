@@ -3,9 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Models\Collection;
-use App\Models\GeoLocation;
-use App\Models\Molecule;
-use App\Models\Organism;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -129,9 +126,6 @@ class DashWidgetsRefresh extends Command
             );
         }
 
-
         $this->info('Processing collection wiget counts complete');
-
-
     }
 }
