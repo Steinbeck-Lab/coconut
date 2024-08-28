@@ -53,6 +53,12 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Rest::resource('users', \App\Rest\Controllers\UsersController::class);
 });
 
+Route::prefix('schemas')->group(function () {
+    Route::prefix('bioschema')->group(function () {
+        Route::get('/{id}', [MolecularEntityController::class, 'moleculeSchema']);
+    });
+});
+
 // Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 // Route::prefix('v1')->group(function () {
 

@@ -1,9 +1,9 @@
     <header class="absolute inset-x-0 top-0" x-data="{ open: false }">
         <nav class="flex items-center justify-between p-6 lg:px-8 max-w-4xl lg:max-w-7xl mx-auto" aria-label="Global">
             <div class="flex lg:flex-1">
-                <a href="/" class="-m-1.5 p-1.5">
+                <div class="-m-1.5 p-1.5">
                     <x-authentication-card-logo />
-                </a>
+                </div>
             </div>
             <div class="flex lg:hidden">
                 <button type="button" @click="open = true"
@@ -46,7 +46,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="text-slate-800 hover:bg-slate-50 flex items-center p-2" href="http://localhost/dashboard/collections/create" target="_blank">
+                                    <a class="text-slate-800 hover:bg-slate-50 flex items-center p-2" href="/dashboard/collections/create" target="_blank">
                                         <div class="flex items-center justify-center bg-white rounded shadow-sm h-7 w-7 shrink-0 mr-3">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
@@ -100,9 +100,9 @@
             <div
                 class="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
                 <div class="flex items-center justify-between">
-                    <a href="/" class="-m-1.5 p-1.5">
+                    <div class="-m-1.5 p-1.5">
                         <x-authentication-card-logo />
-                    </a>
+                    </div>
                     <button type="button" @click="open = false" class="-m-2.5 rounded-md p-2.5 text-gray-700">
                         <span class="sr-only">Close menu</span>
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"

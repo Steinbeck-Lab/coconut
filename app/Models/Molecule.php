@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\SchemaOrg\Schema;
 use Spatie\Tags\HasTags;
 
 class Molecule extends Model implements Auditable
@@ -144,5 +145,46 @@ class Molecule extends Model implements Auditable
     public function related()
     {
         return $this->belongsToMany(Molecule::class, 'molecule_related', 'molecule_id', 'related_id');
+    }
+
+    /**
+     * Get schema json
+     */
+    public function getSchema($type = 'bioschema')
+    {
+        if ($type == 'bioschema') {
+            $moleculeSchema = Schema::MolecularEntity();
+            $moleculeSchema['@id'] = $this->inchi_key;
+            $moleculeSchema['dct:conformsTo'] = $this->prepareConformsTo();
+
+            $moleculeSchema->identifier($this->identifier)
+                ->name($this->name)
+                ->url(env('APP_URL').'/compound/'.$this->identifier)
+                ->inChI($this->inchi)
+                ->inChIKey($this->inchi_key)
+                ->iupacName($this->iupac_name)
+                ->molecularFormula($this->molecular_formula)
+                ->molecularWeight($this->molecular_weight)
+                ->smiles($this->cannonical_smiles);
+
+            if ($this->synonyms || $this->cas) {
+                $alternateNames = $this->synonyms ?? [];
+                if ($this->cas) {
+                    $alternateNames[] = $this->cas;
+                }
+                $moleculeSchema->alternateName($alternateNames);
+            }
+
+            return $moleculeSchema;
+        }
+    }
+
+    public function prepareConformsTo()
+    {
+        $creativeWork = Schema::creativeWork();
+        $creativeWork['@id'] = 'https://bioschemas.org/profiles/MolecularEntity/0.5-RELEASE';
+        $confromsTo = $creativeWork;
+
+        return $confromsTo;
     }
 }
