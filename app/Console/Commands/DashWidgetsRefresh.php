@@ -32,7 +32,7 @@ class DashWidgetsRefresh extends Command
     public function handle()
     {
         // Clear the cache for all widgets
-        // Cache::flush();
+        Cache::flush();
 
         // Create the cache for all DashboardStats widgets
         Cache::rememberForever('stats.collections', function () {
@@ -84,128 +84,54 @@ class DashWidgetsRefresh extends Command
 
         // Create the cache for all Collection widgets
 
-        $this->info('Cache for each collection is being refreshed.');
+        $this->info('Processing collection wiget counts');
+        $collection_ids = DB::select('SELECT id FROM collections order by id;');
 
-        $collection_ids = Collection::pluck('id')->toArray();
+        foreach ($collection_ids as $collection) {
+            $this->info('Processing collection '.$collection->id);
 
-        foreach ($collection_ids as $collection_id) {
-            $this->info('Refreshing Cache: CollectionID - '.$collection_id);
-            Cache::rememberForever('stats.collections'.$collection_id.'entries.count', function () use ($collection_id) {
-                return DB::table('entries')->selectRaw('count(*)')->whereRaw('collection_id='.$collection_id)->get()[0]->count;
-            });
+            $entries = DB::select("SELECT doi, organism, geo_location FROM entries WHERE collection_id = {$collection->id};");
 
-            Cache::rememberForever('stats.collections'.$collection_id.'passed_entries.count', function () use ($collection_id) {
-                return DB::table('entries')->selectRaw('count(*)')->whereRaw('collection_id='.$collection_id)->whereRaw("status = 'PASSED'")->get()[0]->count;
-            });
+            $dois = [];
+            $organisms = [];
+            $geo_locations = [];
 
-            Cache::rememberForever('stats.collections'.$collection_id.'rejected_entries.count', function () use ($collection_id) {
-                return DB::table('entries')->selectRaw('count(*)')->whereRaw('collection_id='.$collection_id)->whereRaw("status = 'REJECTED'")->get()[0]->count;
-            });
+            foreach ($entries as $entry) {
+                foreach (explode('|', $entry->doi) as $doi) {
+                    if ($doi !== '') {
+                        array_push($dois, $doi);
+                    }
+                }
+                foreach (explode('|', $entry->organism) as $organism) {
+                    if ($organism !== '') {
+                        array_push($organisms, $organism);
+                    }
+                }
+                foreach (explode('|', $entry->geo_location) as $geo_location) {
+                    if ($geo_location !== '') {
+                        array_push($geo_locations, $geo_location);
+                    }
+                }
+            }
+            $unique_dois_count = count(array_unique($dois));
+            $unique_organisms_count = count(array_unique($organisms));
+            $unique_geo_locations_count = count(array_unique($geo_locations));
 
-            // Cache::rememberForever('stats.collections'.$collection_id.'citations.count', function () use ($collection_id) {
-            //     $entries = DB::table('entries')
-            //         ->select('entries.doi')
-            //         ->join('collections', 'collections.id', '=', 'entries.collection_id')
-            //         ->where('collections.id', $collection_id)
-            //         ->pluck('doi');
+            $total_entries = DB::select("SELECT count(*) FROM entries WHERE collection_id = {$collection->id};");
+            $successful_entries = DB::select("SELECT count(*) FROM entries WHERE collection_id = {$collection->id} AND status = 'PASSED';");
+            $failed_entries = DB::select("SELECT count(*) FROM entries WHERE collection_id = {$collection->id} AND status = 'REJECTED';");
+            $molecules_count = DB::select("SELECT count(*) FROM collection_molecule WHERE collection_id = {$collection->id};");
 
-            //     $dois = collect();
-
-            //     foreach ($entries as $entry) {
-            //         $dois = $dois->merge(explode('|', $entry));
-            //     }
-
-            //     $uniqueDois = $dois->filter(function ($doi) {
-            //         return ! empty($doi);
-            //     })->unique();
-
-            //     return $uniqueDois->count();
-            // });
-
-            Cache::rememberForever('stats.collections'.$collection_id.'molecules.count', function () use ($collection_id) {
-                return DB::table('collection_molecule')->selectRaw('count(*)')->whereRaw('collection_id ='.$collection_id)->get()[0]->count;
-            });
-
-            // Cache::rememberForever('stats.collections'.$collection_id.'organisms.count', function () use ($collection_id) {
-            //     $entries = DB::table('entries')
-            //         ->select('entries.organism')
-            //         ->join('collections', 'collections.id', '=', 'entries.collection_id')
-            //         ->where('collections.id', $collection_id)
-            //         ->pluck('organism');
-
-            //     $organisms = collect();
-
-            //     foreach ($entries as $entry) {
-            //         $organisms = $organisms->merge(explode('|', $entry));
-            //     }
-
-            //     $uniqueOrgs = $organisms->filter(function ($organism) {
-            //         return ! empty($organism);
-            //     })->unique();
-
-            //     return $uniqueOrgs->count();
-            // });
-
-            // Cache::rememberForever('stats.collections'.$collection_id.'geo_locations.count', function () use ($collection_id) {
-            //     $entries = DB::table('entries')
-            //         ->select('entries.geo_location')
-            //         ->join('collections', 'collections.id', '=', 'entries.collection_id')
-            //         ->where('collections.id', $collection_id)
-            //         ->pluck('geo_location');
-
-            //     $geo_locations = collect();
-
-            //     foreach ($entries as $entry) {
-            //         $geo_locations = $geo_locations->merge(explode('|', $entry));
-            //     }
-
-            //     $uniqueGeos = $geo_locations->filter(function ($geo_location) {
-            //         return ! empty($geo_location);
-            //     })->unique();
-
-            //     return $uniqueGeos->count();
-            // });
-
+            DB::statement(
+                "UPDATE collections
+            SET (total_entries, successful_entries, failed_entries, molecules_count, citations_count, organisms_count, geo_count) = ({$total_entries[0]->count}, {$successful_entries[0]->count}, {$failed_entries[0]->count}, {$molecules_count[0]->count}, {$unique_dois_count}, {$unique_organisms_count}, {$unique_geo_locations_count})
+            WHERE id = {$collection->id};"
+            );
         }
 
-        $this->info('Cache for each collection refreshed.');
 
-        // Create the cache for all Molecule widgets
-        //     $molecule_ids = Molecule::pluck('id')->toArray();
-        //     foreach ($molecule_ids as $molecule_id) {
-        //         Cache::rememberForever('stats.molecules'.$molecule_id.'organisms.count', function () use ($molecule_id){
-        //             return DB::table('molecule_organism')->selectRaw('count(*)')->whereRaw('molecule_id='.$molecule_id)->get()[0]->count;
-        //         });
-        //         Cache::rememberForever('stats.molecules'.$molecule_id.'geo_locations.count', function () use ($molecule_id){
-        //             return DB::table('geo_location_molecule')->selectRaw('count(*)')->whereRaw('molecule_id='.$molecule_id)->get()[0]->count;
-        //         });
-        //     }
+        $this->info('Processing collection wiget counts complete');
 
-        // // Create the cache for all Organism widgets
-
-        // $organism_ids = Organism::pluck('id')->toArray();
-
-        // foreach ($organism_ids as $organism_id) {
-        //     Cache::rememberForever('stats.organisms'.$organism_id.'molecules.count', function () use ($organism_id){
-        //         return DB::table('molecule_organism')->selectRaw('count(*)')->whereRaw('organism_id='.$organism_id)->get()[0]->count;
-        //     });
-        //     Cache::rememberForever('stats.organisms'.$organism_id.'geo_locations.count', function () use ($organism_id){
-        //         return DB::table('molecule_organism')->selectRaw('count(*)')->whereRaw('organism_id='.$organism_id)->Join('geo_location_molecule', 'molecule_organism.molecule_id', '=', 'geo_location_molecule.molecule_id')->get()[0]->count;
-        //     });
-        // }
-
-        // Create the cache for all Geo Location widgets
-
-        // $geo_location_ids = GeoLocation::pluck('id')->toArray();
-
-        // foreach ($geo_location_ids as $geo_location_id) {
-        //     Cache::rememberForever('stats.geo_locations'.$geo_location_id.'molecules.count', function () use ($geo_location_id) {
-        //         return DB::table('geo_location_molecule')->selectRaw('count(*)')->whereRaw('geo_location_id='.$geo_location_id)->get()[0]->count;
-        //     });
-        //     Cache::rememberForever('stats.geo_locations'.$geo_location_id.'organisms.count', function () use ($geo_location_id) {
-        //         return DB::table('geo_location_molecule')->selectRaw('count(*)')->whereRaw('geo_location_id='.$geo_location_id)->Join('molecule_organism', 'geo_location_molecule.molecule_id', '=', 'molecule_organism.molecule_id')->get()[0]->count;
-        //     });
-        // }
 
     }
 }
