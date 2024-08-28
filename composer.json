@@ -21,6 +21,7 @@
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^11.12",
         "laravel/jetstream": "^5.0",
+        "laravel/prompts": "^0.1.25",
         "laravel/sanctum": "^4.0",
         "laravel/socialite": "^5.14",
         "laravel/tinker": "^2.9",

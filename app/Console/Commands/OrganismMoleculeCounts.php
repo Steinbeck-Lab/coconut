@@ -35,11 +35,16 @@ class OrganismMoleculeCounts extends Command
             ->get();
 
         foreach ($moleculeCounts as $count) {
-            $this->info($count->id);
             DB::table('organisms')
                 ->where('id', $count->id)
                 ->update(['molecule_count' => $count->count]);
         }
+
+        $this->info('Updatin the residual organisms.');
+
+        DB::table('organisms')
+            ->whereNotIn('id', $moleculeCounts->pluck('id'))
+            ->update(['molecule_count' => 0]);
 
         $this->info('Update process completed.');
     }
