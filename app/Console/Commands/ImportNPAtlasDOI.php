@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\Entry;
 use App\Models\Citation;
+use App\Models\Entry;
 use DB;
+use Illuminate\Console\Command;
 
 class ImportNPAtlasDOI extends Command
 {
@@ -85,7 +85,7 @@ class ImportNPAtlasDOI extends Command
                 $citation = Citation::firstOrCreate(
                     ['doi' => $row['DOI']]
                 );
-                if($entry->molecule){
+                if ($entry->molecule) {
                     $entry->molecule->citations()->syncWithoutDetaching($citation);
                     $entry->doi = $row['DOI'];
                     $entry->save();
