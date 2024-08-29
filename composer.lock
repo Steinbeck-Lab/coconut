@@ -74,12 +74,12 @@
         },
         {
             "name": "archilex/filament-filter-sets",
-            "version": "3.7.20",
+            "version": "3.7.22",
             "dist": {
                 "type": "zip",
-                "url": "https://filament-filter-sets.composer.sh/download/9cdf1bdd-b31b-412f-b4aa-d2abb0f713fa/advanced-tables-for-filament-3.7.20.zip",
-                "reference": "ebad87dc24160bdcaf3464baae45e8ca57fb275f",
-                "shasum": "2cb7530073dfdbacb4d60cc682428866b4f0f690"
+                "url": "https://filament-filter-sets.composer.sh/download/9ce01450-e878-45fe-b2f3-cbeec1c1eb49/advanced-tables-for-filament-3.7.22.zip",
+                "reference": "ae3a626fa6e214f4c211c239bf9ffc9a1a1bc4bd",
+                "shasum": "84a703f7ee62087da688aacfea63d48c653ecd72"
             },
             "require": {
                 "archilex/filament-toggle-icon-column": "^3.0",
@@ -155,7 +155,7 @@
                 "tables",
                 "views"
             ],
-            "time": "2024-08-28T04:49:52+00:00"
+            "time": "2024-08-28T16:24:36+00:00"
         },
         {
             "name": "archilex/filament-toggle-icon-column",
@@ -291,16 +291,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.320.9",
+            "version": "3.321.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "1284cecc00d4ac80815c542ef3882d3a7a25ac50"
+                "reference": "cea02601e77af2b164746087aa4f75270cfd0426"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/1284cecc00d4ac80815c542ef3882d3a7a25ac50",
-                "reference": "1284cecc00d4ac80815c542ef3882d3a7a25ac50",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/cea02601e77af2b164746087aa4f75270cfd0426",
+                "reference": "cea02601e77af2b164746087aa4f75270cfd0426",
                 "shasum": ""
             },
             "require": {
@@ -383,9 +383,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.320.9"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.321.0"
             },
-            "time": "2024-08-27T18:06:27+00:00"
+            "time": "2024-08-28T18:11:46+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
