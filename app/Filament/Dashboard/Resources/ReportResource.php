@@ -47,15 +47,6 @@ class ReportResource extends Resource
                         false => 'Report Synthetic Compound(s)',
                     ])
                     ->inline(),
-                // Toggle::make('is_change')
-                //     ->live()
-                //     ->label(function ($state) {
-                //         if ($state == true) {
-                //             return 'Request Changes to Data';
-                //         } else {
-                //             return 'Report Synthetic Compound(s)';
-                //         }
-                //     }),
                 Select::make('report_type')
                     ->label('Choose')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select what you want to report. Ex: Molecule, Citation, Collection, Organism.')
