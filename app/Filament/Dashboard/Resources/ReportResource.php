@@ -6,6 +6,7 @@ use App\Events\ReportStatusChanged;
 use App\Filament\Dashboard\Resources\ReportResource\Pages;
 use App\Filament\Dashboard\Resources\ReportResource\RelationManagers;
 use App\Models\Citation;
+use App\Models\Molecule;
 use App\Models\Report;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
@@ -17,10 +18,12 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
+use Maartenpaauw\Filament\ModelStates\StateSelectColumn;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class ReportResource extends Resource
@@ -182,18 +185,18 @@ class ReportResource extends Resource
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide comma separated search terms that would help in finding your report when searched.')
                     ->splitKeys(['Tab', ','])
                     ->type('reports'),
-                Select::make('status')
-                    ->options([
-                        'pending' => 'Pending',
-                        'approved' => 'Approved',
-                        'rejected' => 'Rejected',
-                    ])
-                    ->hidden(function () {
-                        return ! auth()->user()->hasRole('curator');
-                    })
-                    ->afterStateUpdated(function (?Report $record, ?string $state, ?string $old) {
-                        ReportStatusChanged::dispatch($record, $state, $old);
-                    }),
+                // Select::make('status')
+                //     ->options([
+                //         'pending' => 'Pending',
+                //         'approved' => 'Approved',
+                //         'rejected' => 'Rejected',
+                //     ])
+                //     ->hidden(function () {
+                //         return ! auth()->user()->hasRole('curator');
+                //     })
+                //     ->afterStateUpdated(function (?Report $record, ?string $state, ?string $old) {
+                //         ReportStatusChanged::dispatch($record, $state, $old);
+                //     }),
                 Textarea::make('comment')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide your comments/observations on anything noteworthy in the Curation process.')
                     ->hidden(function () {
@@ -211,14 +214,30 @@ class ReportResource extends Resource
                 TextColumn::make('url')
                     ->url(fn (Report $record) => $record->url)
                     ->openUrlInNewTab(),
-                TextColumn::make('status')
-                    ->badge()
-                    ->color(function (Report $record) {
-                        return match ($record->status) {
-                            'pending' => 'info',
-                            'approved' => 'success',
-                            'rejected' => 'danger',
-                        };
+                // StateSelectColumn::make('status'),
+
+                SelectColumn::make('status')
+                    ->selectablePlaceholder(false)
+                    ->options(function ($state) {
+                        if ($state == 'draft') {
+                            return [
+                                'draft' => 'Draft',
+                                'submitted' => 'Submitted',
+                            ];
+                        } elseif ($state != 'draft') {
+                            return [
+                                'draft' => 'Draft',
+                                'submitted' => 'Submitted',
+                                'processing' => 'Processing',
+                                'approved' => 'Approved',
+                                'rejected' => 'Rejected',
+                            ];
+                        }
+                    })
+                    ->disabled(function ($state) {
+                        if (($state != 'draft' && ! auth()->user()->roles()->exists()) || $state == 'processing' || $state == 'approved' || $state == 'rejected') {
+                            return true;
+                        }
                     }),
                 TextColumn::make('comment')->wrap(),
             ])
@@ -227,7 +246,46 @@ class ReportResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible(function ($record) {
+                        return $record->status == 'draft';
+                    }),
+                Tables\Actions\Action::make('approve')
+                    ->hidden(function (Report $record) {
+                        return ! auth()->user()->roles()->exists() || $record['status'] == 'draft' || $record['status'] == 'rejected' || $record['status'] == 'approved';
+                    })
+                    ->form([
+                        Textarea::make('reason'),
+                    ])
+                    ->action(function (array $data, Report $record, Molecule $molecule): void {
+
+                        $record['status'] = 'approved';
+                        $record['comment'] = $data['reason'];
+                        $record->save();
+
+                        if ($molecule['mol_id_csv']) {
+                            $molecule_ids = explode(',', $molecule['mol_id_csv']);
+                            $molecule = Molecule::whereIn('id', $molecule_ids)->get();
+                            foreach ($molecule as $mol) {
+                                $mol->active = false;
+                                $mol->save();
+                            }
+                        }
+                    }),
+                Tables\Actions\Action::make('reject')
+                    ->hidden(function (Report $record) {
+                        return ! auth()->user()->roles()->exists() || $record['status'] == 'draft' || $record['status'] == 'rejected' || $record['status'] == 'approved';
+                    })
+                    ->form([
+                        Textarea::make('reason'),
+
+                    ])
+                    ->action(function (array $data, Report $record): void {
+
+                        $record['status'] = 'rejected';
+                        $record['comment'] = $data['reason'];
+                        $record->save();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
