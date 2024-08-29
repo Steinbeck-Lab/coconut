@@ -40,7 +40,7 @@ class OrganismMoleculeCounts extends Command
                 ->update(['molecule_count' => $count->count]);
         }
 
-        $this->info('Updatin the residual organisms.');
+        $this->info('Updating the residual organisms.');
 
         DB::table('organisms')
             ->whereNotIn('id', $moleculeCounts->pluck('id'))
