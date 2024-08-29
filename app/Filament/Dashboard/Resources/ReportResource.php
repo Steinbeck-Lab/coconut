@@ -13,7 +13,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
@@ -40,15 +40,15 @@ class ReportResource extends Resource
     {
         return $form
             ->schema([
-                Toggle::make('is_change')
+                ToggleButtons::make('is_change')
+                    ->label('')
                     ->live()
-                    ->label(function ($state) {
-                        if ($state == true) {
-                            return 'Request changes to data';
-                        } else {
-                            return 'Report false data';
-                        }
-                    }),
+                    ->default(false)
+                    ->options([
+                        true => 'Request Changes to Data',
+                        false => 'Report Synthetic Compound(s)',
+                    ])
+                    ->inline(),
                 Select::make('report_type')
                     ->label('Choose')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select what you want to report. Ex: Molecule, Citation, Collection, Organism.')
