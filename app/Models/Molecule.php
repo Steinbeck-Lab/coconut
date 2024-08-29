@@ -150,9 +150,9 @@ class Molecule extends Model implements Auditable
     /**
      * Get schema json
      */
-    public function getSchema($type = 'bioschema')
+    public function getSchema($type = 'bioschemas')
     {
-        if ($type == 'bioschema') {
+        if ($type == 'bioschemas') {
             $moleculeSchema = Schema::MolecularEntity();
             $moleculeSchema['@id'] = $this->inchi_key;
             $moleculeSchema['dct:conformsTo'] = $this->prepareConformsTo();
