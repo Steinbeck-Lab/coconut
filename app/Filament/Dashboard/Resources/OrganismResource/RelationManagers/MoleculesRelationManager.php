@@ -48,12 +48,18 @@ class MoleculesRelationManager extends RelationManager
                     ->defaultImageUrl(url('/images/placeholder.png')),
                 Tables\Columns\TextColumn::make('id')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('identifier')->searchable()->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('name')->searchable()
+                Tables\Columns\TextColumn::make('identifier')
+                    ->label('Details')
                     ->formatStateUsing(
                         fn (Molecule $molecule): HtmlString => new HtmlString("<strong>ID:</strong> {$molecule->id}<br><strong>Identifier:</strong> {$molecule->identifier}<br><strong>Name:</strong> {$molecule->name}")
                     )
                     ->description(fn (Molecule $molecule): string => $molecule->standard_inchi)
                     ->wrap(),
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable()
+                    ->wrap()
+                    ->lineClamp(6)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('synonyms')
                     ->searchable()
                     ->wrap()

@@ -32,7 +32,7 @@ class OrganismDedupeOptions extends Command
     {
         $this->info('Updating missing slugs...');
 
-        Organism::whereNull('slug')
+        Organism::select('id', 'name', 'slug')
             ->chunk(1000, function ($organisms) {
                 $organisms->each(function ($organism) {
                     $slug = Str::slug($organism->name);
