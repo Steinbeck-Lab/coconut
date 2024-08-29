@@ -16,7 +16,7 @@ class OrganismDedupeOptions extends Command
      *
      * @var string
      */
-    protected $signature = 'app:organism-molecule-counts';
+    protected $signature = 'app:organism-dedupe';
 
     /**
      * The console command description.
@@ -32,8 +32,8 @@ class OrganismDedupeOptions extends Command
     {
         $this->info('Updating missing slugs...');
 
-        Organism::whereNotNull('slug')
-            ->chunk(100, function ($organisms) {
+        Organism::whereNull('slug')
+            ->chunk(1000, function ($organisms) {
                 $organisms->each(function ($organism) {
                     $slug = Str::slug($organism->name);
                     $organism->update(['slug' => $slug]);
