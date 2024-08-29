@@ -263,7 +263,7 @@ class Molecule extends Model implements Auditable
                     array_push($citationsSchemas, $citationSchema);
                 }
             }
-            $datasetSchema->citations($citationsSchemas);
+            $datasetSchema->citation($citationsSchemas);
             return $datasetSchema;
         }
     }
