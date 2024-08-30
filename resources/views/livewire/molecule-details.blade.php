@@ -835,6 +835,10 @@
                                 changes to this page <span aria-hidden="true">→</span></a></dd>
                     </div>
                 </dl>
+                <div>
+                    <livewire:molecule-history-timeline :mol="$molecule" lazy="on-load"/>
+                </div>
+
             </section>
         </div>
     </div>
