@@ -44,14 +44,13 @@ export default defineConfig({
         items: [
           { text: 'Browse', link: '/browse' },
           { text: 'Search', link: '/search' },
-          { text: 'Advanced', link: '/advanced-search' }
         ]
       },
       {
         text: 'Curation',
         items: [
           { text: 'Analysis', link: '/analysis' },
-          { text: 'Reporting', link: '/report-submission' },
+          { text: 'Reporting', link: '/reporting' },
           { text: 'Audit Trail', link: '/audit-trail' }
         ]
       },

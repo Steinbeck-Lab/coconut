@@ -1,0 +1,1 @@
+import{_ as t,c as a,o as e}from"./chunks/framework.CBy9I1-v.js";const _=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"audit-trail.md","filePath":"audit-trail.md"}'),r={name:"audit-trail.md"};function i(o,s,c,n,d,l){return e(),a("div")}const m=t(r,[["render",i]]);export{_ as __pageData,m as default};
