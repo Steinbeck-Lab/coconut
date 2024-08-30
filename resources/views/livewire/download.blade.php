@@ -5,13 +5,13 @@
                 <article class="mx-auto w-full max-w-2xl lg:mx-0 lg:max-w-lg">
                     <div class="flex items-center">
                         <h1
-                            class="mb-5 inline-block text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight dark:text-slate-200">
+                            class="mb-5 inline-block text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                             Downloads</h1>
                     </div>
                     <time datetime="2020-03-16" class="block text-sm leading-6 text-gray-600"></time>
                     <div
-                        class="grid gap-4 mx-auto max-w-sm bg-white shadow-xl p-8 text-slate-700 dark:bg-slate-800 dark:text-slate-400 rounded-md border">
-                        <h3 class="text-balance text-xl dark:text-white font-semibold text-slate-900">Cite us</h3>
+                        class="grid gap-4 mx-auto max-w-sm bg-white shadow-xl p-8 text-slate-700 rounded-md border">
+                        <h3 class="text-balance text-xl font-semibold text-slate-900">Cite us</h3>
                         <p class="text-md/6">Sorokina, M., Merseburger, P., Rajan, K. et al. COCONUT online: COlleCtion
                             of Open Natural prodUcTs database. J Cheminform 13, 2 (2021).
                             https://doi.org/10.1186/s13321-020-00478-9</p>
