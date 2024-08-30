@@ -75,18 +75,18 @@ class ImportCHEMBLNames extends Command
                                 ->where('id', $row->id)
                                 ->update([
                                     'name' => $newName,
-                                    'synonyms' => $synonyms
+                                    'synonyms' => $synonyms,
                                 ]);
-                        }else{
+                        } else {
                             $newName = $row->iupac_name;
-                            if($newName){
+                            if ($newName) {
                                 $synonyms = json_decode($row->synonyms) ?? [];
                                 array_unshift($synonyms, $row->name);
                                 DB::table('molecules')
                                     ->where('id', $row->id)
                                     ->update([
                                         'name' => $newName,
-                                        'synonyms' => $synonyms
+                                        'synonyms' => $synonyms,
                                     ]);
                             }
                         }

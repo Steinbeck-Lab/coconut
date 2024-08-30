@@ -2,8 +2,7 @@
     @section('title', $molecule['identifier'])
     @section('meta')
         <meta name="description"
-            content="Natural product identified 
-    @if (isset($molecule->organisms) && $molecule->organisms->count() > 0) in {{ implode(', ', $molecule->organisms->take(2)->pluck('name')->toArray()) }} @endif
+            content="Natural product identified @if(isset($molecule->organisms) && $molecule->organisms->count() > 0) in {{ implode(', ', $molecule->organisms->take(2)->pluck('name')->toArray()) }} @endif
     @if (
         (!isset($molecule->organisms) || $molecule->organisms->count() === 0) &&
             isset($molecule->collections) &&
@@ -12,8 +11,7 @@
     @elseif(isset($molecule->organisms) &&
             $molecule->organisms->count() > 0 &&
             isset($molecule->collections) &&
-            $molecule->collections->count() > 0)
-        and found in the collection{{ $molecule->collections->count() > 1 ? 's' : '' }}: 
+            $molecule->collections->count() > 0) and found in the collection{{ $molecule->collections->count() > 1 ? 's' : '' }}: 
         {{ implode(', ', $molecule->collections->pluck('name')->toArray()) }} @endif">
         <meta name="keywords" content="{{ implode(',', $molecule->synonyms ?? []) }}">
         <meta name="author" content="COCONUT">
