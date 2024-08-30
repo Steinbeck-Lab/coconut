@@ -41,5 +41,6 @@ Route::get('/download', Download::class);
 Route::get('/collections', CollectionList::class)->name('collections.index');
 
 // Compound pages
+Route::get('compound/coconut_id/{id}', MoleculeController::class)->name('old_compound');
 Route::get('compounds/{id}', MoleculeController::class)->name('compound');
 Route::get('/search', Search::class)->name('browse');

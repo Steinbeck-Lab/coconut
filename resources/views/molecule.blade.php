@@ -2,19 +2,17 @@
     @section('title', $molecule['identifier'])
     @section('meta')
         <meta name="description"
-            content="Natural product identified 
-    @if (isset($molecule->organisms) && $molecule->organisms->count() > 0) in {{ implode(', ', $molecule->organisms->take(2)->pluck('name')->toArray()) }} @endif
+            content="Natural product identified @if(isset($molecule->organisms) && $molecule->organisms->count() > 0) in {{ implode(', ', $molecule->organisms->take(2)->pluck('name')->toArray()) }} @endif
     @if (
         (!isset($molecule->organisms) || $molecule->organisms->count() === 0) &&
             isset($molecule->collections) &&
             $molecule->collections->count() > 0) in the collection{{ $molecule->collections->count() > 1 ? 's' : '' }}: 
-        {{ implode(', ', $molecule->collections->pluck('name')->toArray()) }}
+        {{ implode(', ', $molecule->collections->pluck('title')->toArray()) }}
     @elseif(isset($molecule->organisms) &&
             $molecule->organisms->count() > 0 &&
             isset($molecule->collections) &&
-            $molecule->collections->count() > 0)
-        and found in the collection{{ $molecule->collections->count() > 1 ? 's' : '' }}: 
-        {{ implode(', ', $molecule->collections->pluck('name')->toArray()) }} @endif">
+            $molecule->collections->count() > 0) and found in the collection{{ $molecule->collections->count() > 1 ? 's' : '' }}: 
+        {{ implode(', ', $molecule->collections->pluck('title')->toArray()) }} @endif">
         <meta name="keywords" content="{{ implode(',', $molecule->synonyms ?? []) }}">
         <meta name="author" content="COCONUT">
 
@@ -26,13 +24,13 @@
         (!isset($molecule->organisms) || $molecule->organisms->count() === 0) &&
             isset($molecule->collections) &&
             $molecule->collections->count() > 0) in the collection{{ $molecule->collections->count() > 1 ? 's' : '' }}: 
-        {{ implode(', ', $molecule->collections->pluck('name')->toArray()) }}
+        {{ implode(', ', $molecule->collections->pluck('title')->toArray()) }}
     @elseif(isset($molecule->organisms) &&
             $molecule->organisms->count() > 0 &&
             isset($molecule->collections) &&
             $molecule->collections->count() > 0)
         and found in the collection{{ $molecule->collections->count() > 1 ? 's' : '' }}: 
-        {{ implode(', ', $molecule->collections->pluck('name')->toArray()) }} @endif">
+        {{ implode(', ', $molecule->collections->pluck('title')->toArray()) }} @endif">
         <meta property="og:type" content="website">
         <meta property="og:url" content="{{ url()->current() }}">
         <meta property="og:image"
@@ -50,13 +48,13 @@
         (!isset($molecule->organisms) || $molecule->organisms->count() === 0) &&
             isset($molecule->collections) &&
             $molecule->collections->count() > 0) in the collection{{ $molecule->collections->count() > 1 ? 's' : '' }}: 
-        {{ implode(', ', $molecule->collections->pluck('name')->toArray()) }}
+        {{ implode(', ', $molecule->collections->pluck('title')->toArray()) }}
     @elseif(isset($molecule->organisms) &&
             $molecule->organisms->count() > 0 &&
             isset($molecule->collections) &&
             $molecule->collections->count() > 0)
         and found in the collection{{ $molecule->collections->count() > 1 ? 's' : '' }}: 
-        {{ implode(', ', $molecule->collections->pluck('name')->toArray()) }} @endif">
+        {{ implode(', ', $molecule->collections->pluck('title')->toArray()) }} @endif">
         <meta name="twitter:image"
             content="{{ env('CM_API') . 'depict/2D?smiles=' . urlencode($molecule->canonical_smiles) . '&height=630&width=1200&toolkit=cdk' ?? asset('img/coconut-og-image.png') }}">
         <meta name="twitter:site" content="@coconutdatabase">

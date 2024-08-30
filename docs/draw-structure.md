@@ -1,4 +1,0 @@
-# COCONUT online - Draw Structure
-
-
-

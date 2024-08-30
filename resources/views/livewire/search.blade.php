@@ -251,7 +251,7 @@
             <div class="p-4 w-full">
                 {{ $molecules->links() }}
             </div>
-            <div class="relative items-center block p-6 bg-white dark:bg-gray-800 dark:border-gray-800 dark:hover:bg-gray-700">
+            <div class="relative items-center block p-6 bg-white">
             <div class="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-8">
                 @foreach ($molecules as $molecule)
                     <livewire:molecule-card :key="$molecule->identifier" :molecule="$molecule" />
