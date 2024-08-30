@@ -68,8 +68,7 @@
             <div class="sm:hidden">
                 <label for="tabs" class="sr-only">Select a tab</label>
                 <select id="tabs" name="tabs" x-model="activeTab"
-                    class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                    >
+                    class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
                     <option value="molecules">Molecules</option>
                     <option value="organism">Organism</option>
                     <option value="citations">Citations</option>
@@ -252,14 +251,17 @@
             <div class="p-4 w-full">
                 {{ $molecules->links() }}
             </div>
+            <div class="relative items-center block p-6 bg-white dark:bg-gray-800 dark:border-gray-800 dark:hover:bg-gray-700">
             <div class="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-8">
                 @foreach ($molecules as $molecule)
                     <livewire:molecule-card :key="$molecule->identifier" :molecule="$molecule" />
                 @endforeach
+
             </div>
-            <div class="p-4">
-                {{ $molecules->links() }}
+            <div wire:loading role="status" class="border rounded-lg shadow-md opacity-90 absolute -translate-x-1/2 top-24 left-1/2 text-center justify-center">
+                <img class="w-full rounded-md" alt="loading" src="/img/loading.gif" />
             </div>
+        </div>
         </div>
     @else
         <div class="text-center pt-10 mt-10">

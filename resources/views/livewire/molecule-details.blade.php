@@ -173,10 +173,10 @@
                                         @foreach ($molecule->geo_locations as $geo_location)
                                             @if ($geo_location != '')
                                                 <li class="inline">
-                                                    <a class="text-sm relative mr-2 inline-flex items-center rounded-md border border-gray-300 px-3 py-0.5"
+                                                    <span class="text-sm relative mr-2 inline-flex items-center rounded-md border border-gray-300 px-3 py-0.5"
                                                         target="_blank">
                                                         {{ $geo_location->name }}
-                                                    </a>
+                                                    </span>
                                                 </li>
                                             @endif
                                         @endforeach
@@ -808,8 +808,7 @@
                                     <div class="relative flex space-x-3">
                                         <div class="flex min-w-0 flex-1 justify-between space-x-4 py-1.5">
                                             <div>
-                                                <p class="text-sm text-gray-500">Created at <a href="#"
-                                                        class="font-medium text-gray-900"></a></p>
+                                                <p class="text-sm text-gray-500">Created at</p>
                                                 <time
                                                     datetime="{{ $molecule->created_at }}">{{ $molecule->created_at }}</time>
                                             </div>

@@ -30,6 +30,15 @@ return new class extends Migration
             $table->foreignId('owner_id')->nullable();
             $table->foreignId('license_id')->nullable();
             $table->timestamp('release_date')->nullable();
+            $table->boolean('promote')->default(0);
+            $table->integer('sort_order')->default(0)->nullable();
+            $table->integer('successful_entries')->default(0)->nullable();
+            $table->integer('failed_entries')->default(0)->nullable();
+            $table->integer('molecules_count')->default(0)->nullable();
+            $table->integer('citations_count')->default(0)->nullable();
+            $table->integer('organisms_count')->default(0)->nullable();
+            $table->integer('geo_count')->default(0)->nullable();
+            $table->integer('total_entries')->default(0)->nullable();
             $table->timestamps();
         });
     }

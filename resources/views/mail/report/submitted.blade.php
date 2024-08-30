@@ -1,7 +1,7 @@
 <x-mail::message>
 
 Hello {{ $user->name }},
-Thank you for submitting your report. It is peding review with our Curators. You will reveive further updates via email.
+Thank you for submitting your report. It is pending review with our Curators. You will reveive further updates via email.
 
 ### Report Details:
 - **Report Title:** {{ $event->report->title }}

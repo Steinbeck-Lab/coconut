@@ -257,7 +257,7 @@
                         <small class="text-base font-semibold leading-7">Browse Data</small>
                         </button>
                     </a>
-                    <a @click="isOpen = true"
+                    <div @click="isOpen = true"
                         class="cursor-pointer border bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto">
@@ -266,7 +266,7 @@
                         </svg>
                         <small class="text-base font-semibold leading-7">Submit Data</small>
                         </button>
-                    </a>
+                    </div>
                 </div>
             </div>
         </div>
