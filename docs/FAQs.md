@@ -1,3 +1,7 @@
+---
+title: Frequently Asked Questions (FAQs)
+---
+
 # Frequently Asked Questions (FAQs)
 
 ### 1. What is the Coconut Natural Products Database?

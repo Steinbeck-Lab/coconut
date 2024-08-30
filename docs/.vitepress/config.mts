@@ -36,25 +36,37 @@ export default defineConfig({
         text: 'Welcome',
         items: [
           { text: 'Introduction', link: '/introduction' },
-          { text: 'Sources', link: '/sources' },
-          // { text: 'Analysis', link: '/analysis' },
+          { text: 'Collections', link: '/collections' },
         ]
       },
       {
-        text: 'Browse/Search',
+        text: 'Explore',
         items: [
           { text: 'Browse', link: '/browse' },
-          // { text: 'Simple', link: '/simple-search' },
-          { text: 'Structure', link: '/structure-search' },
-          // {
-          //   text: 'Structure',
-          //   items: [
-          //     { text: 'Draw Structure', link: '/draw-structure' },
-          //     { text: 'Substructure Search', link: '/substructure-search' },
-          //     { text: 'Similarity Search', link: '/similarity-search' },
-          //   ]
-          // },
-          { text: 'Advanced', link: '/advanced-search' }
+          { text: 'Search', link: '/search' },
+        ]
+      },
+      {
+        text: 'Curation',
+        items: [
+          { text: 'Analysis', link: '/analysis' },
+          { text: 'Reporting', link: '/reporting' },
+          { text: 'Audit Trail', link: '/audit-trail' }
+        ]
+      },
+      {
+        text: 'Downloads',
+        items: [
+          { text: 'Data Base', link: '/data-base' },
+          { text: 'Use Cases', link: '/use-cases' },
+          { text: 'Versions', link: '/versions' },
+        ]
+      },
+      {
+        text: 'Deployments',
+        items: [
+          { text: 'Public Instance', link: '/public-instance' },
+          { text: 'Local Instance', link: '/local-instance' },
         ]
       },
       {
@@ -63,22 +75,16 @@ export default defineConfig({
           { text: 'Collection Submission', link: '/collection-submission' },
           // { text: 'Single Compound Submission', link: '/single-submission' },
           // { text: 'Multiple Compound Submission', link: '/multi-submission' },
-          { text: 'Reporting', link: '/report-submission' }
         ]
       },
-      // {
-      //   text: 'API',
-      //   items: [
-      //     { text: 'Auth', link: '/auth-api' },
-      //     { text: 'Search', link: '/search-api' },
-      //     { text: 'Schemas', link: '/schemas-api' },
-      //     { text: 'Download', link: '/download-api' },
-      //     { text: 'Submission', link: '/submission-api' }
-      //   ]
-      // },
       {
-        text: 'Download', link:'/download',
+        text: 'API',
         items: [
+          { text: 'Auth', link: '/auth-api' },
+          { text: 'Search', link: '/search-api' },
+          { text: 'Schemas', link: '/schemas-api' },
+          // { text: 'Download', link: '/download-api' },
+          // { text: 'Submission', link: '/submission-api' }
         ]
       },
       {
@@ -86,6 +92,11 @@ export default defineConfig({
         items: [
           { text: 'Installation', link: '/installation' },
           { text: 'Database Schema', link: '/db-schema' },
+        ]
+      },
+      {
+        text: 'Help',
+        items: [
           { text: 'License', link: '/license' },
           { text: 'FAQs', link: '/FAQs' },
           { text: 'Issues / Feature requests', link: '/issues' }
