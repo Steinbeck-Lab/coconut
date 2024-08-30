@@ -36,25 +36,38 @@ export default defineConfig({
         text: 'Welcome',
         items: [
           { text: 'Introduction', link: '/introduction' },
-          { text: 'Sources', link: '/sources' },
-          // { text: 'Analysis', link: '/analysis' },
+          { text: 'Collections', link: '/collections' },
         ]
       },
       {
-        text: 'Browse/Search',
+        text: 'Explore',
         items: [
           { text: 'Browse', link: '/browse' },
-          // { text: 'Simple', link: '/simple-search' },
-          { text: 'Structure', link: '/structure-search' },
-          // {
-          //   text: 'Structure',
-          //   items: [
-          //     { text: 'Draw Structure', link: '/draw-structure' },
-          //     { text: 'Substructure Search', link: '/substructure-search' },
-          //     { text: 'Similarity Search', link: '/similarity-search' },
-          //   ]
-          // },
+          { text: 'Search', link: '/search' },
           { text: 'Advanced', link: '/advanced-search' }
+        ]
+      },
+      {
+        text: 'Curation',
+        items: [
+          { text: 'Analysis', link: '/analysis' },
+          { text: 'Reporting', link: '/report-submission' },
+          { text: 'Audit Trail', link: '/audit-trail' }
+        ]
+      },
+      {
+        text: 'Downloads',
+        items: [
+          { text: 'Data Base', link: '/data-base' },
+          { text: 'Use Cases', link: '/use-cases' },
+          { text: 'Versions', link: '/versions' },
+        ]
+      },
+      {
+        text: 'Deployments',
+        items: [
+          { text: 'Public Instance', link: '/public-instance' },
+          { text: 'Local Instance', link: '/local-instance' },
         ]
       },
       {
@@ -63,7 +76,6 @@ export default defineConfig({
           { text: 'Collection Submission', link: '/collection-submission' },
           // { text: 'Single Compound Submission', link: '/single-submission' },
           // { text: 'Multiple Compound Submission', link: '/multi-submission' },
-          { text: 'Reporting', link: '/report-submission' }
         ]
       },
       // {
@@ -77,15 +89,15 @@ export default defineConfig({
       //   ]
       // },
       {
-        text: 'Download', link:'/download',
-        items: [
-        ]
-      },
-      {
         text: 'Development',
         items: [
           { text: 'Installation', link: '/installation' },
           { text: 'Database Schema', link: '/db-schema' },
+        ]
+      },
+      {
+        text: 'Help',
+        items: [
           { text: 'License', link: '/license' },
           { text: 'FAQs', link: '/FAQs' },
           { text: 'Issues / Feature requests', link: '/issues' }
