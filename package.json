@@ -24,5 +24,16 @@
     },
     "dependencies": {
         "openchemlib": "^8.13.0"
-    }
+    },
+    "name": "coconut",
+    "version": "1.0.0",
+    "description": "<p align=\"center\"><a href=\"https://COCONUT.naturalproducts.net/\" target=\"_blank\"><img src=\"/public/img/logo.png\" width=\"400\" alt=\"COCONUT Logo\"></a></p>",
+    "main": "postcss.config.js",
+    "directories": {
+        "doc": "docs",
+        "test": "tests"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
 }
