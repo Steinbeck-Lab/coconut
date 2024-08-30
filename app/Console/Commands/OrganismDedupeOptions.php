@@ -99,8 +99,8 @@ class OrganismDedupeOptions extends Command
                                 $removableOrganism->auditDetach('molecules', $moleculeIds);
                                 $selectedOrganism->auditSyncWithoutDetaching('molecules', $moleculeIds);
 
-                                $removableOrganism->molecule_count = $removableOrganism->molecules()->count();
                                 $removableOrganism->delete();
+                                $selectedOrganism->refresh();
                                 $selectedOrganism->molecule_count = $selectedOrganism->molecules()->count();
                                 $selectedOrganism->save();
 
