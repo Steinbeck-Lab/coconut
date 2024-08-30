@@ -1,6 +1,6 @@
 # COCONUT online - Data analysis
 
-- As shown in the [sources](sources.html) section, COCONUT data has been extracted from 53 data sources and several have been manually collected from literature sets.
+- As shown in the [sources](collections.html) section, COCONUT data has been extracted from 53 data sources and several have been manually collected from literature sets.
 
 - Currently, the COCONUT release (June 2023) contains 406,919 unique "flat" (without stereochemistry) NPs, and 730,441 NPs whose stereochemistry is preserved. Please refer to the original [paper](https://doi.org/10.1186/s13321-020-00478-9) for more details.
 

@@ -1,0 +1,1 @@
+import{_ as e,c as s,o as t}from"./chunks/framework.CpPNxFD6.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"use-cases.md","filePath":"use-cases.md"}'),a={name:"use-cases.md"};function c(r,o,n,p,_,d){return t(),s("div")}const f=e(a,[["render",c]]);export{m as __pageData,f as default};
