@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\Schemas\Bioschema;
+namespace App\Http\Controllers\API\Schemas\Bioschemas;
 
 use App\Http\Controllers\Controller;
 use App\Models\Molecule;

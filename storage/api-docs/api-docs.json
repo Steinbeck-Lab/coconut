@@ -252,19 +252,19 @@
                 }
             }
         },
-        "/api/v1/schemas/bioschema/{id}": {
+        "/api/v1/schemas/bioschemas/{id}": {
             "get": {
                 "tags": [
                     "schemas"
                 ],
-                "summary": "Get bioschema schema details by COCONUT id.",
-                "description": "Get bioschema schema details by COCONUT id.",
+                "summary": "Get bioschemas schema details by COCONUT id.",
+                "description": "Get bioschemas schema details by COCONUT id.",
                 "operationId": "moleculeSchema",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "COCONUT id - bioschema",
+                        "description": "COCONUT id - bioschemas",
                         "required": true,
                         "schema": {
                             "type": "string"

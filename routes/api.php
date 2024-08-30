@@ -4,7 +4,7 @@ use App\Http\Controllers\API\Auth\LoginController;
 use App\Http\Controllers\API\Auth\RegisterController;
 use App\Http\Controllers\API\Auth\VerificationController;
 use App\Http\Controllers\API\CompoundController;
-use App\Http\Controllers\API\Schemas\Bioschema\MolecularEntityController;
+use App\Http\Controllers\API\Schemas\Bioschemas\MolecularEntityController;
 use App\Http\Controllers\API\SearchController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
@@ -54,7 +54,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 });
 
 Route::prefix('schemas')->group(function () {
-    Route::prefix('bioschema')->group(function () {
+    Route::prefix('bioschemas')->group(function () {
         Route::get('/{id}', [MolecularEntityController::class, 'moleculeSchema']);
     });
 });
@@ -72,7 +72,7 @@ Route::prefix('schemas')->group(function () {
 //     // Schemas
 //     Route::get('/compounds', [CompoundController::class, 'list']);
 //     Route::prefix('schemas')->group(function () {
-//         Route::prefix('bioschema')->group(function () {
+//         Route::prefix('bioschemas')->group(function () {
 //             Route::get('/{id}', [MolecularEntityController::class, 'moleculeSchema']);
 //         });
 //     });
