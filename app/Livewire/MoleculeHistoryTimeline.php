@@ -2,8 +2,6 @@
 
 namespace App\Livewire;
 
-use App\Models\Molecule;
-use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 class MoleculeHistoryTimeline extends Component
@@ -12,14 +10,10 @@ class MoleculeHistoryTimeline extends Component
 
     public $audit_data = [];
 
-    // #[Computed]
     public function getHistory()
     {
         $audit_data = [];
-        $molecule = Molecule::find($this->mol->id);
-        foreach ($molecule->audits as $index => $audit) {
-            // dd($audit->getMetadata());
-            // dd(array_keys($audit->getModified())[0]);
+        foreach ($this->mol->audits as $index => $audit) {
             $audit_data[$index]['user_name'] = $audit->getMetadata()['user_name'];
             $audit_data[$index]['event'] = $audit->getMetadata()['audit_event'];
             $audit_data[$index]['created_at'] = date('Y/m/d', strtotime($audit->getMetadata()['audit_created_at']));
@@ -29,6 +23,16 @@ class MoleculeHistoryTimeline extends Component
                 $audit_data[$index]['new_value'] = $value['new'];
             }
         }
+
+        $initial_audit = [];
+        $initial_audit['user_name'] = null;
+        $initial_audit['event'] = 'created';
+        $initial_audit['created_at'] = $this->mol->created_at->format('Y/m/d');
+        $initial_audit['affected_column'] = null;
+        $initial_audit['old_value'] = null;
+        $initial_audit['new_value'] = null;
+
+        array_unshift($audit_data, $initial_audit);
         $this->audit_data = $audit_data;
     }
 
