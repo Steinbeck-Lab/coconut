@@ -1,1 +1,0 @@
-import{_ as a,c as e,o as t}from"./chunks/framework.CBy9I1-v.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"data-base.md","filePath":"data-base.md"}'),s={name:"data-base.md"};function r(o,c,n,d,p,_){return t(),e("div")}const f=a(s,[["render",r]]);export{m as __pageData,f as default};

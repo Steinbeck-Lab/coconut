@@ -77,16 +77,16 @@ export default defineConfig({
           // { text: 'Multiple Compound Submission', link: '/multi-submission' },
         ]
       },
-      // {
-      //   text: 'API',
-      //   items: [
-      //     { text: 'Auth', link: '/auth-api' },
-      //     { text: 'Search', link: '/search-api' },
-      //     { text: 'Schemas', link: '/schemas-api' },
-      //     { text: 'Download', link: '/download-api' },
-      //     { text: 'Submission', link: '/submission-api' }
-      //   ]
-      // },
+      {
+        text: 'API',
+        items: [
+          { text: 'Auth', link: '/auth-api' },
+          { text: 'Search', link: '/search-api' },
+          { text: 'Schemas', link: '/schemas-api' },
+          // { text: 'Download', link: '/download-api' },
+          // { text: 'Submission', link: '/submission-api' }
+        ]
+      },
       {
         text: 'Development',
         items: [

@@ -11,10 +11,16 @@ The COCONUT platform provides users with the ability to report discrepancies in 
 ![New Report Buttion](/new-report-button.png)
 4. Complete the **"Create Report"** form:
 ![New Report](/new-report.png)
-   - **Report Type:** Select the category of the item you wish to report.
+   - **Request Changes to Data/ Report Synthetic compound(s):** Choose either to Request changes to the details of a compound or to report the compound as synthetic.
+    - The interface slightly chages depeding on the selection. Details are below.
+   - **Report Category:** Select the category of the item you wish to report.
 ![Select Field](/report-select-field.png)
    - **Title:** Provide a concise title summarizing the issue.
    - **Evidence/Comment:** Offer evidence or comments supporting your observation of the discrepancy.
+     - If Request Changes to Data is selected the below would be the interface.
+     - On the left add the name of the element you want to be changed. On the right mention what it is to be changed to and why the change is needed.
+     - More than one changes can be requested at the same time by clicking on Add property.
+![Suggested Changes](/report-suggested-changes.png)
    - **URL:** Include any relevant links to substantiate your report.
    - **Citations / Collections / Organisms:** Select the respective items you wish to report.
      - For Molecules: The select option is currently unavailable. Instead, please provide the identifiers of the molecules, separated by commas.
@@ -58,7 +64,7 @@ You can report one or more compounds from the Reports page:
    - **Title:** Provide a concise title summarizing the issue.
    - **Evidence/Comment:** Offer evidence or comments supporting your observation of the discrepancy.
    - **URL:** Include any relevant links to substantiate your report.
-   - **Molecules:** The select option is currently unavailable. Instead, provide the identifiers of the molecules, separated by commas (e.g., `CNP0335993,CNP0335993`).
+   - **Molecules:** The select option is currently unavailable. Instead, provide the identifiers of the molecules, separated by commas (e.g., `CNP0228556.0,CNP0074548.1`).
    - **Tags:** Add comma-separated keywords to facilitate easy search and categorization of your report.
 5. Click **"Create"** to submit your report, or **"Create & create another"** if you have additional reports to submit.
 
