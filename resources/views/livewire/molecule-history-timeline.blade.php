@@ -1,6 +1,7 @@
-<div x-data="{ on: true}" x-effect="on && $wire.getHistory()" class="mt-5">
+<div x-data="{ on: false}" x-effect="on && $wire.getHistory()" class="mt-5">
     <button type="button" x-on:click="on = !on" class="text-base font-semibold text-text-dark hover:text-slate-600">
-        <span>History</span>
+        <span>View
+            complete history <span aria-hidden="true">→</span></span>
         <!-- <span x-show="on">Hide History</span> -->
     </button>
 

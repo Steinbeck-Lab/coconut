@@ -1,5 +1,5 @@
 <div class="mx-auto max-w-4xl lg:max-w-7xl px-4 md:px-10">
-    <div class="py-10 bg-white mt-20 rounded-lg border">
+    <div class="py-5 lg:py-10 bg-white mt-20 rounded-lg border">
         <div
             class="mx-auto max-w-3xl px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-7xl lg:px-8">
             <div class="flex items-center space-x-5">
@@ -19,7 +19,7 @@
             <div class="border-b mt-8 border-b-gray-900/10 lg:border-t lg:border-t-gray-900/5">
                 <dl class="mx-auto grid max-w-7xl grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:px-2 xl:px-0">
                     <div
-                        class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-10 sm:px-6 lg:border-t-0 xl:px-8 ">
+                        class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-5 lg:py-10 sm:px-6 lg:border-t-0 xl:px-8 ">
                         <dt class="font-medium text-gray-500"> NPLikeness
                             <div class="tooltip">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -46,7 +46,7 @@
                         </div>
                     </div>
                     <div
-                        class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-10 sm:px-6 lg:border-t-0 xl:px-8 sm:border-l">
+                        class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-5 lg:py-10 sm:px-6 lg:border-t-0 xl:px-8 sm:border-l">
                         <div>
                             <dt class="font-medium text-gray-500"> Annotation Level</dt>
                             <div class="flex items-center">
@@ -60,7 +60,7 @@
                         </div>
                     </div>
                     <div
-                        class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-10 sm:px-6 lg:border-t-0 xl:px-8 lg:border-l">
+                        class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-5 lg:py-10 sm:px-6 lg:border-t-0 xl:px-8 lg:border-l">
                         <div>
                             <dt class="font-medium text-gray-500">
                                 <div class="grid grid-cols-2 gap-2">
@@ -88,7 +88,7 @@
                         </div>
                     </div>
                     <div
-                        class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-10 sm:px-6 lg:border-t-0 xl:px-8 sm:border-l">
+                        class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-5 lg:py-10 sm:px-6 lg:border-t-0 xl:px-8 sm:border-l">
                         <div>
                             <dt class="font-medium text-gray-500 text-gray-500"> Mol. Formula </dt>
                             <dd class="mt-1 text-sm text-gray-900">{{ $molecule->properties->molecular_formula }}</dd>
@@ -98,8 +98,8 @@
             </div>
         @endif
         <div
-            class="mx-auto mt-8 grid max-w-3xl grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3">
-            <div class="space-y-6 lg:col-span-2 lg:col-start-1">
+            class="mx-auto mt-8 grid max-w-3xl grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3 px-4">
+            <section class="space-y-6 lg:col-span-2 lg:col-start-1 order-2 lg:order-1">
                 @if ($molecule->organisms && count($molecule->organisms) > 0)
                     <section>
                         <div class="bg-white border shadow sm:rounded-lg" x-data="{ showAll: false }">
@@ -173,7 +173,8 @@
                                         @foreach ($molecule->geo_locations as $geo_location)
                                             @if ($geo_location != '')
                                                 <li class="inline">
-                                                    <span class="text-sm relative mr-2 inline-flex items-center rounded-md border border-gray-300 px-3 py-0.5"
+                                                    <span
+                                                        class="text-sm relative mr-2 inline-flex items-center rounded-md border border-gray-300 px-3 py-0.5"
                                                         target="_blank">
                                                         {{ $geo_location->name }}
                                                     </span>
@@ -207,7 +208,8 @@
                                                 <div class="mt-1 break-all text-sm text-gray-900">
                                                     {{ $molecule->identifier }}
                                                     <span class="float-end mr-2 group-hover:block hidden">
-                                                        <livewire:copy-button text-to-copy="{{ $molecule->identifier }}" />
+                                                        <livewire:copy-button
+                                                            text-to-copy="{{ $molecule->identifier }}" />
                                                     </span>
                                                 </div>
                                             </div>
@@ -231,7 +233,8 @@
                                                 <div class="mt-1 break-all text-sm text-gray-900">
                                                     {{ $molecule->iupac_name }}
                                                     <span class="float-end mr-2 group-hover:block hidden">
-                                                        <livewire:copy-button text-to-copy="{{ $molecule->iupac_name }}" />
+                                                        <livewire:copy-button
+                                                            text-to-copy="{{ $molecule->iupac_name }}" />
                                                     </span>
                                                 </div>
                                             </div>
@@ -243,7 +246,8 @@
                                                 <div class="mt-1 break-all text-sm text-gray-900">
                                                     {{ $molecule->standard_inchi }}
                                                     <span class="float-end mr-2 group-hover:block hidden">
-                                                        <livewire:copy-button text-to-copy="{{ $molecule->standard_inchi }}" />
+                                                        <livewire:copy-button
+                                                            text-to-copy="{{ $molecule->standard_inchi }}" />
                                                     </span>
                                                 </div>
                                             </div>
@@ -255,7 +259,8 @@
                                                 <div class="mt-1 break-all text-sm text-gray-900">
                                                     {{ $molecule->standard_inchi_key }}
                                                     <span class="float-end mr-2 group-hover:block hidden">
-                                                        <livewire:copy-button text-to-copy="{{ $molecule->standard_inchi_key }}" />
+                                                        <livewire:copy-button
+                                                            text-to-copy="{{ $molecule->standard_inchi_key }}" />
                                                     </span>
                                                 </div>
                                             </div>
@@ -267,7 +272,8 @@
                                                 <div class="mt-1 break-all text-sm text-gray-900">
                                                     {{ $molecule->canonical_smiles }}
                                                     <span class="float-end mr-2 group-hover:block hidden">
-                                                        <livewire:copy-button text-to-copy="{{ $molecule->canonical_smiles }}" />
+                                                        <livewire:copy-button
+                                                            text-to-copy="{{ $molecule->canonical_smiles }}" />
                                                     </span>
                                                 </div>
                                             </div>
@@ -281,7 +287,8 @@
                                                     <div class="mt-1 break-all text-sm text-gray-900">
                                                         {{ $molecule->properties->murcko_framework ? $molecule->properties->murcko_framework : '-' }}
                                                         <span class="float-end mr-2 group-hover:block hidden">
-                                                            <livewire:copy-button text-to-copy="{{ $molecule->murcko_framework }}" />
+                                                            <livewire:copy-button
+                                                                text-to-copy="{{ $molecule->murcko_framework }}" />
                                                         </span>
                                                     </div>
                                                 </div>
@@ -343,22 +350,22 @@
                                 </div>
                                 <div class="px-4 py-6 sm:px-6">
                                     <ul role="list" class="px-0">
-                                        <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">
+                                        <li class="py-1 flex md:py-0"><span class="ml-3 text-base text-gray-500">
                                                 <b>Super class</b>:
                                                 {{ $molecule->properties && $molecule->properties['chemical_super_class'] ? $molecule->properties['chemical_super_class'] : '-' }}
                                             </span>
                                         </li>
-                                        <li class="py-5 flex md:py-0"><span
+                                        <li class="py-1 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500"><b>Class</b>:
                                                 {{ $molecule->properties && $molecule->properties['chemical_class'] ? $molecule->properties['chemical_class'] : '-' }}</span>
                                         </li>
-                                        <li class="py-5 flex md:py-0"><span
+                                        <li class="py-1 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500"><b>Sub
                                                     class</b>:
                                                 {{ $molecule->properties && $molecule->properties['chemical_sub_class'] ? $molecule->properties['chemical_sub_class'] : '-' }}
                                             </span>
                                         </li>
-                                        <li class="py-5 flex md:py-0"><span
+                                        <li class="py-1 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500"><b>Direct
                                                     parent</b>:
                                                 {{ $molecule->properties && $molecule->properties['direct_parent_classification'] ? $molecule->properties['direct_parent_classification'] : '-' }}
@@ -581,9 +588,15 @@
                                                                 {{ $collection->doi }}
                                                             </h2>
                                                             <h2 x-show="collection.pivot.reference"
-                                                                class="hover:text-blue-500 mt-1 font-display text-base text-slate-900">
-                                                                Reference: <a href="{{ $collection->pivot->url }}"
-                                                                    target="_blank">{{ $collection->pivot->reference }}
+                                                                class="mt-1 font-display text-base text-slate-900">
+                                                                @if (!empty($collection->pivot->url))
+                                                                    <a href="{{ $collection->pivot->url }}"
+                                                                        class="hover:text-blue-500" target="_blank">
+                                                                @endif
+                                                                {{ $collection->pivot->reference }}
+                                                                <span class="ml-4"><livewire:copy-button
+                                                                        text-to-copy="{{ $collection->pivot->reference }}" /></span>
+                                                                @if (!empty($collection->pivot->url))
                                                                     <svg xmlns="http://www.w3.org/2000/svg"
                                                                         fill="none" viewBox="0 0 24 24"
                                                                         stroke-width="1.5" stroke="currentColor"
@@ -592,7 +605,9 @@
                                                                             stroke-linejoin="round"
                                                                             d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25">
                                                                         </path>
-                                                                    </svg></a>
+                                                                    </svg>
+                                                                    </a>
+                                                                @endif
                                                             </h2>
                                                         </div>
                                                     </div>
@@ -696,11 +711,11 @@
                                 <div class="px-4 py-6 sm:px-6">
                                     <div>
                                         <ul role="list" class="px-0">
-                                            <li class="py-5 flex md:py-0"><span
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Mol. Formula :
                                                     {{ $molecule->properties->molecular_formula }}</span>
                                             </li>
-                                            <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">
+                                            <li class="py-2 flex md:py-0"><span class="ml-3 text-base text-gray-500">
                                                     Mol. Weight
                                                     <span x-data="{ tooltip: false }" x-on:mouseover="tooltip = true"
                                                         x-on:mouseleave="tooltip = false"
@@ -718,35 +733,35 @@
                                                         </div>
                                                     </span>{{ $molecule->properties->exact_molecular_weight }}</span>
                                             </li>
-                                            <li class="py-5 flex md:py-0"><span
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Total
                                                     atom number : {{ $molecule->properties->total_atom_count }}</span>
                                             </li>
-                                            <li class="py-5 flex md:py-0"><span
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Heavy
                                                     atom number :
                                                     {{ $molecule->properties->heavy_atom_count }}</span></li>
-                                            <li class="py-5 flex md:py-0"><span
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Aromatic Ring Count :
                                                     {{ $molecule->properties->aromatic_rings_count }}</span></li>
-                                            <li class="py-5 flex md:py-0"><span
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Rotatable Bond count :
                                                     {{ $molecule->properties->rotatable_bond_count }}</span></li>
-                                            <li class="py-5 flex md:py-0"><span
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Minimal number of rings
                                                     : {{ $molecule->properties->number_of_minimal_rings }}</span></li>
-                                            <li class="py-5 flex md:py-0"><span
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Formal Charge :
                                                     {{ $molecule->properties->total_atom_count }}</span></li>
-                                            <li class="py-5 flex md:py-0"><span
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Contains Sugar :
                                                     {{ $molecule->properties->contains_sugar ? 'True' : 'False' }}</span>
                                             </li>
-                                            <li class="py-5 flex md:py-0"><span
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Contains Ring Sugars :
                                                     {{ $molecule->properties->contains_ring_sugars ? 'True' : 'False' }}</span>
                                             </li>
-                                            <li class="py-5 flex md:py-0"><span
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Contains Linear Sugars
                                                     :
                                                     {{ $molecule->properties->contains_linear_sugars ? 'True' : 'False' }}</span>
@@ -768,40 +783,40 @@
                                 </div>
                                 <div class="px-4 py-6 sm:px-6">
                                     <ul role="list" class="">
-                                        <li class="py-5 flex md:py-0"><span
+                                        <li class="py-2 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500">NP-likeness scores :
                                                 {{ $molecule->properties->np_likeness }}</span></li>
-                                        <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Alogp
+                                        <li class="py-2 flex md:py-0"><span class="ml-3 text-base text-gray-500">Alogp
                                                 :
                                                 {{ $molecule->properties->alogp }}</span></li>
-                                        <li class="py-5 flex md:py-0"><span
+                                        <li class="py-2 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500">TopoPSA :
                                                 {{ $molecule->properties->topological_polar_surface_area }}</span></li>
-                                        <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Fsp3
+                                        <li class="py-2 flex md:py-0"><span class="ml-3 text-base text-gray-500">Fsp3
                                                 :
                                                 {{ $molecule->properties->total_atom_count }}</span></li>
-                                        <li class="py-5 flex md:py-0"><span
+                                        <li class="py-2 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500">Hydrogen
                                                 Bond Acceptor Count
                                                 : {{ $molecule->properties->hydrogen_bond_acceptors }}</span></li>
-                                        <li class="py-5 flex md:py-0"><span
+                                        <li class="py-2 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500">Hydrogen
                                                 Bond Donor Count :
                                                 {{ $molecule->properties->hydrogen_bond_donors }}</span>
                                         </li>
-                                        <li class="py-5 flex md:py-0"><span
+                                        <li class="py-2 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500">Lipinski
                                                 Hydrogen Bond
                                                 Acceptor Count :
                                                 {{ $molecule->properties->hydrogen_bond_acceptors_lipinski }}</span>
                                         </li>
-                                        <li class="py-5 flex md:py-0"><span
+                                        <li class="py-2 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500">Lipinski
                                                 Hydrogen Bond Donor
                                                 Count :
                                                 {{ $molecule->properties->hydrogen_bond_donors_lipinski }}</span>
                                         </li>
-                                        <li class="py-5 flex md:py-0"><span
+                                        <li class="py-2 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500">Lipinski
                                                 RO5 Violations :
                                                 {{ $molecule->properties->lipinski_rule_of_five_violations }}</span>
@@ -812,53 +827,21 @@
                         </div>
                     </section>
                 @endif
-
-            </div>
-            <section aria-labelledby="timeline-title" class="lg:col-span-1 lg:col-start-3">
-                <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg bg-white mb-2">
-                    <livewire:molecule-depict2d :height="300" :smiles="$molecule->canonical_smiles" :name="$molecule->name" :options="true" lazy="on-load">
+            </section>
+            <section class="space-y-6 lg:col-span-1 lg:col-start-3 order-1 lg:order-2">
+                <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg bg-white mb-2 mx-2">
+                    <livewire:molecule-depict2d :height="300" :smiles="$molecule->canonical_smiles" :name="$molecule->name" :options="true"
+                        lazy="on-load">
                 </div>
-                <div>
+                <div class="mx-2">
                     <livewire:molecule-depict3d :height="300" :smiles="$molecule->canonical_smiles" lazy="on-load">
                 </div>
-                <div class="bg-white px-4 py-1 mt-2 shadow sm:rounded-lg sm:px-6 border">
-                    <div class="mt-2 flow-root">
-                        <ul role="list" class="-mb-8">
-                            <li>
-                                <div class="relative pb-8">
-                                    <div class="relative flex space-x-3">
-                                        <div class="flex min-w-0 flex-1 justify-between space-x-4 py-1.5">
-                                            <div>
-                                                <p class="text-sm text-gray-500">Created at</p>
-                                                <time
-                                                    datetime="{{ $molecule->created_at }}">{{ $molecule->created_at }}</time>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-
-                        </ul>
-                    </div>
-                    {{-- <div class="my-2 flex flex-col justify-stretch">
-                        <a class="inline-flex right py-2 text-sm font-semibold">View
-                            complete history</a>
-                    </div> --}}
-                </div>
-                <dl class="mt-5 flex w-full">
-                    <div class="text-center md:text-left">
-                        <dd class="mt-1"><a class="text-base font-semibold text-text-dark hover:text-slate-600"
-                                href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=report">
-                                Report this compound <span aria-hidden="true">→</span></a></dd>
-                        <dd class="mt-1"><a class="text-base font-semibold text-text-dark hover:text-slate-600"
-                                href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=change">Request
-                                changes to this page <span aria-hidden="true">→</span></a></dd>
-                    </div>
+                <dl class="mt-5 flex w-full mx-2">
+                    <div class="md:text-left"><dd class="mt-1"><a class="text-base font-semibold text-text-dark hover:text-slate-600" href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=report">Report this compound <span aria-hidden="true">→</span></a></dd><dd class="mt-1"><a class="text-base font-semibold text-text-dark hover:text-slate-600" href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=change">Request changes to this page <span aria-hidden="true">→</span></a></dd></div>
                 </dl>
-                <div>
-                    <livewire:molecule-history-timeline :mol="$molecule" lazy="on-load"/>
+                <div class="mx-2">
+                    <livewire:molecule-history-timeline :mol="$molecule" lazy="on-load" />
                 </div>
-
             </section>
         </div>
     </div>
