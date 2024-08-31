@@ -199,62 +199,80 @@
                                 <article>
                                     <div class="">
                                         <section id="representations" class="my-4">
-                                            <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                            <div class="group -ml-4 rounded-xl p-4 hover:bg-slate-100">
                                                 <dt
                                                     class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
                                                     COCONUT id
                                                 </dt>
                                                 <div class="mt-1 break-all text-sm text-gray-900">
                                                     {{ $molecule->identifier }}
+                                                    <span class="float-end mr-2 group-hover:block hidden">
+                                                        <livewire:copy-button text-to-copy="{{ $molecule->identifier }}" />
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                            <div class="group -ml-4 rounded-xl p-4 hover:bg-slate-100">
                                                 <dt
                                                     class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
                                                     Name
                                                 </dt>
                                                 <div class="mt-1 break-all text-sm text-gray-900">
                                                     {{ $molecule->name ? $molecule->name : '-' }}
+                                                    <span class="float-end mr-2 group-hover:block hidden">
+                                                        <livewire:copy-button text-to-copy="{{ $molecule->name }}" />
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                            <div class="group -ml-4 rounded-xl p-4 hover:bg-slate-100">
                                                 <dt
                                                     class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
                                                     IUPAC name
                                                 </dt>
                                                 <div class="mt-1 break-all text-sm text-gray-900">
                                                     {{ $molecule->iupac_name }}
+                                                    <span class="float-end mr-2 group-hover:block hidden">
+                                                        <livewire:copy-button text-to-copy="{{ $molecule->iupac_name }}" />
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                            <div class="group -ml-4 rounded-xl p-4 hover:bg-slate-100">
                                                 <dt
                                                     class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
                                                     InChI
                                                 </dt>
                                                 <div class="mt-1 break-all text-sm text-gray-900">
                                                     {{ $molecule->standard_inchi }}
+                                                    <span class="float-end mr-2 group-hover:block hidden">
+                                                        <livewire:copy-button text-to-copy="{{ $molecule->standard_inchi }}" />
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                            <div class="group -ml-4 rounded-xl p-4 hover:bg-slate-100">
                                                 <dt
                                                     class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
                                                     InChIKey
                                                 </dt>
                                                 <div class="mt-1 break-all text-sm text-gray-900">
                                                     {{ $molecule->standard_inchi_key }}
+                                                    <span class="float-end mr-2 group-hover:block hidden">
+                                                        <livewire:copy-button text-to-copy="{{ $molecule->standard_inchi_key }}" />
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                            <div class="group -ml-4 rounded-xl p-4 hover:bg-slate-100">
                                                 <dt
                                                     class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
                                                     Canonical SMILES (RDKit)
                                                 </dt>
                                                 <div class="mt-1 break-all text-sm text-gray-900">
                                                     {{ $molecule->canonical_smiles }}
+                                                    <span class="float-end mr-2 group-hover:block hidden">
+                                                        <livewire:copy-button text-to-copy="{{ $molecule->canonical_smiles }}" />
+                                                    </span>
                                                 </div>
                                             </div>
                                             @if ($molecule->properties)
-                                                <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                                <div class="group -ml-4 rounded-xl p-4 hover:bg-slate-100">
                                                     <div class="sm:flex sm:justify-between">
                                                         <div class="text-sm font-medium text-gray-500"> Murcko
                                                             Framework
@@ -262,11 +280,14 @@
                                                     </div>
                                                     <div class="mt-1 break-all text-sm text-gray-900">
                                                         {{ $molecule->properties->murcko_framework ? $molecule->properties->murcko_framework : '-' }}
+                                                        <span class="float-end mr-2 group-hover:block hidden">
+                                                            <livewire:copy-button text-to-copy="{{ $molecule->murcko_framework }}" />
+                                                        </span>
                                                     </div>
                                                 </div>
                                             @endif
                                             @if ($molecule->synonyms && count($molecule->synonyms) > 0)
-                                                <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                                <div class="group -ml-4 rounded-xl p-4 hover:bg-slate-100">
                                                     <dt
                                                         class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
                                                         Synonyms
