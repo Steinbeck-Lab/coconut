@@ -26,7 +26,6 @@ class MoleculeDetails extends Component
             Cache::forget('molecules.'.$id);
             Cache::rememberForever('molecules.'.$id, function () use ($molecule) {
                 $molecule['schema'] = $molecule->getSchema();
-
                 return $molecule;
             });
         }
