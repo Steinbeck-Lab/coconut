@@ -18,7 +18,7 @@
                         <p class="text-sm font-medium text-gray-500">{{ $molecule->identifier }}</p>
                     </div>
                     <div>
-                        <h3 class="mt-1 text-base font-bold text-gray-900 capitalize text-clip overflow-hidden ..." title="{{ $molecule->name }}">
+                        <h3 class="mt-1 text-base font-bold text-gray-900 capitalize text-clip overflow-hidden truncate ..." title="{{ $molecule->name }}">
                             @if ($molecule->name)
                                 {{ $molecule->name }}
                             @else

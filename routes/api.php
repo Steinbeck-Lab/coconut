@@ -21,13 +21,6 @@ use Lomkit\Rest\Facades\Rest;
 |
 */
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-*/
-
 // User authentication
 Route::prefix('auth')->group(function () {
     Route::post('/login', [LoginController::class, 'login']);
