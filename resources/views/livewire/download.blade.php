@@ -34,7 +34,7 @@
                         <article class="py-12">
                             <div class="group relative max-w-xl">
                                 <time datetime="2024-08-01" class="block text-sm leading-6 text-gray-600">Version:
-                                    August 2024</time>
+                                    September 2024</time>
                                 <p class="mt-2 line-clamp-3 text-sm leading-6 text-gray-900 font-bold">COCONUT data is
                                     released
                                     under
@@ -47,9 +47,9 @@
                                     Natural Products - SDF
                                 </div>
                                 <div class="mt-1 flex border-b border-gray-100 pb-2">
-                                    <a href="https://coconut.s3.uni-jena.de/prod/downloads/coconut-08-2024.sdf.zip"
+                                    <a href="https://coconut.s3.uni-jena.de/prod/downloads/2024-09/coconut-09-2024.sdf.zip"
                                         class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
-                                        (coconut-08-2024.sdf / 297.1 MB) <span aria-hidden="true">→</span></a>
+                                        (coconut-09-2024.sdf / 297.1 MB) <span aria-hidden="true">→</span></a>
                                 </div>
                             </div>
                             <div class="mt-4">
@@ -57,9 +57,9 @@
                                     Complete (active/inactive) COCONUT dataset
                                 </div>
                                 <div class="mt-1 flex border-b border-gray-100 pb-2">
-                                    <a href="https://coconut.s3.uni-jena.de/prod/downloads/coconut-08-2024-dump.sql.zip"
+                                    <a href="https://coconut.s3.uni-jena.de/prod/downloads/2024-09/coconut-09-2024.sql.zip"
                                         class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
-                                        (coconut-08-2024.sql / 1.82 GB)<span aria-hidden="true">→</span></a>
+                                        (coconut-09-2024.sql / 1.82 GB)<span aria-hidden="true">→</span></a>
                                 </div>
                             </div>
                             <div class="mt-4">
@@ -67,15 +67,24 @@
                                     Natural Products - CSV format
                                 </div>
                                 <div class="mt-1 flex border-b border-gray-100 pb-2">
-                                    <a href="https://coconut.s3.uni-jena.de/prod/downloads/coconut-08-2024.csv.zip"
+                                    <a href="https://coconut.s3.uni-jena.de/prod/downloads/2024-09/coconut-09-2024.csv.zip"
                                         class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
-                                        (coconut-08-2024.csv / 88.9 MB) <span aria-hidden="true">→</span></a>
+                                        (coconut-09-2024.csv / 88.9 MB) <span aria-hidden="true">→</span></a>
                                 </div>
                             </div>
                         </article>
                     </div>
                 </div>
             </div>
+            <div class="bg-white max-w-2xl lg:max-w-4xl mx-auto">
+                <div class="mx-auto px-6 py-24 sm:py-32 lg:flex lg:items-center lg:justify-between lg:px-8">
+                  <h2 class="text-xl font-bold tracking-tight text-gray-900 sm:text-xl">Need older versions?</h2>
+                  <div class="mt-10 flex items-center gap-x-6 lg:mt-0 lg:flex-shrink-0">
+                    <a href="https://zenodo.org/search?q=parent.id%3A13382750&f=allversions%3Atrue&l=list&p=1&s=10&sort=version" target="_blank" class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Download previous releases (Zenodo)</a>
+                    <a href="https://zenodo.org/search?q=parent.id%3A3547717&f=allversions%3Atrue&l=list&p=1&s=10&sort=version" class="text-sm font-semibold leading-6 text-gray-900">Download COCONUT (2019) <span aria-hidden="true">→</span></a>
+                  </div>
+                </div>
+              </div>
         </div>
     </div>
     <div class="border border-t py-24">
@@ -94,6 +103,9 @@
                         <div>
                             <div class="flex items-center gap-x-4 text-xs">
                                 <span
+                                    class="relative rounded-full bg-gray-50 px-3 py-1.5 font-medium text-gray-600 hover:bg-gray-100 -ml-1">Version:
+                                    August 2024</span>
+                                    <span
                                     class="relative rounded-full bg-gray-50 px-3 py-1.5 font-medium text-gray-600 hover:bg-gray-100 -ml-1">Fragment
                                     Analysis</span>
                             </div>
@@ -117,7 +129,7 @@
                                         <p
                                             class="line-clamp-1 text-ellipsis overflow-hidden ... mt-5 text-sm leading-6 text-gray-600">
                                         <div class="tooltip"><a
-                                                href="https://coconut.s3.uni-jena.de/prod/downloads/MORTAR/Fragments_Ertl_algorithm.csv"
+                                                href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/MORTAR/Fragments_Ertl_algorithm.csv"
                                                 class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
                                                 Fragments_Ertl_algorithm.csv <span aria-hidden="true">→</span></a>
                                             <span class="tooltiptext">Download generalized Ertl algorithm functional
@@ -133,7 +145,7 @@
                                     <div class="mt-1 border-gray-100 pb-2">
                                         <p class="line-clamp-1 mt-5 text-sm leading-6 text-gray-600">
                                         <div class="tooltip"><a
-                                                href="https://coconut.s3.uni-jena.de/prod/downloads/MORTAR/Items_Ertl_algorithm.csv"
+                                                href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/MORTAR/Items_Ertl_algorithm.csv"
                                                 class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
                                                 Items_Ertl_algorithm.csv <span aria-hidden="true">→</span></a>
                                             <span class="tooltiptext">Download COCONUT
@@ -150,7 +162,7 @@
                                     <div class="mt-1 border-gray-100 pb-2">
                                         <p class="line-clamp-1 mt-5 text-sm leading-6 text-gray-600">
                                         <div class="tooltip"><a
-                                                href="https://coconut.s3.uni-jena.de/prod/downloads/MORTAR/Fragments_Scaffold_Generator.csv"
+                                                href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/MORTAR/Fragments_Scaffold_Generator.csv"
                                                 class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
                                                 Fragments_Scaffold_Generator.csv <span aria-hidden="true">→</span></a>
                                             <span class="tooltiptext">Download molecular
@@ -166,7 +178,7 @@
                                     <div class="mt-1 border-gray-100 pb-2">
                                         <p class="line-clamp-1 mt-5 text-sm leading-6 text-gray-600">
                                         <div class="tooltip"><a
-                                                href="https://coconut.s3.uni-jena.de/prod/downloads/MORTAR/Items_Scaffold_Generator.csv"
+                                                href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/MORTAR/Items_Scaffold_Generator.csv"
                                                 class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
                                                 Items_Scaffold_Generator.csv <span aria-hidden="true">→</span></a>
                                             <span class="tooltiptext">Download COCONUT
@@ -182,7 +194,7 @@
                                     <div class="mt-1 border-gray-100 pb-2">
                                         <p class="line-clamp-1 mt-5 text-sm leading-6 text-gray-600">
                                         <div class="tooltip"><a
-                                                href="https://coconut.s3.uni-jena.de/prod/downloads/MORTAR/Fragments_Scaffold_Generator_Scafold_tree.csv"
+                                                href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/MORTAR/Fragments_Scaffold_Generator_Scafold_tree.csv"
                                                 class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
                                                 Fragments_Scaffold_Generator_Scafold_tree.csv <span
                                                     aria-hidden="true">→</span></a>
@@ -201,7 +213,7 @@
                                     <div class="mt-1 border-gray-100 pb-2">
                                         <p class="line-clamp-1 mt-5 text-sm leading-6 text-gray-600">
                                         <div class="tooltip"><a
-                                                href="https://coconut.s3.uni-jena.de/prod/downloads/MORTAR/Items_Scaffold_Generator_Scaffold_tree.csv"
+                                                href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/MORTAR/Items_Scaffold_Generator_Scaffold_tree.csv"
                                                 class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
                                                 Items_Scaffold_Generator_Scafold_tree.csv <span
                                                     aria-hidden="true">→</span></a>
@@ -241,6 +253,9 @@
                         <div>
                             <div class="flex items-center gap-x-2 text-xs">
                                 <span
+                                class="relative rounded-full bg-gray-50 px-3 py-1.5 font-medium text-gray-600 hover:bg-gray-100 -ml-1">Version:
+                                August 2024</span>
+                                <span
                                     class="relative rounded-full bg-gray-50 px-3 py-1.5 font-medium text-gray-600 hover:bg-gray-100">Drug
                                     Discovery</span>
                                 <span
@@ -267,7 +282,7 @@
                             <div class="mt-6 flex border-t border-gray-900/5 pt-6">
                                 <div class="relative flex items-center gap-x-4">
                                     <div class="tooltip"><a
-                                            href="https://coconut.s3.uni-jena.de/prod/downloads/DD/COCONUT_2024_08_DrugDiscovery.tsv.zip"
+                                            href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/DD/COCONUT_2024_08_DrugDiscovery.tsv.zip"
                                             class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
                                             Download <span aria-hidden="true">→</span></a>
                                         <span class="tooltiptext">A text file containing the latest COCONUT IDs,
@@ -287,6 +302,9 @@
                         </div>
                         <div>
                             <div class="flex items-center gap-x-4 text-xs">
+                                <span
+                                class="relative rounded-full bg-gray-50 px-3 py-1.5 font-medium text-gray-600 hover:bg-gray-100 -ml-1">Version:
+                                September 2024</span>
                                 <span
                                     class="relative rounded-full bg-gray-50 px-3 py-1.5 font-medium text-gray-600 hover:bg-gray-100">Mass
                                     Spec</span>
