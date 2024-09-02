@@ -13,7 +13,7 @@ class ExtractCAS extends Command
      *
      * @var string
      */
-    protected $signature = 'app:extract-cas';
+    protected $signature = 'coconut:extract-cas';
 
     /**
      * The console command description.

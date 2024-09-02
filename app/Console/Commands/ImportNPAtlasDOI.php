@@ -14,7 +14,7 @@ class ImportNPAtlasDOI extends Command
      *
      * @var string
      */
-    protected $signature = 'app:import-npatlas-doi {file}';
+    protected $signature = 'coconut:import-npatlas-doi {file}';
 
     /**
      * The console command description.

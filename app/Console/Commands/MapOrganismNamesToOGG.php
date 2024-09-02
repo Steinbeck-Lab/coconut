@@ -9,7 +9,7 @@ use Log;
 
 class MapOrganismNamesToOGG extends Command
 {
-    protected $signature = 'organisms:map-ogg';
+    protected $signature = 'coconut:organisms-map-ogg';
 
     protected $description = 'Map organism names to OGG IRIs and update the model';
 
