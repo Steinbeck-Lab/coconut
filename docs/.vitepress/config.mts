@@ -25,7 +25,7 @@ export default defineConfig({
 
     nav: [
       { text: 'Home', link: '/introduction' },
-      { text: 'Guides', link: '/collection-submission' },
+      // { text: 'Guides', link: '/collection-submission' },
       { text: 'API', link: 'https://coconut.cheminf.studio/api-documentation' },
       { text: 'About', link: 'https://coconut.cheminf.studio/about' },
       { text: 'Download', link: 'https://coconut.cheminf.studio/download' }
