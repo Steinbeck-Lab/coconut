@@ -632,8 +632,10 @@
                                                                         class="hover:text-blue-500" target="_blank">
                                                                 @endif
                                                                 {{ $collection->pivot->reference }}
-                                                                <span class="ml-4"><livewire:copy-button
-                                                                        text-to-copy="{{ $collection->pivot->reference }}" /></span>
+                                                                <span class="ml-4">
+                                                                    &nbsp;<livewire:copy-button
+                                                                        text-to-copy="{{ $collection->pivot->reference }}" />
+                                                                </span>
                                                                 @if (!empty($collection->pivot->url))
                                                                     <svg xmlns="http://www.w3.org/2000/svg"
                                                                         fill="none" viewBox="0 0 24 24"
