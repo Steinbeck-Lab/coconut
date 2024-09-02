@@ -695,7 +695,7 @@
                     </section>
                 @endif
 
-                @if ($molecule->is_parent)
+                @if ($molecule->is_parent && $molecule->has_variants)
                     <section aria-labelledby="notes-title">
                         <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
                             <div class="divide-y divide-gray-200">
