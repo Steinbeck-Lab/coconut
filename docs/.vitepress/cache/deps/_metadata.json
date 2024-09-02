@@ -1,31 +1,54 @@
 {
+<<<<<<< Updated upstream
   "hash": "d94eb296",
   "configHash": "c72d62c6",
   "lockfileHash": "fba1b56a",
   "browserHash": "fc416561",
+=======
+  "hash": "8a15a5a3",
+  "configHash": "d8d0d63c",
+  "lockfileHash": "fba1b56a",
+  "browserHash": "91435dee",
+>>>>>>> Stashed changes
   "optimized": {
     "vue": {
       "src": "../../../../node_modules/vue/dist/vue.runtime.esm-bundler.js",
       "file": "vue.js",
+<<<<<<< Updated upstream
       "fileHash": "af6eb1f4",
+=======
+      "fileHash": "d544c7d3",
+>>>>>>> Stashed changes
       "needsInterop": false
     },
     "vitepress > @vue/devtools-api": {
       "src": "../../../../node_modules/@vue/devtools-api/dist/index.js",
       "file": "vitepress___@vue_devtools-api.js",
+<<<<<<< Updated upstream
       "fileHash": "2c862337",
+=======
+      "fileHash": "e76dbc85",
+>>>>>>> Stashed changes
       "needsInterop": false
     },
     "vitepress > @vueuse/core": {
       "src": "../../../../node_modules/@vueuse/core/index.mjs",
       "file": "vitepress___@vueuse_core.js",
+<<<<<<< Updated upstream
       "fileHash": "bf5304be",
+=======
+      "fileHash": "58d6bd04",
+>>>>>>> Stashed changes
       "needsInterop": false
     },
     "@theme/index": {
       "src": "../../../../node_modules/vitepress/dist/client/theme-default/index.js",
       "file": "@theme_index.js",
+<<<<<<< Updated upstream
       "fileHash": "61fb6092",
+=======
+      "fileHash": "afc044ef",
+>>>>>>> Stashed changes
       "needsInterop": false
     }
   },
