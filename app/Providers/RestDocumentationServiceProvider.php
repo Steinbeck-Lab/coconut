@@ -39,7 +39,7 @@ class RestDocumentationServiceProvider extends ServiceProvider
             $openAPI
                 ->withPaths(
                     [
-                        '/api/v1/auth/login' => (new Path)
+                        '/api/auth/login' => (new Path)
                             ->withPost(
                                 (new Operation)
                                     ->withSummary('Login endpoint')
@@ -52,7 +52,7 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                                         ->withExample(
                                                             (new Example)
                                                                 ->withValue([
-                                                                    'email' => 'user@example.com',
+                                                                    'email' => 'john@example.com',
                                                                     'password' => 'password',
                                                                 ])
                                                                 ->generate()
@@ -81,17 +81,8 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                                             ],
                                                         ],
                                                     ])
-                                            )
-                                            ->withOthers([
-                                                json_encode('422') => (new Response)
-                                                    ->withDescription('Account is not yet verified. Please verify your email address by clicking on the link we just emailed to you.')
-                                                    ->generate(),
-                                                json_encode('401') => (new Response)
-                                                    ->withDescription('Invalid login details')
-                                                    ->generate(),
-
-                                            ]))),
-                        '/api/v1/auth/logout' => (new Path)
+                                            ))),
+                        '/api/auth/logout' => (new Path)
                             ->withGet(
                                 (new Operation)
                                     ->withSummary('Logout endpoint')
@@ -115,7 +106,7 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                                 ->generate())
                                     )
                             ),
-                        '/api/v1/auth/register' => (new Path)
+                        '/api/auth/register' => (new Path)
                             ->withPost(
                                 (new Operation)
                                     ->withSummary('Register endpoint')
@@ -128,10 +119,13 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                                         ->withExample(
                                                             (new Example)
                                                                 ->withValue([
-                                                                    'name' => 'John Doe',
+                                                                    'first_name' => 'John',
+                                                                    'last_name' => 'Doe',
+                                                                    'username' => 'JDoe',
+                                                                    'affiliation' => 'JD',
                                                                     'email' => 'john@example.com',
-                                                                    'mobile_phone' => '9876543210',
                                                                     'password' => 'password',
+                                                                    'password_confirmation' => 'password',
                                                                 ])
                                                                 ->generate()
                                                         )
@@ -162,140 +156,8 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                                         ],
                                                     ],
                                                 ])))),
-                        '/api/v1/auth/otp/login' => (new Path)
-                            ->withPost(
-                                (new Operation)
-                                    ->withSummary('OTP Login endpoint')
-                                    ->withTags(['Authentication'])
-                                    ->withRequestBody(
-                                        (new RequestBody)
-                                            ->withContent(
-                                                [
-                                                    'application/json' => (new MediaType)
-                                                        ->withExample(
-                                                            (new Example)
-                                                                ->withValue([
-                                                                    'mobile_number' => '9876543210',
-                                                                ])
-                                                                ->generate()
-                                                        )
-                                                        ->generate(),
-                                                ]
-                                            )
-                                    )
-                                    ->withResponses(
-                                        (new Responses)
-                                            ->withDefault(
-                                                (new Response)
-                                                    ->withDescription('Login successful')
-                                                    ->withContent([
-                                                        'application/json' => [
-                                                            'schema' => [
-                                                                'type' => 'object',
-                                                                'properties' => [
-                                                                    'success' => [
-                                                                        'type' => 'boolean',
-                                                                    ],
-                                                                    'message' => [
-                                                                        'type' => 'string',
-                                                                    ],
-                                                                    'token' => [
-                                                                        'type' => 'string',
-                                                                    ],
-                                                                ],
-                                                            ],
-                                                        ],
-                                                    ])
-                                            )
-                                            ->withOthers([
-                                                json_encode('422') => (new Response)
-                                                    ->withDescription('Validation error')
-                                                    ->withContent([
-                                                        'application/json' => [
-                                                            'schema' => [
-                                                                'type' => 'object',
-                                                                'properties' => [
-                                                                    'error' => [
-                                                                        'type' => 'string',
-                                                                    ],
-                                                                ],
-                                                            ],
-                                                        ],
-                                                    ])
-                                                    ->generate(),
-                                            ])
-                                    )
-                            ),
-                        '/api/v1/auth/otp/verify' => (new Path)
-                            ->withPost(
-                                (new Operation)
-                                    ->withSummary('Verify OTP endpoint')
-                                    ->withTags(['Authentication'])
-                                    ->withRequestBody(
-                                        (new RequestBody)
-                                            ->withContent(
-                                                [
-                                                    'application/json' => (new MediaType)
-                                                        ->withExample(
-                                                            (new Example)
-                                                                ->withValue([
-                                                                    'passcode' => '123456',
-                                                                    'reference_token' => '<token>',
-                                                                ])
-                                                                ->generate()
-                                                        )
-                                                        ->generate(),
-                                                ]
-                                            )
-                                    )
-                                    ->withResponses(
-                                        (new Responses)
-                                            ->withDefault(
-                                                (new Response)
-                                                    ->withDescription('OTP verification successful')
-                                                    ->withContent([
-                                                        'application/json' => [
-                                                            'schema' => [
-                                                                'type' => 'object',
-                                                                'properties' => [
-                                                                    'success' => [
-                                                                        'type' => 'boolean',
-                                                                    ],
-                                                                    'access_token' => [
-                                                                        'type' => 'string',
-                                                                    ],
-                                                                    'token_type' => [
-                                                                        'type' => 'string',
-                                                                    ],
-                                                                    'message' => [
-                                                                        'type' => 'string',
-                                                                    ],
-                                                                ],
-                                                            ],
-                                                        ],
-                                                    ])
-                                            )
-                                            ->withOthers([
-                                                json_encode('401') => (new Response)
-                                                    ->withDescription('Invalid OTP')
-                                                    ->withContent([
-                                                        'application/json' => [
-                                                            'schema' => [
-                                                                'type' => 'object',
-                                                                'properties' => [
-                                                                    'msg' => [
-                                                                        'type' => 'string',
-                                                                    ],
-                                                                ],
-                                                            ],
-                                                        ],
-                                                    ])
-                                                    ->generate(),
-                                            ])
-                                    )
-                            ),
                     ] + (Features::enabled(Features::emailVerification()) ? [
-                        '/api/v1/auth/verify/{user_id}' => (new Path)
+                        '/api/auth/verify/{user_id}' => (new Path)
                             ->withGet(
                                 (new Operation)
                                     ->withSummary('Email verification endpoint')
@@ -341,7 +203,7 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                                     ->generate(),
                                             ]))),
 
-                        '/api/v1/auth/email/resend' => (new Path)
+                        '/api/auth/email/resend' => (new Path)
                             ->withGet(
                                 (new Operation)
                                     ->withSummary('Resend email verification endpoint')

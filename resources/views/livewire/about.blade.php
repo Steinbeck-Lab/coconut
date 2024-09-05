@@ -67,7 +67,7 @@
                             <div
                                 class="ml-auto w-44 flex-none space-y-8 pt-32 sm:ml-0 sm:pt-80 lg:order-last lg:pt-36 xl:order-none xl:pt-80">
                                 <div class="relative">
-                                    <img src="img/collections/1.png" alt=""
+                                    <img src="img/collections/1.png" alt="About us image"
                                         class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg" />
                                     <div
                                         class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10">
@@ -76,14 +76,14 @@
                             </div>
                             <div class="mr-auto w-44 flex-none space-y-8 sm:mr-0 sm:pt-52 lg:pt-36">
                                 <div class="relative">
-                                    <img src="img/collections/2.png" alt=""
+                                    <img src="img/collections/2.png" alt="About us image"
                                         class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg" />
                                     <div
                                         class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10">
                                     </div>
                                 </div>
                                 <div class="relative">
-                                    <img src="img/collections/3.png" alt=""
+                                    <img src="img/collections/3.png" alt="About us image"
                                         class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg" />
                                     <div
                                         class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10">
@@ -92,14 +92,14 @@
                             </div>
                             <div class="w-44 flex-none space-y-8 pt-32 sm:pt-0">
                                 <div class="relative">
-                                    <img src="img/collections/4.png" alt=""
+                                    <img src="img/collections/4.png" alt="About us image"
                                         class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg" />
                                     <div
                                         class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10">
                                     </div>
                                 </div>
                                 <div class="relative">
-                                    <img src="img/collections/5.png" alt=""
+                                    <img src="img/collections/5.png" alt="About us image"
                                         class="aspect-[2/3] w-full rounded-xl bg-gray-900/5 object-cover shadow-lg" />
                                     <div
                                         class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10">
@@ -120,18 +120,22 @@
                 <div class="mt-6 flex flex-col gap-x-8 gap-y-20 lg:flex-row">
                     <div class="lg:w-full lg:max-w-2xl lg:flex-auto">
                         <p class="text-xl leading-8 text-gray-600">
-                            Empowering researchers to unlock the full potential of natural products. We aim to support scientists in the collection, storage, processing, analysis, publication, and re-use of natural product data, making it accessible and useful for various applications. Our mission is to provide a unified, open platform that simplifies natural product research and enhances computational screening and other in silico applications.<br />
+                            Empowering researchers to unlock the full potential of natural products. We aim to support
+                            scientists in the collection, storage, processing, analysis, publication, and re-use of
+                            natural product data, making it accessible and useful for various applications. Our mission
+                            is to provide a unified, open platform that simplifies natural product research and enhances
+                            computational screening and other in silico applications.<br />
                         </p>
                         <p class="italic text-md leading-7 text-gray-600 mt-4">
-                            Developed at
-                            <a class="text-blue-900" href="https://www.uni-jena.de/en">Friedrich Schiller University,
-                                Jena</a>
-                            in Germany, under the leadership of
-                            <a class="text-blue-900" href="https://cheminf.uni-jena.de/">Professor Christoph
-                                Steinbeck</a>. Funded by the
-                            <a class="text-blue-900 underline" href="https://www.chembiosys.de/en/">Chembiosys (Project INF) 
-                                - Project number:
-                                <strong class="text-blue-900">239748522 - SFB 1127</strong>.
+                            <i>Cheminformatics Microservice and <a href="https://naturalproducts.net/" target="_blank"
+                                    rel="noreferrer">Natural Products Online</a> are developed and maintained by the <a
+                                    href="https://cheminf.uni-jena.de/" target="_blank" rel="noreferrer">Steinbeck
+                                    group</a> at the <a href="https://www.uni-jena.de/en/" target="_blank"
+                                    rel="noreferrer">Friedrich Schiller University</a> Jena, Germany.</i>
+                            <i>Funded by <a href="https://docs.api.naturalproducts.net/introduction.html"
+                                    target="_blank" rel="noreferrer">ChemBioSys</a> (Project INF) - Project number:
+                                239748522 - SFB 1127.</i>
+
                         </p>
                     </div>
                 </div>
@@ -149,12 +153,13 @@
                         <a class="text-blue-900 underline" href="https://github.com/Steinbeck-Lab/coconut">code</a>
                         is licensed under the
                         <a class="text-blue-900 underline" href="https://opensource.org/licenses/MIT">MIT license</a>.
-                        Complete curated dataset is available for download under <a href="https://creativecommons.org/public-domain/cc0/" target="_blank">CC0 License</a>.
+                        Complete curated dataset is available for download under <a class="text-blue-900 underline"
+                            href="https://creativecommons.org/public-domain/cc0/" target="_blank">CC0 License</a>.
                     </dd>
                     <br />
                     <dt class="font-semibold text-gray-900">Help Desk</dt>
                     <dd class="mt-1 text-gray-600">
-                        Write to us for any issues or support requests
+                        Any issues or need support? write to us at
                         <a class="text-blue-900 underline"
                             href="mailto:info.COCONUT@uni-jena.de">info.COCONUT@uni-jena.de</a>.
                     </dd>
@@ -169,7 +174,7 @@
                         strategic oversight, foster innovation, and drive continuous improvement
                         in all our endeavors.
                         <br /><a class="text-blue-900 underline"
-                            href="https://docs.COCONUT.org/contribution/contributors.html">View →</a>
+                            href="https://steinbeck-lab.github.io/coconut/contributors.html">View →</a>
                     </dd>
                 </div>
                 <div>
@@ -179,11 +184,30 @@
                         collaborate on proposed features, ensuring implementations accurately
                         address real-world use cases.
                         <br /><a class="text-blue-900 underline"
-                            href="https://docs.COCONUT.org/introduction/intro.html">More details →</a>
+                            href="https://steinbeck-lab.github.io/coconut/introduction.html">More details →</a>
                     </dd>
                 </div>
             </dl>
         </div>
-        <div class="mx-auto my-16 max-w-6xl">&nbsp;</div>
+        <div class="mx-auto max-w-6xl">&nbsp;</div>
+        <div class="mx-auto max-w-5xl px-6 sm:mt-40 lg:px-8 border py-12 rounded-lg shadow-md">
+            <div class="bg-white">
+                <div class="mx-auto max-w-7xl px-6 lg:px-8">
+                    <div class="grid grid-cols-1 items-center gap-x-8 gap-y-16 lg:grid-cols-2">
+                        <div class="mx-auto w-full max-w-xl lg:mx-0">
+                            <h2 class="text-3xl font-bold tracking-tight text-gray-900">Powered by Google Cloud</h2>
+                            <p class="mt-6 text-lg leading-8 text-gray-600 pr-10">
+                                COCONUT - cloud infrastructure is managed by Google Kubernetes Engine (GKE) and was made possible through support from the Google Cloud Research Credits program.
+                            </p>
+                        </div>
+                        <div class="mx-auto grid w-full max-w-xl grid-cols-1 items-center justify-center text-center gap-y-12 sm:gap-y-14 lg:mx-0 lg:max-w-none lg:pl-8">
+                            <img class="max-h-12 mx-auto" src="https://www.gstatic.com/devrel-devsite/prod/v0e0f589edd85502a40d78d7d0825db8ea5ef3b99ab4070381ee86977c9168730/cloud/images/cloud-logo.svg" alt="Google Cloud" height="48">
+                            {{--  --}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
     </div>
 </div>

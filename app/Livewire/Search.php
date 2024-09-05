@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Actions\Coconut\SearchMolecule;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Url;
@@ -68,6 +69,11 @@ class Search extends Component
         HTML;
     }
 
+    public function updatingPage($page)
+    {
+        $this->page = $page;
+    }
+
     public function updatedQuery()
     {
         $this->page = 1;
@@ -83,8 +89,17 @@ class Search extends Component
     public function render(SearchMolecule $search)
     {
         try {
-            $results = $search->query($this->query, $this->size, $this->type, $this->sort, $this->tagType, $this->page);
+            $cacheKey = 'search.'.md5($this->query.$this->size.$this->type.$this->sort.$this->tagType.$this->page);
+
+            $results = Cache::remember($cacheKey, now()->addDay(), function () use ($search) {
+                return $search->query($this->query, $this->size, $this->type, $this->sort, $this->tagType, $this->page);
+            });
+
             $this->collection = $results[1];
+            $this->organisms = $results[2];
+
+            $this->collection = $results[1];
+            $this->organisms = $results[2];
 
             return view('livewire.search', [
                 'molecules' => $results[0],

@@ -10,21 +10,55 @@
                 @endif
             </div>
         @elseif ($tagType == 'organisms' && $organisms)
-            <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+            <div x-data="{ showAll: false }" class="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
                 <p class="mt-4 max-w-xl text-sm text-gray-700">#ORGANISMS</p>
-                @foreach ($organisms as $organism)
-                    <span class="text-3xl font-bold text-gray-900"><span
-                            class="italic">{{ ucfirst($organism) }}</span></span>
-                    @if (!$loop->last)
-                        ,
-                    @endif
-                @endforeach
+                <ul role="list" class="mt-2 leading-8">
+                    @foreach ($organisms as $index => $organism)
+                        @if ($organism != '')
+                            <li class="inline" x-show="showAll || {{ $index }} < 10">
+                                <span class="isolate inline-flex rounded-md shadow-sm mb-2">
+                                    <a href="/search?type=tags&amp;q={{ urlencode($organism->name) }}&amp;tagType=organisms"
+                                        target="_blank"
+                                        class="relative inline-flex items-center rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 organism">
+                                        {{ $organism->name }}&nbsp;
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="size-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="m9 9 6-6m0 0 6 6m-6-6v12a6 6 0 0 1-12 0v-3" />
+                                        </svg>
+                                    </a>
+                                    <a href="{{ urldecode($organism->iri) }}" target="_blank"
+                                        class="relative -ml-px inline-flex items-center rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 capitalize">
+                                        {{ $organism->rank }}&nbsp;
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="size-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                        </svg>
+                                    </a>
+                                </span>
+                            </li>
+                        @endif
+                    @endforeach
+                </ul>
+                @if (count($organisms) > 10)
+                    <div class="mt-0">
+                        <button @click="showAll = true" x-show="!showAll"
+                            class="text-base font-semibold leading-7 text-secondary-dark text-sm">
+                            View More ↓
+                        </button>
+                        <button @click="showAll = false" x-show="showAll"
+                            class="text-base font-semibold leading-7 text-secondary-dark  text-sm">
+                            View Less ↑
+                        </button>
+                    </div>
+                @endif
             </div>
         @else
             <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
                 <h1 class="text-3xl font-bold tracking-tight text-gray-900">Browse compounds</h1>
-                <p class="mt-4 max-w-xl text-sm text-gray-700">Explore our database of natural products to uncover their
-                    unique properties. Search, filter, and discover the diverse realm of chemistry.
+                <p class="mt-4 max-w-xl text-sm text-gray-700">Explore our database of natural products (NPs) to uncover their
+                    unique properties. Search, filter, and discover the diverse realm of NP chemistry.
                 </p>
             </div>
         @endif
@@ -34,8 +68,7 @@
             <div class="sm:hidden">
                 <label for="tabs" class="sr-only">Select a tab</label>
                 <select id="tabs" name="tabs" x-model="activeTab"
-                    class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                    @change="window.location.search = `?tab=${activeTab}`">
+                    class="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
                     <option value="molecules">Molecules</option>
                     <option value="organism">Organism</option>
                     <option value="citations">Citations</option>
@@ -44,35 +77,35 @@
             <div class="hidden sm:block">
                 <div class="border-b border-gray-200">
                     <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                        <a @click="activeTab = 'molecules'"
+                        <div @click="activeTab = 'molecules'"
                             class="cursor-pointer whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium"
                             :class="activeTab === 'molecules' ? 'border-indigo-500 text-indigo-600' :
                                 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'">
                             Molecules
-                        </a>
-                        <a @click="activeTab = 'organism'"
+                        </div>
+                        <div @click="activeTab = 'organism'"
                             class="cursor-pointer whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium"
                             :class="activeTab === 'organism' ? 'border-indigo-500 text-indigo-600' :
                                 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'">
                             Organism
-                        </a>
-                        <a @click="activeTab = 'citations'"
+                        </div>
+                        <div @click="activeTab = 'citations'"
                             class="cursor-pointer whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium"
                             :class="activeTab === 'citations' ? 'border-indigo-500 text-indigo-600' :
                                 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'">
                             Citations
-                        </a>
+                        </div>
                     </nav>
                 </div>
             </div>
 
             <!-- Tab content -->
-            <div class="p-5" x-show="activeTab === 'molecules'">
+            <div class="py-5" x-show="activeTab === 'molecules'">
                 <form wire:submit="search">
                     <div class="bg-white">
                         <div class="mx-auto max-w-7xl">
-                            <div class="flex h-16 flex-shrink-0 rounded-md border border-zinc-900/5 border-b-4">
-                                <div class="flex flex-1 justify-between px-4 md:px-0">
+                            <div class="flex h-16 flex-shrink-0 rounded-md border border-gray-900 border-b-4">
+                                <div class="flex flex-1 justify-between md:px-4">
                                     <div class="flex flex-1">
                                         <div class="flex w-full md:ml-0"><label for="search-field"
                                                 class="sr-only">Search</label>
@@ -97,7 +130,8 @@
                                         </div>
                                     </div>
                                     <div class="flex items-center md:ml-1">
-                                        <livewire:structure-editor :mode="'inline'" :smiles="$query" lazy="on-load" />
+                                        <livewire:structure-editor :mode="'inline'" :smiles="$query"
+                                            lazy="on-load" />
                                         <button type="submit"
                                             class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3"><svg
                                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -113,12 +147,12 @@
                     </div>
                 </form>
             </div>
-            <div class="p-5" x-show="activeTab === 'organism'">
+            <div class="py-5" x-show="activeTab === 'organism'">
                 <form>
                     <div class="bg-white">
                         <div class="mx-auto max-w-7xl">
-                            <div class="flex h-16 flex-shrink-0 rounded-md border border-zinc-900/5 border-b-4">
-                                <div class="flex flex-1 justify-between px-4 md:px-0">
+                            <div class="flex h-16 flex-shrink-0 rounded-md border border-gray-900 border-b-4">
+                                <div class="flex flex-1 justify-between md:px-4">
                                     <div class="flex flex-1">
                                         <div class="flex w-full md:ml-0"><label for="search-field"
                                                 class="sr-only">Search</label>
@@ -137,7 +171,7 @@
                                                 <input name="q" id="q"
                                                     class="h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
                                                     wire:model="query"
-                                                    placeholder="Search compound name, SMILES, InChI, InChI Key"
+                                                    placeholder="Search Organisms (Genus or Species or any Taxonomic Rank)"
                                                     type="search" autofocus="">
                                                 <input type="hidden" name="tagType" value="organisms">
                                                 <input type="hidden" name="type" value="tags">
@@ -161,12 +195,12 @@
                     </div>
                 </form>
             </div>
-            <div class="p-5" x-show="activeTab === 'citations'">
+            <div class="py-5" x-show="activeTab === 'citations'">
                 <form>
                     <div class="bg-white">
                         <div class="mx-auto max-w-7xl">
-                            <div class="flex h-16 flex-shrink-0 rounded-md border border-zinc-900/5 border-b-4">
-                                <div class="flex flex-1 justify-between px-4 md:px-0">
+                            <div class="flex h-16 flex-shrink-0 rounded-md border border-gray-900 border-b-4">
+                                <div class="flex flex-1 justify-between md:px-4">
                                     <div class="flex flex-1">
                                         <div class="flex w-full md:ml-0"><label for="search-field"
                                                 class="sr-only">Search</label>
@@ -184,8 +218,7 @@
                                                 </div>
                                                 <input name="q" id="q"
                                                     class="h-full w-full border-transparent py-2 pl-8 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-transparent focus:placeholder-gray-400 focus:outline-none focus:ring-0 sm:block"
-                                                    wire:model="query"
-                                                    placeholder="Search compound name, SMILES, InChI, InChI Key"
+                                                    wire:model="query" placeholder="Search DOI or Title"
                                                     type="search" autofocus="">
                                                 <input type="hidden" name="tagType" value="citations">
                                                 <input type="hidden" name="type" value="tags">
@@ -218,14 +251,17 @@
             <div class="p-4 w-full">
                 {{ $molecules->links() }}
             </div>
+            <div class="relative items-center block p-6 bg-white">
             <div class="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-8">
                 @foreach ($molecules as $molecule)
                     <livewire:molecule-card :key="$molecule->identifier" :molecule="$molecule" />
                 @endforeach
+
             </div>
-            <div class="p-4">
-                {{ $molecules->links() }}
+            <div wire:loading role="status" class="border rounded-lg shadow-md opacity-90 absolute -translate-x-1/2 top-24 left-1/2 text-center justify-center">
+                <img class="w-full rounded-md" alt="loading" src="/img/loading.gif" />
             </div>
+        </div>
         </div>
     @else
         <div class="text-center pt-10 mt-10">

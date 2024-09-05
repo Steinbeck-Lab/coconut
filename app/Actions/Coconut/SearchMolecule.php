@@ -72,7 +72,7 @@ class SearchMolecule
                 }
             }
 
-            return [$results,  $this->collection];
+            return [$results,  $this->collection, $this->organisms];
 
         } catch (QueryException $exception) {
 
@@ -228,12 +228,13 @@ class SearchMolecule
                 return [];
             }
         } elseif ($this->tagType == 'organisms') {
-            $this->organisms = array_map('strtolower', array_map('trim', explode(',', $this->query)));
-            $organismIds = Organism::where(function ($query) {
-                foreach ($this->organisms as $name) {
-                    $query->orWhereRaw('LOWER(name) = ?', [$name]);
+            $query_organisms = array_map('strtolower', array_map('trim', explode(',', $this->query)));
+            $this->organisms = Organism::where(function ($query) use ($query_organisms) {
+                foreach ($query_organisms as $name) {
+                    $query->orWhereRaw('LOWER(name) LIKE ?', ['%'.strtolower($name).'%']);
                 }
-            })->pluck('id');
+            })->get();
+            $organismIds = $this->organisms->pluck('id');
 
             return Molecule::whereHas('organisms', function ($query) use ($organismIds) {
                 $query->whereIn('organism_id', $organismIds);
@@ -331,7 +332,7 @@ class SearchMolecule
         } else {
             return "SELECT id, COUNT(*) OVER () 
                 FROM molecules 
-                WHERE is_parent = FALSE AND active = TRUE
+                WHERE active = TRUE AND NOT (is_parent = TRUE AND has_variants = TRUE)
                 ORDER BY annotation_level DESC 
                 LIMIT {$this->size} OFFSET {$offset}";
         }

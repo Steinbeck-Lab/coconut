@@ -29,7 +29,12 @@ class Report extends Model implements Auditable
         'status',
         'comment',
         'user_id',
+        'suggested_changes',
+        'is_change',
+    ];
 
+    protected $casts = [
+        'suggested_changes' => 'array',
     ];
 
     /**

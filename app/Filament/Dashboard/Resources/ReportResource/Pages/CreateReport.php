@@ -8,7 +8,6 @@ use App\Models\Citation;
 use App\Models\Collection;
 use App\Models\Molecule;
 use App\Models\Organism;
-use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateReport extends CreateRecord
@@ -18,20 +17,27 @@ class CreateReport extends CreateRecord
     protected function afterFill(): void
     {
         $request = request();
+        if ($request->type == 'change') {
+            $this->data['is_change'] = true;
+        }
         if ($request->has('collection_uuid')) {
             $collection = Collection::where('uuid', $request->collection_uuid)->get();
             $id = $collection[0]->id;
             array_push($this->data['collections'], $id);
+            $this->data['report_type'] = 'collection';
         } elseif ($request->has('citation_id')) {
             $citation = Citation::where('id', $request->citation_id)->get();
             $id = $citation[0]->id;
             array_push($this->data['citations'], $id);
+            $this->data['report_type'] = 'citation';
         } elseif ($request->has('compound_id')) {
             $this->data['mol_id_csv'] = $request->compound_id;
+            $this->data['report_type'] = 'molecule';
         } elseif ($request->has('organism_id')) {
             $citation = Organism::where('id', $request->organism_id)->get();
             $id = $citation[0]->id;
             array_push($this->data['organisms'], $id);
+            $this->data['report_type'] = 'organism';
         }
     }
 
@@ -53,16 +59,6 @@ class CreateReport extends CreateRecord
             $this->data['collections'] = [];
             $this->data['citations'] = [];
             $this->data['mol_id_csv'] = null;
-        }
-
-        if (! ($this->data['collections'] || $this->data['citations'] || $this->data['mol_id_csv'] || $this->data['organisms'])) {
-            Notification::make()
-                ->danger()
-                ->title('Select at least one Collection/Citation/Molecule/Organism')
-                ->persistent()
-                ->send();
-
-            $this->halt();
         }
     }
 

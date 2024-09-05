@@ -37,6 +37,7 @@ class DashboardPanelProvider extends PanelProvider
             ->pages([
                 Pages\Dashboard::class,
             ])
+            ->homeUrl('/')
             ->plugins([
                 AdvancedTablesPlugin::make()
                     ->persistActiveViewInSession()

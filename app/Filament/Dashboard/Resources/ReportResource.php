@@ -7,10 +7,12 @@ use App\Filament\Dashboard\Resources\ReportResource\Pages;
 use App\Filament\Dashboard\Resources\ReportResource\RelationManagers;
 use App\Models\Citation;
 use App\Models\Report;
+use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieTagsInput;
-use Filament\Forms\Components\TextArea;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
@@ -35,18 +37,24 @@ class ReportResource extends Resource
     {
         return $form
             ->schema([
+                ToggleButtons::make('is_change')
+                    ->label('')
+                    ->live()
+                    ->default(false)
+                    ->options([
+                        true => 'Request Changes to Data',
+                        false => 'Report Synthetic Compound(s)',
+                    ])
+                    ->inline(),
                 Select::make('report_type')
-                    ->label('You want to report:')
+                    ->label('Choose')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select what you want to report. Ex: Molecule, Citation, Collection, Organism.')
                     ->live()
-                    ->options([
-                        'molecule' => 'Molecule',
-                        'citation' => 'Citation',
-                        'collection' => 'Collection',
-                        'organism' => 'Organism',
-                    ])
+                    ->options(function () {
+                        return getReportTypes();
+                    })
                     ->hidden(function (string $operation) {
-                        if ($operation == 'create' && (! request()->has('collection_uuid') && ! request()->has('citation_id') && ! request()->has('compound_id') && ! request()->has('organism_id'))) {
+                        if ($operation == 'create') {
                             return false;
                         } else {
                             return true;
@@ -55,9 +63,19 @@ class ReportResource extends Resource
                 TextInput::make('title')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Title of the report. This is required.')
                     ->required(),
-                TextArea::make('evidence')
+                Textarea::make('evidence')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Please provide Evidence/Comment to support your claims in this report. This will help our Curators in reviewing your report.')
-                    ->label('Evidence/Comment'),
+                    ->label('Evidence/Comment')
+                    ->hidden(function (Get $get) {
+                        return $get('is_change');
+                    }),
+                KeyValue::make('suggested_changes')
+                    ->addActionLabel('Add property')
+                    ->keyLabel('Property')
+                    ->valueLabel('Suggested change')
+                    ->hidden(function (Get $get) {
+                        return ! $get('is_change');
+                    }),
                 TextInput::make('url')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide a link to the webpage that supports your claims.')
                     ->label('URL'),
@@ -66,6 +84,11 @@ class ReportResource extends Resource
                     ->relationship('collections', 'title')
                     ->multiple()
                     ->preload()
+                    ->required(function (Get $get) {
+                        if ($get('report_type') == 'collection') {
+                            return true;
+                        }
+                    })
                     ->hidden(function (Get $get, string $operation) {
                         if ($operation == 'edit' || $operation == 'view') {
                             if ($get('collections') == []) {
@@ -88,6 +111,11 @@ class ReportResource extends Resource
                         return Citation::whereNotNull('title')->pluck('title', 'id');
                     })
                     ->multiple()
+                    ->required(function (Get $get) {
+                        if ($get('report_type') == 'citation') {
+                            return true;
+                        }
+                    })
                     ->hidden(function (Get $get, string $operation) {
                         if ($operation == 'edit' || $operation == 'view') {
                             if ($get('citations') == []) {
@@ -108,6 +136,11 @@ class ReportResource extends Resource
                     ->relationship('organisms', 'name')
                     ->multiple()
                     ->searchable()
+                    ->required(function (Get $get) {
+                        if ($get('report_type') == 'organism') {
+                            return true;
+                        }
+                    })
                     ->hidden(function (Get $get, string $operation) {
                         if ($operation == 'edit' || $operation == 'view') {
                             if ($get('organisms') == []) {
@@ -123,9 +156,14 @@ class ReportResource extends Resource
                         }
                     })
                     ->searchable(),
-                TextArea::make('mol_id_csv')
+                Textarea::make('mol_id_csv')
                     ->label('Molecules')
                     ->placeholder('Enter the Identifiers separated by commas')
+                    ->required(function (Get $get) {
+                        if ($get('report_type') == 'molecule') {
+                            return true;
+                        }
+                    })
                     ->hidden(function (Get $get, string $operation) {
                         if ($operation == 'edit' || $operation == 'view') {
                             if (is_null($get('mol_id_csv'))) {
@@ -156,7 +194,7 @@ class ReportResource extends Resource
                     ->afterStateUpdated(function (?Report $record, ?string $state, ?string $old) {
                         ReportStatusChanged::dispatch($record, $state, $old);
                     }),
-                TextArea::make('comment')
+                Textarea::make('comment')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide your comments/observations on anything noteworthy in the Curation process.')
                     ->hidden(function () {
                         return ! auth()->user()->hasRole('curator');
@@ -169,6 +207,7 @@ class ReportResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('title')
+                    ->wrap()
                     ->description(fn (Report $record): string => Str::of($record->evidence)->words(10)),
                 TextColumn::make('url')
                     ->url(fn (Report $record) => $record->url)

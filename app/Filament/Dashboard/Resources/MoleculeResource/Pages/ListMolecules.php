@@ -25,13 +25,13 @@ class ListMolecules extends ListRecords
     public function getPresetViews(): array
     {
         return [
-            'active mols' => PresetView::make()
+            'active' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where('active', true))
                 ->favorite()
                 ->badge(Molecule::query()->where('active', true)->count())
                 ->preserveAll()
                 ->default(),
-            'deactive mols' => PresetView::make()
+            'revoked' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where('active', false))
                 ->favorite()
                 ->badge(Molecule::query()->where('active', false)->count())

@@ -36,9 +36,9 @@ return [
     */
 
     'authorizations' => [
-        'enabled' => false,
+        'enabled' => true,
         'cache' => [
-            'enabled' => false,
+            'enabled' => true,
             'default' => 5, // Cache minutes by default
         ],
     ],
@@ -65,20 +65,20 @@ return [
         ],
         'info' => [
             'title' => config('app.name'),
-            'summary' => '',
-            'description' => '',
-            'termsOfService' => null, // (Optional) Url to terms of services
+            'summary' => 'COlleCtion of Open NatUral producTs',
+            'description' => 'A comprehensive platform facilitating natural product research by providing data, tools, and services for deposition, curation, and reuse.',
+            'termsOfService' => 'https://coconut.naturalproducts.net/terms',
             'contact' => [
                 'name' => config('app.name'),
-                'email' => 'email@company.com',
+                'email' => 'info.coconut@uni-jena.de',
                 'url' => config('app.url'),
             ],
             'license' => [
                 'url' => null,
-                'name' => 'Apache 2.0',
-                'identifier' => 'Apache-2.0',
+                'name' => 'MIT',
+                'identifier' => 'MIT',
             ],
-            'version' => 'ALPHA',
+            'version' => '2.0.0',
         ],
         // See https://spec.openapis.org/oas/v3.1.0#server-object
         'servers' => [
@@ -103,24 +103,90 @@ return [
         ],
         // See https://spec.openapis.org/oas/v3.1.0#security-scheme-object
         'security' => [
-            //  [
-            //      'type' => 'apiKey',
-            //      'description' => 'Enter token in format (Bearer <token>)',
-            //      'scheme' => 'Bearer',
-            //      'name' => 'Authorization',
-            //      'in' => 'header'
-            //  ],
-            //  [
-            //       'type' => 'oauth2',
-            //       'flows' => [
-            //          'authorizationCode' => [
-            //              'scopes' => ['write:pets'],
-            //              'tokenUrl' => 'https://example.com/api/oauth/token',
-            //              'authorizationUrl' => 'https://example.com/api/oauth/dialog',
-            //              'refreshUrl' => 'https://example.com/api/oauth/refresh',
-            //          ]
-            //       ]
-            //  ]
+            //            [
+            //                "api_key" => []
+            //            ],
+            //            [
+            //                "auth" => [
+            //                    'write:users',
+            //                    'read:users'
+            //                ]
+            //            ]
+        ],
+        // See https://spec.openapis.org/oas/v3.1.0#security-scheme-object
+        'securitySchemes' => [
+            // 'api_key' => [
+            //     'description' => 'Authentication via API key',
+            //     'type' => 'apiKey',
+            //     'name' => 'x-api-key',
+            //     'in' => 'header',
+            // ],
+            'sanctum' => [
+                'description' => "Enter token in format (Bearer \<token\>)",
+                'type' => 'apiKey',
+                'scheme' => 'Bearer',
+                'name' => 'Authorization',
+                'in' => 'header',
+            ],
+            //            "oauth_authcode" => [
+            //                "description" => "Authentication via OAuth2 with authorization code flow",
+            //                "type" => "oauth2",
+            //                "flows" => [
+            //                    "authorizationCode" => [
+            //                        "authorizationUrl" => "https://example.com/api/oauth/dialog",
+            //                        "tokenUrl" => "https://example.com/api/oauth/token",
+            //                        "refreshUrl" => "https://example.com/api/oauth/refresh",
+            //                        "scopes" => [
+            //                            "do:something" => "do something"
+            //                        ]
+            //                    ]
+            //                ]
+            //            ],
+            //            "oauth_clientcredentials" => [
+            //                "description" => "Authentication via OAuth2 with client credentials flow",
+            //                "type" => "oauth2",
+            //                "flows" => [
+            //                    "clientCredentials" => [
+            //                        "tokenUrl" => "https://example.com/api/oauth/token",
+            //                        "refreshUrl" => "https://example.com/api/oauth/refresh",
+            //                        "scopes" => [
+            //                            "do:something" => "do something"
+            //                        ]
+            //                    ]
+            //                ]
+            //            ],
+            //            "oauth_implicit" => [
+            //                "description" => "Authentication via OAuth2 with implicit flow",
+            //                "type" => "oauth2",
+            //                "flows" => [
+            //                    "implicit" => [
+            //                        "authorizationUrl" => "https://example.com/api/oauth/dialog",
+            //                        "refreshUrl" => "https://example.com/api/oauth/refresh",
+            //                        "scopes" => [
+            //                            "write:foo" => "modify foo",
+            //                            "read:foo" => "read foo"
+            //                        ]
+            //                    ]
+            //                ]
+            //            ],
+            //            "oauth_password" => [
+            //                "description" => "Authentication via OAuth2 with resource owner password flow",
+            //                "type" => "oauth2",
+            //                "flows" => [
+            //                    "password" => [
+            //                        "tokenUrl" => "https://example.com/api/oauth/token",
+            //                        "refreshUrl" => "https://example.com/api/oauth/refresh",
+            //                        "scopes" => [
+            //                            "do:something" => "do something"
+            //                        ]
+            //                    ]
+            //                ]
+            //            ],
+            //            "open_id" => [
+            //                "description" => "Authentication via OpenID Connect",
+            //                "type" => "openIdConnect",
+            //                "openIdConnectUrl" => "https://example.com/openid/issuer/location"
+            //            ]
         ],
     ],
 ];

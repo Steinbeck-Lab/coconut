@@ -9,7 +9,7 @@ use Log;
 
 class MapOrganismNamesToOGG extends Command
 {
-    protected $signature = 'organisms:map-ogg';
+    protected $signature = 'coconut:organisms-map-ogg';
 
     protected $description = 'Map organism names to OGG IRIs and update the model';
 
@@ -58,7 +58,6 @@ class MapOrganismNamesToOGG extends Command
                                 $this->info("Mapped and updated: $name");
                             } else {
                                 $this->getGNFMatches($name, $organism);
-                                $this->error("Could not map: $name");
                             }
                         }
                     }
@@ -146,6 +145,7 @@ class MapOrganismNamesToOGG extends Command
             $data = json_decode($response->getBody(), true);
 
             if (isset($data['elements']) && count($data['elements']) > 0) {
+
                 $element = $data['elements'][0];
                 if (isset($element['iri'], $element['ontologyId']) && $element['isObsolete'] === 'false') {
                     if ($rank && $rank == 'species') {

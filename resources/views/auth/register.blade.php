@@ -16,45 +16,44 @@
             
 
 
-            <div class="mt-4">
-                <x-label for="username" value="{{ __('User Name') }}" />
-                <x-input id="username" class="block mt-1 w-full" type="text" name="username" :value="old('username')" required autofocus autocomplete="username" />
-            </div>
+            
 
             <div class="grid grid-cols-2 gap-4" class="mt-4" >
                     <div  class="mt-4">
-                        <x-label for="first_name" value="{{ __('Frist Name') }}" />
+                        <x-label for="first_name" value="{{ __('First Name*') }}" />
                         <x-input id="first_name" class="block mt-1 w-full" type="text" name="first_name" :value="old('first_name')" required autofocus autocomplete="first_name" />
                     </div>
 
                     <div class="mt-4">
-                        <x-label for="last_name" value="{{ __('Last Name') }}" />
+                        <x-label for="last_name" value="{{ __('Last Name*') }}" />
                         <x-input id="last_name" class="block mt-1 w-full" type="text" name="last_name" :value="old('last_name')" required autofocus autocomplete="last_name" />
                     </div>
             </div>
-
             <div class="mt-4">
-                <x-label for="orcid_id" value="{{ __('ORCID') }}" />
-                <x-input id="orcid_id" class="block mt-1 w-full" type="text" name="orcid_id" :value="old('orcid_id')"  autofocus autocomplete="orcid_id" />
+                <x-label for="username" value="{{ __('User Name*') }}" /> 
+                <x-input id="username" class="block mt-1 w-full" type="text" name="username" :value="old('username')" required autofocus autocomplete="username" />
             </div>
-
             <div class="mt-4">
-                <x-label for="affiliation" value="{{ __('Affiliation') }}" />
-                <x-input id="affiliation" class="block mt-1 w-full" type="text" name="affiliation" :value="old('affiliation')"  autofocus autocomplete="affiliation" />
-            </div>
-
-            <div class="mt-4">
-                <x-label for="email" value="{{ __('Email') }}" />
+                <x-label for="email" value="{{ __('Email*') }}" />
                 <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="email" />
             </div>
 
             <div class="mt-4">
-                <x-label for="password" value="{{ __('Password') }}" />
+                <x-label for="affiliation" value="{{ __('Affiliation*') }}" />
+                <x-input id="affiliation" class="block mt-1 w-full" type="text" name="affiliation" :value="old('affiliation')"  autofocus autocomplete="affiliation" />
+            </div>
+
+            <div class="mt-4">
+                <x-label for="orcid_id" value="{{ __('ORCID') }}" />
+                <x-input id="orcid_id" placeholder="0000-1234-5678-9101 or 16 digit ORCID iD" class="block mt-1 w-full" type="text" name="orcid_id" :value="old('orcid_id')"  autofocus autocomplete="orcid_id" />
+            </div>
+            <div class="mt-4">
+                <x-label for="password" value="{{ __('Password*') }}" />
                 <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="password" />
             </div>
 
             <div class="mt-4">
-                <x-label for="password_confirmation" value="{{ __('Confirm Password') }}" />
+                <x-label for="password_confirmation" value="{{ __('Confirm Password*') }}" />
                 <x-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
             </div>
 

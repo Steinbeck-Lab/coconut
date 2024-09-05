@@ -15,9 +15,11 @@ class RegisterController extends Controller
         $validatedData = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
             'username' => 'required|string',
+            'email' => 'required|string|email|max:255|unique:users',
+            'affiliation' => 'required|string',
+            'password' => 'required|string|min:8',
+            'password_confirmation' => 'required|string|min:8',
         ]);
 
         $user = User::create([
@@ -31,13 +33,18 @@ class RegisterController extends Controller
             'password' => Hash::make($validatedData['password']),
         ]);
 
-        $user->sendEmailVerificationNotification();
+        $message = '';
+
+        if ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail()) {
+            $message = ' Please verify your email address by clicking on the link we just emailed to you.';
+            $user->sendEmailVerificationNotification();
+        }
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'success' => true,
-            'message' => 'Successful created user. Please verify your email address by clicking on the link we just emailed to you.',
+            'message' => 'Successful created user.'.$message,
             'token' => $token,
         ],
             201);

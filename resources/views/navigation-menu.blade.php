@@ -95,7 +95,7 @@
                             <div class="block text-gray-400">
                                 <div
                                     class="fi-dropdown-header flex w-full gap-2 p-3 text-sm fi-dropdown-header-color-gray fi-color-gray">
-                                    <svg class="fi-dropdown-header-icon h-5 w-5 text-gray-400 dark:text-gray-500"
+                                    <svg class="fi-dropdown-header-icon h-5 w-5 text-gray-400"
                                         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
                                         aria-hidden="true" data-slot="icon">
                                         <path fill-rule="evenodd"
@@ -104,7 +104,7 @@
                                     </svg>
 
                                     <span
-                                        class="fi-dropdown-header-label flex-1 truncate text-start text-gray-700 dark:text-gray-200"
+                                        class="fi-dropdown-header-label flex-1 truncate text-start text-gray-700"
                                         style="">
                                         {{ Auth::user()->name }}
                                     </span>
@@ -115,7 +115,7 @@
                             <div class="px-1 pt-1">
                                 @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
                                     <x-dropdown-link href="{{ route('api-tokens.index') }}">
-                                        <svg class="inline fi-dropdown-list-item-icon h-5 w-5 text-gray-400 dark:text-gray-500"
+                                        <svg class="inline fi-dropdown-list-item-icon h-5 w-5 text-gray-400"
                                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                             stroke-width="1.5" stroke="currentColor" aria-hidden="true"
                                             data-slot="icon">
@@ -129,7 +129,7 @@
 
                             <div class="px-1">
                                 <x-dropdown-link href="{{ route('profile.show') }}">
-                                    <svg class="inline fi-dropdown-list-item-icon h-5 w-5 text-gray-400 dark:text-gray-500"
+                                    <svg class="inline fi-dropdown-list-item-icon h-5 w-5 text-gray-400"
                                         xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                                         aria-hidden="true" data-slot="icon">
                                         <path
@@ -147,7 +147,7 @@
                                 @csrf
                                 <div class="px-1 pb-1">
                                     <x-dropdown-link href="{{ route('logout') }}" @click.prevent="$root.submit();">
-                                        <svg class="inline fi-dropdown-list-item-icon h-5 w-5 text-gray-400 dark:text-gray-500"
+                                        <svg class="inline fi-dropdown-list-item-icon h-5 w-5 text-gray-400"
                                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
                                             aria-hidden="true" data-slot="icon">
                                             <path fill-rule="evenodd"

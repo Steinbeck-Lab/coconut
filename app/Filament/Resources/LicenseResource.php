@@ -5,7 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\LicenseResource\Pages;
 use App\Filament\Resources\LicenseResource\RelationManagers\CollectionsRelationManager;
 use App\Models\License;
-use Filament\Forms\Components\TextArea;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -29,9 +29,9 @@ class LicenseResource extends Resource
                 TextInput::make('title'),
                 TextInput::make('spdx_id'),
                 TextInput::make('url'),
-                TextArea::make('description'),
-                TextArea::make('body'),
-                TextArea::make('category'),
+                Textarea::make('description'),
+                Textarea::make('body'),
+                Textarea::make('category'),
             ])->columns(1);
     }
 

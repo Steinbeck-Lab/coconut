@@ -28,8 +28,8 @@ class GenerateSwaggerDocs extends Command
     {
         $this->call('rest:documentation');
         $publicPaths = [
-            '/api/v1/auth/login',
-            '/api/v1/auth/register',
+            '/api/auth/login',
+            '/api/auth/register',
         ];
         $this->modifyOpenAPIJsonFile($publicPaths);
 
@@ -47,7 +47,7 @@ class GenerateSwaggerDocs extends Command
 
         if (isset($jsonData['paths'])) {
             foreach ($jsonData['paths'] as $pathKey => &$path) {
-                if (! in_array($path, $filterPaths)) {
+                if (! in_array($pathKey, $filterPaths)) {
                     foreach ($jsonData['paths'][$pathKey] as $operationKey => &$operation) {
                         $operation['security'] = [['sanctum' => []]];
                     }
@@ -55,15 +55,16 @@ class GenerateSwaggerDocs extends Command
             }
         }
 
-        $jsonData['components']['securitySchemes'] = [
-            'sanctum' => [
-                'type' => 'apiKey',
-                'scheme' => 'Bearer',
-                'description' => 'Enter token in format (Bearer \<token\>)',
-                'name' => 'Authorization',
-                'in' => 'header',
-            ],
-        ];
+        if (isset($jsonData['components']['securitySchemes'])) {
+            foreach ($jsonData['components']['securitySchemes'] as &$scheme) {
+                if (isset($scheme['flows'])) {
+                    unset($scheme['flows']);
+                }
+                if (isset($scheme['openIdConnectUrl'])) {
+                    unset($scheme['openIdConnectUrl']);
+                }
+            }
+        }
 
         $updatedJsonContents = json_encode($jsonData, JSON_PRETTY_PRINT);
 

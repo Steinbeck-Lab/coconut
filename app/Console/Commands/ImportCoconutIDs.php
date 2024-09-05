@@ -13,7 +13,7 @@ class ImportCoconutIDs extends Command
      *
      * @var string
      */
-    protected $signature = 'app:import-ids {file}';
+    protected $signature = 'coconut:import-ids {file}';
 
     /**
      * The console command description.
@@ -75,14 +75,11 @@ class ImportCoconutIDs extends Command
     {
         DB::transaction(function () use ($data) {
             foreach ($data as $row) {
-                Molecule::updateorCreate(
-                    ['id' => $row['id'],
-                        'canonical_smiles' => $row['canonical_smiles'],
-                    ],
-                    [
+                Molecule::where('id', $row['id'])
+                    ->where('canonical_smiles', $row['canonical_smiles'])
+                    ->update([
                         'identifier' => $row['identifier'],
-                    ]
-                );
+                    ]);
             }
         });
     }

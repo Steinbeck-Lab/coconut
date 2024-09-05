@@ -53,7 +53,7 @@ class EntriesRelationManager extends RelationManager
                 Forms\Components\TextInput::make('molecular_formula')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextArea::make('structural_comments')
+                Forms\Components\Textarea::make('structural_comments')
                     ->required(),
                 Forms\Components\TextInput::make('geo_location')
                     ->required()
@@ -61,7 +61,7 @@ class EntriesRelationManager extends RelationManager
                 Forms\Components\TextInput::make('location')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextArea::make('errors')
+                Forms\Components\Textarea::make('errors')
                     ->required(),
                 Forms\Components\TextInput::make('standardized_canonical_smiles')
                     ->required()
@@ -99,21 +99,21 @@ class EntriesRelationManager extends RelationManager
                     ])
                     ->schema([
                         ImageEntry::make('parent_canonical_smiles')->state(function ($record) {
-                            return env('CM_API', 'https://dev.api.naturalproducts.net/latest/').'depict/2D?smiles='.urlencode($record->parent_canonical_smiles).'&height=300&width=300&CIP=false&toolkit=cdk';
+                            return env('CM_API', 'https://api.cheminf.studio/latest/').'depict/2D?smiles='.urlencode($record->parent_canonical_smiles).'&height=300&width=300&CIP=true&toolkit=cdk';
                         })
                             ->width(200)
                             ->height(200)
                             ->ring(5)
                             ->defaultImageUrl(url('/images/placeholder.png')),
                         ImageEntry::make('canonical_smiles')->state(function ($record) {
-                            return env('CM_API', 'https://dev.api.naturalproducts.net/latest/').'depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=false&toolkit=cdk';
+                            return env('CM_API', 'https://api.cheminf.studio/latest/').'depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=true&toolkit=cdk';
                         })
                             ->width(200)
                             ->height(200)
                             ->ring(5)
                             ->defaultImageUrl(url('/images/placeholder.png')),
                         ImageEntry::make('standardized_canonical_smiles')->state(function ($record) {
-                            return env('CM_API', 'https://dev.api.naturalproducts.net/latest/').'depict/2D?smiles='.urlencode($record->standardized_canonical_smiles).'&height=300&width=300&CIP=false&toolkit=cdk';
+                            return env('CM_API', 'https://api.cheminf.studio/latest/').'depict/2D?smiles='.urlencode($record->standardized_canonical_smiles).'&height=300&width=300&CIP=true&toolkit=cdk';
                         })
                             ->width(200)
                             ->height(200)
@@ -133,7 +133,7 @@ class EntriesRelationManager extends RelationManager
                 ImageColumn::make('structure')->square()
                     ->label('Structure')
                     ->state(function ($record) {
-                        return env('CM_API', 'https://dev.api.naturalproducts.net/latest/').'depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=false&toolkit=cdk';
+                        return env('CM_API', 'https://api.cheminf.studio/latest/').'depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=true&toolkit=cdk';
                     })
                     ->width(200)
                     ->height(200)
@@ -164,7 +164,7 @@ class EntriesRelationManager extends RelationManager
                         return $this->ownerRecord->entries()->where('status', 'SUBMITTED')->count() < 1;
                     })
                     ->action(function () {
-                        Artisan::call('entries:process');
+                        Artisan::call('coconut:entries-process');
                     }),
                 Action::make('publish')
                     ->hidden(function () {

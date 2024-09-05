@@ -1,4 +1,0 @@
-# COCONUT online - Substructure Search
-
-
-

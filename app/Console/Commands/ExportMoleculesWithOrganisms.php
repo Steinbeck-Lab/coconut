@@ -13,7 +13,7 @@ class ExportMoleculesWithOrganisms extends Command
      *
      * @var string
      */
-    protected $signature = 'app:export-molecules-with-organisms';
+    protected $signature = 'coconut:export-molecules-with-organisms';
 
     /**
      * The console command description.
