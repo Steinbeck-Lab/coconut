@@ -1,0 +1,91 @@
+name: Issue Reporting Template
+description: >-
+  Use this template to report any issues. Provide as much detail as possible to
+  help us understand and resolve the issue effectively.
+body:
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: Provide a brief summary of the issue.
+      placeholder: 'Brief summary of the issue'
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: >-
+        Describe the issue in detail, including any relevant information or
+        steps to reproduce it.
+      placeholder: 'Detailed description of the issue'
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: Explain what you expected to happen.
+      placeholder: 'What you expected to happen'
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: Describe what actually happened.
+      placeholder: 'What actually happened'
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: >-
+        List the steps taken to reproduce the issue. Be as specific as possible,
+        including any relevant input or configuration details.
+      placeholder: 'Steps to reproduce the issue'
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots-logs
+    attributes:
+      label: Screenshots/Logs
+      description: >-
+        If applicable, attach any relevant screenshots or logs that may help
+        understand or troubleshoot the issue.
+      placeholder: 'Attach relevant screenshots or logs'
+    validations:
+      required: false
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: >-
+        Provide details about the environment in which the issue occurred. Include 
+        information like Operating System, Browser, Device, etc.
+      placeholder: | 
+        - Operating System: e.g., Windows 10, macOS Big Sur, Ubuntu 20.04
+        - Browser: e.g., Chrome 93.0.4577.63, Firefox 92.0.1
+        - Device: e.g., PC, laptop, smartphone
+        - Additional details: e.g., screen resolution, network connection type
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional Information
+      description: >-
+        Provide any additional information that may be helpful in resolving the
+        issue, such as error messages, related links, or any troubleshooting
+        steps already attempted.
+      placeholder: 'Any additional information or suggestions'
+    validations:
+      required: false

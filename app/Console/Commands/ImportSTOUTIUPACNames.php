@@ -14,7 +14,7 @@ class ImportSTOUTIUPACNames extends Command
      *
      * @var string
      */
-    protected $signature = 'app:import-iupac-data {file}';
+    protected $signature = 'coconut:import-iupac-data {file}';
 
     /**
      * The console command description.

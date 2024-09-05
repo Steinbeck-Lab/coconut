@@ -57,8 +57,8 @@
         @else
             <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
                 <h1 class="text-3xl font-bold tracking-tight text-gray-900">Browse compounds</h1>
-                <p class="mt-4 max-w-xl text-sm text-gray-700">Explore our database of natural products to uncover their
-                    unique properties. Search, filter, and discover the diverse realm of chemistry.
+                <p class="mt-4 max-w-xl text-sm text-gray-700">Explore our database of natural products (NPs) to uncover their
+                    unique properties. Search, filter, and discover the diverse realm of NP chemistry.
                 </p>
             </div>
         @endif

@@ -15,7 +15,7 @@ class GenerateProperties extends Command
      *
      * @var string
      */
-    protected $signature = 'molecules:generate-properties';
+    protected $signature = 'coconut:molecules-generate-properties';
 
     /**
      * The console command description.

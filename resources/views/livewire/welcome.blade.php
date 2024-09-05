@@ -5,10 +5,7 @@
                 <h1 class="text-3xl font-bold tracking-tight text-primary-dark sm:text-4xl"><span
                         class="block xl:inline">COCONUT: </span><span class="block text-secondary-dark xl:inline">the
                         COlleCtion of Open NatUral producTs</span></h1>
-                <p class="my-6 mx-auto text-md leading-6 text-text-light"> An aggregated dataset of elucidated and
-                    predicted NPs
-                    collected from open sources and a web interface to browse, search and easily and quickly download
-                    NPs. </p>
+                <p class="my-6 mx-auto text-md leading-6 text-text-light"> A comprehensive platform facilitating natural product research by providing data, tools, <br/> and services for deposition, curation, and reuse. </p>
                 <div class="mx-auto">
                     <div>
                         <div class="sm:hidden">

@@ -107,6 +107,12 @@ export default defineConfig({
           { text: 'FAQs', link: '/FAQs' },
           { text: 'Issues / Feature requests', link: '/issues' }
         ]
+      },
+      {
+        text: 'Contribution',
+        items: [
+          { text: 'Contributors and Steering Committee', link: '/contributors' },
+        ]
       }
     ],
 

@@ -13,7 +13,7 @@ class ImportCoconutIDs extends Command
      *
      * @var string
      */
-    protected $signature = 'app:import-ids {file}';
+    protected $signature = 'coconut:import-ids {file}';
 
     /**
      * The console command description.

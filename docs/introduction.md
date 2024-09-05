@@ -41,7 +41,7 @@ COCONUT (Version v0.0.1 - prerelease) [Computer software].
 https://doi.org/10.5281/zenodo.13283949
 ```
 
-## Contact Us
+<hr/>
 
 ::: info Support mail
 Write to us at [info.COCONUT@uni-jena.de](mailto:info.COCONUT@uni-jena.de) for any issues or support requests.
@@ -50,17 +50,9 @@ Write to us at [info.COCONUT@uni-jena.de](mailto:info.COCONUT@uni-jena.de) for a
 
 Join our COCONUT Discussion Forum at [coconut-discuss@listserv.uni-jena.de](mailto:coconut-discuss@listserv.uni-jena.de)
 :::
+## Acknowledgments
 
-
-## Acknowledgments and Maintenance
-
-Cheminformatics Microservice and [Natural Products Online](https://naturalproducts.net/) are developed and maintained by the [Steinbeck group](https://cheminf.uni-jena.de/) at the [Friedrich Schiller University](https://www.uni-jena.de/en/) Jena, Germany.
-
-<div style="display: flex; justify-content: center; margin: 20px 0;">
-  <img src="/CheminfGit.png" alt="Cheminf and Computational Metabolomics Logo" width="400">
-</div>
-
-**Funded by the [Deutsche Forschungsgemeinschaft (DFG, German Research Foundation)](https://www.dfg.de/) under the [ChemBioSys](https://www.chembiosys.de/en/) (Project INF) - Project number: 239748522 - SFB 1127**.
+**COCONUT project is funded by the [Deutsche Forschungsgemeinschaft (DFG, German Research Foundation)](https://www.dfg.de/) under the [ChemBioSys](https://www.chembiosys.de/en/) (Project INF) - Project number: 239748522 - SFB 1127**.
 
 <div style="display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-top: 20px;">
   <a href="https://www.dfg.de/" target="_blank" style="flex: 1;">

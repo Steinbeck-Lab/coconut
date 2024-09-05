@@ -27,7 +27,6 @@ import {
   ref,
   shallowReactive,
   shallowRef,
-  toRaw,
   toRef,
   toRefs,
   unref,
@@ -189,7 +188,7 @@ function createSharedComposable(composable) {
   };
   return (...args) => {
     subscribers += 1;
-    if (!scope) {
+    if (!state) {
       scope = effectScope(true);
       state = scope.run(() => composable(...args));
     }
@@ -2993,28 +2992,26 @@ function usePermission(permissionDesc, options = {}) {
     navigator = defaultNavigator
   } = options;
   const isSupported = useSupported(() => navigator && "permissions" in navigator);
-  const permissionStatus = shallowRef();
+  let permissionStatus;
   const desc = typeof permissionDesc === "string" ? { name: permissionDesc } : permissionDesc;
-  const state = shallowRef();
-  const update = () => {
-    var _a, _b;
-    state.value = (_b = (_a = permissionStatus.value) == null ? void 0 : _a.state) != null ? _b : "prompt";
+  const state = ref();
+  const onChange = () => {
+    if (permissionStatus)
+      state.value = permissionStatus.state;
   };
-  useEventListener(permissionStatus, "change", update);
   const query = createSingletonPromise(async () => {
     if (!isSupported.value)
       return;
-    if (!permissionStatus.value) {
+    if (!permissionStatus) {
       try {
-        permissionStatus.value = await navigator.permissions.query(desc);
+        permissionStatus = await navigator.permissions.query(desc);
+        useEventListener(permissionStatus, "change", onChange);
+        onChange();
       } catch (e) {
-        permissionStatus.value = void 0;
-      } finally {
-        update();
+        state.value = "prompt";
       }
     }
-    if (controls)
-      return toRaw(permissionStatus.value);
+    return permissionStatus;
   });
   query();
   if (controls) {
@@ -3251,15 +3248,14 @@ function useStorage(key, defaults2, storage, options = {}) {
   if (!initOnMounted)
     update();
   function dispatchWriteEvent(oldValue, newValue) {
-    if (window2) {
-      const payload = {
-        key,
-        oldValue,
-        newValue,
-        storageArea: storage
-      };
-      window2.dispatchEvent(storage instanceof Storage ? new StorageEvent("storage", payload) : new CustomEvent(customStorageEventName, {
-        detail: payload
+    if (window2 && !(storage instanceof Storage)) {
+      window2.dispatchEvent(new CustomEvent(customStorageEventName, {
+        detail: {
+          key,
+          oldValue,
+          newValue,
+          storageArea: storage
+        }
       }));
     }
   }
@@ -3479,8 +3475,8 @@ function useCssVar(prop, target, options = {}) {
   watch(
     [elRef, () => toValue(prop)],
     (_, old) => {
-      if (old[0] && old[1])
-        old[0].style.removeProperty(old[1]);
+      if (old[0] && old[1] && window2)
+        window2.getComputedStyle(old[0]).removeProperty(old[1]);
       updateCssVar();
     },
     { immediate: true }
@@ -4064,16 +4060,14 @@ function useDropZone(target, options = {}) {
       event.preventDefault();
       counter += 1;
       isOverDropZone.value = true;
-      const files2 = getFiles(event);
-      (_b = _options.onEnter) == null ? void 0 : _b.call(_options, files2, event);
+      (_b = _options.onEnter) == null ? void 0 : _b.call(_options, getFiles(event), event);
     });
     useEventListener(target, "dragover", (event) => {
       var _a;
       if (!isDataTypeIncluded)
         return;
       event.preventDefault();
-      const files2 = getFiles(event);
-      (_a = _options.onOver) == null ? void 0 : _a.call(_options, files2, event);
+      (_a = _options.onOver) == null ? void 0 : _a.call(_options, getFiles(event), event);
     });
     useEventListener(target, "dragleave", (event) => {
       var _a;
@@ -4083,16 +4077,14 @@ function useDropZone(target, options = {}) {
       counter -= 1;
       if (counter === 0)
         isOverDropZone.value = false;
-      const files2 = getFiles(event);
-      (_a = _options.onLeave) == null ? void 0 : _a.call(_options, files2, event);
+      (_a = _options.onLeave) == null ? void 0 : _a.call(_options, getFiles(event), event);
     });
     useEventListener(target, "drop", (event) => {
       var _a;
       event.preventDefault();
       counter = 0;
       isOverDropZone.value = false;
-      const files2 = getFiles(event);
-      (_a = _options.onDrop) == null ? void 0 : _a.call(_options, files2, event);
+      (_a = _options.onDrop) == null ? void 0 : _a.call(_options, getFiles(event), event);
     });
   }
   return {
@@ -8648,7 +8640,6 @@ function useWebSocket(url, options = {}) {
     status.value = "CONNECTING";
     ws.onopen = () => {
       status.value = "OPEN";
-      retried = 0;
       onConnected == null ? void 0 : onConnected(ws);
       heartbeatResume == null ? void 0 : heartbeatResume();
       _sendBuffer();
@@ -8656,20 +8647,19 @@ function useWebSocket(url, options = {}) {
     ws.onclose = (ev) => {
       status.value = "CLOSED";
       onDisconnected == null ? void 0 : onDisconnected(ws, ev);
-      if (!explicitlyClosed && options.autoReconnect && ws === wsRef.value) {
+      if (!explicitlyClosed && options.autoReconnect) {
         const {
           retries = -1,
           delay = 1e3,
           onFailed
         } = resolveNestedOptions(options.autoReconnect);
-        if (typeof retries === "number" && (retries < 0 || retried < retries)) {
-          retried += 1;
+        retried += 1;
+        if (typeof retries === "number" && (retries < 0 || retried < retries))
           setTimeout(_init, delay);
-        } else if (typeof retries === "function" && retries()) {
+        else if (typeof retries === "function" && retries())
           setTimeout(_init, delay);
-        } else {
+        else
           onFailed == null ? void 0 : onFailed();
-        }
       }
     };
     ws.onerror = (e) => {
@@ -8976,81 +8966,130 @@ function useWindowSize(options = {}) {
   }
   return { width, height };
 }
-
 export {
+  DefaultMagicKeysAliasMap,
+  StorageSerializers,
+  TransitionPresets,
+  assert,
+  computedAsync as asyncComputed,
+  refAutoReset as autoResetRef,
+  breakpointsAntDesign,
+  breakpointsBootstrapV5,
+  breakpointsMasterCss,
+  breakpointsPrimeFlex,
+  breakpointsQuasar,
+  breakpointsSematic,
+  breakpointsTailwind,
+  breakpointsVuetify,
+  breakpointsVuetifyV2,
+  breakpointsVuetifyV3,
+  bypassFilter,
+  camelize,
+  clamp,
+  cloneFnJSON,
+  computedAsync,
   computedEager,
+  computedInject,
   computedWithControl,
-  tryOnScopeDispose,
+  containsProp,
+  computedWithControl as controlledComputed,
+  controlledRef,
   createEventHook,
+  createFetch,
+  createFilterWrapper,
   createGlobalState,
-  provideLocal,
-  injectLocal,
   createInjectionState,
+  reactify as createReactiveFn,
+  createReusableTemplate,
   createSharedComposable,
+  createSingletonPromise,
+  createTemplatePromise,
+  createUnrefFn,
+  customStorageEventName,
+  debounceFilter,
+  refDebounced as debouncedRef,
+  watchDebounced as debouncedWatch,
+  defaultDocument,
+  defaultLocation,
+  defaultNavigator,
+  defaultWindow,
+  directiveHooks,
+  computedEager as eagerComputed,
+  executeTransition,
   extendRef,
+  formatDate,
+  formatTimeAgo,
   get,
+  getLifeCycleTarget,
+  getSSRHandler,
+  hasOwn,
+  hyphenate,
+  identity,
+  watchIgnorable as ignorableWatch,
+  increaseWithUnit,
+  injectLocal,
+  invoke,
+  isClient,
+  isDef,
   isDefined,
+  isIOS,
+  isObject,
+  isWorker,
   makeDestructurable,
-  toValue,
-  resolveUnref,
+  mapGamepadToXbox360Controller,
+  noop,
+  normalizeDate,
+  notNullish,
+  now,
+  objectEntries,
+  objectOmit,
+  objectPick,
+  onClickOutside,
+  onKeyDown,
+  onKeyPressed,
+  onKeyStroke,
+  onKeyUp,
+  onLongPress,
+  onStartTyping,
+  pausableFilter,
+  watchPausable as pausableWatch,
+  promiseTimeout,
+  provideLocal,
+  rand,
   reactify,
   reactifyObject,
-  toReactive,
   reactiveComputed,
   reactiveOmit,
-  isClient,
-  isWorker,
-  isDef,
-  notNullish,
-  assert,
-  isObject,
-  now,
-  timestamp,
-  clamp,
-  noop,
-  rand,
-  hasOwn,
-  isIOS,
-  createFilterWrapper,
-  bypassFilter,
-  debounceFilter,
-  throttleFilter,
-  pausableFilter,
-  directiveHooks,
-  hyphenate,
-  camelize,
-  promiseTimeout,
-  identity,
-  createSingletonPromise,
-  invoke,
-  containsProp,
-  increaseWithUnit,
-  objectPick,
-  objectOmit,
-  objectEntries,
-  getLifeCycleTarget,
-  toRef2 as toRef,
-  resolveRef,
   reactivePick,
   refAutoReset,
-  useDebounceFn,
   refDebounced,
   refDefault,
-  useThrottleFn,
   refThrottled,
   refWithControl,
-  controlledRef,
+  resolveRef,
+  resolveUnref,
   set2 as set,
-  watchWithFilter,
-  watchPausable,
+  setSSRHandler,
   syncRef,
   syncRefs,
+  templateRef,
+  throttleFilter,
+  refThrottled as throttledRef,
+  watchThrottled as throttledWatch,
+  timestamp,
+  toReactive,
+  toRef2 as toRef,
   toRefs2 as toRefs,
+  toValue,
   tryOnBeforeMount,
   tryOnBeforeUnmount,
   tryOnMounted,
+  tryOnScopeDispose,
   tryOnUnmounted,
+  unrefElement,
   until,
+  useActiveElement,
+  useAnimate,
   useArrayDifference,
   useArrayEvery,
   useArrayFilter,
@@ -9063,92 +9102,28 @@ export {
   useArrayReduce,
   useArraySome,
   useArrayUnique,
-  useCounter,
-  formatDate,
-  normalizeDate,
-  useDateFormat,
-  useIntervalFn,
-  useInterval,
-  useLastChanged,
-  useTimeoutFn,
-  useTimeout,
-  useToNumber,
-  useToString,
-  useToggle,
-  watchArray,
-  watchAtMost,
-  watchDebounced,
-  watchDeep,
-  watchIgnorable,
-  watchImmediate,
-  watchOnce,
-  watchThrottled,
-  watchTriggerable,
-  whenever,
-  computedAsync,
-  computedInject,
-  createReusableTemplate,
-  createTemplatePromise,
-  createUnrefFn,
-  unrefElement,
-  defaultWindow,
-  defaultDocument,
-  defaultNavigator,
-  defaultLocation,
-  useEventListener,
-  onClickOutside,
-  onKeyStroke,
-  onKeyDown,
-  onKeyPressed,
-  onKeyUp,
-  onLongPress,
-  onStartTyping,
-  templateRef,
-  useMounted,
-  useSupported,
-  useMutationObserver,
-  useActiveElement,
-  useRafFn,
-  useAnimate,
   useAsyncQueue,
   useAsyncState,
   useBase64,
   useBattery,
   useBluetooth,
-  useMediaQuery,
-  breakpointsTailwind,
-  breakpointsBootstrapV5,
-  breakpointsVuetifyV2,
-  breakpointsVuetifyV3,
-  breakpointsVuetify,
-  breakpointsAntDesign,
-  breakpointsQuasar,
-  breakpointsSematic,
-  breakpointsMasterCss,
-  breakpointsPrimeFlex,
   useBreakpoints,
   useBroadcastChannel,
   useBrowserLocation,
   useCached,
-  usePermission,
   useClipboard,
   useClipboardItems,
-  cloneFnJSON,
   useCloned,
-  getSSRHandler,
-  setSSRHandler,
-  StorageSerializers,
-  customStorageEventName,
-  useStorage,
-  usePreferredDark,
   useColorMode,
   useConfirmDialog,
+  useCounter,
   useCssVar,
   useCurrentElement,
   useCycleList,
   useDark,
-  useManualRefHistory,
-  useRefHistory,
+  useDateFormat,
+  refDebounced as useDebounce,
+  useDebounceFn,
   useDebouncedRefHistory,
   useDeviceMotion,
   useDeviceOrientation,
@@ -9158,18 +9133,16 @@ export {
   useDocumentVisibility,
   useDraggable,
   useDropZone,
-  useResizeObserver,
   useElementBounding,
   useElementByPoint,
   useElementHover,
   useElementSize,
-  useIntersectionObserver,
   useElementVisibility,
   useEventBus,
+  useEventListener,
   useEventSource,
   useEyeDropper,
   useFavicon,
-  createFetch,
   useFetch,
   useFileDialog,
   useFileSystemAccess,
@@ -9177,23 +9150,28 @@ export {
   useFocusWithin,
   useFps,
   useFullscreen,
-  mapGamepadToXbox360Controller,
   useGamepad,
   useGeolocation,
   useIdle,
   useImage,
-  useScroll,
   useInfiniteScroll,
+  useIntersectionObserver,
+  useInterval,
+  useIntervalFn,
   useKeyModifier,
+  useLastChanged,
   useLocalStorage,
-  DefaultMagicKeysAliasMap,
   useMagicKeys,
+  useManualRefHistory,
   useMediaControls,
+  useMediaQuery,
   useMemoize,
   useMemory,
+  useMounted,
   useMouse,
   useMouseInElement,
   useMousePressed,
+  useMutationObserver,
   useNavigatorLanguage,
   useNetwork,
   useNow,
@@ -9201,20 +9179,26 @@ export {
   useOffsetPagination,
   useOnline,
   usePageLeave,
-  useScreenOrientation,
   useParallax,
   useParentElement,
   usePerformanceObserver,
+  usePermission,
   usePointer,
   usePointerLock,
   usePointerSwipe,
   usePreferredColorScheme,
   usePreferredContrast,
+  usePreferredDark,
   usePreferredLanguages,
   usePreferredReducedMotion,
   usePrevious,
+  useRafFn,
+  useRefHistory,
+  useResizeObserver,
+  useScreenOrientation,
   useScreenSafeArea,
   useScriptTag,
+  useScroll,
   useScrollLock,
   useSessionStorage,
   useShare,
@@ -9222,21 +9206,27 @@ export {
   useSpeechRecognition,
   useSpeechSynthesis,
   useStepper,
+  useStorage,
   useStorageAsync,
   useStyleTag,
+  useSupported,
   useSwipe,
   useTemplateRefsList,
   useTextDirection,
   useTextSelection,
   useTextareaAutosize,
+  refThrottled as useThrottle,
+  useThrottleFn,
   useThrottledRefHistory,
   useTimeAgo,
-  formatTimeAgo,
+  useTimeout,
+  useTimeoutFn,
   useTimeoutPoll,
   useTimestamp,
   useTitle,
-  TransitionPresets,
-  executeTransition,
+  useToNumber,
+  useToString,
+  useToggle,
   useTransition,
   useUrlSearchParams,
   useUserMedia,
@@ -9251,7 +9241,19 @@ export {
   useWebWorkerFn,
   useWindowFocus,
   useWindowScroll,
-  useWindowSize
+  useWindowSize,
+  watchArray,
+  watchAtMost,
+  watchDebounced,
+  watchDeep,
+  watchIgnorable,
+  watchImmediate,
+  watchOnce,
+  watchPausable,
+  watchThrottled,
+  watchTriggerable,
+  watchWithFilter,
+  whenever
 };
 /*! Bundled license information:
 
@@ -9262,4 +9264,4 @@ vitepress/lib/vue-demi.mjs:
    * @license MIT
    *)
 */
-//# sourceMappingURL=chunk-7LUTEMNG.js.map
+//# sourceMappingURL=vitepress___@vueuse_core.js.map

@@ -12,7 +12,7 @@ class OrganismMoleculeCounts extends Command
      *
      * @var string
      */
-    protected $signature = 'app:organism-molecule-counts';
+    protected $signature = 'coconut:organism-molecule-counts';
 
     /**
      * The console command description.

@@ -17,7 +17,7 @@ class ProcessEntries extends Command
      *
      * @var string
      */
-    protected $signature = 'entries:process';
+    protected $signature = 'coconut:entries-process';
 
     /**
      * The console command description.
@@ -50,7 +50,7 @@ class ProcessEntries extends Command
                 $collection->jobs_status = 'INCURATION';
                 $collection->job_info = '';
                 $collection->save();
-                Artisan::call('entries:import', [
+                Artisan::call('coconut:entries-import', [
                     'collection_id' => $collection->id,
                 ]);
             })->name('Process Entries '.$collectionId['collection_id'])
