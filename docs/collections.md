@@ -1,13 +1,25 @@
 # Collections
 
-## Summary of Database Statistics
+A collection is a set of compounds reported in a published work having a citable DOI and the data covered under an open source license. COCONUT allows careful storage of the details of the source of the collections so as to ensure traceabitlity and authenticity of the data on the NPs.
 
-|Total Molecules |Total Collections |Unique Organisms |Citations Mapped |
-|:---------------:|:-----------------:|:-----------------:|:----------------:|
-|695,133|63 |55,252 |24,272|
+COCONUT has NP data from 63 sources ranging from supplimentray resources to well curated databases. Despite the well curation efforts of these sources, the same compound from multiple source still has discrepancies that lead to confusion. To mitigate and resolve these discrepancies, COCONUT allows for live curation of compounds, organisms and sample locations from where the compounds were reported to be found and geo locations where these organisms were reported. 
+
+For a compound to be considered to be of natural origin, it should be reported to be found in an organism with a citable DOI. Veriety of ways are made available to the users to report synthetic compounds or suggest changes in data discrepancies of the NPs on the COCONUT DB.
 
 ::: info New Collection Submission
-If you wish to submit a new collection, please send your natural product data in CSV format to the COCONUT database by emailing [info.coconut@uni-jena.de](mailto:info.coconut@uni-jena.de).
+Any collection directly submitted to COCONUT will be given its own DOI to enable citation of the collection.
+
+To submit a new collection, please send your natural product data in CSV format to the COCONUT database by emailing [info.coconut@uni-jena.de](mailto:info.coconut@uni-jena.de).
+
+**OR**
+
+To submit them directly on the COCONUT platform, follow the instructions [here](/collection-submission).
+:::
+
+::: warning Data Distribution Disclaimer
+We do not distribute the original data, as the rights belong to the original authors. You can download the original data directly from their website. 
+
+However, a curated version of the data available on COCONUT can be downloaded from the following link: [https://coconut.naturalproducts.net/download](https://coconut.naturalproducts.net/download). COCONUT make these downloads freely available to all under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.en). This requires the users to provide citation upon using COCONUT curated data.
 :::
 
 
@@ -78,11 +90,9 @@ If you wish to submit a new collection, please send your natural product data in
 |61|Latin America dataset |12,959 |Gómez-García A, Jiménez DAA, Zamora WJ, Barazorda-Ccahuana HL, Chávez-Fumagalli MÁ, Valli M, Andricopulo AD, Bolzani VDS, Olmedo DA, Solís PN, Núñez MJ, Rodríguez Pérez JR, Valencia Sánchez HA, Cortés Hernández HF, Medina-Franco JL. Navigating the Chemical Space and Chemical Multiverse of a Unified Latin American Natural Product Database: LANaPDB. Pharmaceuticals (Basel). 2023 Sep 30;16(10):1388. doi: 10.3390/ph16101388. PMID: 37895859; PMCID: PMC10609821. |
 |62|CMNPD |31,561 |Chuanyu Lyu, Tong Chen, Bo Qiang, Ningfeng Liu, Heyu Wang, Liangren Zhang, Zhenming Liu, CMNPD: a comprehensive marine natural products database towards facilitating drug discovery from the ocean, Nucleic Acids Research, Volume 49, Issue D1, 8 January 2021, Pages D509–D515, https://doi.org/10.1093/nar/gkaa763 |
 |63|Supernatural3 |1,203,509 |Natural products are a sebset of Supernatural3 https://academic.oup.com/nar/article/51/D1/D654/6833249 |
-||**Total Entries**|2,551,803 ||
 
-::: warning Data Distribution Disclaimer
-We do not distribute the original data, as the rights belong to the original authors. You can download the original data directly from their website. However, a curated version of the data available on COCONUT can be downloaded from the following link: [https://coconut.naturalproducts.net/download](https://coconut.naturalproducts.net/download).
-:::
+
+
 
 <style>
 table {

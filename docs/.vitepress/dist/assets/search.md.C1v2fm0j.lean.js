@@ -1,0 +1,1 @@
+import{_ as a,c as e,o as r,a2 as t}from"./chunks/framework.CBy9I1-v.js";const g=JSON.parse('{"title":"Structure Based Search","description":"","frontmatter":{},"headers":[],"relativePath":"search.md","filePath":"search.md"}'),s={name:"search.md"},o=t("",22),i=[o];function c(n,l,u,h,d,p){return r(),e("div",null,i)}const S=a(s,[["render",c]]);export{g as __pageData,S as default};
