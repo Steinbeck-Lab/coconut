@@ -25,7 +25,6 @@ export default defineConfig({
 
     nav: [
       { text: 'Home', link: '/introduction' },
-      // { text: 'Guides', link: '/collection-submission' },
       { text: 'API', link: 'https://coconut.cheminf.studio/api-documentation' },
       { text: 'About', link: 'https://coconut.cheminf.studio/about' },
       { text: 'Download', link: 'https://coconut.cheminf.studio/download' }
@@ -37,6 +36,7 @@ export default defineConfig({
         items: [
           { text: 'Introduction', link: '/introduction' },
           { text: 'Collections', link: '/collections' },
+          { text: 'Curation', link: '/curation' },
         ]
       },
       {
@@ -93,6 +93,12 @@ export default defineConfig({
           { text: 'Installation', link: '/installation' },
           { text: 'Database Schema', link: '/db-schema' },
         ]
+      },
+      {
+        text: 'Contribution',
+        items: [
+          { text: 'Contributors and Steering Committee', link: '/contributors' }
+        ],
       },
       {
         text: 'Help',
