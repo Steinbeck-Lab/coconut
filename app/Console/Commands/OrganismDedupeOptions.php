@@ -16,7 +16,7 @@ class OrganismDedupeOptions extends Command
      *
      * @var string
      */
-    protected $signature = 'app:organism-dedupe';
+    protected $signature = 'coconut:organism-dedupe';
 
     /**
      * The console command description.

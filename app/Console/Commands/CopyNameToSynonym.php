@@ -12,7 +12,7 @@ class CopyNameToSynonym extends Command
      *
      * @var string
      */
-    protected $signature = 'app:copy-name-to-synonym';
+    protected $signature = 'coconut:copy-name-to-synonym';
 
     /**
      * The console command description.

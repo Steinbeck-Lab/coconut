@@ -13,7 +13,7 @@ class ImportCHEMBLNames extends Command
      *
      * @var string
      */
-    protected $signature = 'app:import-chembl-names {file}';
+    protected $signature = 'coconut:import-chembl-names {file}';
 
     /**
      * The console command description.

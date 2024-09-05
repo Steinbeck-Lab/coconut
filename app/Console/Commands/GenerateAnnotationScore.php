@@ -13,7 +13,7 @@ class GenerateAnnotationScore extends Command
      *
      * @var string
      */
-    protected $signature = 'app:generate-score';
+    protected $signature = 'coconut:generate-score';
 
     /**
      * The console command description.

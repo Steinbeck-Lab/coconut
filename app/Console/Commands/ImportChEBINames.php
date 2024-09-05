@@ -13,7 +13,7 @@ class ImportChEBINames extends Command
      *
      * @var string
      */
-    protected $signature = 'app:import-chebi-names {file}';
+    protected $signature = 'coconut:import-chebi-names {file}';
 
     /**
      * The console command description.
