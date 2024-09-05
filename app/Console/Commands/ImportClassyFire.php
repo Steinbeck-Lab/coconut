@@ -14,7 +14,7 @@ class ImportClassyFire extends Command
      *
      * @var string
      */
-    protected $signature = 'app:import-classyfire  {file}';
+    protected $signature = 'coconut:import-classyfire  {file}';
 
     /**
      * The console command description.

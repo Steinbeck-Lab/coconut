@@ -15,7 +15,7 @@ class AssignIdentifiers extends Command
      *
      * @var string
      */
-    protected $signature = 'molecules:assign-identifiers';
+    protected $signature = 'coconut:molecules-assign-identifiers';
 
     /**
      * The console command description.

@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use Illuminate\Support\Facades\Cache;
-use Livewire\Attributes\Layout;
 use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -50,7 +49,6 @@ class Welcome extends Component
         HTML;
     }
 
-    #[Layout('layouts.guest')]
     public function render()
     {
         $this->totalMolecules = Cache::get('stats.molecules');

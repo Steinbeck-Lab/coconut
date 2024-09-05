@@ -1,0 +1,65 @@
+name: Molecule Reporting Template
+description: >-
+  Use this template to report synthetic compounds or request changes to an existing entry.
+  Please provide all required information to help us process your request efficiently.
+body:
+  - type: dropdown
+    id: report-type
+    attributes:
+      label: Report Type
+      description: Select the type of report you want to make.
+      multiple: false
+      options:
+        - Synthetic compounds
+        - Request changes to an entry
+    validations:
+      required: true
+
+  - type: input
+    id: coconut-id
+    attributes:
+      label: COCONUT ID
+      description: Please provide the COCONUT ID of the compound (e.g., CNP0000001).
+      placeholder: 'e.g., CNP0000001'
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Provide evidence to support your report, such as experimental data, references, or other relevant documentation.
+      placeholder: 'Describe the evidence supporting your report'
+    validations:
+      required: true
+
+  - type: textarea
+    id: citation-details
+    attributes:
+      label: Citation Details
+      description: Include citation details for any references used to support your report.
+      placeholder: 'Provide citation details (e.g., journal name, article title, authors, year)'
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional Information
+      description: >-
+        Provide any additional information that may help us process your report,
+        such as relevant context, related compounds, or specific requests.
+      placeholder: 'Any additional information or context'
+    validations:
+      required: false
+
+  - type: input
+    id: contact-details
+    attributes:
+      label: Contact Details (Optional)
+      description: >-
+        If you would like to be a curator for the reported compound, please provide your contact
+        details. We can add you to the database curators list.
+      placeholder: 'Your contact information (optional)'
+    validations:
+      required: false

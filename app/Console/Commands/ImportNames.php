@@ -14,7 +14,7 @@ class ImportNames extends Command
      *
      * @var string
      */
-    protected $signature = 'molecules:import-names';
+    protected $signature = 'coconut:molecules-import-names';
 
     /**
      * The console command description.

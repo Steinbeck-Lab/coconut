@@ -21,7 +21,6 @@ class UserResource extends RestResource
     public function fields(\Lomkit\Rest\Http\Requests\RestRequest $request): array
     {
         return [
-            'id',
             'name',
             'email',
         ];

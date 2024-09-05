@@ -12,7 +12,7 @@ class UpdateNamesFromSynonyms extends Command
      *
      * @var string
      */
-    protected $signature = 'app:update-names-from-synonyms';
+    protected $signature = 'coconut:update-names-from-synonyms';
 
     /**
      * The console command description.

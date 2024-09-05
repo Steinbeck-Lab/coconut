@@ -13,7 +13,7 @@ class RemoveDuplicates extends Command
      *
      * @var string
      */
-    protected $signature = 'app:remove-duplicates';
+    protected $signature = 'coconut:molecules-remove-duplicates';
 
     /**
      * The console command description.

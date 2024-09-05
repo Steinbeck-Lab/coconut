@@ -21,7 +21,10 @@ class OrganismResource extends RestResource
     public function fields(\Lomkit\Rest\Http\Requests\RestRequest $request): array
     {
         return [
-            'id',
+            'name',
+            'iri',
+            'rank',
+            'molecule_count',
         ];
     }
 

@@ -22,19 +22,19 @@ class CollectionStats extends BaseWidget
             // }))
             //     ->description('Total count')
             //     ->color('primary'),
-            Stat::make('Entries', Cache::get('stats.collections'.$this->record->id.'entries.count'))
+            Stat::make('Entries', $this->record->total_entries)
                 ->description('Total count')
                 ->color('primary'),
-            Stat::make('Passed Entries', Cache::get('stats.collections'.$this->record->id.'passed_entries.count'))
+            Stat::make('Passed Entries', $this->record->successful_entries)
                 ->description('Successful count')
                 ->color('success'),
-            Stat::make('Entries', Cache::get('stats.collections'.$this->record->id.'rejected_entries.count'))
+            Stat::make('Entries', $this->record->failed_entries)
                 ->description('Failed entries')
                 ->color('danger'),
-            Stat::make('Total Molecules', Cache::get('stats.collections'.$this->record->id.'molecules.count')),
-            Stat::make('Total Citations', Cache::get('stats.collections'.$this->record->id.'citations.count')),
-            Stat::make('Total Organisms', Cache::get('stats.collections'.$this->record->id.'organisms.count')),
-            Stat::make('Total Geo Locations', Cache::get('stats.collections'.$this->record->id.'geo_locations.count')),
+            Stat::make('Total Molecules', $this->record->molecules_count),
+            Stat::make('Total Citations', $this->record->citations_count),
+            Stat::make('Total Organisms', $this->record->organisms_count),
+            Stat::make('Total Geo Locations', $this->record->geo_count),
         ];
     }
 }

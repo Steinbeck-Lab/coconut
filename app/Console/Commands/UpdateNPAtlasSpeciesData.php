@@ -14,7 +14,7 @@ class UpdateNPAtlasSpeciesData extends Command
      *
      * @var string
      */
-    protected $signature = 'app:update-npatlas-species-data {file}';
+    protected $signature = 'coconut:update-npatlas-species-data {file}';
 
     /**
      * The console command description.

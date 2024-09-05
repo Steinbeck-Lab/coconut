@@ -6,29 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Coconut') }}</title>
+    <title>@yield('title', 'Natural Products') - {{ config('app.name', 'COCONUT') }}</title>
 
-    <!-- Meta Tags -->
-    <meta name="description"
-        content="{{ $description ?? 'An aggregated dataset of elucidated and predicted natural products collected from open sources and a web interface to browse, search, and easily download NPs.' }}">
-    <meta name="keywords" content="{{ $keywords ?? 'natural products, COCONUT, open data, molecule database' }}">
-    <meta name="author" content="{{ $author ?? 'COCONUT Team' }}">
-    <meta property="og:title" content="{{ $ogTitle ?? 'COCONUT: COlleCtion of Open Natural prodUcTs' }}">
-    <meta property="og:description"
-        content="{{ $ogDescription ?? 'An aggregated dataset of elucidated and predicted natural products collected from open sources and a web interface to browse, search, and easily download NPs.' }}">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ $ogUrl ?? url()->current() }}">
-    <meta property="og:image" content="{{ $ogImage ?? asset('img/coconut-og-image.png') }}">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:site_name" content="{{ $ogSiteName ?? config('app.name', 'Coconut') }}">
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    @section('meta')
+        <!-- Meta Tags -->
+        <meta name="description"
+            content="Facilitating natural product research through data and tools while upholding FAIR principles for Research Data Management.">
+        <meta name="keywords" content="natural products, COCONUT, open data, molecule database">
+        <meta name="author" content="COCONUT">
+        <meta property="og:title" content="COCONUT: COlleCtion of Open Natural prodUcTs">
+        <meta property="og:description"
+            content="Facilitating natural product research through data and tools while upholding FAIR principles for Research Data Management.">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ url()->current() }}">
+        <meta property="og:image" content="{{ asset('img/coconut-og-image.png') }}">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta property="og:site_name" content="config('app.name', 'COCONUT')">
+    @show
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 
     <!-- Matomo -->
     <script>
@@ -50,6 +49,8 @@
     </script>
     <!-- End Matomo Code -->
 
+    @section('schema')
+    @show
 
     <!-- Styles -->
     @livewireStyles

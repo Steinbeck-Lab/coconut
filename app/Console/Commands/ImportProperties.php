@@ -14,7 +14,7 @@ class ImportProperties extends Command
      *
      * @var string
      */
-    protected $signature = 'app:import-properties {file}';
+    protected $signature = 'coconut:import-properties {file}';
 
     /**
      * The console command description.

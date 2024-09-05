@@ -48,12 +48,18 @@ class MoleculesRelationManager extends RelationManager
                     ->defaultImageUrl(url('/images/placeholder.png')),
                 Tables\Columns\TextColumn::make('id')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('identifier')->searchable()->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('name')->searchable()
+                Tables\Columns\TextColumn::make('identifier')
+                    ->label('Details')
                     ->formatStateUsing(
                         fn (Molecule $molecule): HtmlString => new HtmlString("<strong>ID:</strong> {$molecule->id}<br><strong>Identifier:</strong> {$molecule->identifier}<br><strong>Name:</strong> {$molecule->name}")
                     )
                     ->description(fn (Molecule $molecule): string => $molecule->standard_inchi)
                     ->wrap(),
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable()
+                    ->wrap()
+                    ->lineClamp(6)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('synonyms')
                     ->searchable()
                     ->wrap()
@@ -134,7 +140,7 @@ class MoleculesRelationManager extends RelationManager
                                     }
 
                                     return SampleLocation::create([
-                                        'name' => $data['name'],
+                                        'name' => str()->ucfirst(str()->trim($data['name'])),
                                         'slug' => $slug,
                                         'iri' => $data['iri'],
                                         'organism_id' => $livewire->mountedTableBulkActionData['org_id'],
@@ -147,10 +153,10 @@ class MoleculesRelationManager extends RelationManager
                                 try {
                                     $moleculeIds = $records->pluck('id')->toArray();
                                     $currentOrganism = $this->getOwnerRecord();
-                                    $currentOrganism->molecules()->detach($moleculeIds);
+                                    $currentOrganism->auditDetach('molecules', $moleculeIds);
 
                                     foreach ($currentOrganism->sampleLocations as $location) {
-                                        $location->molecules()->detach($moleculeIds);
+                                        $location->auditDetach('molecules', $moleculeIds);
                                     }
                                     $newOrganism = Organism::findOrFail($data['org_id']);
 
@@ -158,10 +164,19 @@ class MoleculesRelationManager extends RelationManager
                                     if ($locations) {
                                         $sampleLocations = SampleLocation::findOrFail($locations);
                                         foreach ($sampleLocations as $location) {
-                                            $location->molecules()->syncWithoutDetaching($moleculeIds);
+                                            $location->auditSyncWithoutDetaching('molecules', $moleculeIds);
                                         }
                                     }
-                                    $newOrganism->molecules()->syncWithoutDetaching($moleculeIds);
+                                    $newOrganism->auditSyncWithoutDetaching('molecules', $moleculeIds);
+
+                                    $currentOrganism->refresh();
+                                    $newOrganism->refresh();
+
+                                    $currentOrganism->molecule_count = $currentOrganism->molecules()->count();
+                                    $currentOrganism->save();
+                                    $newOrganism->molecule_count = $newOrganism->molecules()->count();
+                                    $newOrganism->save();
+
                                     DB::commit();
                                 } catch (\Exception $e) {
                                     // Rollback the transaction in case of any error

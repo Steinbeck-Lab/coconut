@@ -40,10 +40,10 @@
                             <div class="py-3">
                                 <div id="structureSearchEditor" class="border mb-3" style="height: 400px; width: 100%">
                                 </div>
-                                <a @click="fetchClipboardText"
+                                <div @click="fetchClipboardText"
                                     class="mt-3 w-full inline-flex justify-center rounded-md shadow-sm px-4 py-2 bg-white-600 text-base font-medium hover:bg-white-700 focus:outline-none sm:w-auto sm:text-sm border">
                                     Paste from Clipboard
-                                </a>
+                                </div>
                             </div>
                             <fieldset class="mt-1">
                                 <legend class="contents text-base font-medium text-gray-900">
