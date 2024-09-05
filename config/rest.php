@@ -66,7 +66,7 @@ return [
         'info' => [
             'title' => config('app.name'),
             'summary' => 'COlleCtion of Open NatUral producTs',
-            'description' => 'An aggregated dataset of elucidated and predicted NPs collected from open sources and a web interface to browse, search and easily and quickly download NPs.',
+            'description' => 'A comprehensive platform facilitating natural product research by providing data, tools, and services for deposition, curation, and reuse.',
             'termsOfService' => 'https://coconut.naturalproducts.net/terms',
             'contact' => [
                 'name' => config('app.name'),
@@ -115,12 +115,12 @@ return [
         ],
         // See https://spec.openapis.org/oas/v3.1.0#security-scheme-object
         'securitySchemes' => [
-            'api_key' => [
-                'description' => 'Authentication via API key',
-                'type' => 'apiKey',
-                'name' => 'x-api-key',
-                'in' => 'header',
-            ],
+            // 'api_key' => [
+            //     'description' => 'Authentication via API key',
+            //     'type' => 'apiKey',
+            //     'name' => 'x-api-key',
+            //     'in' => 'header',
+            // ],
             'sanctum' => [
                 'description' => "Enter token in format (Bearer \<token\>)",
                 'type' => 'apiKey',

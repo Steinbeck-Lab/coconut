@@ -838,7 +838,7 @@
                                         </li>
                                         <li class="py-2 flex md:py-0"><span class="ml-3 text-base text-gray-500">Fsp3
                                                 :
-                                                {{ $molecule->properties->total_atom_count }}</span></li>
+                                                {{ $molecule->properties->fractioncsp3 }}</span></li>
                                         <li class="py-2 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500">Hydrogen
                                                 Bond Acceptor Count

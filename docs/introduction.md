@@ -6,23 +6,17 @@ title: COCONUT - COlleCtion of Open NatUral producTs
   <img src="/logo.png" alt="COCONUT Logo" style="filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5)); margin: 20px auto;" width="600">
 </div>
 
-[COlleCtion of Open NatUral producTs (COCONUT)](https://coconut.naturalproducts.net) is an aggregated dataset comprising elucidated and predicted natural products (NPs) sourced from open repositories. It offers a user-friendly web interface for browsing, searching, and efficiently downloading NPs. The latest database integrates more than 63 open NP resources, providing unrestricted access to data free of charge. Each entry in the database represents a "flat" NP structure, accompanied by information on its known stereochemical forms, relevant literature, producing organisms, natural geographical distribution, and [precomputed](https://api.naturalproducts.net/docs) molecular properties. 
+The [COlleCtion of Open NatUral producTs (COCONUT)](https://coconut.naturalproducts.net) database (2024) is a platform that supports research on natural products. It provides data and tools for depositing, organising, and reusing natural product information, while adhering to the FAIR principles for Research Data Management. It offers a user-friendly web interface for browsing, searching, and curating NPs. COCONUT web interface also provides features to report and/or request updates to data. The latest release integrates more than 63 open NP resources, providing unrestricted access to data free of charge. 
 
 
-::: tip
-Natural products are small bioactive molecules produced by living organisms with potential applications in pharmacology and various industries. COCONUT facilitates NP research, enabling computational screening and other in-silico applications.
+::: info What are natural products?
+Natural products (NPs) are small molecules produced by living organisms with potential applications in pharmacology and other industries as many of them are bioactive. This potential raised great interest in NP research around the world and in different application fields, therefore, over the years a multiplication of generalistic and thematic NP databases has been observed.
 :::
 
-
-::: info
-**New COCONUT Logo** features a minimalistic design, simplifying the original logo first introduced with [version 1.0](https://github.com/Steinbeck-Lab/cheminf-jena-logos/blob/main/COCONUT/coconut.png?raw=true).
-:::
 
 ## Citation Guidelines
 
-**Properly citing the COCONUT Database ensures readers can easily locate the original source of the data used.**
-
-- **Citing Paper:**
+- **Publication:**
 ```md
 Sorokina, M., Merseburger, P., Rajan, K. et al. 
 COCONUT online: Collection of Open Natural Products database. 
@@ -30,33 +24,23 @@ J Cheminform 13, 2 (2021).
 https://doi.org/10.1186/s13321-020-00478-9
 ```
 
-- Citing software:
+- Software:
 ```md
 Venkata, C., Kanakam, S. R. S., Sharma, N., Schaub, J., Steinbeck, C., & Rajan, K. (2024).
 COCONUT (Version v0.0.1 - prerelease) [Computer software].
 https://doi.org/10.5281/zenodo.13283949
 ```
 
-## Contact Us
+<hr/>
 
 ::: info Contact Information
-**Help Desk**  
-Any issues or support requests can be raised at our Help Desk or write to us at [info.COCONUT@uni-jena.de](mailto:info.COCONUT@uni-jena.de)
+For COCONUT platform related queries please write to us at [info.COCONUT@uni-jena.de](mailto:info.COCONUT@uni-jena.de).
 
-**Discussion Forum**  
-Join our COCONUT Discussion Forum at [coconut-discuss@listserv.uni-jena.de](mailto:coconut-discuss@listserv.uni-jena.de)
+Join our discussion forum at [coconut-discuss@listserv.uni-jena.de](mailto:coconut-discuss@listserv.uni-jena.de)
 :::
+## Acknowledgments
 
-
-## Acknowledgments and Maintenance
-
-Cheminformatics Microservice and [Natural Products Online](https://naturalproducts.net/) are developed and maintained by the [Steinbeck group](https://cheminf.uni-jena.de/) at the [Friedrich Schiller University](https://www.uni-jena.de/en/) Jena, Germany.
-
-<div style="display: flex; justify-content: center; margin: 20px 0;">
-  <img src="/CheminfGit.png" alt="Cheminf and Computational Metabolomics Logo" width="400">
-</div>
-
-**Funded by the [Deutsche Forschungsgemeinschaft (DFG, German Research Foundation)](https://www.dfg.de/) under the [ChemBioSys](https://www.chembiosys.de/en/) (Project INF) - Project number: 239748522 - SFB 1127**.
+**COCONUT project is funded by the [Deutsche Forschungsgemeinschaft (DFG, German Research Foundation)](https://www.dfg.de/) under the [ChemBioSys](https://www.chembiosys.de/en/) (Project INF) - Project number: 239748522 - SFB 1127**.
 
 <div style="display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-top: 20px;">
   <a href="https://www.dfg.de/" target="_blank" style="flex: 1;">
