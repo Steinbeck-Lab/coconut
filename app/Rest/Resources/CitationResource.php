@@ -21,7 +21,10 @@ class CitationResource extends RestResource
     public function fields(\Lomkit\Rest\Http\Requests\RestRequest $request): array
     {
         return [
-            'id',
+            'doi',
+            'title',
+            'authors',
+            'citation_text',
         ];
     }
 

@@ -210,6 +210,7 @@ class ReportResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('title')
+                    ->wrap()
                     ->description(fn (Report $record): string => Str::of($record->evidence)->words(10)),
                 TextColumn::make('url')
                     ->url(fn (Report $record) => $record->url)

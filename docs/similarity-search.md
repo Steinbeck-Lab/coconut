@@ -1,4 +1,0 @@
-# COCONUT online - Similarity Structure
-
-
-

@@ -21,8 +21,12 @@ class MoleculeController extends Controller
             return Molecule::where('identifier', $id)->first();
         });
 
-        return view('molecule', [
-            'molecule' => $molecule,
-        ]);
+        if ($molecule) {
+            return view('molecule', [
+                'molecule' => $molecule,
+            ]);
+        }
+
+        abort(404);
     }
 }

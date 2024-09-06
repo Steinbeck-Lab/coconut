@@ -60,6 +60,7 @@ class Molecule extends Model implements Auditable
     protected $casts = [
         'synonyms' => 'array',
         'cas' => 'array',
+        'comment' => 'array',
     ];
 
     /**
@@ -150,9 +151,9 @@ class Molecule extends Model implements Auditable
     /**
      * Get schema json
      */
-    public function getSchema($type = 'bioschema')
+    public function getSchema($type = 'bioschemas')
     {
-        if ($type == 'bioschema') {
+        if ($type == 'bioschemas') {
             $moleculeSchema = Schema::MolecularEntity();
             $moleculeSchema['@id'] = $this->inchi_key;
             $moleculeSchema['dct:conformsTo'] = $this->prepareConformsTo();
@@ -160,12 +161,13 @@ class Molecule extends Model implements Auditable
             $moleculeSchema->identifier($this->identifier)
                 ->name($this->name)
                 ->url(env('APP_URL').'/compound/'.$this->identifier)
-                ->inChI($this->inchi)
-                ->inChIKey($this->inchi_key)
+                ->inChI($this->standard_inchi)
+                ->inChIKey($this->standard_inchi_key)
                 ->iupacName($this->iupac_name)
-                ->molecularFormula($this->molecular_formula)
-                ->molecularWeight($this->molecular_weight)
-                ->smiles($this->cannonical_smiles);
+                ->molecularFormula($this->properties->molecular_formula)
+                ->molecularWeight($this->properties->molecular_weight)
+                ->monoisotopicMolecularWeight($this->properties->exact_molecular_weight)
+                ->smiles($this->canonical_smiles);
 
             if ($this->synonyms || $this->cas) {
                 $alternateNames = $this->synonyms ?? [];
@@ -175,7 +177,111 @@ class Molecule extends Model implements Auditable
                 $moleculeSchema->alternateName($alternateNames);
             }
 
-            return $moleculeSchema;
+            if ($this->organisms) {
+                $organisms = $this->organisms ?? [];
+                $names = [];
+                foreach ($organisms as $organism) {
+                    $name = $organism->name;
+                    array_push($names, $name);
+                }
+                $moleculeSchema->taxonomicRange($names);
+            }
+
+            $additionalPropertysSchemas = [];
+            $moleculeAdditionalPropertys = [
+                'annotation_level' => 'Annotation level',
+            ];
+
+            foreach ($moleculeAdditionalPropertys as $key => $value) {
+                $propertySchema = Schema::PropertyValue();
+                $propertySchema->name($value)
+                    ->value($this->$key);
+                array_push($additionalPropertysSchemas, $propertySchema);
+            }
+
+            $propertyAdditionalPropertys = [
+                'total_atom_count' => 'Total atom count',
+                'aromatic_rings_count' => 'Aromatic rings count',
+                'qed_drug_likeliness' => 'QED drug likeliness',
+                'formal_charge' => 'Formal charge',
+                'contains_sugar' => 'Contains sugar',
+                'np_likeness' => 'NP likeness',
+                'chemical_class' => 'Chemical class',
+                'chemical_sub_class' => 'Chemical sub class',
+                'chemical_super_class' => 'Chemical super class',
+            ];
+
+            foreach ($propertyAdditionalPropertys as $key => $value) {
+                $propertySchema = Schema::PropertyValue();
+                $propertySchema->name($value)
+                    ->value($this->properties->$key);
+                array_push($additionalPropertysSchemas, $propertySchema);
+            }
+
+            if ($this->geo_locations) {
+                $geo_locations = $this->geo_locations ?? [];
+                $names = [];
+                foreach ($geo_locations as $geo_location) {
+                    $name = $geo_location->name;
+                    array_push($names, $name);
+                }
+                $propertySchema = Schema::PropertyValue();
+                $propertySchema->name('Geographic location')
+                    ->value($names);
+                array_push($additionalPropertysSchemas, $propertySchema);
+            }
+
+            $moleculeSchema->additionalProperty($additionalPropertysSchemas);
+
+            $datasetSchema = Schema::Dataset();
+            $datasetSchema->name($this->name);
+            $datasetSchema->description('Natural product in the COCONUT database with details of source organisms, geolocations and citations.');
+            $datasetSchema->license('https://creativecommons.org/licenses/by/4.0/');
+
+            $catalogs = [];
+            if ($this->collections) {
+                $collections = $this->collections ?? [];
+                foreach ($collections as $collection) {
+                    $dataCatalogSchema = Schema::DataCatalog();
+                    $dataCatalogSchema->name('Geographic location')
+                    // ->license($collection->licenses->url)
+                        ->additionalType('collection')
+                        ->description($collection->description)
+                        ->identifier($collection->identifier)
+                        ->url($collection->url)
+                        ->name($collection->title);
+                    array_push($catalogs, $dataCatalogSchema);
+                }
+            }
+
+            $datasetSchema->includedInDataCatalog($catalogs)
+                ->about($moleculeSchema);
+
+            $citationsSchemas = [];
+            if ($this->citations) {
+                $citations = $this->citations ?? [];
+                foreach ($citations as $citation) {
+                    $citationSchema = Schema::CreativeWork();
+                    $citationSchema->identifier($citation->doi)
+                        ->headline($citation->title)
+                        ->author($citation->authors);
+                    array_push($citationsSchemas, $citationSchema);
+                }
+            }
+            $datasetSchema->citation($citationsSchemas);
+
+            $contactPoint = Schema::ContactPoint();
+            $contactPoint->contactType('research inquiries')
+                ->email('info.coconut@uni-jena.de');
+
+            $coconut = Schema::Organization();
+            $coconut->url('https://coconut.naturalproducts.net/')
+                ->name('COCONUT - COlleCtion of Open Natural prodUcTs')
+                ->contactPoint($contactPoint);
+
+            $datasetSchema->creator($coconut);
+
+            return $datasetSchema;
         }
     }
 

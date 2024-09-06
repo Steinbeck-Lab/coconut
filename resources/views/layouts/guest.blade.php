@@ -11,12 +11,12 @@
     @section('meta')
         <!-- Meta Tags -->
         <meta name="description"
-            content="An aggregated dataset of elucidated and predicted natural products collected from open sources and a web interface to browse, search, and easily download NPs.">
+            content="Facilitating natural product research through data and tools while upholding FAIR principles for Research Data Management.">
         <meta name="keywords" content="natural products, COCONUT, open data, molecule database">
         <meta name="author" content="COCONUT">
         <meta property="og:title" content="COCONUT: COlleCtion of Open Natural prodUcTs">
         <meta property="og:description"
-            content="An aggregated dataset of elucidated and predicted natural products collected from open sources and a web interface to browse, search, and easily download NPs">
+            content="Facilitating natural product research through data and tools while upholding FAIR principles for Research Data Management.">
         <meta property="og:type" content="website">
         <meta property="og:url" content="{{ url()->current() }}">
         <meta property="og:image" content="{{ asset('img/coconut-og-image.png') }}">

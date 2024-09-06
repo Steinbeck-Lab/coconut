@@ -1,7 +1,38 @@
-<div class="mx-auto max-w-4xl lg:max-w-7xl px-4 md:px-10">
-    <div class="py-10 bg-white mt-20 rounded-lg border">
+<div class="mt-20 mx-auto max-w-4xl lg:max-w-7xl px-4 md:px-10">
+    <div class="bg-white rounded-lg border">
+        @if ($molecule->status == 'REVOKED')
+            <div class="rounded-md m-2 bg-red-50 p-4 -mb-5">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">STATUS: <b>{{ $molecule->status }}</b></h3>
+                        <p class="text-red-800 text-md font-bold">This compound has been removed from the COCONUT
+                            database due to the lack
+                            of conclusive evidence supporting its classification as a natural product.</p>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul role="list" class="list-disc space-y-1 pl-5">
+                                @foreach ($molecule->comment as $comment)
+                                    <li>{{ $comment['comment'] }} <br />
+                                        <date>Last update: {{ $comment['timestamp'] }}<date>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <a class="mt-5 mb-3 relative inline-flex items-center gap-x-1.5 rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
+                            href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=change">Request
+                            changes to this page <span aria-hidden="true">→</span></a>
+                    </div>
+                </div>
+            </div>
+        @endif
         <div
-            class="mx-auto max-w-3xl px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-7xl lg:px-8">
+            class="lg:py-10 py-5 mx-auto max-w-3xl px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-7xl lg:px-8">
             <div class="flex items-center space-x-5">
                 <div>
                     <p class="text-secondary-dark text-lg my-0">{{ $molecule->identifier }}</p>
@@ -11,15 +42,16 @@
                     </h1>
                     <p class="text-sm font-medium text-gray-500">Created on <time
                             datetime="{{ $molecule->created_at }}">{{ $molecule->created_at }}</time> &middot; Last
-                        update on <time datetime="{{ $molecule->updated_at }}">{{ $molecule->updated_at }}</time></p>
+                        update on <time datetime="{{ $molecule->updated_at }}">{{ $molecule->updated_at }}</time>
+                    </p>
                 </div>
             </div>
         </div>
         @if ($molecule->properties)
-            <div class="border-b mt-8 border-b-gray-900/10 lg:border-t lg:border-t-gray-900/5">
+            <div class="border-b border-b-gray-900/10 lg:border-t lg:border-t-gray-900/5">
                 <dl class="mx-auto grid max-w-7xl grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:px-2 xl:px-0">
                     <div
-                        class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-10 sm:px-6 lg:border-t-0 xl:px-8 ">
+                        class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-5 lg:py-10 sm:px-6 lg:border-t-0 xl:px-8 ">
                         <dt class="font-medium text-gray-500"> NPLikeness
                             <div class="tooltip">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
@@ -41,12 +73,13 @@
                                             <div></div>
                                         @endforeach
                                     </div>
-                                    <span class="ml-1 text-sm font-bold">{{ $molecule->properties->np_likeness }}</span>
+                                    <span
+                                        class="ml-1 text-sm font-bold">{{ $molecule->properties->np_likeness }}</span>
                                 </span></div>
                         </div>
                     </div>
                     <div
-                        class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-10 sm:px-6 lg:border-t-0 xl:px-8 sm:border-l">
+                        class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-5 lg:py-10 sm:px-6 lg:border-t-0 xl:px-8 sm:border-l">
                         <div>
                             <dt class="font-medium text-gray-500"> Annotation Level</dt>
                             <div class="flex items-center">
@@ -60,7 +93,7 @@
                         </div>
                     </div>
                     <div
-                        class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-10 sm:px-6 lg:border-t-0 xl:px-8 lg:border-l">
+                        class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-5 lg:py-10 sm:px-6 lg:border-t-0 xl:px-8 lg:border-l">
                         <div>
                             <dt class="font-medium text-gray-500">
                                 <div class="grid grid-cols-2 gap-2">
@@ -83,23 +116,25 @@
                                 </div>
 
                             </dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ $molecule->properties->exact_molecular_weight }}
+                            <dd class="mt-1 text-sm text-gray-900">
+                                {{ $molecule->properties->exact_molecular_weight }}
                             </dd>
                         </div>
                     </div>
                     <div
-                        class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-10 sm:px-6 lg:border-t-0 xl:px-8 sm:border-l">
+                        class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-5 lg:py-10 sm:px-6 lg:border-t-0 xl:px-8 sm:border-l">
                         <div>
                             <dt class="font-medium text-gray-500 text-gray-500"> Mol. Formula </dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ $molecule->properties->molecular_formula }}</dd>
+                            <dd class="mt-1 text-sm text-gray-900">{{ $molecule->properties->molecular_formula }}
+                            </dd>
                         </div>
                     </div>
                 </dl>
             </div>
         @endif
         <div
-            class="mx-auto mt-8 grid max-w-3xl grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3">
-            <div class="space-y-6 lg:col-span-2 lg:col-start-1">
+            class="mx-auto mt-8 grid max-w-3xl grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3 px-4">
+            <section class="space-y-6 lg:col-span-2 lg:col-start-1 order-2 lg:order-1">
                 @if ($molecule->organisms && count($molecule->organisms) > 0)
                     <section>
                         <div class="bg-white border shadow sm:rounded-lg" x-data="{ showAll: false }">
@@ -173,7 +208,8 @@
                                         @foreach ($molecule->geo_locations as $geo_location)
                                             @if ($geo_location != '')
                                                 <li class="inline">
-                                                    <span class="text-sm relative mr-2 inline-flex items-center rounded-md border border-gray-300 px-3 py-0.5"
+                                                    <span
+                                                        class="text-sm relative mr-2 inline-flex items-center rounded-md border border-gray-300 px-3 py-0.5"
                                                         target="_blank">
                                                         {{ $geo_location->name }}
                                                     </span>
@@ -199,62 +235,85 @@
                                 <article>
                                     <div class="">
                                         <section id="representations" class="my-4">
-                                            <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                            <div class="group -ml-4 rounded-xl p-4 hover:bg-slate-100">
                                                 <dt
                                                     class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
                                                     COCONUT id
                                                 </dt>
                                                 <div class="mt-1 break-all text-sm text-gray-900">
                                                     {{ $molecule->identifier }}
+                                                    <span class="float-end mr-2 group-hover:block hidden">
+                                                        <livewire:copy-button
+                                                            text-to-copy="{{ $molecule->identifier }}" />
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                            <div class="group -ml-4 rounded-xl p-4 hover:bg-slate-100">
                                                 <dt
                                                     class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
                                                     Name
                                                 </dt>
                                                 <div class="mt-1 break-all text-sm text-gray-900">
                                                     {{ $molecule->name ? $molecule->name : '-' }}
+                                                    <span class="float-end mr-2 group-hover:block hidden">
+                                                        <livewire:copy-button text-to-copy="{{ $molecule->name }}" />
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                            <div class="group -ml-4 rounded-xl p-4 hover:bg-slate-100">
                                                 <dt
                                                     class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
                                                     IUPAC name
                                                 </dt>
                                                 <div class="mt-1 break-all text-sm text-gray-900">
                                                     {{ $molecule->iupac_name }}
+                                                    <span class="float-end mr-2 group-hover:block hidden">
+                                                        <livewire:copy-button
+                                                            text-to-copy="{{ $molecule->iupac_name }}" />
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                            <div class="group -ml-4 rounded-xl p-4 hover:bg-slate-100">
                                                 <dt
                                                     class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
                                                     InChI
                                                 </dt>
                                                 <div class="mt-1 break-all text-sm text-gray-900">
                                                     {{ $molecule->standard_inchi }}
+                                                    <span class="float-end mr-2 group-hover:block hidden">
+                                                        <livewire:copy-button
+                                                            text-to-copy="{{ $molecule->standard_inchi }}" />
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                            <div class="group -ml-4 rounded-xl p-4 hover:bg-slate-100">
                                                 <dt
                                                     class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
                                                     InChIKey
                                                 </dt>
                                                 <div class="mt-1 break-all text-sm text-gray-900">
                                                     {{ $molecule->standard_inchi_key }}
+                                                    <span class="float-end mr-2 group-hover:block hidden">
+                                                        <livewire:copy-button
+                                                            text-to-copy="{{ $molecule->standard_inchi_key }}" />
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                            <div class="group -ml-4 rounded-xl p-4 hover:bg-slate-100">
                                                 <dt
                                                     class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
                                                     Canonical SMILES (RDKit)
                                                 </dt>
                                                 <div class="mt-1 break-all text-sm text-gray-900">
                                                     {{ $molecule->canonical_smiles }}
+                                                    <span class="float-end mr-2 group-hover:block hidden">
+                                                        <livewire:copy-button
+                                                            text-to-copy="{{ $molecule->canonical_smiles }}" />
+                                                    </span>
                                                 </div>
                                             </div>
                                             @if ($molecule->properties)
-                                                <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                                <div class="group -ml-4 rounded-xl p-4 hover:bg-slate-100">
                                                     <div class="sm:flex sm:justify-between">
                                                         <div class="text-sm font-medium text-gray-500"> Murcko
                                                             Framework
@@ -262,11 +321,15 @@
                                                     </div>
                                                     <div class="mt-1 break-all text-sm text-gray-900">
                                                         {{ $molecule->properties->murcko_framework ? $molecule->properties->murcko_framework : '-' }}
+                                                        <span class="float-end mr-2 group-hover:block hidden">
+                                                            <livewire:copy-button
+                                                                text-to-copy="{{ $molecule->murcko_framework }}" />
+                                                        </span>
                                                     </div>
                                                 </div>
                                             @endif
                                             @if ($molecule->synonyms && count($molecule->synonyms) > 0)
-                                                <div class="group/item -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                                <div class="group -ml-4 rounded-xl p-4 hover:bg-slate-100">
                                                     <dt
                                                         class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
                                                         Synonyms
@@ -322,22 +385,22 @@
                                 </div>
                                 <div class="px-4 py-6 sm:px-6">
                                     <ul role="list" class="px-0">
-                                        <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">
+                                        <li class="py-1 flex md:py-0"><span class="ml-3 text-base text-gray-500">
                                                 <b>Super class</b>:
                                                 {{ $molecule->properties && $molecule->properties['chemical_super_class'] ? $molecule->properties['chemical_super_class'] : '-' }}
                                             </span>
                                         </li>
-                                        <li class="py-5 flex md:py-0"><span
+                                        <li class="py-1 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500"><b>Class</b>:
                                                 {{ $molecule->properties && $molecule->properties['chemical_class'] ? $molecule->properties['chemical_class'] : '-' }}</span>
                                         </li>
-                                        <li class="py-5 flex md:py-0"><span
+                                        <li class="py-1 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500"><b>Sub
                                                     class</b>:
                                                 {{ $molecule->properties && $molecule->properties['chemical_sub_class'] ? $molecule->properties['chemical_sub_class'] : '-' }}
                                             </span>
                                         </li>
-                                        <li class="py-5 flex md:py-0"><span
+                                        <li class="py-1 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500"><b>Direct
                                                     parent</b>:
                                                 {{ $molecule->properties && $molecule->properties['direct_parent_classification'] ? $molecule->properties['direct_parent_classification'] : '-' }}
@@ -359,7 +422,8 @@
                             </div>
                             <section>
                                 <div class="px-4 py-6 sm:px-6">
-                                    <h2 id="notes-title" class="mb-2 text-lg font-medium text-gray-900">Citations</h2>
+                                    <h2 id="notes-title" class="mb-2 text-lg font-medium text-gray-900">Citations
+                                    </h2>
                                     @if (count($molecule->citations) > 0)
                                         <div x-data="{ showAllCitations: false }">
                                             <div class="not-prose grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -368,7 +432,7 @@
                                                         <div class="group relative rounded-xl border border-slate-200"
                                                             x-show="showAllCitations || {{ $index }} < 6">
                                                             <div
-                                                                class="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 [background:linear-gradient(var(--quick-links-hover-bg,theme(colors.sky.50)),var(--quick-links-hover-bg,theme(colors.sky.50)))_padding-box,linear-gradient(to_top,theme(colors.indigo.400),theme(colors.cyan.400),theme(colors.sky.500))_border-box] group-hover:opacity-100">
+                                                                class="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 [background:linear-gradient(var(--quick-links-hover-bg,theme(colors.sky.50)),var(--quick-links-hover-bg,theme(colors.sky.50)))_padding-box,linear-gradient(to_top,theme(colors.red.400),theme(colors.cyan.400),theme(colors.sky.500))_border-box] group-hover:opacity-100">
                                                             </div>
                                                             <div class="relative overflow-hidden rounded-xl p-6">
                                                                 <svg aria-hidden="true" viewBox="0 0 32 32"
@@ -398,7 +462,8 @@
                                                                     </defs>
                                                                     <g class="">
                                                                         <circle cx="12" cy="20" r="12"
-                                                                            fill="url(#:R1k19n6:-gradient)"></circle>
+                                                                            fill="url(#:R1k19n6:-gradient)">
+                                                                        </circle>
                                                                         <path
                                                                             d="M27 12.13 19.87 5 13 11.87v14.26l14-14Z"
                                                                             class="fill-[var(--icon-background)] stroke-[color:var(--icon-foreground)]"
@@ -536,7 +601,8 @@
                                                                 <g class="hidden">
                                                                     <path fill-rule="evenodd" clip-rule="evenodd"
                                                                         d="M3 2a1 1 0 0 0-1 1v21a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H3Zm16.752 3.293a1 1 0 0 0-1.593.244l-1.045 2A1 1 0 0 0 17 8v13a1 1 0 0 0 1.71.705l7.999-8.045a1 1 0 0 0-.002-1.412l-6.955-6.955ZM26 18a1 1 0 0 0-.707.293l-10 10A1 1 0 0 0 16 30h13a1 1 0 0 0 1-1V19a1 1 0 0 0-1-1h-3ZM5 18a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2H5Zm-1-5a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1Zm1-7a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2H5Z"
-                                                                        fill="url(#:R1k19n6:-gradient-dark)"></path>
+                                                                        fill="url(#:R1k19n6:-gradient-dark)">
+                                                                    </path>
                                                                 </g>
                                                             </svg>
                                                             <a href="/search?type=tags&amp;q={{ $collection->title }}&amp;tagType=dataSource"
@@ -560,9 +626,17 @@
                                                                 {{ $collection->doi }}
                                                             </h2>
                                                             <h2 x-show="collection.pivot.reference"
-                                                                class="hover:text-blue-500 mt-1 font-display text-base text-slate-900">
-                                                                Reference: <a href="{{ $collection->pivot->url }}"
-                                                                    target="_blank">{{ $collection->pivot->reference }}
+                                                                class="mt-1 font-display text-base text-slate-900">
+                                                                @if (!empty($collection->pivot->url))
+                                                                    <a href="{{ $collection->pivot->url }}"
+                                                                        class="hover:text-blue-500" target="_blank">
+                                                                @endif
+                                                                {{ $collection->pivot->reference }}
+                                                                <span class="ml-4">
+                                                                    &nbsp;<livewire:copy-button
+                                                                        text-to-copy="{{ $collection->pivot->reference }}" />
+                                                                </span>
+                                                                @if (!empty($collection->pivot->url))
                                                                     <svg xmlns="http://www.w3.org/2000/svg"
                                                                         fill="none" viewBox="0 0 24 24"
                                                                         stroke-width="1.5" stroke="currentColor"
@@ -571,7 +645,9 @@
                                                                             stroke-linejoin="round"
                                                                             d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25">
                                                                         </path>
-                                                                    </svg></a>
+                                                                    </svg>
+                                                                    </a>
+                                                                @endif
                                                             </h2>
                                                         </div>
                                                     </div>
@@ -621,7 +697,7 @@
                     </section>
                 @endif
 
-                @if ($molecule->is_parent)
+                @if ($molecule->is_parent && $molecule->has_variants)
                     <section aria-labelledby="notes-title">
                         <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
                             <div class="divide-y divide-gray-200">
@@ -647,7 +723,8 @@
                         <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
                             <div class="divide-y divide-gray-200">
                                 <div class="px-4 py-5 sm:px-6">
-                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">Parent (With out
+                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">Parent (With
+                                        out
                                         stereo definitions)
                                     </h2>
                                 </div>
@@ -675,11 +752,11 @@
                                 <div class="px-4 py-6 sm:px-6">
                                     <div>
                                         <ul role="list" class="px-0">
-                                            <li class="py-5 flex md:py-0"><span
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Mol. Formula :
                                                     {{ $molecule->properties->molecular_formula }}</span>
                                             </li>
-                                            <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">
+                                            <li class="py-2 flex md:py-0"><span class="ml-3 text-base text-gray-500">
                                                     Mol. Weight
                                                     <span x-data="{ tooltip: false }" x-on:mouseover="tooltip = true"
                                                         x-on:mouseleave="tooltip = false"
@@ -697,35 +774,37 @@
                                                         </div>
                                                     </span>{{ $molecule->properties->exact_molecular_weight }}</span>
                                             </li>
-                                            <li class="py-5 flex md:py-0"><span
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Total
-                                                    atom number : {{ $molecule->properties->total_atom_count }}</span>
+                                                    atom number :
+                                                    {{ $molecule->properties->total_atom_count }}</span>
                                             </li>
-                                            <li class="py-5 flex md:py-0"><span
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Heavy
                                                     atom number :
                                                     {{ $molecule->properties->heavy_atom_count }}</span></li>
-                                            <li class="py-5 flex md:py-0"><span
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Aromatic Ring Count :
                                                     {{ $molecule->properties->aromatic_rings_count }}</span></li>
-                                            <li class="py-5 flex md:py-0"><span
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Rotatable Bond count :
                                                     {{ $molecule->properties->rotatable_bond_count }}</span></li>
-                                            <li class="py-5 flex md:py-0"><span
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Minimal number of rings
-                                                    : {{ $molecule->properties->number_of_minimal_rings }}</span></li>
-                                            <li class="py-5 flex md:py-0"><span
+                                                    : {{ $molecule->properties->number_of_minimal_rings }}</span>
+                                            </li>
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Formal Charge :
                                                     {{ $molecule->properties->total_atom_count }}</span></li>
-                                            <li class="py-5 flex md:py-0"><span
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Contains Sugar :
                                                     {{ $molecule->properties->contains_sugar ? 'True' : 'False' }}</span>
                                             </li>
-                                            <li class="py-5 flex md:py-0"><span
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Contains Ring Sugars :
                                                     {{ $molecule->properties->contains_ring_sugars ? 'True' : 'False' }}</span>
                                             </li>
-                                            <li class="py-5 flex md:py-0"><span
+                                            <li class="py-2 flex md:py-0"><span
                                                     class="ml-3 text-base text-gray-500">Contains Linear Sugars
                                                     :
                                                     {{ $molecule->properties->contains_linear_sugars ? 'True' : 'False' }}</span>
@@ -738,7 +817,7 @@
                     </section>
 
                     <section aria-labelledby="notes-title">
-                        <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
+                        <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg mb-10">
                             <div class="divide-y divide-gray-200">
                                 <div class="px-4 py-5 sm:px-6">
                                     <h2 id="notes-title" class="text-lg font-medium text-gray-900">Molecular
@@ -747,40 +826,41 @@
                                 </div>
                                 <div class="px-4 py-6 sm:px-6">
                                     <ul role="list" class="">
-                                        <li class="py-5 flex md:py-0"><span
+                                        <li class="py-2 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500">NP-likeness scores :
                                                 {{ $molecule->properties->np_likeness }}</span></li>
-                                        <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Alogp
+                                        <li class="py-2 flex md:py-0"><span class="ml-3 text-base text-gray-500">Alogp
                                                 :
                                                 {{ $molecule->properties->alogp }}</span></li>
-                                        <li class="py-5 flex md:py-0"><span
+                                        <li class="py-2 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500">TopoPSA :
-                                                {{ $molecule->properties->topological_polar_surface_area }}</span></li>
-                                        <li class="py-5 flex md:py-0"><span class="ml-3 text-base text-gray-500">Fsp3
+                                                {{ $molecule->properties->topological_polar_surface_area }}</span>
+                                        </li>
+                                        <li class="py-2 flex md:py-0"><span class="ml-3 text-base text-gray-500">Fsp3
                                                 :
-                                                {{ $molecule->properties->total_atom_count }}</span></li>
-                                        <li class="py-5 flex md:py-0"><span
+                                                {{ $molecule->properties->fractioncsp3 }}</span></li>
+                                        <li class="py-2 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500">Hydrogen
                                                 Bond Acceptor Count
                                                 : {{ $molecule->properties->hydrogen_bond_acceptors }}</span></li>
-                                        <li class="py-5 flex md:py-0"><span
+                                        <li class="py-2 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500">Hydrogen
                                                 Bond Donor Count :
                                                 {{ $molecule->properties->hydrogen_bond_donors }}</span>
                                         </li>
-                                        <li class="py-5 flex md:py-0"><span
+                                        <li class="py-2 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500">Lipinski
                                                 Hydrogen Bond
                                                 Acceptor Count :
                                                 {{ $molecule->properties->hydrogen_bond_acceptors_lipinski }}</span>
                                         </li>
-                                        <li class="py-5 flex md:py-0"><span
+                                        <li class="py-2 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500">Lipinski
                                                 Hydrogen Bond Donor
                                                 Count :
                                                 {{ $molecule->properties->hydrogen_bond_donors_lipinski }}</span>
                                         </li>
-                                        <li class="py-5 flex md:py-0"><span
+                                        <li class="py-2 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500">Lipinski
                                                 RO5 Violations :
                                                 {{ $molecule->properties->lipinski_rule_of_five_violations }}</span>
@@ -791,49 +871,28 @@
                         </div>
                     </section>
                 @endif
-
-            </div>
-            <section aria-labelledby="timeline-title" class="lg:col-span-1 lg:col-start-3">
-                <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg bg-white mb-2">
-                    <livewire:molecule-depict2d :height="300" :smiles="$molecule->canonical_smiles" :name="$molecule->name" :options="true" lazy="on-load">
+            </section>
+            <section class="space-y-6 lg:col-span-1 lg:col-start-3 order-1 lg:order-2">
+                <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg bg-white mb-2 mx-2">
+                    <livewire:molecule-depict2d :height="300" :smiles="$molecule->canonical_smiles" :name="$molecule->name" :options="true"
+                        lazy="on-load">
                 </div>
-                <div>
+                <div class="mx-2">
                     <livewire:molecule-depict3d :height="300" :smiles="$molecule->canonical_smiles" lazy="on-load">
                 </div>
-                <div class="bg-white px-4 py-1 mt-2 shadow sm:rounded-lg sm:px-6 border">
-                    <div class="mt-2 flow-root">
-                        <ul role="list" class="-mb-8">
-                            <li>
-                                <div class="relative pb-8">
-                                    <div class="relative flex space-x-3">
-                                        <div class="flex min-w-0 flex-1 justify-between space-x-4 py-1.5">
-                                            <div>
-                                                <p class="text-sm text-gray-500">Created at</p>
-                                                <time
-                                                    datetime="{{ $molecule->created_at }}">{{ $molecule->created_at }}</time>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-
-                        </ul>
-                    </div>
-                    {{-- <div class="my-2 flex flex-col justify-stretch">
-                        <a class="inline-flex right py-2 text-sm font-semibold">View
-                            complete history</a>
-                    </div> --}}
-                </div>
-                <dl class="mt-5 flex w-full">
-                    <div class="text-center md:text-left">
+                <dl class="mt-5 flex w-full mx-2">
+                    <div class="md:text-left">
                         <dd class="mt-1"><a class="text-base font-semibold text-text-dark hover:text-slate-600"
-                                href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=report">
-                                Report this compound <span aria-hidden="true">→</span></a></dd>
+                                href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=report">Report
+                                this compound <span aria-hidden="true">→</span></a></dd>
                         <dd class="mt-1"><a class="text-base font-semibold text-text-dark hover:text-slate-600"
                                 href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=change">Request
                                 changes to this page <span aria-hidden="true">→</span></a></dd>
                     </div>
                 </dl>
+                <div class="mx-2">
+                    <livewire:molecule-history-timeline :mol="$molecule" lazy="on-load" />
+                </div>
             </section>
         </div>
     </div>

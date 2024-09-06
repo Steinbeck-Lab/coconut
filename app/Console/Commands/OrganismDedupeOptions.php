@@ -16,7 +16,7 @@ class OrganismDedupeOptions extends Command
      *
      * @var string
      */
-    protected $signature = 'app:organism-dedupe';
+    protected $signature = 'coconut:organism-dedupe';
 
     /**
      * The console command description.
@@ -99,8 +99,8 @@ class OrganismDedupeOptions extends Command
                                 $removableOrganism->auditDetach('molecules', $moleculeIds);
                                 $selectedOrganism->auditSyncWithoutDetaching('molecules', $moleculeIds);
 
-                                $removableOrganism->molecule_count = $removableOrganism->molecules()->count();
                                 $removableOrganism->delete();
+                                $selectedOrganism->refresh();
                                 $selectedOrganism->molecule_count = $selectedOrganism->molecules()->count();
                                 $selectedOrganism->save();
 

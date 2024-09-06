@@ -57,8 +57,8 @@
         @else
             <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
                 <h1 class="text-3xl font-bold tracking-tight text-gray-900">Browse compounds</h1>
-                <p class="mt-4 max-w-xl text-sm text-gray-700">Explore our database of natural products to uncover their
-                    unique properties. Search, filter, and discover the diverse realm of chemistry.
+                <p class="mt-4 max-w-xl text-sm text-gray-700">Explore our database of natural products (NPs) to uncover their
+                    unique properties. Search, filter, and discover the diverse realm of NP chemistry.
                 </p>
             </div>
         @endif
@@ -251,7 +251,7 @@
             <div class="p-4 w-full">
                 {{ $molecules->links() }}
             </div>
-            <div class="relative items-center block p-6 bg-white dark:bg-gray-800 dark:border-gray-800 dark:hover:bg-gray-700">
+            <div class="relative items-center block p-6 bg-white">
             <div class="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-8">
                 @foreach ($molecules as $molecule)
                     <livewire:molecule-card :key="$molecule->identifier" :molecule="$molecule" />

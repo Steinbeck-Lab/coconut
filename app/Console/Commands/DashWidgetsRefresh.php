@@ -14,7 +14,7 @@ class DashWidgetsRefresh extends Command
      *
      * @var string
      */
-    protected $signature = 'app:cache';
+    protected $signature = 'coconut:cache';
 
     /**
      * The console command description.
@@ -29,7 +29,7 @@ class DashWidgetsRefresh extends Command
     public function handle()
     {
         // Clear the cache for all widgets
-        Cache::flush();
+        // Cache::flush();
 
         // Create the cache for all DashboardStats widgets
         Cache::rememberForever('stats.collections', function () {

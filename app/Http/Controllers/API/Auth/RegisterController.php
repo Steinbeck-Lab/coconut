@@ -33,13 +33,18 @@ class RegisterController extends Controller
             'password' => Hash::make($validatedData['password']),
         ]);
 
-        $user->sendEmailVerificationNotification();
+        $message = '';
+
+        if ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail()) {
+            $message = ' Please verify your email address by clicking on the link we just emailed to you.';
+            $user->sendEmailVerificationNotification();
+        }
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'success' => true,
-            'message' => 'Successful created user. Please verify your email address by clicking on the link we just emailed to you.',
+            'message' => 'Successful created user.'.$message,
             'token' => $token,
         ],
             201);
