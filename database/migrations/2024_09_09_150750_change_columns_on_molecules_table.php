@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('reports', function (Blueprint $table) {
+        Schema::table('molecules', function (Blueprint $table) {
             $table->json('comment')->nullable()->change();
         });
     }
