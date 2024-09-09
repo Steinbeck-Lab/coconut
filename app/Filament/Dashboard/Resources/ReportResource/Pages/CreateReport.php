@@ -65,7 +65,7 @@ class CreateReport extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['user_id'] = auth()->id();
-        $data['status'] = 'draft';
+        $data['status'] = 'submitted';
 
         return $data;
     }

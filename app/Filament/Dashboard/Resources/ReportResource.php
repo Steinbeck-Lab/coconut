@@ -2,12 +2,15 @@
 
 namespace App\Filament\Dashboard\Resources;
 
-use App\Events\ReportStatusChanged;
 use App\Filament\Dashboard\Resources\ReportResource\Pages;
 use App\Filament\Dashboard\Resources\ReportResource\RelationManagers;
 use App\Models\Citation;
 use App\Models\Molecule;
 use App\Models\Report;
+use Archilex\AdvancedTables\Filters\AdvancedFilter;
+use Filament\Forms\Components\Actions;
+use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieTagsInput;
@@ -17,13 +20,13 @@ use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\VerticalAlignment;
 use Filament\Tables;
-use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
-use Maartenpaauw\Filament\ModelStates\StateSelectColumn;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class ReportResource extends Resource
@@ -40,15 +43,65 @@ class ReportResource extends Resource
     {
         return $form
             ->schema([
-                ToggleButtons::make('is_change')
-                    ->label('')
-                    ->live()
-                    ->default(false)
-                    ->options([
-                        true => 'Request Changes to Data',
-                        false => 'Report Synthetic Compound(s)',
+                Grid::make()
+                    ->schema([
+                        ToggleButtons::make('is_change')
+                            ->label('')
+                            ->live()
+                            ->default(false)
+                            ->options([
+                                false => 'Report Synthetic Compound(s)',
+                                true => 'Request Changes to Data',
+                            ])
+                            ->inline()
+                            ->columnSpan(2),
+                        Actions::make([
+                            Action::make('approve')
+                                ->hidden(function (Get $get, string $operation) {
+                                    return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation == 'create';
+                                })
+                                ->form([
+                                    Textarea::make('reason'),
+                                ])
+                                ->action(function (array $data, Report $record, Molecule $molecule, $set): void {
+
+                                    $record['status'] = 'approved';
+                                    $record['reason'] = $data['reason'];
+                                    $record->save();
+
+                                    $set('status', 'rejected');
+
+                                    if ($record['mol_id_csv'] && ! $record['is_change']) {
+                                        $molecule_ids = explode(',', $record['mol_id_csv']);
+                                        $molecule = Molecule::whereIn('id', $molecule_ids)->get();
+                                        foreach ($molecule as $mol) {
+                                            $mol->active = false;
+                                            $mol->save();
+                                        }
+                                    }
+                                }),
+                            Action::make('reject')
+                                ->color('danger')
+                                ->hidden(function (Get $get, string $operation) {
+                                    return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation == 'create';
+                                })
+                                ->form([
+                                    Textarea::make('reason'),
+                                ])
+                                ->action(function (array $data, Report $record, $set): void {
+
+                                    $record['status'] = 'rejected';
+                                    $record['reason'] = $data['reason'];
+                                    $record->save();
+
+                                    $set('status', 'rejected');
+                                }),
+                        ])
+                            ->verticalAlignment(VerticalAlignment::End)
+                            ->columnStart(4),
                     ])
-                    ->inline(),
+                    ->columns(3),
+
                 Select::make('report_type')
                     ->label('Choose')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select what you want to report. Ex: Molecule, Citation, Collection, Organism.')
@@ -73,15 +126,25 @@ class ReportResource extends Resource
                         return $get('is_change');
                     }),
                 KeyValue::make('suggested_changes')
+                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Enter the property (in the left column) and suggested change (in the right column)')
                     ->addActionLabel('Add property')
                     ->keyLabel('Property')
                     ->valueLabel('Suggested change')
                     ->hidden(function (Get $get) {
                         return ! $get('is_change');
                     }),
-                TextInput::make('url')
-                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide a link to the webpage that supports your claims.')
-                    ->label('URL'),
+                TextInput::make('doi')
+                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide the DOI link to the resource you are reporting so as to help curators verify.')
+                    ->label('DOI')
+                    ->url()
+                    ->suffixAction(
+                        fn (?string $state): Action => Action::make('visit')
+                            ->icon('heroicon-s-link')
+                            ->url(
+                                $state,
+                                shouldOpenInNewTab: true,
+                            ),
+                    ),
                 Select::make('collections')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select the Collections you want to report. This will help our Curators in reviewing your report.')
                     ->relationship('collections', 'title')
@@ -181,22 +244,10 @@ class ReportResource extends Resource
                             return true;
                         }
                     }),
-                SpatieTagsInput::make('tags')
-                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide comma separated search terms that would help in finding your report when searched.')
-                    ->splitKeys(['Tab', ','])
-                    ->type('reports'),
-                // Select::make('status')
-                //     ->options([
-                //         'pending' => 'Pending',
-                //         'approved' => 'Approved',
-                //         'rejected' => 'Rejected',
-                //     ])
-                //     ->hidden(function () {
-                //         return ! auth()->user()->hasRole('curator');
-                //     })
-                //     ->afterStateUpdated(function (?Report $record, ?string $state, ?string $old) {
-                //         ReportStatusChanged::dispatch($record, $state, $old);
-                //     }),
+                // SpatieTagsInput::make('tags')
+                //     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide comma separated search terms that would help in finding your report when searched.')
+                //     ->splitKeys(['Tab', ','])
+                //     ->type('reports'),
                 Textarea::make('comment')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide your comments/observations on anything noteworthy in the Curation process.')
                     ->hidden(function () {
@@ -212,46 +263,26 @@ class ReportResource extends Resource
                 TextColumn::make('title')
                     ->wrap()
                     ->description(fn (Report $record): string => Str::of($record->evidence)->words(10)),
-                TextColumn::make('url')
-                    ->url(fn (Report $record) => $record->url)
-                    ->openUrlInNewTab(),
-                // StateSelectColumn::make('status'),
-
-                SelectColumn::make('status')
-                    ->selectablePlaceholder(false)
-                    ->options(function ($state) {
-                        if ($state == 'draft') {
-                            return [
-                                'draft' => 'Draft',
-                                'submitted' => 'Submitted',
-                            ];
-                        } elseif ($state != 'draft') {
-                            return [
-                                'draft' => 'Draft',
-                                'submitted' => 'Submitted',
-                                'processing' => 'Processing',
-                                'approved' => 'Approved',
-                                'rejected' => 'Rejected',
-                            ];
-                        }
-                    })
-                    ->disabled(function ($state) {
-                        if (($state != 'draft' && ! auth()->user()->roles()->exists()) || $state == 'processing' || $state == 'approved' || $state == 'rejected') {
-                            return true;
-                        }
-                    }),
-                TextColumn::make('comment')->wrap(),
+                Tables\Columns\TextColumn::make('name')->searchable()
+                    ->formatStateUsing(
+                        fn (Report $record): HtmlString => new HtmlString("<strong>DOI:</strong> {$record->doi}")
+                    )
+                    ->description(fn (Report $record): string => $record->comment ?? '')
+                    ->wrap(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                AdvancedFilter::make()
+                    ->includeColumns(),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make()
                     ->visible(function ($record) {
-                        return $record->status == 'draft';
+                        return auth()->user()->roles()->exists() && $record['status'] == 'submitted';
                     }),
                 Tables\Actions\Action::make('approve')
+                    // ->button()
                     ->hidden(function (Report $record) {
                         return ! auth()->user()->roles()->exists() || $record['status'] == 'draft' || $record['status'] == 'rejected' || $record['status'] == 'approved';
                     })
@@ -261,11 +292,11 @@ class ReportResource extends Resource
                     ->action(function (array $data, Report $record, Molecule $molecule): void {
 
                         $record['status'] = 'approved';
-                        $record['comment'] = $data['reason'];
+                        $record['reason'] = $data['reason'];
                         $record->save();
 
-                        if ($molecule['mol_id_csv']) {
-                            $molecule_ids = explode(',', $molecule['mol_id_csv']);
+                        if ($record['mol_id_csv'] && ! $record['is_change']) {
+                            $molecule_ids = explode(',', $record['mol_id_csv']);
                             $molecule = Molecule::whereIn('id', $molecule_ids)->get();
                             foreach ($molecule as $mol) {
                                 $mol->active = false;
@@ -274,6 +305,8 @@ class ReportResource extends Resource
                         }
                     }),
                 Tables\Actions\Action::make('reject')
+                    // ->button()
+                    ->color('danger')
                     ->hidden(function (Report $record) {
                         return ! auth()->user()->roles()->exists() || $record['status'] == 'draft' || $record['status'] == 'rejected' || $record['status'] == 'approved';
                     })
@@ -284,7 +317,7 @@ class ReportResource extends Resource
                     ->action(function (array $data, Report $record): void {
 
                         $record['status'] = 'rejected';
-                        $record['comment'] = $data['reason'];
+                        $record['reason'] = $data['reason'];
                         $record->save();
                     }),
             ])
