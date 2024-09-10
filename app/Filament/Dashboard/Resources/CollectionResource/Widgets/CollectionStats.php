@@ -17,7 +17,7 @@ class CollectionStats extends BaseWidget
         return [
             // Commented is the model query that we can use in case we decide not to use app level caching as the app scales up.
 
-            // Stat::make('Entries', Cache::rememberForever('stats.collections'.$this->record->id.'entries.count', function () {
+            // Stat::make('Entries', Cache::remember('stats.collections'.$this->record->id.'entries.count', 172800, function () {
             //     return DB::table('entries')->selectRaw('count(*)')->whereRaw('collection_id='.$this->record->id)->get()[0]->count;
             // }))
             //     ->description('Total count')
