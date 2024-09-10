@@ -20,12 +20,12 @@
                     <p>
                     <div class="flex-auto">
                         <p class="flex-col py-0.5 text-s leading-5 text-gray-500">
-                        <p class="text-xs  text-gray-900"><span>{{$audit['user_name']}} </span> <span class="font-bold">{{$audit['event']}}</span></p>
+                        <p class="text-xs  text-gray-900"><span>{{$audit['user_name']}} </span> <span  class="font-bold border px-4 bg-white isolate inline-flex rounded-md shadow-sm mb-2">{{$audit['event']}}</span></p>
                         @foreach ($audit['affected_columns'] as $column_name => $column_values)
 
                         <div class="flex justify-between gap-x-4">
                             <div class="py-0.5 text-xs leading-5 text-gray-500">
-                                <span class="font-medium text-gray-900">{{$column_name}}</span>
+                                <span class="font-medium text-sm text-gray-900">{{$column_name}}</span>
                                 <div class="tooltip">
                                     <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="10" height="10" viewBox="0 0 24 24">
                                         <path d="M 12 2 C 6.4889971 2 2 6.4889971 2 12 C 2 17.511003 6.4889971 22 12 22 C 17.511003 22 22 17.511003 22 12 C 22 6.4889971 17.511003 2 12 2 z M 12 4 C 16.430123 4 20 7.5698774 20 12 C 20 16.430123 16.430123 20 12 20 C 7.5698774 20 4 16.430123 4 12 C 4 7.5698774 7.5698774 4 12 4 z M 11 7 L 11 9 L 13 9 L 13 7 L 11 7 z M 11 11 L 11 17 L 13 17 L 13 11 L 11 11 z"></path>
