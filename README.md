@@ -39,9 +39,15 @@ COCONUT data curation and descriptors calculation are performed using our [micro
 
 COCONUT infrastructure code is licensed under the MIT license - see the [LICENSE](https://GitHub.com/Steinbeck-Lab/coconut/blob/documentation/LICENSE). Every source on COCONUT comes with its own specific license. It is essential to review the license details for each dataset before using it.
 
-## ![Citation](https://www.google.com/s2/favicons?domain=doi.org) COCONUT (Legacy) - Citation
+## ![Citations](https://www.google.com/s2/favicons?domain=doi.org)Citations
 
-Sorokina, M., Merseburger, P., Rajan, K. et al. COCONUT online: COlleCtion of Open Natural prodUcTs database. J Cheminform 13, 2 (2021). https://doi.org/10.1186/s13321-020-00478-9
+### COCONUT (Legacy)
+-  Sorokina, M., Merseburger, P., Rajan, K. et al. (2021). COCONUT online: COlleCtion of Open Natural prodUcTs database. *Journal of Cheminformatics*, 13, 2. 
+https://doi.org/10.1186/s13321-020-00478-9
+
+### COCONUT 2.0
+-  Nainala, V.C., Rajan, K., Kanakam, S.R.S., Sharma, N., Weißenborn, V., Schaub, J., et al. (2024). COCONUT 2.0: A comprehensive overhaul and curation of the collection of open natural products database. *ChemRxiv*. 
+https://doi.org/10.26434/chemrxiv-2024-fxq2s
 
 ## ![Maintained](https://www.google.com/s2/favicons?domain=uni-jena.de) Maintained by
 
