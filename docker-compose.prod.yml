@@ -58,7 +58,7 @@ services:
     nginx:
         build:
             context: .
-            dockerfile: ./resources/ops/nginx/Dockerfile
+            dockerfile: ./resources/dc-ops/nginx/Dockerfile
         container_name: coconut_nginx
         restart: unless-stopped
         ports:
