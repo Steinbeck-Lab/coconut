@@ -1,7 +1,7 @@
 <div>
     <div class="mt-32 px-0">
         <div class="bg-white pb-24 sm:py-32">
-            <div class="mx-auto grid max-w-2xl lg:max-w-4xl grid-cols-1 gap-x-8 gap-y-12 sm:gap-y-16 lg:grid-cols-2">
+            <div class="px-6 mx-auto grid max-w-2xl lg:max-w-4xl grid-cols-1 gap-x-8 gap-y-12 sm:gap-y-16 lg:grid-cols-2">
                 <article class="mx-auto w-full max-w-2xl lg:mx-0 lg:max-w-lg">
                     <div class="flex items-center">
                         <h1
@@ -29,12 +29,12 @@
                     </div>
                 </article>
                 <div
-                    class="mx-auto w-full max-w-2xl border-t border-gray-900/10 pt-12 sm:pt-16 lg:mx-0 lg:max-w-none lg:border-t-0 lg:pt-0">
+                    class="mx-auto w-full px-6 md:px-0 max-w-2xl border-t border-gray-900/10 pt-12 sm:pt-16 lg:mx-0 lg:max-w-none lg:border-t-0 lg:pt-0">
                     <div class="-my-12 divide-y divide-gray-900/10">
                         <article class="py-12">
                             <div class="group relative max-w-xl">
                                 <time datetime="2024-08-01" class="block text-sm leading-6 text-gray-600">Version:
-                                    September 2024 - <a href="https://coconut.s3.uni-jena.de/prod/downloads/2024-09/release.md">release notes</a></time>
+                                    September 2024 - <a class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500" href="https://coconut.s3.uni-jena.de/prod/downloads/2024-09/release.md">release notes</a></time>
                                 <p class="mt-2 line-clamp-3 text-sm leading-6 text-gray-900 font-bold">COCONUT data is
                                     released
                                     under
@@ -77,7 +77,7 @@
                 </div>
             </div>
             <div class="bg-white max-w-2xl lg:max-w-4xl mx-auto">
-                <div class="mx-auto px-6 py-24 sm:py-32 lg:flex lg:items-center lg:justify-between lg:px-8">
+                <div class="mx-auto px-12 md:px-6 py-24 sm:py-32 lg:flex lg:items-center lg:justify-between lg:px-8">
                   <h2 class="text-xl font-bold tracking-tight text-gray-900 sm:text-xl">Need older versions?</h2>
                   <div class="mt-10 flex items-center gap-x-6 lg:mt-0 lg:flex-shrink-0">
                     <a href="https://zenodo.org/search?q=parent.id%3A13382750&f=allversions%3Atrue&l=list&p=1&s=10&sort=version" target="_blank" class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Download previous releases (Zenodo)</a>
