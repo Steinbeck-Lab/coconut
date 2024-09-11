@@ -34,7 +34,7 @@
                         <article class="py-12">
                             <div class="group relative max-w-xl">
                                 <time datetime="2024-08-01" class="block text-sm leading-6 text-gray-600">Version:
-                                    September 2024</time>
+                                    September 2024 - <a href="https://coconut.s3.uni-jena.de/prod/downloads/2024-09/release.md">release notes</a></time>
                                 <p class="mt-2 line-clamp-3 text-sm leading-6 text-gray-900 font-bold">COCONUT data is
                                     released
                                     under
@@ -324,9 +324,9 @@
                             <div class="mt-6 flex border-t border-gray-900/5 pt-6">
                                 <div class="relative flex items-center gap-x-4">
                                     <div class="text-sm leading-6">
-                                        <a
+                                        <a href="https://coconut.s3.uni-jena.de/prod/downloads/2024-09/CD/CompoundDiscovererCOCONUT_%202.csv.zip"
                                             class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
-                                            Coming soon <span aria-hidden="true">→</span></a>
+                                            CompoundDiscovererCOCONUT_ 2.csv (Sept 2024)<span aria-hidden="true">→</span></a>
                                     </div>
                                 </div>
                             </div>
