@@ -32,49 +32,49 @@ class DashWidgetsRefresh extends Command
         // Cache::flush();
 
         // Create the cache for all DashboardStats widgets
-        Cache::rememberForever('stats.collections', function () {
+        Cache::remember('stats.collections', 172800, function () {
             return DB::table('collections')->selectRaw('count(*)')->get()[0]->count;
         });
         $this->info('Cache for collections refreshed.');
 
-        Cache::rememberForever('stats.citations', function () {
+        Cache::remember('stats.citations', 172800, function () {
             return DB::table('citations')->selectRaw('count(*)')->get()[0]->count;
         });
         $this->info('Cache for citations refreshed.');
 
-        Cache::rememberForever('stats.organisms', function () {
+        Cache::remember('stats.organisms', 172800, function () {
             return DB::table('organisms')->selectRaw('count(*)')->get()[0]->count;
         });
         $this->info('Cache for organisms refreshed.');
 
-        Cache::rememberForever('stats.geo_locations', function () {
+        Cache::remember('stats.geo_locations', 172800, function () {
             return DB::table('geo_locations')->selectRaw('count(*)')->get()[0]->count;
         });
         $this->info('Cache for geo locations refreshed.');
 
-        Cache::rememberForever('stats.reports', function () {
+        Cache::remember('stats.reports', 172800, function () {
             return DB::table('reports')->selectRaw('count(*)')->get()[0]->count;
         });
         $this->info('Cache for reports refreshed.');
 
         // Create the cache for all DashboardStatsMid widgets
 
-        Cache::rememberForever('stats.molecules.non_stereo', function () {
+        Cache::remember('stats.molecules.non_stereo', 172800, function () {
             return DB::table('molecules')->selectRaw('count(*)')->whereRaw('has_stereo=false and is_parent=false')->get()[0]->count;
         });
         $this->info('Cache for molecules non-stereo refreshed.');
 
-        Cache::rememberForever('stats.molecules.stereo', function () {
+        Cache::remember('stats.molecules.stereo', 172800, function () {
             return DB::table('molecules')->selectRaw('count(*)')->whereRaw('has_stereo=true')->get()[0]->count;
         });
         $this->info('Cache for molecules stereo refreshed.');
 
-        Cache::rememberForever('stats.molecules.parent', function () {
+        Cache::remember('stats.molecules.parent', 172800, function () {
             return DB::table('molecules')->selectRaw('count(*)')->whereRaw('has_stereo=false and is_parent=true')->get()[0]->count;
         });
         $this->info('Cache for molecules parent refreshed.');
 
-        Cache::rememberForever('stats.molecules', function () {
+        Cache::remember('stats.molecules', 172800, function () {
             return DB::table('molecules')->selectRaw('count(*)')->whereRaw('active=true and NOT (is_parent=true AND has_variants=true)')->get()[0]->count;
         });
         $this->info('Cache for molecules refreshed.');

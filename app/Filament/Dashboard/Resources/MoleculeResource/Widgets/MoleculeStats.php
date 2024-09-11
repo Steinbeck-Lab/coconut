@@ -15,10 +15,10 @@ class MoleculeStats extends BaseWidget
     protected function getStats(): array
     {
         return [
-            Stat::make('Total Organisms', Cache::rememberForever('stats.molecules'.$this->record->id.'organisms.count', function () {
+            Stat::make('Total Organisms', Cache::remember('stats.molecules'.$this->record->id.'organisms.count', 172800, function () {
                 return DB::table('molecule_organism')->selectRaw('count(*)')->whereRaw('molecule_id='.$this->record->id)->get()[0]->count;
             })),
-            Stat::make('Total Geo Locations', Cache::rememberForever('stats.molecules'.$this->record->id.'geo_locations.count', function () {
+            Stat::make('Total Geo Locations', Cache::remember('stats.molecules'.$this->record->id.'geo_locations.count', 172800, function () {
                 return DB::table('geo_location_molecule')->selectRaw('count(*)')->whereRaw('molecule_id='.$this->record->id)->get()[0]->count;
             })),
         ];
