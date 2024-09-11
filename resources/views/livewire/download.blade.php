@@ -77,7 +77,7 @@
                 </div>
             </div>
             <div class="bg-white max-w-2xl lg:max-w-4xl mx-auto">
-                <div class="mx-auto px-12 md:px-6 py-24 sm:py-32 lg:flex lg:items-center lg:justify-between lg:px-8">
+                <div class="mx-auto px-12 md:px-6 pt-24 lg:flex lg:items-center lg:justify-between lg:px-8">
                   <h2 class="text-xl font-bold tracking-tight text-gray-900 sm:text-xl">Need older versions?</h2>
                   <div class="mt-10 flex items-center gap-x-6 lg:mt-0 lg:flex-shrink-0">
                     <a href="https://zenodo.org/search?q=parent.id%3A13382750&f=allversions%3Atrue&l=list&p=1&s=10&sort=version" target="_blank" class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Download previous releases (Zenodo)</a>
