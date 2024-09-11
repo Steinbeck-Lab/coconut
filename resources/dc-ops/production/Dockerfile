@@ -52,6 +52,8 @@ RUN docker-php-ext-configure gd --with-external-gd
 RUN docker-php-ext-install gd
 RUN docker-php-ext-configure intl
 RUN docker-php-ext-install intl
+RUN docker-php-ext-install bcmath
+
 
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
