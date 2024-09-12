@@ -28,6 +28,7 @@
         "league/flysystem-aws-s3-v3": "^3.0",
         "livewire/livewire": "^3.0",
         "lomkit/laravel-rest-api": "*",
+        "maartenpaauw/model-states-for-filament": "^2.3",
         "mpdf/mpdf": "^8.2",
         "owen-it/laravel-auditing": "^13.6",
         "predis/predis": "^2.2",
@@ -36,6 +37,7 @@
         "shuvroroy/filament-spatie-laravel-backup": "^2.1",
         "spatie/laravel-backup": "^8.6",
         "spatie/laravel-cookie-consent": "^3.3",
+        "spatie/laravel-model-states": "^2.7",
         "spatie/laravel-permission": "^6.3",
         "spatie/schema-org": "^3.23",
         "stechstudio/filament-impersonate": "*",
@@ -103,6 +105,10 @@
         {
             "type": "composer",
             "url": "https://filament-filter-sets.composer.sh"
+        },
+        {
+            "type": "composer",
+            "url": "https://model-states-for-filament.composer.sh"
         }
     ]
 }

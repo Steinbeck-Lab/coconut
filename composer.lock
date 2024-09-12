@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9aeed4c020fef8e2baf0a41088bef26f",
+    "content-hash": "00e53096c3100ad2d23005e4f69defc3",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -1992,6 +1992,59 @@
                 "source": "https://github.com/ezyang/htmlpurifier/tree/v4.17.0"
             },
             "time": "2023-11-17T15:01:25+00:00"
+        },
+        {
+            "name": "facade/ignition-contracts",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/facade/ignition-contracts.git",
+                "reference": "3c921a1cdba35b68a7f0ccffc6dffc1995b18267"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/facade/ignition-contracts/zipball/3c921a1cdba35b68a7f0ccffc6dffc1995b18267",
+                "reference": "3c921a1cdba35b68a7f0ccffc6dffc1995b18267",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.3|^8.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^v2.15.8",
+                "phpunit/phpunit": "^9.3.11",
+                "vimeo/psalm": "^3.17.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Facade\\IgnitionContracts\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "homepage": "https://flareapp.io",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Solution contracts for Ignition",
+            "homepage": "https://github.com/facade/ignition-contracts",
+            "keywords": [
+                "contracts",
+                "flare",
+                "ignition"
+            ],
+            "support": {
+                "issues": "https://github.com/facade/ignition-contracts/issues",
+                "source": "https://github.com/facade/ignition-contracts/tree/1.0.2"
+            },
+            "time": "2020-10-16T08:27:54+00:00"
         },
         {
             "name": "filament/actions",
@@ -4960,6 +5013,179 @@
                 }
             ],
             "time": "2024-08-11T12:26:23+00:00"
+        },
+        {
+            "name": "maartenpaauw/laravel-specification-pattern",
+            "version": "v2.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/maartenpaauw/laravel-specification-pattern.git",
+                "reference": "ea724b0d0ef40d9477fac63a479406ff5c0501f5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/maartenpaauw/laravel-specification-pattern/zipball/ea724b0d0ef40d9477fac63a479406ff5c0501f5",
+                "reference": "ea724b0d0ef40d9477fac63a479406ff5c0501f5",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": "^10.0|^11.0",
+                "illuminate/support": "^10.0|^11.0",
+                "php": "^8.1",
+                "spatie/laravel-package-tools": "^1.16.2",
+                "symfony/polyfill-php83": "^1.30",
+                "webmozart/assert": "^1.11"
+            },
+            "require-dev": {
+                "illuminate/testing": "^10.0|^11.0",
+                "larastan/larastan": "^2.8",
+                "laravel/pint": "^1.0",
+                "nunomaduro/collision": "^7.8|^8.1",
+                "orchestra/testbench": "^8.8|^9.0",
+                "pestphp/pest": "^2.20",
+                "pestphp/pest-plugin-arch": "^2.5",
+                "pestphp/pest-plugin-laravel": "^2.2",
+                "pestphp/pest-plugin-type-coverage": "^2.8",
+                "phpstan/extension-installer": "^1.1",
+                "phpstan/phpstan-deprecation-rules": "^1.0",
+                "phpstan/phpstan-phpunit": "^1.0",
+                "spatie/laravel-ray": "^1.35",
+                "spatie/phpunit-snapshot-assertions": "^5.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Maartenpaauw\\Specifications\\SpecificationsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Maartenpaauw\\Specifications\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Maarten Paauw",
+                    "email": "maartenpaauw@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "This is my package laravel-specification-pattern",
+            "homepage": "https://github.com/maartenpaauw/laravel-specification-pattern",
+            "keywords": [
+                "laravel",
+                "laravel-specification-pattern",
+                "maartenpaauw"
+            ],
+            "support": {
+                "issues": "https://github.com/maartenpaauw/laravel-specification-pattern/issues",
+                "source": "https://github.com/maartenpaauw/laravel-specification-pattern/tree/v2.5.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/maartenpaauw",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-08-24T17:12:44+00:00"
+        },
+        {
+            "name": "maartenpaauw/model-states-for-filament",
+            "version": "2.3.2",
+            "dist": {
+                "type": "zip",
+                "url": "https://model-states-for-filament.composer.sh/download/9cd1e221-7068-4004-9c4f-87ad84446f4f/model-states-for-filament-2.3.2.zip",
+                "reference": "4eb3ad7235563f1c9a5e73940ef958a84092964b",
+                "shasum": "5f43ba389cd124e3f9873926a1f349006df01533"
+            },
+            "require": {
+                "filament/filament": "^3.2.39",
+                "illuminate/contracts": "^10.10.1|^11.0",
+                "illuminate/database": "^10.10.1|^11.0",
+                "illuminate/support": "^10.10.1|^11.0",
+                "maartenpaauw/laravel-specification-pattern": "^2.2",
+                "php": "^8.1",
+                "spatie/laravel-model-states": "^2.7",
+                "spatie/laravel-package-tools": "^1.16.2",
+                "symfony/polyfill-php83": "^1.30",
+                "webmozart/assert": "^1.11"
+            },
+            "require-dev": {
+                "larastan/larastan": "^2.9",
+                "laravel/pint": "^1.17",
+                "nunomaduro/collision": "^7.9|^8.1",
+                "orchestra/testbench": "^8.8|^9.0",
+                "pestphp/pest": "^2.34",
+                "pestphp/pest-plugin-arch": "^2.7",
+                "pestphp/pest-plugin-laravel": "^2.4",
+                "pestphp/pest-plugin-type-coverage": "^2.8",
+                "phpstan/extension-installer": "^1.4",
+                "phpstan/phpstan-deprecation-rules": "^1.2",
+                "phpstan/phpstan-phpunit": "^1.4",
+                "phpstan/phpstan-webmozart-assert": "^1.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Maartenpaauw\\Filament\\ModelStates\\FilamentModelStatesServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Maartenpaauw\\Filament\\ModelStates\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Workbench\\App\\": "workbench/app/",
+                    "Workbench\\Database\\Factories\\": "workbench/database/factories/",
+                    "Maartenpaauw\\Filament\\ModelStates\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "vendor/bin/pest"
+                ],
+                "format": [
+                    "vendor/bin/pint"
+                ],
+                "analyse": [
+                    "vendor/bin/phpstan analyse"
+                ],
+                "test-coverage": [
+                    "vendor/bin/pest --coverage"
+                ],
+                "post-autoload-dump": [
+                    "@php ./vendor/bin/testbench package:discover --ansi"
+                ]
+            },
+            "authors": [
+                {
+                    "name": "Maarten Paauw",
+                    "role": "Developer",
+                    "email": "maartenpaauw@gmail.com"
+                }
+            ],
+            "description": "Model States for Filament",
+            "homepage": "https://filamentphp.com/plugins/maartenpaauw-model-states",
+            "keywords": [
+                "filamentphp",
+                "laravel",
+                "maartenpaauw",
+                "model-states-for-filament"
+            ],
+            "support": {
+                "email": "filamentphp@paauw.dev"
+            },
+            "time": "2024-08-21T15:02:40+00:00"
         },
         {
             "name": "maatwebsite/excel",
@@ -9098,6 +9324,81 @@
                 }
             ],
             "time": "2024-08-22T09:20:42+00:00"
+        },
+        {
+            "name": "spatie/laravel-model-states",
+            "version": "2.7.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/laravel-model-states.git",
+                "reference": "91e7dfcf2d1d471d3b7fec151465346e7db43e72"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/laravel-model-states/zipball/91e7dfcf2d1d471d3b7fec151465346e7db43e72",
+                "reference": "91e7dfcf2d1d471d3b7fec151465346e7db43e72",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "facade/ignition-contracts": "^1.0",
+                "illuminate/contracts": "^8.73 | ^9.0 | ^10.0 | ^11.0",
+                "illuminate/database": "^8.73 | ^9.0 | ^10.0 | ^11.0",
+                "illuminate/support": "^8.73 | ^9.0 | ^10.0 | ^11.0",
+                "php": "^7.4|^8.0",
+                "spatie/laravel-package-tools": "^1.9"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^6.23 | ^7.0 | ^8.0 | ^9.0",
+                "pestphp/pest": "^1.22|^2.0",
+                "phpunit/phpunit": "^9.4|^10.0",
+                "symfony/var-dumper": "^5.3 | ^6.0 | ^7.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Spatie\\ModelStates\\ModelStatesServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\ModelStates\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Brent Roose",
+                    "email": "brent@spatie.be",
+                    "homepage": "https://spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "State support for Eloquent models",
+            "homepage": "https://github.com/spatie/laravel-model-states",
+            "keywords": [
+                "spatie",
+                "state"
+            ],
+            "support": {
+                "source": "https://github.com/spatie/laravel-model-states/tree/2.7.1"
+            },
+            "funding": [
+                {
+                    "url": "https://spatie.be/open-source/support-us",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/spatie",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-03-07T07:05:22+00:00"
         },
         {
             "name": "spatie/laravel-package-tools",
