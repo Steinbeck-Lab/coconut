@@ -156,7 +156,7 @@ class ReportResource extends Resource
                         }
                     })
                     ->hidden(function (Get $get, string $operation) {
-                        if ($operation == 'edit' || $operation == 'view') {
+                        if ($operation != 'create') {
                             if ($get('collections') == []) {
                                 return true;
                             }
@@ -183,7 +183,7 @@ class ReportResource extends Resource
                         }
                     })
                     ->hidden(function (Get $get, string $operation) {
-                        if ($operation == 'edit' || $operation == 'view') {
+                        if ($operation != 'create') {
                             if ($get('citations') == []) {
                                 return true;
                             }
@@ -208,7 +208,7 @@ class ReportResource extends Resource
                         }
                     })
                     ->hidden(function (Get $get, string $operation) {
-                        if ($operation == 'edit' || $operation == 'view') {
+                        if ($operation != 'create') {
                             if ($get('organisms') == []) {
                                 return true;
                             }
@@ -231,10 +231,8 @@ class ReportResource extends Resource
                         }
                     })
                     ->hidden(function (Get $get, string $operation) {
-                        if ($operation == 'edit' || $operation == 'view') {
-                            if (is_null($get('mol_id_csv'))) {
-                                return true;
-                            }
+                        if ($operation != 'create') {
+                            return true;
                         } elseif (! request()->has('compound_id') && $get('report_type') != 'molecule') {
                             return true;
                         }
