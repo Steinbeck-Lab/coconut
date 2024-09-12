@@ -60,7 +60,6 @@ class Molecule extends Model implements Auditable
     protected $casts = [
         'synonyms' => 'array',
         'cas' => 'array',
-        'comment' => 'array',
     ];
 
     /**

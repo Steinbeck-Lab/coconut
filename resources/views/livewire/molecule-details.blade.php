@@ -385,25 +385,33 @@
                                 </div>
                                 <div class="px-4 py-6 sm:px-6">
                                     <ul role="list" class="px-0">
-                                        <li class="py-1 flex md:py-0"><span class="ml-3 text-base text-gray-500">
+                                        <li class="py-1 flex md:py-0"><span class="ml-3 text-base">
                                                 <b>Super class</b>:
-                                                {{ $molecule->properties && $molecule->properties['chemical_super_class'] ? $molecule->properties['chemical_super_class'] : '-' }}
+                                                    <a class="hover:text-blue-600 hover:underline" target="_blank" href="../search?q=superclass%3A{{ $molecule->properties && $molecule->properties['chemical_super_class'] ? Str::slug($molecule->properties['chemical_super_class']) : '-' }}&amp;page=1&amp;type=filters">
+                                                         {{ $molecule->properties && $molecule->properties['chemical_super_class'] ? $molecule->properties['chemical_super_class'] : '-' }}
+                                                    </a>
                                             </span>
                                         </li>
                                         <li class="py-1 flex md:py-0"><span
-                                                class="ml-3 text-base text-gray-500"><b>Class</b>:
-                                                {{ $molecule->properties && $molecule->properties['chemical_class'] ? $molecule->properties['chemical_class'] : '-' }}</span>
+                                                class="ml-3 text-base"><b>Class</b>:
+                                                <a class="hover:text-blue-600 hover:underline" target="_blank" href="../search?q=class%3A{{ $molecule->properties && $molecule->properties['chemical_class'] ? Str::slug($molecule->properties['chemical_class']) : '-' }}&amp;page=1&amp;type=filters">
+                                                    {{ $molecule->properties && $molecule->properties['chemical_class'] ? $molecule->properties['chemical_class'] : '-' }}</span>
+                                                </a>
                                         </li>
                                         <li class="py-1 flex md:py-0"><span
-                                                class="ml-3 text-base text-gray-500"><b>Sub
+                                                class="ml-3 text-base"><b>Sub
                                                     class</b>:
-                                                {{ $molecule->properties && $molecule->properties['chemical_sub_class'] ? $molecule->properties['chemical_sub_class'] : '-' }}
+                                                    <a class="hover:text-blue-600 hover:underline" target="_blank" href="../search?q=subclass%3A{{ $molecule->properties && $molecule->properties['chemical_sub_class'] ? Str::slug($molecule->properties['chemical_sub_class']) : '-' }}&amp;page=1&amp;type=filters">
+                                                        {{ $molecule->properties && $molecule->properties['chemical_sub_class'] ? $molecule->properties['chemical_sub_class'] : '-' }}
+                                                    </a>
                                             </span>
                                         </li>
                                         <li class="py-1 flex md:py-0"><span
-                                                class="ml-3 text-base text-gray-500"><b>Direct
+                                                class="ml-3 text-base"><b>Direct
                                                     parent</b>:
-                                                {{ $molecule->properties && $molecule->properties['direct_parent_classification'] ? $molecule->properties['direct_parent_classification'] : '-' }}
+                                                    <a class="hover:text-blue-600 hover:underline" target="_blank" href="../search?q=parent%3A{{ $molecule->properties && $molecule->properties['direct_parent_classification'] ? Str::slug($molecule->properties['direct_parent_classification']) : '-' }}&amp;page=1&amp;type=filters">
+                                                        {{ $molecule->properties && $molecule->properties['direct_parent_classification'] ? $molecule->properties['direct_parent_classification'] : '-' }}
+                                                    </a>
                                             </span>
                                         </li>
                                     </ul>
