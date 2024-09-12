@@ -41,11 +41,8 @@ class DataCite implements DOIService
     public function createDOI($identifier, $metadata = [])
     {
         $doi = $this->prefix.'/'.Config::get('app.name').'.'.$identifier;
-        echo $doi;
-        $url = 'https://dev.coconut.naturalproducts.net/collections/'.$identifier;
-        echo $url;
+        $url = 'https://coconut.naturalproducts.net/collections/'.$identifier;
         $suffix = Config::get('app.name').'.'.$identifier;
-        echo $suffix;
         $attributes = [
             'doi' => $this->prefix.'/'.Config::get('app.name').'.'.$identifier,
             'prefix' => $this->prefix,
@@ -65,9 +62,6 @@ class DataCite implements DOIService
                 'attributes' => $attributes,
             ],
         ];
-
-        dd(json_encode($body));
-        // dd($body);
 
         $response = $this->client->post('/dois',
             [RequestOptions::JSON => $body]

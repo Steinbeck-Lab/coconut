@@ -50,8 +50,10 @@ class AssignCollectionsIdentifiers extends Command
 
     public function generateIdentifier($index)
     {
-        return 'CNPC'.str_pad($index, 4, '0', STR_PAD_LEFT);
+        $prefix = (env('APP_ENV') === 'production') ? 'CNPC' : 'CNPC_DEV';
+        return $prefix . str_pad($index, 6, '0', STR_PAD_LEFT);
     }
+
 
     public function fetchLastIndex()
     {
