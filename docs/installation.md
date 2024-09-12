@@ -108,3 +108,6 @@ Congratulations! You have successfully installed the Laravel project using Sail.
 
 Note: You can stop the Docker containers by running ./vendor/bin/sail down from your project directory.
 
+## Step 11: Run Vite Local Development Server
+
+Pull the latest from the origin development branch into your local and create a branch of your own for the modifications you want to make. Please ensure that the changes or new modules are tested thoroghly before pushing them to the origin. Once pushed, create a pull request to the development. Upon approval, your contribution will be merged to the dev and consequently into production in line with the release cycles.

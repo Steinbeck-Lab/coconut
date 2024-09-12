@@ -24,7 +24,7 @@ class MoleculeDetails extends Component
         $_molecule = Cache::get('molecules.'.$id);
         if (! $_molecule->relationLoaded('properties')) {
             Cache::forget('molecules.'.$id);
-            Cache::rememberForever('molecules.'.$id, function () use ($molecule) {
+            Cache::remember('molecules.'.$id, 172800, function () use ($molecule) {
                 $molecule['schema'] = $molecule->getSchema();
 
                 return $molecule;

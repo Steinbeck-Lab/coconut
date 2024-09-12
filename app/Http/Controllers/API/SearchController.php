@@ -11,44 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class SearchController extends Controller
 {
-    /**
-     * Search DB based on the query and filter parameters
-     *
-     * @return \Illuminate\Http\Response
-     */
-
-    /**
-     * @OA\Post(
-     * path="/api/v1/search",
-     * summary="Get compound details by Compound name, SMILES, InChi & InChiKey.",
-     * description="Get compound details by Compound name, SMILES, InChi & InChiKey.",
-     * operationId="search",
-     * tags={"search"},
-     *
-     * @OA\RequestBody(
-     *    required=true,
-     *    description="Pass search query and type such as InChiKey, InChi, SMILES & text",
-     *
-     *    @OA\JsonContent(
-     *       required={"query","type"},
-     *
-     *       @OA\Property(property="query", type="string", format="query", example="AAAAWQOPBUPWEV-UHFFFAOYSA-N"),
-     *       @OA\Property(property="type", type="string", format="type", example="InChiKey"),
-     *
-     *    ),
-     *
-     * ),
-     *
-     * @OA\Response(
-     *    response=200,
-     *    description="Successful Operation"
-     *    ),
-     * @OA\Response(
-     *    response=404,
-     *    description="Not Found"
-     * )
-     * )
-     */
     public function search(Request $request)
     {
         try {

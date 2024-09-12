@@ -164,7 +164,7 @@ class EntriesRelationManager extends RelationManager
                         return $this->ownerRecord->entries()->where('status', 'SUBMITTED')->count() < 1;
                     })
                     ->action(function () {
-                        Artisan::call('entries:process');
+                        Artisan::call('coconut:entries-process');
                     }),
                 Action::make('publish')
                     ->hidden(function () {

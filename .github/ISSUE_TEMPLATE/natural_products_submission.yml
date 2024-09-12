@@ -1,0 +1,104 @@
+name: New Compound Submission Template
+description: >-
+  Use this template to submit a new compound to the database. Please provide all required information for your submission to be processed.
+body:
+  - type: input
+    id: compound-name
+    attributes:
+      label: Compound Name
+      description: Provide the name of the compound.
+      placeholder: 'Enter the compound name'
+    validations:
+      required: true
+
+  - type: dropdown
+    id: structure-format
+    attributes:
+      label: Structure Format
+      description: Select whether you are providing a SMILES string or a Mol file.
+      options:
+        - SMILES string
+        - Mol file
+    validations:
+      required: true
+
+  - type: textarea
+    id: smiles-or-molfile
+    attributes:
+      label: SMILES String or Mol File
+      description: >-
+        Provide the SMILES string or attach a Mol file representing the compound's structure.
+      placeholder: 'Enter SMILES string or paste Mol file content'
+    validations:
+      required: true
+
+  - type: textarea
+    id: doi-citation
+    attributes:
+      label: DOI/Citation Information
+      description: >-
+        Include the DOI or full citation details for the source of the compound's information.
+      placeholder: 'Enter DOI or full citation details'
+    validations:
+      required: true
+
+  - type: input
+    id: organism
+    attributes:
+      label: Organism
+      description: >-
+        Specify the organism from which the compound was derived (e.g., Mangifera indica).
+      placeholder: 'Enter organism name (e.g., Mangifera indica)'
+    validations:
+      required: true
+
+  - type: input
+    id: geo-location
+    attributes:
+      label: Geographical Location (Optional)
+      description: >-
+        Provide the geographical location where the organism was found, including country and city (e.g., India/Bengaluru).
+      placeholder: 'Enter geographical location (e.g., India/Bengaluru)'
+    validations:
+      required: false
+
+  - type: input
+    id: sample-location
+    attributes:
+      label: Sample Location (Organism Part) (Optional)
+      description: >-
+        Specify the part of the organism from which the sample was taken (e.g., Fruit).
+      placeholder: 'Enter sample location (e.g., Fruit)'
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-comments
+    attributes:
+      label: Additional Comments
+      description: >-
+        Provide any additional comments or information that might be relevant to the submission.
+      placeholder: 'Enter any additional comments'
+    validations:
+      required: false
+
+  - type: input
+    id: contact-details
+    attributes:
+      label: Contact Details (Optional)
+      description: >-
+        Provide your contact details if you would like to be contacted regarding this submission.
+      placeholder: 'Enter your contact information (optional)'
+    validations:
+      required: false
+      
+  - type: input
+    id: orcid-id
+    attributes:
+      label: ORCID ID
+      description: >-
+        Provide your ORCID ID for author identification (e.g., 0000-0002-2564-3243).
+      placeholder: 'Enter ORCID ID (e.g., 0000-0002-2564-3243)'
+    validations:
+      required: false
+

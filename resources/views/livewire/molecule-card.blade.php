@@ -17,13 +17,15 @@
                     <div class="flex flex-1 flex-col justify-end">
                         <p class="text-sm font-medium text-gray-500">{{ $molecule->identifier }}</p>
                     </div>
-                    <h3 class="mt-1 text-base font-bold text-gray-900 capitalize truncate" title="{{ $molecule->name }}">
-                        @if ($molecule->name)
-                            {{ $molecule->name }}
-                        @else
-                            {{ $molecule->iupac_name }}
-                        @endif
-                    </h3>
+                    <div>
+                        <h3 class="mt-1 text-base font-bold text-gray-900 capitalize text-clip overflow-hidden truncate ..." title="{{ $molecule->name }}">
+                            @if ($molecule->name)
+                                {{ $molecule->name }}
+                            @else
+                                {{ $molecule->iupac_name }}
+                            @endif
+                        </h3>
+                    </div>
                 </div>
             </div>
             <div class="flex justify-around p-4 py-2 border-t mt-1">

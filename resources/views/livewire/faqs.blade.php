@@ -1,5 +1,5 @@
 <div>
-    <div class="my-10">
+    <div class="my-10 px-10">
         <h1 class="font-medium text-2xl max-w-3xl mx-auto pt-10 pb-4">Frequently asked questions</h1>
         <div class="bg-white max-w-3xl mx-auto">
             <ul class="shadow-box">

@@ -21,7 +21,11 @@ class MoleculeResource extends RestResource
     public function fields(\Lomkit\Rest\Http\Requests\RestRequest $request): array
     {
         return [
-            'id',
+            'identifier',
+            'name',
+            'canonical_smiles',
+            'standard_inchi',
+            'standard_inchi_key',
         ];
     }
 

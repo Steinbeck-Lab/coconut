@@ -12,8 +12,8 @@ class DataSources extends Component
 
     public function mount()
     {
-        $this->collections = Cache::rememberForever('collections', function () {
-            return Collection::take(10)->get(['title', 'image'])->toArray();
+        $this->collections = Cache::remember('collections', 172800, function () {
+            return Collection::where('promote', true)->orderBy('sort_order')->take(10)->get(['title', 'image'])->toArray();
         });
     }
 }

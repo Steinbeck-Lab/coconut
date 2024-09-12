@@ -20,10 +20,12 @@ class LoginController extends Controller
 
         $user = User::where('email', $request['email'])->firstOrFail();
 
-        if (! $user->hasVerifiedEmail()) {
-            return response()->json([
-                'message' => 'Account is not yet verified. Please verify your email address by clicking on the link we just emailed to you.',
-            ], 403);
+        if ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail()) {
+            if (! $user->hasVerifiedEmail()) {
+                return response()->json([
+                    'message' => 'Account is not yet verified. Please verify your email address by clicking on the link we just emailed to you.',
+                ], 403);
+            }
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;

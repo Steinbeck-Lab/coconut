@@ -1,5 +1,5 @@
 <div>
-    <div class="my-1 w-full mx-auto px-8 pb-5 max-w-4xl lg:max-w-7xl">
+    <div class="my-1 w-full mx-auto px-10 pb-5 max-w-4xl lg:max-w-7xl">
         <div class="mb-4 border-gray-200 py-5 sm:flex sm:items-center sm:justify-between">
             <h2 class="text-2xl pb-0 font-bold tracking-tight text-white sm:text-2xl"><span
                     class="-mb-1 block text-primary-dark bg-clip-text">Compound Classes</span></h2>

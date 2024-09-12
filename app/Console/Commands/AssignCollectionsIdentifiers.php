@@ -14,7 +14,7 @@ class AssignCollectionsIdentifiers extends Command
      *
      * @var string
      */
-    protected $signature = 'collection:assign-identifiers';
+    protected $signature = 'coconut:collection-assign-identifiers';
 
     /**
      * The console command description.

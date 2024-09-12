@@ -24,7 +24,6 @@ use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\HtmlString;
@@ -128,15 +127,7 @@ class MoleculeResource extends Resource
 
                             $record->active = ! $record->active;
 
-                            $reasons = json_decode($record->comment, true);
-                            array_push($reasons, [
-                                'changed_status_to' => $record['active'],
-                                'changed_by' => Auth::user()->id,
-                                'changed_at' => now(),
-                                'reason' => $data['reason'],
-                                'bulk_action' => false,
-                            ]);
-                            $record->comment = json_encode($reasons);
+                            $record->active ?: $record->comment = $data['reason'];
 
                             $record->save();
                         })
@@ -158,15 +149,7 @@ class MoleculeResource extends Resource
                             foreach ($records as $record) {
                                 $record->active = ! $record->active;
 
-                                $reasons = json_decode($record->comment, true);
-                                array_push($reasons, [
-                                    'changed_status_to' => $record['active'],
-                                    'changed_by' => Auth::user()->id,
-                                    'changed_at' => now(),
-                                    'reason' => $data['reason'],
-                                    'bulk_action' => true,
-                                ]);
-                                $record->comment = json_encode($reasons);
+                                $record->comment = $data['reason'];
 
                                 $record->save();
                             }

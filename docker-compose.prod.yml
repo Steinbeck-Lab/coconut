@@ -1,0 +1,104 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: ./resources/dc-ops/production/Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: coconut-8.3/app
+        container_name: coconut_app
+        networks:
+            - coconut
+        depends_on:
+            - pgsql
+            - redis
+            # - typesense
+        volumes:
+            - www-data:/var/www
+    pgsql:
+        image: "informaticsmatters/rdkit-cartridge-debian:latest"
+        ports:
+            - '${FORWARD_DB_PORT:-5432}:5432'
+        environment:
+            PGPASSWORD: '${DB_PASSWORD:-secret}'
+            POSTGRES_DB: '${DB_DATABASE}'
+            POSTGRES_USER: '${DB_USERNAME}'
+            POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
+        volumes:
+            - 'coconut-pgsql:/var/lib/postgresql/data'
+            - './docker/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
+        networks:
+            - coconut
+        healthcheck:
+            test:
+                - CMD
+                - pg_isready
+                - '-q'
+                - '-d'
+                - '${DB_DATABASE}'
+                - '-U'
+                - '${DB_USERNAME}'
+            retries: 3
+            timeout: 5s
+    redis:
+        image: 'redis:alpine'
+        ports:
+            - '${FORWARD_REDIS_PORT:-6379}:6379'
+        volumes:
+            - 'coconut-redis:/data'
+        networks:
+            - coconut
+        healthcheck:
+            test:
+                - CMD
+                - redis-cli
+                - ping
+            retries: 3
+            timeout: 5s
+    nginx:
+        build:
+            context: .
+            dockerfile: ./resources/dc-ops/nginx/Dockerfile
+        container_name: coconut_nginx
+        restart: unless-stopped
+        ports:
+            - 80:80
+        networks:
+            - coconut
+        depends_on:
+            - app
+        volumes:
+            - www-data:/var/www
+    # typesense:
+    #     image: 'typesense/typesense:0.25.2'
+    #     ports:
+    #         - '${FORWARD_TYPESENSE_PORT:-8108}:8108'
+    #     environment:
+    #         TYPESENSE_DATA_DIR: '${TYPESENSE_DATA_DIR:-/typesense-data}'
+    #         TYPESENSE_API_KEY: '${TYPESENSE_API_KEY:-xyz}'
+    #         TYPESENSE_ENABLE_CORS: '${TYPESENSE_ENABLE_CORS:-true}'
+    #     volumes:
+    #         - 'coconut-typesense:/typesense-data'
+    #     networks:
+    #         - coconut
+    #     healthcheck:
+    #         test:
+    #             - CMD
+    #             - wget
+    #             - '--no-verbose'
+    #             - '--spider'
+    #             - 'http://localhost:8108/health'
+    #         retries: 5
+    #         timeout: 7s
+networks:
+    coconut:
+        driver: bridge
+volumes:
+    coconut-pgsql:
+        driver: local
+    coconut-redis:
+        driver: local
+    www-data:
+        driver: local
+    # coconut-typesense:
+    #     driver: local

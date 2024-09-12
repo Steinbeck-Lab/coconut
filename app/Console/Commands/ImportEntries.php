@@ -17,7 +17,7 @@ class ImportEntries extends Command
      *
      * @var string
      */
-    protected $signature = 'entries:import {collection_id?}';
+    protected $signature = 'coconut:entries-import {collection_id?}';
 
     /**
      * The console command description.

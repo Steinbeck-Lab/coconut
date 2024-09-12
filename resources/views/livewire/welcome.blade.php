@@ -1,14 +1,11 @@
 <div x-data="{ query: '', isOpen: false, activeTab: @entangle('activeTab') }">
     <div class="relative mx-auto mt-32 grid w-full max-w-4xl lg:max-w-7xl grid-cols-1 px-4 sm:px-6 lg:px-8">
-        <div class="mx-auto w-full py-1 px-4 sm:px-6 sm:py-20 lg:px-8 mb-12">
+        <div class="mx-auto w-full py-1 px-6 sm:px-6 sm:py-20 lg:px-8 mb-12">
             <div class="text-center max-w-4xl mx-auto">
                 <h1 class="text-3xl font-bold tracking-tight text-primary-dark sm:text-4xl"><span
                         class="block xl:inline">COCONUT: </span><span class="block text-secondary-dark xl:inline">the
                         COlleCtion of Open NatUral producTs</span></h1>
-                <p class="my-6 mx-auto text-md leading-6 text-text-light"> An aggregated dataset of elucidated and
-                    predicted NPs
-                    collected from open sources and a web interface to browse, search and easily and quickly download
-                    NPs. </p>
+                <p class="my-6 mx-auto text-md leading-6 text-text-light"> A comprehensive platform facilitating natural product research by providing data, tools, <br/> and services for deposition, curation, and reuse. </p>
                 <div class="mx-auto">
                     <div>
                         <div class="sm:hidden">
@@ -50,7 +47,7 @@
                             <div class="bg-white">
                                 <div class="mx-auto max-w-7xl">
                                     <div class="flex h-16 flex-shrink-0 rounded-md border border-gray-900 border-b-4">
-                                        <div class="flex flex-1 justify-between md:px-2">
+                                        <div class="flex flex-1 justify-between px-2">
                                             <div class="flex flex-1">
                                                 <div class="flex w-full md:ml-0"><label for="search-field"
                                                         class="sr-only">Search</label>
@@ -116,7 +113,7 @@
                             <div class="bg-white">
                                 <div class="mx-auto max-w-7xl">
                                     <div class="flex h-16 flex-shrink-0 rounded-md border border-gray-900 border-b-4">
-                                        <div class="flex flex-1 justify-between md:px-2">
+                                        <div class="flex flex-1 justify-between px-2">
                                             <div class="flex flex-1">
                                                 <div class="flex w-full md:ml-0"><label for="search-field"
                                                         class="sr-only">Search</label>
@@ -181,7 +178,7 @@
                             <div class="bg-white">
                                 <div class="mx-auto max-w-7xl">
                                     <div class="flex h-16 flex-shrink-0 rounded-md border border-gray-900 border-b-4">
-                                        <div class="flex flex-1 justify-between md:px-2">
+                                        <div class="flex flex-1 justify-between px-2">
                                             <div class="flex flex-1">
                                                 <div class="flex w-full md:ml-0"><label for="search-field"
                                                         class="sr-only">Search</label>
@@ -243,7 +240,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="mt-16 flex items-center gap-x-6 justify-center w-full">
+                <div class="mt-16 flex items-center md:gap-x-6 gap-x-1 justify-center w-full">
                     <div>
                         <livewire:structure-editor :mode="'button'" lazy="on-load" :smiles="''" />
                     </div>
@@ -257,7 +254,7 @@
                         <small class="text-base font-semibold leading-7">Browse Data</small>
                         </button>
                     </a>
-                    <a @click="isOpen = true"
+                    <div @click="isOpen = true"
                         class="cursor-pointer border bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto">
@@ -266,7 +263,7 @@
                         </svg>
                         <small class="text-base font-semibold leading-7">Submit Data</small>
                         </button>
-                    </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -276,7 +273,7 @@
         <div class="mx-auto max-w-7xl">
             <div class="grid grid-cols-1 gap-px bg-white/5 sm:grid-cols-2 lg:grid-cols-4">
                 <!-- Total Molecules Section -->
-                <a href="/search" class="bg-gray-900 py-6 px-8 sm:px-6 lg:px-8">
+                <a href="/search" class="bg-gray-900 py-6 px-10">
                     <p class="text-sm font-medium leading-6 text-gray-400">
                         <svg fill="currentColor" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
                             xmlns:xlink="http://www.w3.org/1999/xlink" class="w-5 h-5 inline"
@@ -324,7 +321,7 @@
                     </p>
                 </a>
                 <!-- Total Collections Section -->
-                <a href="/collections" class="bg-gray-900 px-8 py-6 sm:px-6 lg:px-8">
+                <a href="/collections" class="bg-gray-900 py-6 px-10">
                     <p class="text-sm font-medium leading-6 text-gray-400">
                         <svg class="w-5 h-5 inline" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"
                             fill="currentColor">
@@ -341,7 +338,7 @@
                     </p>
                 </a>
                 <!-- Unique Organisms Section -->
-                <div class="bg-gray-900 px-8 py-6 sm:px-6 lg:px-8">
+                <div class="bg-gray-900 py-6 px-10">
                     <p class="text-sm font-medium leading-6 text-gray-400">
                         <svg fill="currentColor" class="w-5 h-5 inline" version="1.1" id="Layer_1"
                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -409,7 +406,7 @@
                     </p>
                 </div>
                 <!-- Citations Mapped Section -->
-                <div class="bg-gray-900 px-8 py-6 sm:px-6 lg:px-8">
+                <div class="bg-gray-900 py-6 px-10">
                     <p class="text-sm font-medium leading-6 text-gray-400">
                         <svg class="w-5 h-5 inline" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"
                             fill="currentColor">
@@ -438,7 +435,7 @@
     <livewire:faqs lazy="on-load" />
     <div class="bg-gray-900 border-y">
         <div
-            class="mx-auto max-w-4xl py-16 px-4 sm:px-6 sm:py-24 lg:flex lg:max-w-7xl lg:items-center lg:justify-between lg:px-8">
+            class="mx-auto max-w-4xl py-16 px-10 sm:px-10 sm:py-24 lg:flex lg:max-w-7xl lg:items-center lg:justify-between lg:px-8">
             <div>
                 <h2 class="text-4xl font-bold tracking-tight text-white sm:text-4xl"><span class="block">Want to
                         contribute?</span><span

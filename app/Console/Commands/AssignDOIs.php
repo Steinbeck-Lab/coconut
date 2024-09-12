@@ -37,7 +37,6 @@ class AssignDOIs extends Command
             ])->get();
 
             foreach ($collections as $collection) {
-                // echo $collection->identifier."\r\n";
                 $collectionDOI = $collection->doi ? $collection->doi : null;
                 $assigner->assign($collection);
             }

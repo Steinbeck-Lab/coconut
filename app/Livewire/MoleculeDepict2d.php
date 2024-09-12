@@ -27,6 +27,12 @@ class MoleculeDepict2d extends Component
         return env('CM_API').'depict/2D?smiles='.urlencode($this->smiles).'&height='.$this->height.'&width='.$this->width;
     }
 
+    #[Computed]
+    public function preview()
+    {
+        return env('CM_API').'depict/2D?smiles='.urlencode($this->smiles);
+    }
+
     public function render()
     {
         return view('livewire.molecule-depict2d');

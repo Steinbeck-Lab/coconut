@@ -13,7 +13,7 @@ class SynonymDedupe extends Command
      *
      * @var string
      */
-    protected $signature = 'app:synonym-dedupe';
+    protected $signature = 'coconut:synonym-dedupe';
 
     /**
      * The console command description.

@@ -23,6 +23,8 @@ class Organism extends Model implements Auditable
         'name',
         'iri',
         'rank',
+        'molecule_count',
+        'slug',
     ];
 
     public function molecules(): BelongsToMany

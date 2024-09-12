@@ -12,7 +12,7 @@ class OrganismMoleculeCounts extends Command
      *
      * @var string
      */
-    protected $signature = 'app:organism-molecule-counts';
+    protected $signature = 'coconut:organism-molecule-counts';
 
     /**
      * The console command description.
@@ -35,11 +35,16 @@ class OrganismMoleculeCounts extends Command
             ->get();
 
         foreach ($moleculeCounts as $count) {
-            $this->info($count->id);
             DB::table('organisms')
                 ->where('id', $count->id)
                 ->update(['molecule_count' => $count->count]);
         }
+
+        $this->info('Updating the residual organisms.');
+
+        DB::table('organisms')
+            ->whereNotIn('id', $moleculeCounts->pluck('id'))
+            ->update(['molecule_count' => 0]);
 
         $this->info('Update process completed.');
     }
