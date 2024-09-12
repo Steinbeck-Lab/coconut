@@ -28,7 +28,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev
 
 RUN apt-get update \
-    && apt-get install software-properties-common \
+    && apt-get install -y software-properties-common \
     && add-apt-repository ppa:ondrej/php \
     && mkdir -p /etc/apt/keyrings \
     && apt-get install -y gnupg gosu curl ca-certificates zip unzip git supervisor sqlite3 libcap2-bin libpng-dev dnsutils librsvg2-bin fswatch \
