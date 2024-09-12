@@ -25,7 +25,8 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libicu-dev \
     libgd-dev \
-    libpq-dev
+    libpq-dev \
+    php-redis
 
 RUN apt-get install -y postgresql-client-$POSTGRES_VERSION
 
