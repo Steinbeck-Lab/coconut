@@ -387,23 +387,31 @@
                                     <ul role="list" class="px-0">
                                         <li class="py-1 flex md:py-0"><span class="ml-3 text-base text-gray-500">
                                                 <b>Super class</b>:
-                                                {{ $molecule->properties && $molecule->properties['chemical_super_class'] ? $molecule->properties['chemical_super_class'] : '-' }}
+                                                    <a target="_blank" href="../search?q=superclass%3A{{ $molecule->properties && $molecule->properties['chemical_super_class'] ? $molecule->properties['chemical_super_class'] : '-' }}&amp;page=1&amp;type=filters">
+                                                         {{ $molecule->properties && $molecule->properties['chemical_super_class'] ? $molecule->properties['chemical_super_class'] : '-' }}
+                                                    </a>
                                             </span>
                                         </li>
                                         <li class="py-1 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500"><b>Class</b>:
-                                                {{ $molecule->properties && $molecule->properties['chemical_class'] ? $molecule->properties['chemical_class'] : '-' }}</span>
+                                                <a target="_blank" href="../search?q=class%3A{{ $molecule->properties && $molecule->properties['chemical_class'] ? $molecule->properties['chemical_class'] : '-' }}&amp;page=1&amp;type=filters">
+                                                    {{ $molecule->properties && $molecule->properties['chemical_class'] ? $molecule->properties['chemical_class'] : '-' }}</span>
+                                                </a>
                                         </li>
                                         <li class="py-1 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500"><b>Sub
                                                     class</b>:
-                                                {{ $molecule->properties && $molecule->properties['chemical_sub_class'] ? $molecule->properties['chemical_sub_class'] : '-' }}
+                                                    <a target="_blank" href="../search?q=subclass%3A{{ $molecule->properties && $molecule->properties['chemical_sub_class'] ? $molecule->properties['chemical_sub_class'] : '-' }}&amp;page=1&amp;type=filters">
+                                                        {{ $molecule->properties && $molecule->properties['chemical_sub_class'] ? $molecule->properties['chemical_sub_class'] : '-' }}
+                                                    </a>
                                             </span>
                                         </li>
                                         <li class="py-1 flex md:py-0"><span
                                                 class="ml-3 text-base text-gray-500"><b>Direct
                                                     parent</b>:
-                                                {{ $molecule->properties && $molecule->properties['direct_parent_classification'] ? $molecule->properties['direct_parent_classification'] : '-' }}
+                                                    <a target="_blank" href="../search?q=parent%3A{{ $molecule->properties && $molecule->properties['direct_parent_classification'] ? $molecule->properties['direct_parent_classification'] : '-' }}&amp;page=1&amp;type=filters">
+                                                        {{ $molecule->properties && $molecule->properties['direct_parent_classification'] ? $molecule->properties['direct_parent_classification'] : '-' }}
+                                                    </a>
                                             </span>
                                         </li>
                                     </ul>
