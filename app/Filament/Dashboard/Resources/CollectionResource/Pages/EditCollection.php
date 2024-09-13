@@ -11,6 +11,15 @@ class EditCollection extends EditRecord
 {
     protected static string $resource = CollectionResource::class;
 
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        if (! $data['image']) {
+            $data['image'] = $this->record->image;
+        }
+
+        return $data;
+    }
+
     protected function getHeaderWidgets(): array
     {
         return [
