@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Citation;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
 use OwenIt\Auditing\Events\AuditCustom;
 
@@ -154,20 +153,6 @@ function formatCitationResponse($obj, $apiType)
 
 function customAuditLog($event_type, $model_objects, $column_name, $currentValue, $newValue)
 {
-
-    // $data = [];
-    // $data['old_values'][$column_name] = $currentValue;
-    // $data['new_values'][$column_name] = $newValue;
-
-    // if($event_type == 'cust_detach1') {
-    //     dd($data);
-    // }
-
-    // $data = changeAudit($data);
-
-    // $currentValue = $data['old_values'];
-    // $newValue = $data['new_values'];
-
     foreach ($model_objects as $model_object) {
         $model_object->auditEvent = $event_type;
         $model_object->isCustomEvent = true;
@@ -183,46 +168,29 @@ function customAuditLog($event_type, $model_objects, $column_name, $currentValue
 
 function changeAudit(array $data): array
 {
-    // if(array_key_exists('event', $data) && $data['event'] == 'cust_detach1') {
-    // dd($data);
-    // }
     $whitelist = [
         'id' => 'id',
         'name' => 'name',
         'identifier' => 'identifier',
     ];
 
-    $changed_model = null;
     $changed_data = [];
+    $changed_model = array_keys($data['old_values'])[0];
 
-    if (Arr::has($data, 'old_values.molecules')) {
-        $changed_model = 'molecules';
-    } elseif (Arr::has($data, 'old_values.organisms')) {
-        $changed_model = 'organisms';
-    } elseif (Arr::has($data, 'old_values.sampleLocations')) {
-        $changed_model = 'sampleLocations';
-    }
+    $changed_data['old_values'] = $data['old_values'][$changed_model] instanceof \Illuminate\Database\Eloquent\Model ? [$data['old_values'][$changed_model]->toArray()] : $data['old_values'][$changed_model];
+    $changed_data['new_values'] = $data['new_values'][$changed_model] instanceof \Illuminate\Database\Eloquent\Model ? [$data['new_values'][$changed_model]->toArray()] : $data['new_values'][$changed_model];
 
-    $changed_data['old_values'] = ! is_array($data['old_values'][$changed_model]) ? [$data['old_values'][$changed_model]->toArray()] : $data['old_values'][$changed_model];
-    $changed_data['new_values'] = ! is_array($data['new_values'][$changed_model]) ? [$data['new_values'][$changed_model]->toArray()] : $data['new_values'][$changed_model];
-
-    // if(array_key_exists("organisms.0.id", $changed_data['old_values'])) {
-    //     dd('data',$data);
-    // }
-    foreach ($changed_data as $key_type => $changed_data_values) {
-        $data[$key_type][$changed_model] = [];
-        foreach ($changed_data_values as $key => $value) {
-            // if(is_int($value)) {
-            //     dd('change', $changed_data);
-            // }
-            $data[$key_type][$changed_model][$key] = array_intersect_key($value, $whitelist);
+    if (! is_int($changed_data['old_values'])) {
+        foreach ($changed_data as $key_type => $changed_data_values) {
+            $data[$key_type][$changed_model] = [];
+            foreach ($changed_data_values as $key => $value) {
+                $data[$key_type][$changed_model][$key] = array_intersect_key($value, $whitelist);
+            }
         }
     }
 
-    $new_values = flattenArray($data['new_values']);
-    $old_values = flattenArray($data['old_values']);
-    $data['old_values'] = $old_values;
-    $data['new_values'] = $new_values;
+    $data['old_values'] = flattenArray($data['old_values']);
+    $data['new_values'] = flattenArray($data['new_values']);
 
     return $data;
 }
