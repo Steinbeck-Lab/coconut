@@ -24,4 +24,9 @@ class GeoLocation extends Model implements Auditable
     {
         return $this->belongsToMany(Molecule::class)->withPivot('locations')->withTimestamps();
     }
+
+    public function transformAudit(array $data): array
+    {
+        return changeAudit($data);
+    }
 }

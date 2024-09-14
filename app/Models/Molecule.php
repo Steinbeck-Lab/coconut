@@ -147,6 +147,11 @@ class Molecule extends Model implements Auditable
         return $this->belongsToMany(Molecule::class, 'molecule_related', 'molecule_id', 'related_id');
     }
 
+    public function transformAudit(array $data): array
+    {
+        return changeAudit($data);
+    }
+
     /**
      * Get schema json
      */

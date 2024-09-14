@@ -46,4 +46,9 @@ class Organism extends Model implements Auditable
     {
         return urldecode($value);
     }
+
+    public function transformAudit(array $data): array
+    {
+        return changeAudit($data);
+    }
 }

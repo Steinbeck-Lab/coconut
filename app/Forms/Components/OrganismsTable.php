@@ -23,7 +23,7 @@ class OrganismsTable extends Field
                 $sanitised_org_name = $arr[0].' '.$arr[1];
                 $q->where([
                     ['name', '!=', $record_name],
-                    ['name', 'ILIKE', '%'.$sanitised_org_name.'%']
+                    ['name', 'ILIKE', '%'.$sanitised_org_name.'%'],
                 ]);
             })
             ->get();
