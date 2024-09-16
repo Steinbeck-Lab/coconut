@@ -195,54 +195,74 @@ class MoleculesRelationManager extends RelationManager
                             DB::transaction(function () use ($data, $records, $livewire) {
                                 DB::beginTransaction();
                                 try {
+                                    $current_sample_locations = [];
+                                    $current_sample_locations_subset = [];
+                                    $new_sample_locations = [];
+                                    $molecule_with_one_location = [];
                                     $molecules_ids_with_multiple_locations = [];
-                                    foreach ($livewire->mountedTableBulkActionData['molecule_locations'] as $molecule) {
+                                    $molecues_with_muliple_locations = $livewire->mountedTableBulkActionData['molecule_locations'];
+
+                                    // Extract ids of all selected molecules
+                                    $moleculeIds = $records->pluck('id')->toArray();
+
+                                    // Extract ids of molecules with multiple locations
+                                    foreach ($molecues_with_muliple_locations as $molecule) {
                                         array_push($molecules_ids_with_multiple_locations, $molecule['id']);
                                     }
-                                    $moleculeIds = $records->pluck('id')->toArray();
-                                    $remaining_moleculeIds = array_diff($moleculeIds, $molecules_ids_with_multiple_locations);
 
-                                    // Detach molecules from Organism
+                                    // Extract ids of molecules with only one location
+                                    $molecule_ids_with_one_location = array_diff($moleculeIds, $molecules_ids_with_multiple_locations);
 
-                                    $currentOrganism = $this->getOwnerRecord();
-                                    $remaining_records = $records->whereIn('id', $remaining_moleculeIds);
-                                    $currentOrganism->auditDetach('molecules', $remaining_moleculeIds);
-                                    customAuditLog('cust_detach1', $remaining_records, 'organisms', $currentOrganism, []);
-
-                                    // Detach molecules from Sample Locations
-
-                                    foreach ($remaining_records as $record) {
-                                        $sample_locations = $record->sampleLocations()->where('organism_id', $this->getOwnerRecord()->id)->get();
-                                        foreach ($sample_locations as $location) {
-                                            $location->auditDetach('molecules', $record->id);
-                                            customAuditLog('cust_detach2', [$record], 'sampleLocations', $location, []);
-                                        }
-                                    }
-                                    // foreach ($currentOrganism->sampleLocations() as $location) {
-                                    //     if ($location->molecules()->whereIn('molecule_id', $remaining_moleculeIds)->count()) {
-                                    //         $location->auditDetach('molecules', $remaining_moleculeIds);
-                                    //         customAuditLog('cust_detach', $remaining_records, 'sampleLocations', $location, []);
-                                    //     };
-                                    // }
-                                    foreach ($livewire->mountedTableBulkActionData['molecule_locations'] as $molecule) {
-                                        $sampleLocations = SampleLocation::findOrFail($molecule['sampleLocations']);
-                                        foreach ($sampleLocations as $location) {
-                                            $location->auditDetach('molecules', $molecule['id']);
-                                            customAuditLog('cust_detach3', [$records->find($molecule['id'])], 'sampleLocations', $location, []);
-                                        }
-                                    }
+                                    // Get the NEW organism
                                     $newOrganism = Organism::findOrFail($data['org_id']);
 
-                                    $locations = $livewire->mountedTableBulkActionData['locations'];
-                                    if ($locations) {
-                                        $sampleLocations = SampleLocation::findOrFail($locations);
-                                        foreach ($sampleLocations as $location) {
-                                            $location->auditSyncWithoutDetaching('molecules', $moleculeIds);
-                                            customAuditLog('cust_sync', $records, 'sampleLocations', [], $location);
+                                    // Get the NEW sample locations
+                                    $new_form_sample_locations = $livewire->mountedTableBulkActionData['locations'];
+                                    if ($new_form_sample_locations) {
+                                        $new_sample_locations = SampleLocation::findOrFail($new_form_sample_locations);
+                                    }
+
+                                    // Get the CURRENT organism
+                                    $currentOrganism = $this->getOwnerRecord();
+
+                                    // Handling Molecules with only ONE location
+                                    // Detach Molecules with only ONE location from CURRENT Organism
+                                    if ($molecule_ids_with_one_location) {
+                                        $molecule_with_one_location = $records->whereIn('id', $molecule_ids_with_one_location);
+                                        $currentOrganism->auditDetach('molecules', $molecule_ids_with_one_location);
+
+                                        // Detach molecules with only ONE location from CURRENT Sample Locations
+                                        foreach ($molecule_with_one_location as $record) {
+                                            $current_sample_locations = $record->sampleLocations()->where('organism_id', $this->getOwnerRecord()->id)->get();
+                                            foreach ($current_sample_locations as $location) {
+                                                $location->auditDetach('molecules', $record->id);
+                                            }
                                         }
                                     }
+
+                                    // Handling Molecules with MULTIPLE locations
+                                    // Detach molecules from Sample Locations
+                                    foreach ($molecues_with_muliple_locations as $molecule) {
+                                        $current_sample_locations_subset = SampleLocation::findOrFail($molecule['sampleLocations']);
+                                        $current_sample_locations_multiple = $records->where('id', $molecule['id'])[0]->sampleLocations()->where('organism_id', $this->getOwnerRecord()->id)->get();
+                                        // dd($current_sample_locations_multiple, $current_sample_locations_subset);
+                                        if ($current_sample_locations_multiple->pluck('id') == $current_sample_locations_subset->pluck('id')) {
+                                            $currentOrganism->auditDetach('molecules', $molecule['id']);
+                                        }
+                                        foreach ($current_sample_locations_subset as $location) {
+                                            $location->auditDetach('molecules', $molecule['id']);
+                                            customAuditLog('re-assign', [$records->find($molecule['id'])], 'sampleLocations', $current_sample_locations_subset, $new_sample_locations);
+                                        }
+                                    }
+
+                                    foreach ($new_sample_locations as $location) {
+                                        $location->auditSyncWithoutDetaching('molecules', $moleculeIds);
+                                        // customAuditLog('cust_sync', $records, 'sampleLocations', [], $location);
+                                    }
+                                    customAuditLog('re-assign', $molecule_with_one_location, 'sampleLocations', $current_sample_locations, $new_sample_locations);
+
                                     $newOrganism->auditSyncWithoutDetaching('molecules', $moleculeIds);
-                                    customAuditLog('cust_sync', $records, 'organisms', [], $newOrganism);
+                                    customAuditLog('re-assign', $records, 'organisms', $currentOrganism, $newOrganism);
 
                                     $currentOrganism->refresh();
                                     $newOrganism->refresh();

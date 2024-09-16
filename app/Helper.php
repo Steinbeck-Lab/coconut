@@ -168,23 +168,34 @@ function customAuditLog($event_type, $model_objects, $column_name, $currentValue
 
 function changeAudit(array $data): array
 {
-    $whitelist = [
-        'id' => 'id',
-        'name' => 'name',
-        'identifier' => 'identifier',
-    ];
 
-    $changed_data = [];
-    $changed_model = array_keys($data['old_values'])[0];
+    if (($data['event'] === 're-assign' || $data['event'] === 'detach' || $data['event'] === 'attach' || $data['event'] === 'sync') && $data['old_values'] && $data['new_values']) {
+        $whitelist = [
+            // 'id' => 'id',
+            'name' => 'name',
+            // 'identifier' => 'identifier',
+        ];
 
-    $changed_data['old_values'] = $data['old_values'][$changed_model] instanceof \Illuminate\Database\Eloquent\Model ? [$data['old_values'][$changed_model]->toArray()] : $data['old_values'][$changed_model];
-    $changed_data['new_values'] = $data['new_values'][$changed_model] instanceof \Illuminate\Database\Eloquent\Model ? [$data['new_values'][$changed_model]->toArray()] : $data['new_values'][$changed_model];
+        $changed_data = [];
 
-    if (! is_int($changed_data['old_values'])) {
-        foreach ($changed_data as $key_type => $changed_data_values) {
-            $data[$key_type][$changed_model] = [];
-            foreach ($changed_data_values as $key => $value) {
-                $data[$key_type][$changed_model][$key] = array_intersect_key($value, $whitelist);
+        $changed_model = array_keys($data['old_values']) ? array_keys($data['old_values'])[0] : array_keys($data['new_values'])[0];
+        $changed_data['old_values'] = $data['old_values'][$changed_model] instanceof \Illuminate\Database\Eloquent\Model ? [$data['old_values'][$changed_model]->toArray()] : $data['old_values'][$changed_model];
+        $changed_data['new_values'] = $data['new_values'][$changed_model] instanceof \Illuminate\Database\Eloquent\Model ? [$data['new_values'][$changed_model]->toArray()] : $data['new_values'][$changed_model];
+
+        if (! is_int($changed_data['old_values'])) {
+            foreach ($changed_data as $key_type => $changed_data_values) {
+                $data[$key_type][$changed_model] = [];
+                foreach ($changed_data_values as $key => $value) {
+                    $value = is_array($value) ? $value : $value->toArray();
+                    if ($value) {
+                        if (array_key_exists('identifier', $value)) {
+                            $value['name'] = $value['name'].' ('.$value['id'].')'.' ('.$value['identifier'].')';
+                        } else {
+                            $value['name'] = $value['name'].' ('.$value['id'].')';
+                        }
+                    }
+                    $data[$key_type][$changed_model][$key] = array_intersect_key($value, $whitelist);
+                }
             }
         }
     }
