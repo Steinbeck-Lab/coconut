@@ -110,12 +110,12 @@ export default defineConfig({
           { text: 'Issues / Feature requests', link: '/issues' }
         ]
       },
-      {
-        text: 'Contribution',
-        items: [
-          { text: 'Contributors and Steering Committee', link: '/contributors' },
-        ]
-      }
+      // {
+      //   text: 'Contribution',
+      //   items: [
+      //     { text: 'Contributors and Steering Committee', link: '/contributors' },
+      //   ]
+      // }
     ],
 
     socialLinks: [
