@@ -61,6 +61,3 @@ Join our COCONUT Discussion Forum at [coconut-discuss@listserv.uni-jena.de](mail
     <img src="https://github.com/Steinbeck-Lab/cheminformatics-microservice/assets/30716951/45c8e153-8322-4563-a51d-cbdbe4e08627" style="width: 100%; max-width: 250px;" alt="Chembiosys Logo">
   </a>
 </div>
-
-Curation:
-For a Collection of NP or a single NP to be present of COCONUT, it should have a DOI which is referenced in at least one publication.
