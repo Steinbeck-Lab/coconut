@@ -67,6 +67,15 @@ class CreateReport extends CreateRecord
         $data['user_id'] = auth()->id();
         $data['status'] = 'submitted';
 
+        $suggested_changes = [];
+        $suggested_changes['organisms_changes'] = $data['organisms_changes'];
+        $suggested_changes['geo_locations_changes'] = $data['geo_locations_changes'];
+        $suggested_changes['synonyms_changes'] = $data['synonyms_changes'];
+        $suggested_changes['identifiers_changes'] = $data['identifiers_changes'];
+        $suggested_changes['citations_changes'] = $data['citations_changes'];
+
+        $data['suggested_changes'] = $suggested_changes;
+
         return $data;
     }
 
