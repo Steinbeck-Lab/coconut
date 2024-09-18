@@ -5,15 +5,20 @@ namespace App\Filament\Dashboard\Resources;
 use App\Filament\Dashboard\Resources\ReportResource\Pages;
 use App\Filament\Dashboard\Resources\ReportResource\RelationManagers;
 use App\Models\Citation;
+use App\Models\GeoLocation;
 use App\Models\Molecule;
+use App\Models\Organism;
 use App\Models\Report;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieTagsInput;
+use Filament\Forms\Components\Tabs;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
@@ -125,11 +130,228 @@ class ReportResource extends Resource
                     ->hidden(function (Get $get) {
                         return $get('is_change');
                     }),
-                KeyValue::make('suggested_changes')
-                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Enter the property (in the left column) and suggested change (in the right column)')
-                    ->addActionLabel('Add property')
-                    ->keyLabel('Property')
-                    ->valueLabel('Suggested change')
+                // KeyValue::make('suggested_changes')
+                //     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Enter the property (in the left column) and suggested change (in the right column)')
+                //     ->addActionLabel('Add property')
+                //     ->keyLabel('Property')
+                //     ->valueLabel('Suggested change')
+                //     ->hidden(function (Get $get) {
+                //         return ! $get('is_change');
+                //     }),
+                Tabs::make('Tabs')
+                    ->tabs([
+                        Tabs\Tab::make('organisms_changes')
+                            ->label('Organisms')
+                            ->schema([
+                                Repeater::make('organisms_changes')
+                                    ->schema([
+                                        Select::make('operation')
+                                            ->options([
+                                                'update' => 'Update',
+                                                'remove' => 'Remove',
+                                                'add' => 'Add',
+                                            ])
+                                            ->default('update')
+                                            ->live(),
+                                        Select::make('organisms')
+                                            ->label('Organism')
+                                            ->searchable()
+                                            ->searchDebounce(500)
+                                            ->getSearchResultsUsing(function (string $search, Get $get): array {
+                                                return Molecule::where('identifier', $get('../../mol_id_csv'))->get()[0]->organisms()->where('name', 'ilike', "%{$search}%")->limit(10)->pluck('organisms.name', 'organisms.id')->toArray() ?? [];
+                                            })
+                                            ->getOptionLabelUsing(fn ($value): ?string => Organism::find($value)?->name)
+                                            ->hidden(function (Get $get) {
+                                                return $get('operation') == 'add';
+                                            }),
+                                        TextInput::make('name')
+                                            ->label('Change to')
+                                            ->hidden(function (Get $get) {
+                                                return $get('operation') != 'update';
+                                            }),
+                                        Grid::make('new_organism_details')
+                                            ->schema(Organism::getForm())->columns(3)
+                                            ->hidden(function (Get $get) {
+                                                return $get('operation') != 'add';
+                                            })
+                                            ->columnStart(2),
+                                    ])
+                                    ->reorderable(false)
+                                    ->columns(4),
+
+                            ]),
+                        Tabs\Tab::make('geo_locations_changes')
+                            ->label('Geo Locations')
+                            ->schema([
+                                Repeater::make('geo_locations_changes')
+                                    ->schema([
+                                        Select::make('operation')
+                                            ->options([
+                                                'update' => 'Update',
+                                                'remove' => 'Remove',
+                                                'add' => 'Add',
+                                            ])
+                                            ->default('update')
+                                            ->live(),
+                                        Select::make('geo_locations')
+                                            ->label('Geo Location')
+                                            ->searchable()
+                                            ->searchDebounce(500)
+                                            ->getSearchResultsUsing(function (string $search, Get $get): array {
+                                                return Molecule::where('identifier', $get('../../mol_id_csv'))->get()[0]->geo_locations()->where('name', 'ilike', "%{$search}%")->limit(10)->pluck('geo_locations.name', 'geo_locations.id')->toArray();
+                                            })
+                                            ->getOptionLabelUsing(fn ($value): ?string => GeoLocation::find($value)?->name)
+                                            ->hidden(function (Get $get) {
+                                                return $get('operation') == 'add';
+                                            }),
+                                        TextInput::make('name')
+                                            ->label('Change to')
+                                            ->hidden(function (Get $get) {
+                                                return $get('operation') != 'update';
+                                            }),
+                                        Grid::make('new_geo_locations_details')
+                                            ->schema(GeoLocation::getForm())->columns(3)
+                                            ->hidden(function (Get $get) {
+                                                return $get('operation') != 'add';
+                                            })
+                                            ->columnStart(2),
+                                    ])
+                                    ->reorderable(false)
+                                    ->columns(4),
+                            ]),
+                        Tabs\Tab::make('synonyms')
+                            ->label('Synonyms')
+                            ->schema([
+                                Repeater::make('synonyms_changes')
+                                    ->schema([
+                                        Select::make('operation')
+                                            ->options([
+                                                'update' => 'Update',
+                                                'remove' => 'Remove',
+                                                'add' => 'Add',
+                                            ])
+                                            ->default('update')
+                                            ->live(),
+                                        Select::make('synonyms')
+                                            ->label('Synonym')
+                                            ->searchable()
+                                            ->searchDebounce(500)
+                                            ->getSearchResultsUsing(function (string $search, Get $get): array {
+                                                $synonyms = Molecule::select('synonyms')->where('identifier', $get('../../mol_id_csv'))->get()[0]['synonyms'];
+                                                $matched_synonyms = [];
+                                                foreach ($synonyms as $synonym) {
+                                                    str_contains(strtolower($synonym), strtolower($search)) ? array_push($matched_synonyms, $synonym) : null;
+                                                }
+
+                                                return $matched_synonyms;
+                                            })
+                                            ->hidden(function (Get $get) {
+                                                return $get('operation') == 'add';
+                                            }),
+                                        TextInput::make('name')
+                                            ->label('Change to')
+                                            ->hidden(function (Get $get) {
+                                                return $get('operation') != 'update';
+                                            }),
+                                        Grid::make('new_synonym_details')
+                                            ->schema([
+                                                TagsInput::make('new_synonym')
+                                                    ->label('New Synonym')
+                                                    ->separator(',')
+                                                    ->splitKeys([',']),
+                                            ])->columns(3)
+                                            ->hidden(function (Get $get) {
+                                                return $get('operation') != 'add';
+                                            })
+                                            ->columnStart(2),
+                                    ])
+                                    ->reorderable(false)
+                                    ->columns(4),
+                            ]),
+                        Tabs\Tab::make('identifiers')
+                            ->label('Identifiers')
+                            ->schema([
+                                Repeater::make('identifiers_changes')
+                                    ->schema([
+                                        Select::make('identifer_to_change')
+                                            ->options([
+                                                'name' => 'Name',
+                                                'cas' => 'CAS',
+                                            ])
+                                            ->default('name')
+                                            ->live(),
+                                        Select::make('current_Name')
+                                            ->options(function (Get $get): array {
+                                                return [Molecule::where('identifier', $get('../../mol_id_csv'))->get()[0]->name ?? ''];
+                                            })
+                                            ->default(0)
+                                            ->disabled()
+                                            ->hidden(function (Get $get) {
+                                                return $get('identifer_to_change') == 'cas';
+                                            }),
+                                        Select::make('current_CAS')
+                                            ->options(function (Get $get): array {
+                                                return [Molecule::where('identifier', $get('../../mol_id_csv'))->get()[0]->cas];
+                                            })
+                                            ->default(0)
+                                            ->disabled()
+                                            ->hidden(function (Get $get) {
+                                                return $get('identifer_to_change') == 'name';
+                                            }),
+                                        TextInput::make('new_name')
+                                            ->label(function (Get $get) {
+                                                return $get('identifer_to_change') == 'name' ? 'New Name' : 'New CAS';
+                                            }),
+                                    ])
+                                    ->reorderable(false)
+                                    ->columns(4),
+                            ]),
+                        Tabs\Tab::make('citations')
+                            ->label('Citations')
+                            ->schema([
+                                Repeater::make('citations_changes')
+                                    ->schema([
+                                        Select::make('operation')
+                                            ->options([
+                                                'update' => 'Update',
+                                                'remove' => 'Remove',
+                                                'add' => 'Add',
+                                            ])
+                                            ->default('update')
+                                            ->live(),
+                                        Select::make('citations')
+                                            ->label('Citation')
+                                            ->searchable()
+                                            ->searchDebounce(500)
+                                            ->getSearchResultsUsing(function (string $search, Get $get): array {
+                                                return Molecule::where('identifier', $get('../../mol_id_csv'))->get()[0]->citations()->where('title', 'ilike', "%{$search}%")->limit(10)->pluck('citations.title', 'citations.id')->toArray();
+                                            })
+                                            ->getOptionLabelUsing(fn ($value): ?string => Citation::find($value)?->name)
+                                            ->hidden(function (Get $get) {
+                                                return $get('operation') == 'add';
+                                            }),
+                                        TextInput::make('name')
+                                            ->label('Change to')
+                                            ->hidden(function (Get $get) {
+                                                return $get('operation') != 'update';
+                                            }),
+                                        Grid::make('new_citation_details')
+                                            ->schema(Citation::getForm())->columns(3)
+                                            ->hidden(function (Get $get) {
+                                                return $get('operation') != 'add';
+                                            })
+                                            ->columnStart(2),
+                                    ])
+                                    ->reorderable(false)
+                                    ->columns(4),
+
+                            ]),
+
+                        Tabs\Tab::make('Chemical Classifications')
+                            ->schema([
+                                // ...
+                            ]),
+                    ])
                     ->hidden(function (Get $get) {
                         return ! $get('is_change');
                     }),
