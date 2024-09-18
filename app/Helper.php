@@ -189,9 +189,9 @@ function changeAudit(array $data): array
                     $value = is_array($value) ? $value : $value->toArray();
                     if ($value) {
                         if (array_key_exists('identifier', $value)) {
-                            $value['name'] = $value['name'].' ('.$value['id'].')'.' ('.$value['identifier'].')';
+                            $value['name'] = $value['name'].' (ID: '.$value['id'].')'.' (COCONUT ID: '.$value['identifier'].')';
                         } else {
-                            $value['name'] = $value['name'].' ('.$value['id'].')';
+                            $value['name'] = $value['name'].' (ID: '.$value['id'].')';
                         }
                     }
                     $data[$key_type][$changed_model][$key] = array_intersect_key($value, $whitelist);
