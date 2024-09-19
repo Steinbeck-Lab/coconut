@@ -15,6 +15,3 @@
   * Structures that cannot be parsed by the ChEMBL structure curation pipeline (113 in total) have been removed.
   * Duplicates have been merged into one entry and the highly annotated entry has been made the parent entry, and the remainder is now included in the parent entry.
 
-  ## Curation flow chart
-
-  <iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://www.figma.com/embed?embed_host=share&url=https%3A%2F%2Fwww.figma.com%2Fboard%2FNXjyhBxyzObP5FuhciKpaE%2FCuration-flow-chart%3Fnode-id%3D0-1%26t%3DYu2YXLQGa7KIvo6O-1" allowfullscreen></iframe>
