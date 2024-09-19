@@ -168,6 +168,13 @@ function customAuditLog($event_type, $model_objects, $column_name, $currentValue
 
 function changeAudit(array $data): array
 {
+    // set the user_id and user_type if they are null (commands)
+    if (! $data['user_id']) {
+        $data['user_id'] = 11;
+    }
+    if (! $data['user_type']) {
+        $data['user_type'] = 'App\Models\User';
+    }
 
     if (($data['event'] === 're-assign' || $data['event'] === 'detach' || $data['event'] === 'attach' || $data['event'] === 'sync') && $data['old_values'] && $data['new_values']) {
         $whitelist = [

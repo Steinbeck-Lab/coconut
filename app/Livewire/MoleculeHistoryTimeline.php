@@ -22,8 +22,8 @@ class MoleculeHistoryTimeline extends Component
             //     $audit_data[$index]['affected_columns'][$key]['new_value'] = $value['new']??null;
             // }
 
-            $old_key = explode('.', array_keys($audit->old_values)[0]??null)[0]??'none';
-            $new_key = explode('.', array_keys($audit->new_values)[0]??null)[0]??'none';
+            $old_key = $audit->old_values ? explode('.', array_keys($audit->old_values)[0])[0] : null;
+            $new_key = $audit->new_values ? explode('.', array_keys($audit->new_values)[0])[0] : null;
 
             $old_key = $old_key ?: $new_key;
             $new_key = $new_key ?: $old_key;
