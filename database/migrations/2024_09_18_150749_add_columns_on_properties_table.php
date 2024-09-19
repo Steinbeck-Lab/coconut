@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('properties', function (Blueprint $table) {
-            $table->text('pathway_results')->nullable();
-            $table->text('superclass_results')->nullable();
-            $table->text('class_results')->nullable();
-            $table->boolean('isglycoside')->nullable();
+            $table->text('np_classifier_pathway')->nullable();
+            $table->text('np_classifier_superclass')->nullable();
+            $table->text('np_classifier_class')->nullable();
+            $table->boolean('np_classifier_is_glycoside')->nullable();
 
         });
     }
@@ -26,7 +26,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('properties', function (Blueprint $table) {
-            $table->dropColumn(['pathway_results', 'superclass_results', 'class_results', 'isglycoside']);
+            $table->dropColumn(['np_classifier_pathway', 'np_classifier_superclass', 'np_classifier_class', 'np_classifier_is_glycoside']);
         });
     }
 };

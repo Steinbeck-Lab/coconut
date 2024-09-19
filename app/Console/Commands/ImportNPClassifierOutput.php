@@ -84,10 +84,10 @@ class ImportNPClassifierOutput extends Command
         DB::transaction(function () use ($data) {
             foreach ($data as $row) {
                 $properties = Molecule::where('identifier', $row['identifier'])->first()->properties()->get()[0];
-                $properties['pathway_results'] = $row['pathway_results'] == '' ? null : $row['pathway_results'];
-                $properties['superclass_results'] = $row['superclass_results'] == '' ? null : $row['superclass_results'];
-                $properties['class_results'] = $row['class_results'] == '' ? null : $row['class_results'];
-                $properties['isglycoside'] = $row['isglycoside'] == '' ? null : $row['isglycoside'];
+                $properties['np_classifier_pathway'] = $row['pathway_results'] == '' ? null : $row['pathway_results'];
+                $properties['np_classifier_superclass'] = $row['superclass_results'] == '' ? null : $row['superclass_results'];
+                $properties['np_classifier_class'] = $row['class_results'] == '' ? null : $row['class_results'];
+                $properties['np_classifier_is_glycoside'] = $row['isglycoside'] == '' ? null : $row['isglycoside'];
                 $properties->save();
             }
         });
