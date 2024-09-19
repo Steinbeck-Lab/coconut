@@ -1,4 +1,4 @@
-<div x-data="{ on: false}" x-effect="on && $wire.getHistory()" class="mt-5">
+<div x-data="{ on: true}" x-effect="on && $wire.getHistory()" class="mt-5">
     <button type="button" x-on:click="on = !on" class="text-base font-semibold text-text-dark hover:text-slate-600" wire:transition="fade">
         <span x-show="!on">View complete history → </span>
         <span x-show="on">View complete history ↓ </span>
@@ -33,7 +33,7 @@
                                     <span class="tooltiptext ">
                                         @switch(explode('.',$column_name)[0])
                                         @case('comment')
-                                        {{$column_values['new_value']}}
+                                        {{$column_values['new_value'][0]['comment'] ?? 'N/A'}}
                                         @break
                                         @case('active')
                                         @if ($column_values['new_value'])
