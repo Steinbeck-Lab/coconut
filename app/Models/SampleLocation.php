@@ -40,4 +40,9 @@ class SampleLocation extends Model implements Auditable
     {
         return $this->belongsToMany(Molecule::class);
     }
+
+    public function transformAudit(array $data): array
+    {
+        return changeAudit($data);
+    }
 }
