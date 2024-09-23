@@ -26,18 +26,21 @@ Natural products are small bioactive molecules produced by living organisms with
 ## Citation Guidelines
 
 ### Citing Paper
-```md
-Sorokina, M., Merseburger, P., Rajan, K. et al. 
-COCONUT online: Collection of Open Natural Products database. 
-J Cheminform 13, 2 (2021). 
-https://doi.org/10.1186/s13321-020-00478-9
-```
+
 ```md
 Nainala VC, Rajan K, Kanakam SRS, Sharma N, Weißenborn V, Schaub J, et al.
 COCONUT 2.0: A comprehensive overhaul and curation of the collection of open natural products database.
 ChemRxiv. 2024;
 https://doi.org/10.26434/chemrxiv-2024-fxq2s
 ```
+
+```md
+Sorokina, M., Merseburger, P., Rajan, K. et al. 
+COCONUT online: Collection of Open Natural Products database. 
+J Cheminform 13, 2 (2021). 
+https://doi.org/10.1186/s13321-020-00478-9
+```
+
 
 ### Citing Software
 ```md

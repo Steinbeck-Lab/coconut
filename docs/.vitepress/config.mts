@@ -49,8 +49,8 @@ export default defineConfig({
       {
         text: 'Downloads',
         items: [
-          { text: 'Data Base', link: '/data-base' },
           { text: 'Versions', link: '/versions' },
+          { text: 'Data', link: '/data-base' },
           { text: 'Use Cases', link: '/use-cases' },
         ]
       },
@@ -110,12 +110,12 @@ export default defineConfig({
           { text: 'Issues / Feature requests', link: '/issues' }
         ]
       },
-      {
-        text: 'Contribution',
-        items: [
-          { text: 'Contributors and Steering Committee', link: '/contributors' },
-        ]
-      }
+      // {
+      //   text: 'Contribution',
+      //   items: [
+      //     { text: 'Contributors and Steering Committee', link: '/contributors' },
+      //   ]
+      // }
     ],
 
     socialLinks: [
