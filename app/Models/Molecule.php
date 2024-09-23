@@ -60,6 +60,7 @@ class Molecule extends Model implements Auditable
     protected $casts = [
         'synonyms' => 'array',
         'cas' => 'array',
+        'comment' => 'array',
     ];
 
     /**
@@ -145,6 +146,11 @@ class Molecule extends Model implements Auditable
     public function related()
     {
         return $this->belongsToMany(Molecule::class, 'molecule_related', 'molecule_id', 'related_id');
+    }
+
+    public function transformAudit(array $data): array
+    {
+        return changeAudit($data);
     }
 
     /**

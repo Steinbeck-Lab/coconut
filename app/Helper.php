@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\Citation;
+use Illuminate\Support\Facades\Event;
+use OwenIt\Auditing\Events\AuditCustom;
 
 function npScore($old_value)
 {
@@ -147,4 +149,86 @@ function formatCitationResponse($obj, $apiType)
     }
 
     return $formattedCitationRes;
+}
+
+function customAuditLog($event_type, $model_objects, $column_name, $currentValue, $newValue)
+{
+    foreach ($model_objects as $model_object) {
+        $model_object->auditEvent = $event_type;
+        $model_object->isCustomEvent = true;
+        $model_object->auditCustomOld = [
+            $column_name => $currentValue,
+        ];
+        $model_object->auditCustomNew = [
+            $column_name => $newValue,
+        ];
+        Event::dispatch(AuditCustom::class, [$model_object]);
+    }
+}
+
+function changeAudit(array $data): array
+{
+    // set the user_id and user_type if they are null (commands)
+    if (! $data['user_id']) {
+        $data['user_id'] = 11;
+    }
+    if (! $data['user_type']) {
+        $data['user_type'] = 'App\Models\User';
+    }
+
+    if (($data['event'] === 're-assign' || $data['event'] === 'detach' || $data['event'] === 'attach' || $data['event'] === 'sync') && $data['old_values'] && $data['new_values']) {
+        $whitelist = [
+            // 'id' => 'id',
+            'name' => 'name',
+            // 'identifier' => 'identifier',
+        ];
+
+        $changed_data = [];
+
+        $changed_model = array_keys($data['old_values']) ? array_keys($data['old_values'])[0] : array_keys($data['new_values'])[0];
+        $changed_data['old_values'] = $data['old_values'][$changed_model] instanceof \Illuminate\Database\Eloquent\Model ? [$data['old_values'][$changed_model]->toArray()] : $data['old_values'][$changed_model];
+        $changed_data['new_values'] = $data['new_values'][$changed_model] instanceof \Illuminate\Database\Eloquent\Model ? [$data['new_values'][$changed_model]->toArray()] : $data['new_values'][$changed_model];
+
+        if (! is_int($changed_data['old_values'])) {
+            foreach ($changed_data as $key_type => $changed_data_values) {
+                $data[$key_type][$changed_model] = [];
+                foreach ($changed_data_values as $key => $value) {
+                    $value = is_array($value) ? $value : $value->toArray();
+                    if ($value) {
+                        if (array_key_exists('identifier', $value)) {
+                            $value['name'] = $value['name'].' (ID: '.$value['id'].')'.' (COCONUT ID: '.$value['identifier'].')';
+                        } else {
+                            $value['name'] = $value['name'].' (ID: '.$value['id'].')';
+                        }
+                    }
+                    $data[$key_type][$changed_model][$key] = array_intersect_key($value, $whitelist);
+                }
+            }
+        }
+    }
+
+    $data['old_values'] = flattenArray($data['old_values']);
+    $data['new_values'] = flattenArray($data['new_values']);
+
+    return $data;
+}
+
+function flattenArray(array $array, $prefix = ''): array
+{
+    $result = [];
+
+    foreach ($array as $key => $value) {
+        // Determine the new key based on whether a prefix exists
+        $newKey = $prefix === '' ? $key : $prefix.'.'.$key;
+
+        // If the value is an array, flatten it recursively
+        if (is_array($value)) {
+            $result = array_merge($result, flattenArray($value, $newKey));
+        } else {
+            // Add the value to the result with the appropriate key
+            $result[$newKey] = $value;
+        }
+    }
+
+    return $result;
 }

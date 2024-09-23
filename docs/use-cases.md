@@ -18,6 +18,10 @@
 **Purpose:** Identify and characterize novel compounds through small molecule mass spectrometry.
 
 - **Applications:** Exploration of bioactive molecules for therapeutic use
-- **Status:** Coming soon
 
 [Download Data](https://coconut.naturalproducts.net/download)
+
+##
+::: info Need specific data for your use cases?
+If you need data in a specific format to suit your specific use, please contact us at [info.COCONUT@uni-jena.de](mailto:info.COCONUT@uni-jena.de)
+:::

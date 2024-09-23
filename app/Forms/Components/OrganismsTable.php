@@ -19,8 +19,12 @@ class OrganismsTable extends Field
         return Organism::select('id', 'name', urldecode('iri'), 'molecule_count')
             ->where('molecule_count', '>', 0)
             ->where(function ($q) use ($record_name) {
-                $q->where('name', 'ILIKE', '%'.$record_name.'%')
-                    ->orWhereRaw('? ILIKE CONCAT(\'%\', name, \'%\')', [$record_name]);
+                $arr = explode(' ', $record_name);
+                $sanitised_org_name = $arr[0].' '.$arr[1];
+                $q->where([
+                    ['name', '!=', $record_name],
+                    ['name', 'ILIKE', '%'.$sanitised_org_name.'%'],
+                ]);
             })
             ->get();
     }
