@@ -24,8 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('reports', function (Blueprint $table) {
-            $table->dropColumn([ 'query']);
-            $table->renameColumn('doi', 'url');
+            $table->dropColumn(['doi', 'query']);
         });
     }
 };

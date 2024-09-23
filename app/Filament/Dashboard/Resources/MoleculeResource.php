@@ -124,8 +124,12 @@ class MoleculeResource extends Resource
                                 }),
                         ])
                         ->action(function (array $data, Molecule $record): void {
+
                             $record->active = ! $record->active;
-                            self::saveComment($record, $data['reason']);
+
+                            $record->active ?: $record->comment = $data['reason'];
+
+                            $record->save();
                         })
                         ->modalHidden(function (Molecule $record) {
                             return ! $record['active'];
@@ -144,7 +148,10 @@ class MoleculeResource extends Resource
                         ->action(function (array $data, Collection $records): void {
                             foreach ($records as $record) {
                                 $record->active = ! $record->active;
-                                self::saveComment($record, $data['reason']);
+
+                                $record->comment = $data['reason'];
+
+                                $record->save();
                             }
                         })
                         // ->modalHidden(function (Molecule $record) {
@@ -206,16 +213,5 @@ class MoleculeResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         return Cache::get('stats.molecules');
-    }
-
-    public static function saveComment($record, $reason)
-    {
-        $record->comment = [[
-            'timestamp' => now(),
-            'changed_by' => auth()->user()->id,
-            'comment' => $reason,
-        ]];
-
-        $record->save();
     }
 }

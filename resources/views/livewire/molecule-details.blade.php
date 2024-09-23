@@ -17,9 +17,11 @@
                             of conclusive evidence supporting its classification as a natural product.</p>
                         <div class="mt-2 text-sm text-red-700">
                             <ul role="list" class="list-disc space-y-1 pl-5">
-                                    <li>{{ $molecule->comment[0]['comment'] }} <br />
-                                        <date>Last update: {{ $molecule->comment[0]['timestamp'] }}<date>
+                                @foreach ($molecule->comment as $comment)
+                                    <li>{{ $comment['comment'] }} <br />
+                                        <date>Last update: {{ $comment['timestamp'] }}<date>
                                     </li>
+                                @endforeach
                             </ul>
                         </div>
                         <a class="mt-5 mb-3 relative inline-flex items-center gap-x-1.5 rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"

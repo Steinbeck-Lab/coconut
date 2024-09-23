@@ -25,7 +25,7 @@ export default defineConfig({
 
     nav: [
       { text: 'Home', link: '/introduction' },
-      // { text: 'API', link: 'https://coconut.cheminf.studio/api-documentation' },
+      { text: 'API', link: 'https://coconut.cheminf.studio/api-documentation' },
       { text: 'About', link: 'https://coconut.cheminf.studio/about' },
       { text: 'Download', link: 'https://coconut.cheminf.studio/download' }
     ],
@@ -47,19 +47,19 @@ export default defineConfig({
         ]
       },
       {
-        text: 'Downloads',
+        text: 'Curation',
         items: [
-          { text: 'Versions', link: '/versions' },
-          { text: 'Data', link: '/data-base' },
-          { text: 'Use Cases', link: '/use-cases' },
+          { text: 'Analysis', link: '/analysis' },
+          { text: 'Reporting', link: '/reporting' },
+          { text: 'Audit Trail', link: '/audit-trail' }
         ]
       },
       {
-        text: 'Curation',
+        text: 'Downloads',
         items: [
-          // { text: 'Analysis', link: '/analysis' },
-          { text: 'Reporting', link: '/reporting' },
-          { text: 'Audit Trail', link: '/audit-trail' }
+          { text: 'Data Base', link: '/data-base' },
+          { text: 'Use Cases', link: '/use-cases' },
+          { text: 'Versions', link: '/versions' },
         ]
       },
       {
@@ -77,16 +77,16 @@ export default defineConfig({
           // { text: 'Multiple Compound Submission', link: '/multi-submission' },
         ]
       },
-      // {
-      //   text: 'API',
-      //   items: [
-      //     { text: 'Auth', link: '/auth-api' },
-      //     { text: 'Search', link: '/search-api' },
-      //     { text: 'Schemas', link: '/schemas-api' },
-      //     { text: 'Download', link: '/download-api' },
-      //     { text: 'Submission', link: '/submission-api' }
-      //   ]
-      // },
+      {
+        text: 'API',
+        items: [
+          { text: 'Auth', link: '/auth-api' },
+          { text: 'Search', link: '/search-api' },
+          { text: 'Schemas', link: '/schemas-api' },
+          // { text: 'Download', link: '/download-api' },
+          // { text: 'Submission', link: '/submission-api' }
+        ]
+      },
       {
         text: 'Development',
         items: [
@@ -97,9 +97,7 @@ export default defineConfig({
       {
         text: 'Contribution',
         items: [
-          { text: 'Steering Committee', link: '/steering-committee' },
-          { text: 'Developers', link: '/developers' },
-          // { text: 'Data Contributors', link: '/data-contributors' },
+          { text: 'Contributors and Steering Committee', link: '/contributors' }
         ],
       },
       {
@@ -110,12 +108,12 @@ export default defineConfig({
           { text: 'Issues / Feature requests', link: '/issues' }
         ]
       },
-      // {
-      //   text: 'Contribution',
-      //   items: [
-      //     { text: 'Contributors and Steering Committee', link: '/contributors' },
-      //   ]
-      // }
+      {
+        text: 'Contribution',
+        items: [
+          { text: 'Contributors and Steering Committee', link: '/contributors' },
+        ]
+      }
     ],
 
     socialLinks: [

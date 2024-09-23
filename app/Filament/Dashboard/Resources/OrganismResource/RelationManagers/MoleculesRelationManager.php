@@ -46,24 +46,14 @@ class MoleculesRelationManager extends RelationManager
                     ->height(200)
                     ->ring(5)
                     ->defaultImageUrl(url('/images/placeholder.png')),
-                Tables\Columns\TextColumn::make('id')->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('id')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('identifier')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('identifier')
                     ->label('Details')
                     ->formatStateUsing(
-                        function (Molecule $molecule, $record): HtmlString {
-                            $sample_locations = $record->sampleLocations()->where('organism_id', $this->getOwnerRecord()->id)->pluck('name')->implode(', ');
-
-                            return new HtmlString(
-                                "<strong>ID:</strong> {$molecule->id}<br>
-                                                    <strong>Identifier:</strong> {$molecule->identifier}<br>
-                                                    <strong>Name:</strong> {$molecule->name}<br>
-                                                    <strong>Sample Locations:</strong> {$sample_locations}"
-                            );
-                        }
+                        fn (Molecule $molecule): HtmlString => new HtmlString("<strong>ID:</strong> {$molecule->id}<br><strong>Identifier:</strong> {$molecule->identifier}<br><strong>Name:</strong> {$molecule->name}")
                     )
                     ->description(fn (Molecule $molecule): string => $molecule->standard_inchi)
-                    ->searchable()
                     ->wrap(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
@@ -108,6 +98,7 @@ class MoleculesRelationManager extends RelationManager
                                             $searchString = "%$search%";
                                             $builder->where('name', 'ilike', $searchString);
                                         })
+
                                         ->limit(10)
                                         ->get()
                                         ->mapWithKeys(function (Organism $organism) {
@@ -155,114 +146,28 @@ class MoleculesRelationManager extends RelationManager
                                         'organism_id' => $livewire->mountedTableBulkActionData['org_id'],
                                     ])->getKey();
                                 }),
-                            Forms\Components\Repeater::make('molecule_locations')
-                                ->schema([
-                                    Forms\Components\TextInput::make('id'),
-                                    Forms\Components\TextInput::make('name'),
-                                    Forms\Components\Select::make('sampleLocations')
-                                        ->relationship('sampleLocations', 'name')
-                                        ->multiple()
-                                        ->preload(),
-                                ])
-                                ->default(function ($livewire, Collection $filtered) {
-                                    $records = $livewire->getSelectedTableRecords();
-                                    foreach ($records as $record) {
-                                        $record->sampleLocations = $record->sampleLocations()->where('organism_id', $this->getOwnerRecord()->id)->get();
-                                        if ($record->sampleLocations->count() > 1) {
-                                            $filtered->push($record);
-                                        }
-                                    }
-
-                                    return $filtered->map(function ($record) {
-                                        $location_ids = [];
-                                        foreach ($record->sampleLocations as $location) {
-                                            array_push($location_ids, $location->id);
-                                        }
-
-                                        return [
-                                            'sampleLocations' => $location_ids,
-                                            'name' => $record->name,
-                                            'id' => $record->id,
-                                        ];
-                                    })->toArray();
-                                })
-                                ->columns(3)
-                                ->reorderable(false)
-                                ->addable(false)
-                                ->deletable(false),
                         ])
                         ->action(function (array $data, Collection $records, $livewire): void {
                             DB::transaction(function () use ($data, $records, $livewire) {
                                 DB::beginTransaction();
                                 try {
-                                    $current_sample_locations = [];
-                                    $current_sample_locations_subset = [];
-                                    $new_sample_locations = [];
-                                    $molecule_with_one_location = [];
-                                    $molecules_ids_with_multiple_locations = [];
-                                    $molecues_with_muliple_locations = $livewire->mountedTableBulkActionData['molecule_locations'];
-
-                                    // Extract ids of all selected molecules
                                     $moleculeIds = $records->pluck('id')->toArray();
+                                    $currentOrganism = $this->getOwnerRecord();
+                                    $currentOrganism->auditDetach('molecules', $moleculeIds);
 
-                                    // Extract ids of molecules with multiple locations
-                                    foreach ($molecues_with_muliple_locations as $molecule) {
-                                        array_push($molecules_ids_with_multiple_locations, $molecule['id']);
+                                    foreach ($currentOrganism->sampleLocations as $location) {
+                                        $location->auditDetach('molecules', $moleculeIds);
                                     }
-
-                                    // Extract ids of molecules with only one location
-                                    $molecule_ids_with_one_location = array_diff($moleculeIds, $molecules_ids_with_multiple_locations);
-
-                                    // Get the NEW organism
                                     $newOrganism = Organism::findOrFail($data['org_id']);
 
-                                    // Get the NEW sample locations
-                                    $new_form_sample_locations = $livewire->mountedTableBulkActionData['locations'];
-                                    if ($new_form_sample_locations) {
-                                        $new_sample_locations = SampleLocation::findOrFail($new_form_sample_locations);
-                                    }
-
-                                    // Get the CURRENT organism
-                                    $currentOrganism = $this->getOwnerRecord();
-
-                                    // Handling Molecules with only ONE location
-                                    // Detach Molecules with only ONE location from CURRENT Organism
-                                    if ($molecule_ids_with_one_location) {
-                                        $molecule_with_one_location = $records->whereIn('id', $molecule_ids_with_one_location);
-                                        $currentOrganism->auditDetach('molecules', $molecule_ids_with_one_location);
-
-                                        // Detach molecules with only ONE location from CURRENT Sample Locations
-                                        foreach ($molecule_with_one_location as $record) {
-                                            $current_sample_locations = $record->sampleLocations()->where('organism_id', $this->getOwnerRecord()->id)->get();
-                                            foreach ($current_sample_locations as $location) {
-                                                $location->auditDetach('molecules', $record->id);
-                                            }
+                                    $locations = $livewire->mountedTableBulkActionData['locations'];
+                                    if ($locations) {
+                                        $sampleLocations = SampleLocation::findOrFail($locations);
+                                        foreach ($sampleLocations as $location) {
+                                            $location->auditSyncWithoutDetaching('molecules', $moleculeIds);
                                         }
                                     }
-
-                                    // Handling Molecules with MULTIPLE locations
-                                    // Detach molecules from Sample Locations
-                                    foreach ($molecues_with_muliple_locations as $molecule) {
-                                        $current_sample_locations_subset = SampleLocation::findOrFail($molecule['sampleLocations']);
-                                        $current_sample_locations_multiple = $records->where('id', $molecule['id'])[0]->sampleLocations()->where('organism_id', $this->getOwnerRecord()->id)->get();
-                                        // dd($current_sample_locations_multiple, $current_sample_locations_subset);
-                                        if ($current_sample_locations_multiple->pluck('id') == $current_sample_locations_subset->pluck('id')) {
-                                            $currentOrganism->auditDetach('molecules', $molecule['id']);
-                                        }
-                                        foreach ($current_sample_locations_subset as $location) {
-                                            $location->auditDetach('molecules', $molecule['id']);
-                                            customAuditLog('re-assign', [$records->find($molecule['id'])], 'sampleLocations', $current_sample_locations_subset, $new_sample_locations);
-                                        }
-                                    }
-
-                                    foreach ($new_sample_locations as $location) {
-                                        $location->auditSyncWithoutDetaching('molecules', $moleculeIds);
-                                        // customAuditLog('cust_sync', $records, 'sampleLocations', [], $location);
-                                    }
-                                    customAuditLog('re-assign', $molecule_with_one_location, 'sampleLocations', $current_sample_locations, $new_sample_locations);
-
                                     $newOrganism->auditSyncWithoutDetaching('molecules', $moleculeIds);
-                                    customAuditLog('re-assign', $records, 'organisms', $currentOrganism, $newOrganism);
 
                                     $currentOrganism->refresh();
                                     $newOrganism->refresh();
