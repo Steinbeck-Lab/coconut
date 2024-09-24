@@ -129,7 +129,7 @@ class Molecule extends Model implements Auditable
 
     public function sampleLocations(): BelongsToMany
     {
-        return $this->belongsToMany(SampleLocation::class);
+        return $this->belongsToMany(SampleLocation::class)->withTimestamps();
     }
 
     /**
