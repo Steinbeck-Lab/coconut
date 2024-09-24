@@ -10,6 +10,7 @@
             <!-- Activity feed -->
             <ul role="list" class="mt-6 space-y-3">
                 @foreach ($audit_data as $audit)
+                @if (array_key_exists('affected_columns', $audit))
                 <li class="relative flex gap-x-1">
                     <div class="absolute -bottom-6 left-0 top-0 flex w-6 justify-center">
                         <div class="w-px bg-gray-200"></div>
@@ -66,6 +67,7 @@
                     </p>
                     <time datetime="2023-01-23T10:32" class="flex-none py-0.5 text-xs leading-5 text-gray-500">{{$audit['created_at']}}</time>
                 </li>
+                @endif
                 @endforeach
             </ul>
         </div>
