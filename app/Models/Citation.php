@@ -73,6 +73,7 @@ class Citation extends Model implements Auditable
                         ->live(onBlur: true)
                         ->afterStateUpdated(function ($set, $state) {
                             if (doiRegxMatch($state)) {
+                                $set('failMessage', 'Fetching');
                                 $citationDetails = fetchDOICitation($state);
                                 if ($citationDetails) {
                                     $set('title', $citationDetails['title']);
@@ -103,7 +104,7 @@ class Citation extends Model implements Auditable
                         ->unique()
                         ->rules([
                             fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
-                                if ($get('failMessage') != 'No citation found. Please fill in the details manually') {
+                                if ($get('failMessage') != 'Success') {
                                     $fail($get('failMessage'));
                                 }
                             },
