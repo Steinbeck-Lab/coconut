@@ -34,26 +34,46 @@
                                     <span class="tooltiptext ">
                                         @switch(explode('.',$column_name)[0])
                                         @case('comment')
-                                        {{$column_values['new_value'][0]['comment'] ?? 'N/A'}}
+                                            {{$column_values['new_value'][0]['comment'] ?? 'N/A'}}
                                         @break
                                         @case('active')
-                                        @if ($column_values['new_value'])
-                                        Activated
-                                        @else
-                                        Deactivated
-                                        @endif
+                                            @if ($column_values['new_value'])
+                                            Activated
+                                            @else
+                                            Deactivated
+                                            @endif
                                         @break
                                         @case('created')
-                                        Initial creation of the compound on COCONUT
+                                            Initial creation of the compound on COCONUT
                                         @break
                                         @case('organisms')
                                         @case('sampleLocations')
-                                            <span class="font-bold">Detached from:</span> <br /> {{$column_values['old_value']?:'N/A'}} <br />
-                                            <span class="font-bold">Attached to:</span> <br /> {{$column_values['new_value']?:'N/A'}} <br />
+                                            @if ($column_values['old_value'])
+                                                <span class="font-bold">Detached from:</span> <br /> {{$column_values['old_value']?:'N/A'}} <br />
+                                            @endif
+                                            @if ($column_values['new_value'])
+                                                <span class="font-bold">Attached to:</span> <br /> {{$column_values['new_value']?:'N/A'}} <br />
+                                            @endif
+                                        @break
+                                        @case('synonyms')
+                                            @if (array_diff($column_values['old_value'], $column_values['new_value']))
+                                                <span class="font-bold">Removed: </span> <br /> {{implode(', ',array_diff($column_values['old_value'], $column_values['new_value']))}} <br />
+                                            @endif
+                                            @if (array_diff($column_values['new_value'], $column_values['old_value']))
+                                                <span class="font-bold">Added: </span> <br /> {{implode(', ',array_diff($column_values['new_value'], $column_values['old_value']))}} <br />
+                                            @endif
+                                        @break
+                                        @case('cas')
+                                            @if (array_diff($column_values['old_value'], $column_values['new_value']))
+                                                <span class="font-bold">Removed: </span> <br /> {{implode(', ',array_diff($column_values['old_value'], $column_values['new_value']))}} <br />
+                                            @endif
+                                            @if (array_diff($column_values['new_value'], $column_values['old_value']))
+                                                <span class="font-bold">Added: </span> <br /> {{implode(', ',array_diff($column_values['new_value'], $column_values['old_value']))}} <br />
+                                            @endif
                                         @break
                                         @default
-                                        Old Value: <br /> {{$column_values['old_value']??'N/A'}} <br />
-                                        New Value: <br /> {{$column_values['new_value']??'N/A'}}
+                                            Old Value: <br /> {{$column_values['old_value']??'N/A'}} <br />
+                                            New Value: <br /> {{$column_values['new_value']??'N/A'}}
                                         @endswitch
                                     </span>
                                 </div>
