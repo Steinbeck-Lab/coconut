@@ -12,8 +12,8 @@ use App\Models\Report;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieTagsInput;
@@ -30,6 +30,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
@@ -62,46 +63,26 @@ class ReportResource extends Resource
                             ->columnSpan(2),
                         Actions::make([
                             Action::make('approve')
-                                ->hidden(function (Get $get, string $operation) {
-                                    return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation == 'create';
-                                })
                                 ->form([
                                     Textarea::make('reason'),
                                 ])
-                                ->action(function (array $data, Report $record, Molecule $molecule, $set): void {
-
-                                    $record['status'] = 'approved';
-                                    $record['reason'] = $data['reason'];
-                                    $record->save();
-
-                                    $set('status', 'rejected');
-
-                                    if ($record['mol_id_csv'] && ! $record['is_change']) {
-                                        $molecule_ids = explode(',', $record['mol_id_csv']);
-                                        $molecule = Molecule::whereIn('id', $molecule_ids)->get();
-                                        foreach ($molecule as $mol) {
-                                            $mol->active = false;
-                                            $mol->save();
-                                        }
-                                    }
+                                ->action(function (array $data, Report $record, Molecule $molecule, $set, $livewire): void {
+                                    self::approveReport($data, $record, $molecule, $livewire);
+                                    $set('status', 'approved');
                                 }),
                             Action::make('reject')
                                 ->color('danger')
-                                ->hidden(function (Get $get, string $operation) {
-                                    return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation == 'create';
-                                })
                                 ->form([
                                     Textarea::make('reason'),
                                 ])
                                 ->action(function (array $data, Report $record, $set): void {
-
-                                    $record['status'] = 'rejected';
-                                    $record['reason'] = $data['reason'];
-                                    $record->save();
-
+                                    self::rejectReport($data, $record);
                                     $set('status', 'rejected');
                                 }),
                         ])
+                            ->hidden(function (Get $get, string $operation) {
+                                return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation != 'edit';
+                            })
                             ->verticalAlignment(VerticalAlignment::End)
                             ->columnStart(4),
                     ])
@@ -130,21 +111,19 @@ class ReportResource extends Resource
                     ->hidden(function (Get $get) {
                         return $get('is_change');
                     }),
-                // KeyValue::make('suggested_changes')
-                //     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Enter the property (in the left column) and suggested change (in the right column)')
-                //     ->addActionLabel('Add property')
-                //     ->keyLabel('Property')
-                //     ->valueLabel('Suggested change')
-                //     ->hidden(function (Get $get) {
-                //         return ! $get('is_change');
-                //     }),
-                Tabs::make('Tabs')
+                Tabs::make('suggested_changes')
                     ->tabs([
                         Tabs\Tab::make('organisms_changes')
                             ->label('Organisms')
                             ->schema([
                                 Repeater::make('organisms_changes')
                                     ->schema([
+                                        Checkbox::make('approve')
+                                            ->inline(false)
+                                            ->hidden(function (string $operation) {
+                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                            })
+                                            ->disabled(false),
                                         Select::make('operation')
                                             ->options([
                                                 'update' => 'Update',
@@ -152,7 +131,8 @@ class ReportResource extends Resource
                                                 'add' => 'Add',
                                             ])
                                             ->default('update')
-                                            ->live(),
+                                            ->live()
+                                            ->columnSpan(2),
                                         Select::make('organisms')
                                             ->label('Organism')
                                             ->searchable()
@@ -163,12 +143,14 @@ class ReportResource extends Resource
                                             ->getOptionLabelUsing(fn ($value): ?string => Organism::find($value)?->name)
                                             ->hidden(function (Get $get) {
                                                 return $get('operation') == 'add';
-                                            }),
+                                            })
+                                            ->columnSpan(2),
                                         TextInput::make('name')
                                             ->label('Change to')
                                             ->hidden(function (Get $get) {
                                                 return $get('operation') != 'update';
-                                            }),
+                                            })
+                                            ->columnSpan(2),
                                         Grid::make('new_organism_details')
                                             ->schema(Organism::getForm())->columns(3)
                                             ->hidden(function (Get $get) {
@@ -177,7 +159,7 @@ class ReportResource extends Resource
                                             ->columnStart(2),
                                     ])
                                     ->reorderable(false)
-                                    ->columns(4),
+                                    ->columns(7),
 
                             ]),
                         Tabs\Tab::make('geo_locations_changes')
@@ -185,6 +167,11 @@ class ReportResource extends Resource
                             ->schema([
                                 Repeater::make('geo_locations_changes')
                                     ->schema([
+                                        Checkbox::make('approve')
+                                            ->inline(false)
+                                            ->hidden(function (string $operation) {
+                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                            }),
                                         Select::make('operation')
                                             ->options([
                                                 'update' => 'Update',
@@ -192,7 +179,8 @@ class ReportResource extends Resource
                                                 'add' => 'Add',
                                             ])
                                             ->default('update')
-                                            ->live(),
+                                            ->live()
+                                            ->columnSpan(2),
                                         Select::make('geo_locations')
                                             ->label('Geo Location')
                                             ->searchable()
@@ -203,12 +191,14 @@ class ReportResource extends Resource
                                             ->getOptionLabelUsing(fn ($value): ?string => GeoLocation::find($value)?->name)
                                             ->hidden(function (Get $get) {
                                                 return $get('operation') == 'add';
-                                            }),
+                                            })
+                                            ->columnSpan(2),
                                         TextInput::make('name')
                                             ->label('Change to')
                                             ->hidden(function (Get $get) {
                                                 return $get('operation') != 'update';
-                                            }),
+                                            })
+                                            ->columnSpan(2),
                                         Grid::make('new_geo_locations_details')
                                             ->schema(GeoLocation::getForm())->columns(3)
                                             ->hidden(function (Get $get) {
@@ -217,13 +207,18 @@ class ReportResource extends Resource
                                             ->columnStart(2),
                                     ])
                                     ->reorderable(false)
-                                    ->columns(4),
+                                    ->columns(7),
                             ]),
                         Tabs\Tab::make('synonyms')
                             ->label('Synonyms')
                             ->schema([
                                 Repeater::make('synonyms_changes')
                                     ->schema([
+                                        Checkbox::make('approve')
+                                            ->inline(false)
+                                            ->hidden(function (string $operation) {
+                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                            }),
                                         Select::make('operation')
                                             ->options([
                                                 'update' => 'Update',
@@ -231,7 +226,8 @@ class ReportResource extends Resource
                                                 'add' => 'Add',
                                             ])
                                             ->default('update')
-                                            ->live(),
+                                            ->live()
+                                            ->columnSpan(2),
                                         Select::make('synonyms')
                                             ->label('Synonym')
                                             ->searchable()
@@ -239,20 +235,26 @@ class ReportResource extends Resource
                                             ->getSearchResultsUsing(function (string $search, Get $get): array {
                                                 $synonyms = Molecule::select('synonyms')->where('identifier', $get('../../mol_id_csv'))->get()[0]['synonyms'];
                                                 $matched_synonyms = [];
+                                                $associative_matched_synonyms = [];
                                                 foreach ($synonyms as $synonym) {
                                                     str_contains(strtolower($synonym), strtolower($search)) ? array_push($matched_synonyms, $synonym) : null;
                                                 }
+                                                foreach ($matched_synonyms as $item) {
+                                                    $associative_matched_synonyms[$item] = $item;
+                                                }
 
-                                                return $matched_synonyms;
+                                                return $associative_matched_synonyms;
                                             })
                                             ->hidden(function (Get $get) {
                                                 return $get('operation') == 'add';
-                                            }),
+                                            })
+                                            ->columnSpan(2),
                                         TextInput::make('name')
                                             ->label('Change to')
                                             ->hidden(function (Get $get) {
                                                 return $get('operation') != 'update';
-                                            }),
+                                            })
+                                            ->columnSpan(2),
                                         Grid::make('new_synonym_details')
                                             ->schema([
                                                 TagsInput::make('new_synonym')
@@ -266,14 +268,19 @@ class ReportResource extends Resource
                                             ->columnStart(2),
                                     ])
                                     ->reorderable(false)
-                                    ->columns(4),
+                                    ->columns(7),
                             ]),
                         Tabs\Tab::make('identifiers')
                             ->label('Identifiers')
                             ->schema([
                                 Repeater::make('identifiers_changes')
                                     ->schema([
-                                        Select::make('identifer_to_change')
+                                        Checkbox::make('approve')
+                                            ->inline(false)
+                                            ->hidden(function (string $operation) {
+                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                            }),
+                                        Select::make('change')
                                             ->options([
                                                 'name' => 'Name',
                                                 'cas' => 'CAS',
@@ -282,35 +289,14 @@ class ReportResource extends Resource
                                             ->live(),
                                         Select::make('current_Name')
                                             ->options(function (Get $get): array {
-                                                return [Molecule::where('identifier', $get('../../mol_id_csv'))->get()[0]->name ?? ''];
+                                                $name = Molecule::where('identifier', $get('../../mol_id_csv'))->first()->name ?? '';
+
+                                                return [$name => $name];
                                             })
-                                            ->default(0)
-                                            ->disabled()
                                             ->hidden(function (Get $get) {
-                                                return $get('identifer_to_change') == 'cas';
-                                            }),
-                                        Select::make('current_CAS')
-                                            ->options(function (Get $get): array {
-                                                return [Molecule::where('identifier', $get('../../mol_id_csv'))->get()[0]->cas];
+                                                return $get('change') == 'cas';
                                             })
-                                            ->default(0)
-                                            ->disabled()
-                                            ->hidden(function (Get $get) {
-                                                return $get('identifer_to_change') == 'name';
-                                            }),
-                                        TextInput::make('new_name')
-                                            ->label(function (Get $get) {
-                                                return $get('identifer_to_change') == 'name' ? 'New Name' : 'New CAS';
-                                            }),
-                                    ])
-                                    ->reorderable(false)
-                                    ->columns(4),
-                            ]),
-                        Tabs\Tab::make('citations')
-                            ->label('Citations')
-                            ->schema([
-                                Repeater::make('citations_changes')
-                                    ->schema([
+                                            ->columnSpan(2),
                                         Select::make('operation')
                                             ->options([
                                                 'update' => 'Update',
@@ -318,7 +304,57 @@ class ReportResource extends Resource
                                                 'add' => 'Add',
                                             ])
                                             ->default('update')
-                                            ->live(),
+                                            ->hidden(function (Get $get) {
+                                                return $get('change') == 'name';
+                                            })
+                                            ->live()
+                                            ->columnSpan(2),
+                                        Select::make('current_cas')
+                                            ->label('Current CAS')
+                                            ->options(function (Get $get): array {
+                                                $cas_ids = Molecule::where('identifier', $get('../../mol_id_csv'))->first()->cas ?? '';
+                                                $associative_cas_ids = [];
+                                                foreach ($cas_ids as $item) {
+                                                    $associative_cas_ids[$item] = $item;
+                                                }
+
+                                                return $associative_cas_ids;
+                                            })
+                                            ->hidden(function (Get $get) {
+                                                return $get('change') == 'name' || $get('operation') == 'add';
+                                            })
+                                            ->columnSpan(2),
+                                        TextInput::make('new_name')
+                                            ->label(function (Get $get) {
+                                                return $get('change') == 'name' ? 'New Name' : 'New CAS';
+                                            })
+                                            ->hidden(function (Get $get) {
+                                                return $get('operation') == 'remove';
+                                            })
+                                            ->columnSpan(2),
+                                    ])
+                                    ->reorderable(false)
+                                    ->columns(7),
+                            ]),
+                        Tabs\Tab::make('citations')
+                            ->label('Citations')
+                            ->schema([
+                                Repeater::make('citations_changes')
+                                    ->schema([
+                                        Checkbox::make('approve')
+                                            ->inline(false)
+                                            ->hidden(function (string $operation) {
+                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                            }),
+                                        Select::make('operation')
+                                            ->options([
+                                                'update' => 'Update',
+                                                'remove' => 'Remove',
+                                                'add' => 'Add',
+                                            ])
+                                            ->default('update')
+                                            ->live()
+                                            ->columnSpan(2),
                                         Select::make('citations')
                                             ->label('Citation')
                                             ->searchable()
@@ -329,12 +365,14 @@ class ReportResource extends Resource
                                             ->getOptionLabelUsing(fn ($value): ?string => Citation::find($value)?->name)
                                             ->hidden(function (Get $get) {
                                                 return $get('operation') == 'add';
-                                            }),
+                                            })
+                                            ->columnSpan(2),
                                         TextInput::make('name')
                                             ->label('Change to')
                                             ->hidden(function (Get $get) {
                                                 return $get('operation') != 'update';
-                                            }),
+                                            })
+                                            ->columnSpan(2),
                                         Grid::make('new_citation_details')
                                             ->schema(Citation::getForm())->columns(3)
                                             ->hidden(function (Get $get) {
@@ -343,12 +381,17 @@ class ReportResource extends Resource
                                             ->columnStart(2),
                                     ])
                                     ->reorderable(false)
-                                    ->columns(4),
+                                    ->columns(7),
 
                             ]),
 
                         Tabs\Tab::make('Chemical Classifications')
                             ->schema([
+                                Checkbox::make('approve')
+                                    ->inline(false)
+                                    ->hidden(function (string $operation) {
+                                        return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                    }),
                                 // ...
                             ]),
                     ])
@@ -452,6 +495,7 @@ class ReportResource extends Resource
                             return true;
                         }
                     })
+                    ->live()
                     ->hidden(function (Get $get, string $operation) {
                         if ($operation != 'create') {
                             return true;
@@ -509,20 +553,8 @@ class ReportResource extends Resource
                     ->form([
                         Textarea::make('reason'),
                     ])
-                    ->action(function (array $data, Report $record, Molecule $molecule): void {
-
-                        $record['status'] = 'approved';
-                        $record['reason'] = $data['reason'];
-                        $record->save();
-
-                        if ($record['mol_id_csv'] && ! $record['is_change']) {
-                            $molecule_ids = explode(',', $record['mol_id_csv']);
-                            $molecule = Molecule::whereIn('id', $molecule_ids)->get();
-                            foreach ($molecule as $mol) {
-                                $mol->active = false;
-                                $mol->save();
-                            }
-                        }
+                    ->action(function (array $data, Report $record, Molecule $molecule, $livewire): void {
+                        self::approveReport($data, $record, $molecule, $livewire);
                     }),
                 Tables\Actions\Action::make('reject')
                     // ->button()
@@ -535,10 +567,7 @@ class ReportResource extends Resource
 
                     ])
                     ->action(function (array $data, Report $record): void {
-
-                        $record['status'] = 'rejected';
-                        $record['reason'] = $data['reason'];
-                        $record->save();
+                        self::rejectReport($data, $record);
                     }),
             ])
             ->bulkActions([
@@ -577,5 +606,200 @@ class ReportResource extends Resource
         }
 
         return parent::getEloquentQuery();
+    }
+
+    public static function approveReport(array $data, Report $record, Molecule $molecule, $livewire): void
+    {
+        $record['status'] = 'approved';
+        $record['comment'] = $data['reason'];
+
+        // In case of reporting a synthetic molecule, Deactivate Molecules
+        if ($record['mol_id_csv'] && ! $record['is_change']) {
+            $molecule_ids = explode(',', $record['mol_id_csv']);
+            $molecule = Molecule::whereIn('id', $molecule_ids)->get();
+            foreach ($molecule as $mol) {
+                $mol->active = false;
+                $mol->save();
+            }
+        }
+
+        // In case of Changes, run SQL queries for the approved changes
+        if ($record['is_change']) {
+
+            // To remove null values from the arrays before we assign them below
+            // dd(array_map(function($subArray) {
+            //     return array_filter($subArray, function($value) {
+            //         return !is_null($value);
+            //     });
+            // }, $livewire->data['organisms_changes']));
+
+            $suggestedChanges = $record->suggested_changes;
+            $suggestedChanges['organisms_changes'] = $livewire->data['organisms_changes'];
+            $suggestedChanges['geo_locations_changes'] = $livewire->data['geo_locations_changes'];
+            $suggestedChanges['synonyms_changes'] = $livewire->data['synonyms_changes'];
+            $suggestedChanges['identifiers_changes'] = $livewire->data['identifiers_changes'];
+            $suggestedChanges['citations_changes'] = $livewire->data['citations_changes'];
+            $record->suggested_changes = $suggestedChanges;
+        }
+
+        // Run SQL queries for the approved changes
+        self::runSQLQueries($record);
+
+        // Save the report record in any case
+        $record->save();
+    }
+
+    public static function rejectReport(array $data, Report $record): void
+    {
+        $record['status'] = 'rejected';
+        $record['comment'] = $data['reason'];
+        $record->save();
+    }
+
+    public static function runSQLQueries(Report $record): void
+    {
+        DB::transaction(function () use ($record) {
+            // Check if organisms_changes exists and process it
+            if (isset($record->suggested_changes['organisms_changes'])) {
+                foreach ($record->suggested_changes['organisms_changes'] as $organism) {
+                    if ($organism['approve'] && $organism['operation'] === 'update' && ! is_null($organism['organisms'])) {
+                        // Perform update only if organisms ID is not null
+                        //  --------check if the organism name already exists
+                        //  --------need to handle iri and other fields of Organism for authentication
+                        $db_organism = Organism::find($organism['organisms']);
+                        $db_organism->name = $organism['name'];
+                        $db_organism->save();
+                    } elseif ($organism['approve'] && $organism['operation'] === 'remove' && ! is_null($organism['organisms'])) {
+                        // Perform delete only if organisms ID is not null
+                        $db_organism = Organism::find($organism['organisms']);
+                        $db_organism->delete();
+                    } elseif ($organism['approve'] && $organism['operation'] === 'add' && ! is_null($organism['name'])) {
+                        // Perform insert only if name is not null (and other required fields can be checked too)
+                        Organism::create([
+                            'name' => $organism['name'],
+                            'iri' => $organism['iri'],
+                            'rank' => $organism['rank'],
+                        ]);
+                    }
+                }
+            }
+
+            // Check if geo_locations_changes exists and process it
+            if (isset($record->suggested_changes['geo_locations_changes'])) {
+                foreach ($record->suggested_changes['geo_locations_changes'] as $geo_location) {
+                    if ($geo_location['approve'] && $geo_location['operation'] === 'update' && ! is_null($geo_location['geo_locations'])) {
+                        // Perform update only if geo_locations ID is not null
+                        $db_geo_location = GeoLocation::find($geo_location['geo_locations']);
+                        $db_geo_location->name = $geo_location['name'];
+                        $db_geo_location->save();
+                    } elseif ($geo_location['approve'] && $geo_location['operation'] === 'remove' && ! is_null($geo_location['geo_locations'])) {
+                        // Perform delete only if geo_locations ID is not null
+                        $db_geo_location = GeoLocation::find($geo_location['geo_locations']);
+                        $db_geo_location->delete();
+                    } elseif ($geo_location['approve'] && $geo_location['operation'] === 'add' && ! is_null($geo_location['name'])) {
+                        // Perform insert only if name is not null
+                        GeoLocation::create(['name' => $geo_location['name']]);
+                    }
+                }
+            }
+
+            // Check if synonyms_changes exists and process it
+            if (isset($record->suggested_changes['synonyms_changes'])) {
+                foreach ($record->suggested_changes['synonyms_changes'] as $synonym) {
+                    if ($synonym['approve'] && $synonym['operation'] === 'update' && ! is_null($synonym['synonyms'])) {
+                        // Perform update only if synonym name is not null
+                        $db_molecule = Molecule::where('identifier', $record->mol_id_csv)->first();
+                        $synonyms = $db_molecule->synonyms;
+                        foreach (array_keys($synonyms, $synonym['synonyms']) as $key) {
+                            $synonyms[$key] = $synonym['name'];
+                        }
+                        $db_molecule->synonyms = $synonyms;
+                        $db_molecule->save();
+                    } elseif ($synonym['approve'] && $synonym['operation'] === 'remove' && ! is_null($synonym['synonyms'])) {
+                        // Perform delete only if synonym name is not null
+                        $db_molecule = Molecule::where('identifier', $record->mol_id_csv)->first();
+                        $synonyms = $db_molecule->synonyms;
+                        foreach (array_keys($synonyms, $synonym['synonyms']) as $key) {
+                            unset($synonyms[$key]);
+                        }
+                        $db_molecule->synonyms = $synonyms;
+                        $db_molecule->save();
+                    } elseif ($synonym['approve'] && $synonym['operation'] === 'add' && ! empty($synonym['new_synonym'])) {
+                        // Perform insert only if new_synonym is not empty
+                        $db_molecule = Molecule::where('identifier', $record->mol_id_csv)->first();
+                        $synonyms = $db_molecule->synonyms;
+                        $synonyms = array_merge($synonyms, $synonym['new_synonym']);
+                        $db_molecule->synonyms = $synonyms;
+                        $db_molecule->save();
+                    }
+                }
+            }
+
+            // Check if identifiers_changes exists and process it
+            if (isset($record->suggested_changes['identifiers_changes'])) {
+                foreach ($record->suggested_changes['identifiers_changes'] as $identifier) {
+                    if ($identifier['approve'] && $identifier['change'] === 'name' && ! is_null($identifier['current_Name']) && ! is_null($identifier['new_name'])) {
+                        // Update name if current name and new name are not null
+                        $db_molecule = Molecule::where('identifier', $record->mol_id_csv)->first();
+                        $db_molecule->name = $identifier['new_name'];
+                        $db_molecule->save();
+                    } elseif ($identifier['change'] == 'cas') {
+                        if ($identifier['approve'] && $identifier['operation'] === 'update' && ! is_null($identifier['current_cas']) && ! is_null($identifier['new_name'])) {
+                            // Update CAS if the current CAS and new name is not null
+                            $db_molecule = Molecule::where('identifier', $record->mol_id_csv)->first();
+                            $cas = $db_molecule->cas;
+                            foreach (array_keys($cas, $identifier['current_cas']) as $key) {
+                                $cas[$key] = $identifier['new_name'];
+                            }
+                            $db_molecule->cas = $cas;
+                            $db_molecule->save();
+                        } elseif ($identifier['approve'] && $identifier['operation'] === 'remove' && ! is_null($identifier['current_cas'])) {
+                            // Perform delete only if CAS is not null
+                            $db_molecule = Molecule::where('identifier', $record->mol_id_csv)->first();
+                            $cas = $db_molecule->cas;
+                            foreach (array_keys($cas, $identifier['current_cas']) as $key) {
+                                unset($cas[$key]);
+                            }
+                            $db_molecule->cas = $cas;
+                            $db_molecule->save();
+                        } elseif ($identifier['approve'] && $identifier['operation'] === 'add' && ! is_null($identifier['new_name'])) {
+                            // Perform insert only if new_name (CAS) is not null
+                            $db_molecule = Molecule::where('identifier', $record->mol_id_csv)->first();
+                            $cas = $db_molecule->cas;
+                            $cas[] = $identifier['new_name'];
+                            $db_molecule->cas = $cas;
+                            $db_molecule->save();
+                        }
+                    }
+                }
+            }
+
+            // Check if citations_changes exists and process it
+            if (isset($record->suggested_changes['citations_changes'])) {
+                foreach ($record->suggested_changes['citations_changes'] as $citation) {
+                    if ($citation['approve'] && $citation['operation'] === 'update' && ! is_null($citation['citations'])) {
+                        // Perform update only if citation ID is not null
+                        $db_citation = Citation::find($citation['citations']);
+                        // $db_citation->doi = $citation['doi'];
+                        $db_citation->title = $citation['name'];
+                        // $db_citation->authors = $citation['authors'];
+                        // $db_citation->citation_text = $citation['citation_text'];
+                        $db_citation->save();
+                    } elseif ($citation['approve'] && $citation['operation'] === 'remove' && ! is_null($citation['citations'])) {
+                        // Perform delete only if citation ID is not null
+                        $db_citation = Citation::find($citation['citations']);
+                        $db_citation->delete();
+                    } elseif ($citation['approve'] && $citation['operation'] === 'add' && ! is_null($citation['name'])) {
+                        // Perform insert only if name (citation ID) is not null
+                        $db_citation = new Citation;
+                        $db_citation->doi = $citation['doi'];
+                        $db_citation->title = $citation['title'];
+                        $db_citation->authors = $citation['authors'];
+                        $db_citation->citation_text = $citation['citation_text'];
+                        $db_citation->save();
+                    }
+                }
+            }
+        });
     }
 }
