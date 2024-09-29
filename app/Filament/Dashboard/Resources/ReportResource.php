@@ -60,12 +60,18 @@ class ReportResource extends Resource
                                 true => 'Request Changes to Data',
                             ])
                             ->inline()
+                            ->hidden(function () {
+                                return request()->has('type');
+                            })
                             ->columnSpan(2),
                         Actions::make([
                             Action::make('approve')
                                 ->form([
                                     Textarea::make('reason'),
                                 ])
+                                ->hidden(function (Get $get, string $operation) {
+                                    return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation != 'edit';
+                                })
                                 ->action(function (array $data, Report $record, Molecule $molecule, $set, $livewire): void {
                                     self::approveReport($data, $record, $molecule, $livewire);
                                     $set('status', 'approved');
@@ -75,14 +81,18 @@ class ReportResource extends Resource
                                 ->form([
                                     Textarea::make('reason'),
                                 ])
+                                ->hidden(function (Get $get, string $operation) {
+                                    return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation != 'edit';
+                                })
                                 ->action(function (array $data, Report $record, $set): void {
                                     self::rejectReport($data, $record);
                                     $set('status', 'rejected');
                                 }),
+                            Action::make('viewCompoundPage')
+                                ->color('info')
+                                ->url(fn (): string => env('APP_URL').'/compounds/'.request()->compound_id)
+                                ->openUrlInNewTab(),
                         ])
-                            ->hidden(function (Get $get, string $operation) {
-                                return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation != 'edit';
-                            })
                             ->verticalAlignment(VerticalAlignment::End)
                             ->columnStart(4),
                     ])
@@ -96,14 +106,15 @@ class ReportResource extends Resource
                         return getReportTypes();
                     })
                     ->hidden(function (string $operation) {
-                        if ($operation == 'create') {
-                            return false;
-                        } else {
-                            return true;
-                        }
+                        return $operation != 'create' || request()->has('type');
                     }),
                 TextInput::make('title')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Title of the report. This is required.')
+                    ->default(function () {
+                        if (request()->type == 'change' && request()->has('compound_id')) {
+                            return 'Request changes';
+                        }
+                    })
                     ->required(),
                 Textarea::make('evidence')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Please provide Evidence/Comment to support your claims in this report. This will help our Curators in reviewing your report.')
@@ -384,16 +395,6 @@ class ReportResource extends Resource
                                     ->columns(7),
 
                             ]),
-
-                        Tabs\Tab::make('Chemical Classifications')
-                            ->schema([
-                                Checkbox::make('approve')
-                                    ->inline(false)
-                                    ->hidden(function (string $operation) {
-                                        return ! auth()->user()->roles()->exists() || $operation == 'create';
-                                    }),
-                                // ...
-                            ]),
                     ])
                     ->hidden(function (Get $get) {
                         return ! $get('is_change');
@@ -409,7 +410,10 @@ class ReportResource extends Resource
                                 $state,
                                 shouldOpenInNewTab: true,
                             ),
-                    ),
+                    )
+                    ->hidden(function () {
+                        return request()->has('type') && request()->type == 'change';
+                    }),
                 Select::make('collections')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select the Collections you want to report. This will help our Curators in reviewing your report.')
                     ->relationship('collections', 'title')
@@ -497,9 +501,10 @@ class ReportResource extends Resource
                     })
                     ->live()
                     ->hidden(function (Get $get, string $operation) {
-                        if ($operation != 'create') {
+                        if ($operation != 'create' || request()->type == 'change') {
                             return true;
-                        } elseif (! request()->has('compound_id') && $get('report_type') != 'molecule') {
+                        }
+                        if (! request()->has('compound_id') && $get('report_type') != 'molecule') {
                             return true;
                         }
                     })
