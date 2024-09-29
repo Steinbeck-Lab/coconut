@@ -14,6 +14,18 @@ class CreateReport extends CreateRecord
 {
     protected static string $resource = ReportResource::class;
 
+    public function getTitle(): string
+    {
+        $title = 'Create Report';
+        request()->type == 'change' ? $title = 'Request Changes' : $title = 'Report ';
+        if (request()->has('compound_id')) {
+            $molecule = Molecule::where('identifier', request()->compound_id)->first();
+            $title = $title.' - '.$molecule->name.' ('.$molecule->identifier.')';
+        }
+
+        return __($title);
+    }
+
     protected function afterFill(): void
     {
         $request = request();
