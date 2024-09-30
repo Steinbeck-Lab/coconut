@@ -100,7 +100,7 @@ services:
             retries: 20
             start_period: 60s
         networks:
-            - sail
+            - coconut
     # typesense:
     #     image: 'typesense/typesense:0.25.2'
     #     ports:
