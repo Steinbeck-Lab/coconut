@@ -1,4 +1,4 @@
-<div x-data="{ on: true, column : '', drawerOpen: false, drawerContent: '' }" x-effect="on && $wire.getHistory()" class="mt-5">
+<div x-data="{ on: false, event: '', column : '', drawerOpen: false, drawerContent: '' }" x-effect="on && $wire.getHistory()" class="mt-5">
     <button type="button" x-on:click="on = !on" class="text-base font-semibold text-text-dark hover:text-slate-600" wire:transition="fade">
         <span x-show="!on">View complete history →</span>
         <span x-show="on">View complete history ↓</span>
@@ -28,7 +28,7 @@
                         @foreach ($audit['affected_columns'] as $column_name => $column_values)
                         <div class="flex justify-between gap-x-4">
                             <div class="py-0.5 text-xs leading-5 text-gray-500">
-                                <div x-on:click="drawerOpen = true; column = '{{$column_name}}';drawerContent = `{{ json_encode($column_values) }}`" class="hover:cursor-pointer hover:text-blue-500 font-medium text-sm text-gray-900">
+                                <div x-on:click="drawerOpen = true; event= '{{$audit['event']}}' ; column = '{{ $column_name}}';drawerContent = `{{ json_encode($column_values) }}`" class="hover:cursor-pointer hover:text-blue-500 font-medium text-sm text-gray-900">
                                     {{ Str::of($column_name)->camel()->replace('_', ' ')->replaceMatches('/[A-Z]/', ' $0')->title() }}
                                 </div>
                                 {{-- <div class="tooltip max-w">
@@ -72,7 +72,7 @@
         <!-- Drawer panel -->
         <div class="relative bg-white w-full max-w-md ml-auto shadow-xl transform transition-all">
             <div class="flex justify-between items-center p-4 border-b">
-                <h2 class="text-lg font-medium text-gray-900" x-text='column'></h2>
+                <h2 class="text-lg font-medium text-gray-900 capitalize" x-text='event'></h2>
                 <button x-on:click="drawerOpen = false" class="text-gray-400 hover:text-gray-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     <span class="sr-only">Close panel</span>
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
