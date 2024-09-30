@@ -10,7 +10,7 @@ services:
             - cm
             # - typesense
         volumes:
-            - www-data:/var/www
+            - www-data:/var/www/html
     worker:
         image: nfdi4chem/coconut:dev-app-latest
         command: php artisan horizon
@@ -23,7 +23,7 @@ services:
             - cm
             # - typesense
         volumes:
-            - www-data:/var/www
+            - www-data:/var/www/html
     pgsql:
         image: "informaticsmatters/rdkit-cartridge-debian:latest"
         ports:
@@ -77,7 +77,7 @@ services:
         depends_on:
             - app
         volumes:
-            - www-data:/var/www
+            - www-data:/var/www/html
     cm:
         image: "nfdi4chem/cheminformatics-microservice:dev-latest"
         environment:
