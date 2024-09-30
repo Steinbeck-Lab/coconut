@@ -23,7 +23,7 @@ services:
             args:
                 WWWGROUP: '${WWWGROUP}'
         image: coconut-8.3/app
-        container_name: coconut_app
+        container_name: coconut_app_worker
         networks:
             - coconut
         depends_on:
