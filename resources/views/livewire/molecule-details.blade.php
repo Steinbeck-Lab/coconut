@@ -419,6 +419,50 @@
                     </section>
                 @endif
 
+                @if ($molecule->properties)
+                    <section aria-labelledby="notes-title">
+                        <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
+                            <div class="divide-y divide-gray-200">
+                                <div class="px-4 py-5 sm:px-6">
+                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">NP Classification
+                                    </h2>
+                                </div>
+                                <div class="px-4 py-6 sm:px-6">
+                                    <ul role="list" class="px-0">
+                                        <li class="py-1 flex md:py-0"><span class="ml-3 text-base">
+                                                <b>Pathway</b>:
+                                                    <a class="hover:text-blue-600 hover:underline" target="_blank" href="../search?q=np_pathway%3A{{ $molecule->properties && $molecule->properties['np_classifier_pathway'] ? Str::slug($molecule->properties['np_classifier_pathway']) : '-' }}&amp;page=1&amp;type=filters">
+                                                        {{ $molecule->properties && $molecule->properties['np_classifier_pathway'] ? $molecule->properties['np_classifier_pathway'] : '-' }}
+                                                    </a>
+                                            </span>
+                                        </li>
+                                        <li class="py-1 flex md:py-0"><span
+                                                class="ml-3 text-base"><b>Super Class</b>:
+                                                <a class="hover:text-blue-600 hover:underline" target="_blank" href="../search?q=np_superclass%3A{{ $molecule->properties && $molecule->properties['np_classifier_superclass'] ? Str::slug($molecule->properties['np_classifier_superclass']) : '-' }}&amp;page=1&amp;type=filters">
+                                                    {{ $molecule->properties && $molecule->properties['np_classifier_superclass'] ? $molecule->properties['np_classifier_superclass'] : '-' }}</span>
+                                                </a>
+                                        </li>
+                                        <li class="py-1 flex md:py-0"><span
+                                                class="ml-3 text-base"><b>Class</b>:
+                                                    <a class="hover:text-blue-600 hover:underline" target="_blank" href="../search?q=np_class%3A{{ $molecule->properties && $molecule->properties['np_classifier_class'] ? Str::slug($molecule->properties['np_classifier_class']) : '-' }}&amp;page=1&amp;type=filters">
+                                                        {{ $molecule->properties && $molecule->properties['np_classifier_class'] ? $molecule->properties['np_classifier_class'] : '-' }}
+                                                    </a>
+                                            </span>
+                                        </li>
+                                        <li class="py-1 flex md:py-0"><span
+                                                class="ml-3 text-base"><b>Is glycoside</b>:
+                                                    <a class="hover:text-blue-600 hover:underline" target="_blank" href="../search?q=np_glycoside%3A{{ $molecule->properties && $molecule->properties['np_classifier_is_glycoside'] ? Str::slug($molecule->properties['np_classifier_is_glycoside']) : 'false' }}&amp;page=1&amp;type=filters">
+                                                        {{ $molecule->properties && $molecule->properties['np_classifier_is_glycoside'] ? 'True' : 'False' }}
+                                                    </a>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                @endif
+
 
                 <section aria-labelledby="notes-title">
                     <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
