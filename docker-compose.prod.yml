@@ -1,6 +1,11 @@
 services:
     app:
-        image: nfdi4chem/coconut:dev-app-latest
+        build:
+            context: .
+            dockerfile: ./resources/dc-ops/production/Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: coconut-8.3/app
         container_name: coconut_app
         networks:
             - coconut
@@ -10,11 +15,15 @@ services:
             - cm
             # - typesense
         volumes:
-            - www-data:/var/www/html
+            - www-data:/var/www
     worker:
-        image: nfdi4chem/coconut:dev-app-latest
-        command: php artisan horizon
-        container_name: coconut_worker
+        build:
+            context: .
+            dockerfile: ./resources/dc-ops/production/Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: coconut-8.3/app
+        container_name: coconut_app
         networks:
             - coconut
         depends_on:
@@ -23,7 +32,7 @@ services:
             - cm
             # - typesense
         volumes:
-            - www-data:/var/www/html
+            - www-data:/var/www
     pgsql:
         image: "informaticsmatters/rdkit-cartridge-debian:latest"
         ports:
@@ -77,7 +86,7 @@ services:
         depends_on:
             - app
         volumes:
-            - www-data:/var/www/html
+            - www-data:/var/www
     cm:
         image: "nfdi4chem/cheminformatics-microservice:dev-latest"
         environment:
@@ -91,7 +100,7 @@ services:
             retries: 20
             start_period: 60s
         networks:
-            - coconut
+            - sail
     # typesense:
     #     image: 'typesense/typesense:0.25.2'
     #     ports:
