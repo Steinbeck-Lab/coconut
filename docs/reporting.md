@@ -2,30 +2,6 @@
 
 The COCONUT platform provides users with the ability to report discrepancies in compounds, collections, citations, or organisms. Multiple items can be reported at once, ensuring thorough feedback on any observed issues. If you come across any discrepancies, please follow the steps outlined below to submit a report.
 
-## Reporting Collections, Citations, or Organisms
-
-1. **Log in to your COCONUT account.**
-2. In the dashboard's left pane, select **"Reports."**
-![Dashboard](/dashboard-reports.png)
-3. On the Reports page, click the **"New Report"** button at the top right.
-![New Report Buttion](/new-report-button.png)
-4. Complete the **"Create Report"** form:
-![New Report](/new-report.png)
-   - **Request Changes to Data/ Report Synthetic compound(s):** Choose either to Request changes to the details of a compound or to report the compound as synthetic.
-    - The interface slightly chages depeding on the selection. Details are below.
-   - **Report Category:** Select the category of the item you wish to report.
-![Select Field](/report-select-field.png)
-   - **Title:** Provide a concise title summarizing the issue.
-   - **Evidence/Comment:** Offer evidence or comments supporting your observation of the discrepancy.
-     - If Request Changes to Data is selected the below would be the interface.
-     - On the left add the name of the element you want to be changed. On the right mention what it is to be changed to and why the change is needed.
-     - More than one changes can be requested at the same time by clicking on Add property.
-![Suggested Changes](/report-suggested-changes.png)
-   - **URL:** Include any relevant links to substantiate your report.
-   - **Citations / Collections / Organisms:** Select the respective items you wish to report.
-     - For Molecules: The select option is currently unavailable. Instead, please provide the identifiers of the molecules, separated by commas.
-   - **Tags:** Add comma-separated keywords to facilitate easy search and categorization of your report.
-5. Click **"Create"** to submit your report, or **"Create & create another"** if you have additional reports to submit.
 
 ## Reporting Compounds
 
@@ -88,3 +64,29 @@ This method allows you to report one or more compounds directly from the Molecul
    - **Molecules:** This field will be pre-filled with the compound identifier(s).
    - **Tags:** Add comma-separated keywords to facilitate easy search and categorization of your report.
 5. Click **"Create"** to submit your report.
+
+## Reporting Collections, Citations, or Organisms
+COCONUT allows reporting of descrepancies not just for Compounds but also for Collections, Citations and Organisms. Please follow the below instructions:
+
+1. **Log in to your COCONUT account.**
+2. In the dashboard's left pane, select **"Reports."**
+![Dashboard](/dashboard-reports.png)
+3. On the Reports page, click the **"New Report"** button at the top right.
+![New Report Buttion](/new-report-button.png)
+4. Complete the **"Create Report"** form:
+![New Report](/new-report.png)
+   - **Request Changes to Data/ Report Synthetic compound(s):** Choose either to Request changes to the details of a compound or to report the compound as synthetic.
+    - The interface slightly chages depeding on the selection. Details are below.
+   - **Report Category:** Select the category of the item you wish to report.
+![Select Field](/report-select-field.png)
+   - **Title:** Provide a concise title summarizing the issue.
+   - **Evidence/Comment:** Offer evidence or comments supporting your observation of the discrepancy.
+     - If Request Changes to Data is selected the below would be the interface.
+     - On the left add the name of the element you want to be changed. On the right mention what it is to be changed to and why the change is needed.
+     - More than one changes can be requested at the same time by clicking on Add property.
+![Suggested Changes](/report-suggested-changes.png)
+   - **URL:** Include any relevant links to substantiate your report.
+   - **Citations / Collections / Organisms:** Select the respective items you wish to report.
+     - For Molecules: The select option is currently unavailable. Instead, please provide the identifiers of the molecules, separated by commas.
+   - **Tags:** Add comma-separated keywords to facilitate easy search and categorization of your report.
+5. Click **"Create"** to submit your report, or **"Create & create another"** if you have additional reports to submit.

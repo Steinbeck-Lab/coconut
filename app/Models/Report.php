@@ -2,16 +2,19 @@
 
 namespace App\Models;
 
+use App\States\Report\ReportState;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\ModelStates\HasStates;
 use Spatie\Tags\HasTags;
 
 class Report extends Model implements Auditable
 {
     use HasFactory;
+    use HasStates;
     use HasTags;
     use \OwenIt\Auditing\Auditable;
 
@@ -35,6 +38,7 @@ class Report extends Model implements Auditable
 
     protected $casts = [
         'suggested_changes' => 'array',
+        // 'status' => ReportState::class,
     ];
 
     /**
@@ -72,5 +76,10 @@ class Report extends Model implements Auditable
     public function users(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function transformAudit(array $data): array
+    {
+        return changeAudit($data);
     }
 }

@@ -143,6 +143,10 @@ class SearchMolecule
             'subclass' => 'chemical_sub_class',
             'superclass' => 'chemical_super_class',
             'parent' => 'direct_parent_classification',
+            'np_class' => 'np_classifier_class',
+            'np_superclass' => 'np_classifier_superclass',
+            'np_pathway' => 'np_classifier_pathway',
+            'np_glycoside' => 'np_classifier_is_glycoside',
             'org' => 'organism',
             'cite' => 'ciatation',
         ];

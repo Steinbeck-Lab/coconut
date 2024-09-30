@@ -24,7 +24,6 @@ use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\HtmlString;
@@ -125,20 +124,8 @@ class MoleculeResource extends Resource
                                 }),
                         ])
                         ->action(function (array $data, Molecule $record): void {
-
                             $record->active = ! $record->active;
-
-                            $reasons = json_decode($record->comment, true);
-                            array_push($reasons, [
-                                'changed_status_to' => $record['active'],
-                                'changed_by' => Auth::user()->id,
-                                'changed_at' => now(),
-                                'reason' => $data['reason'],
-                                'bulk_action' => false,
-                            ]);
-                            $record->comment = json_encode($reasons);
-
-                            $record->save();
+                            self::saveComment($record, $data['reason']);
                         })
                         ->modalHidden(function (Molecule $record) {
                             return ! $record['active'];
@@ -157,18 +144,7 @@ class MoleculeResource extends Resource
                         ->action(function (array $data, Collection $records): void {
                             foreach ($records as $record) {
                                 $record->active = ! $record->active;
-
-                                $reasons = json_decode($record->comment, true);
-                                array_push($reasons, [
-                                    'changed_status_to' => $record['active'],
-                                    'changed_by' => Auth::user()->id,
-                                    'changed_at' => now(),
-                                    'reason' => $data['reason'],
-                                    'bulk_action' => true,
-                                ]);
-                                $record->comment = json_encode($reasons);
-
-                                $record->save();
+                                self::saveComment($record, $data['reason']);
                             }
                         })
                         // ->modalHidden(function (Molecule $record) {
@@ -230,5 +206,16 @@ class MoleculeResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         return Cache::get('stats.molecules');
+    }
+
+    public static function saveComment($record, $reason)
+    {
+        $record->comment = [[
+            'timestamp' => now(),
+            'changed_by' => auth()->user()->id,
+            'comment' => $reason,
+        ]];
+
+        $record->save();
     }
 }

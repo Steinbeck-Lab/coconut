@@ -17,11 +17,9 @@
                             of conclusive evidence supporting its classification as a natural product.</p>
                         <div class="mt-2 text-sm text-red-700">
                             <ul role="list" class="list-disc space-y-1 pl-5">
-                                @foreach ($molecule->comment as $comment)
-                                    <li>{{ $comment['comment'] }} <br />
-                                        <date>Last update: {{ $comment['timestamp'] }}<date>
+                                    <li>{{ $molecule->comment[0]['comment'] }} <br />
+                                        <date>Last update: {{ $molecule->comment[0]['timestamp'] }}<date>
                                     </li>
-                                @endforeach
                             </ul>
                         </div>
                         <a class="mt-5 mb-3 relative inline-flex items-center gap-x-1.5 rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
@@ -385,25 +383,77 @@
                                 </div>
                                 <div class="px-4 py-6 sm:px-6">
                                     <ul role="list" class="px-0">
-                                        <li class="py-1 flex md:py-0"><span class="ml-3 text-base text-gray-500">
+                                        <li class="py-1 flex md:py-0"><span class="ml-3 text-base">
                                                 <b>Super class</b>:
-                                                {{ $molecule->properties && $molecule->properties['chemical_super_class'] ? $molecule->properties['chemical_super_class'] : '-' }}
+                                                    <a class="hover:text-blue-600 hover:underline" target="_blank" href="../search?q=superclass%3A{{ $molecule->properties && $molecule->properties['chemical_super_class'] ? Str::slug($molecule->properties['chemical_super_class']) : '-' }}&amp;page=1&amp;type=filters">
+                                                         {{ $molecule->properties && $molecule->properties['chemical_super_class'] ? $molecule->properties['chemical_super_class'] : '-' }}
+                                                    </a>
                                             </span>
                                         </li>
                                         <li class="py-1 flex md:py-0"><span
-                                                class="ml-3 text-base text-gray-500"><b>Class</b>:
-                                                {{ $molecule->properties && $molecule->properties['chemical_class'] ? $molecule->properties['chemical_class'] : '-' }}</span>
+                                                class="ml-3 text-base"><b>Class</b>:
+                                                <a class="hover:text-blue-600 hover:underline" target="_blank" href="../search?q=class%3A{{ $molecule->properties && $molecule->properties['chemical_class'] ? Str::slug($molecule->properties['chemical_class']) : '-' }}&amp;page=1&amp;type=filters">
+                                                    {{ $molecule->properties && $molecule->properties['chemical_class'] ? $molecule->properties['chemical_class'] : '-' }}</span>
+                                                </a>
                                         </li>
                                         <li class="py-1 flex md:py-0"><span
-                                                class="ml-3 text-base text-gray-500"><b>Sub
+                                                class="ml-3 text-base"><b>Sub
                                                     class</b>:
-                                                {{ $molecule->properties && $molecule->properties['chemical_sub_class'] ? $molecule->properties['chemical_sub_class'] : '-' }}
+                                                    <a class="hover:text-blue-600 hover:underline" target="_blank" href="../search?q=subclass%3A{{ $molecule->properties && $molecule->properties['chemical_sub_class'] ? Str::slug($molecule->properties['chemical_sub_class']) : '-' }}&amp;page=1&amp;type=filters">
+                                                        {{ $molecule->properties && $molecule->properties['chemical_sub_class'] ? $molecule->properties['chemical_sub_class'] : '-' }}
+                                                    </a>
                                             </span>
                                         </li>
                                         <li class="py-1 flex md:py-0"><span
-                                                class="ml-3 text-base text-gray-500"><b>Direct
+                                                class="ml-3 text-base"><b>Direct
                                                     parent</b>:
-                                                {{ $molecule->properties && $molecule->properties['direct_parent_classification'] ? $molecule->properties['direct_parent_classification'] : '-' }}
+                                                    <a class="hover:text-blue-600 hover:underline" target="_blank" href="../search?q=parent%3A{{ $molecule->properties && $molecule->properties['direct_parent_classification'] ? Str::slug($molecule->properties['direct_parent_classification']) : '-' }}&amp;page=1&amp;type=filters">
+                                                        {{ $molecule->properties && $molecule->properties['direct_parent_classification'] ? $molecule->properties['direct_parent_classification'] : '-' }}
+                                                    </a>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                @endif
+
+                @if ($molecule->properties)
+                    <section aria-labelledby="notes-title">
+                        <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
+                            <div class="divide-y divide-gray-200">
+                                <div class="px-4 py-5 sm:px-6">
+                                    <h2 id="notes-title" class="text-lg font-medium text-gray-900">NP Classification
+                                    </h2>
+                                </div>
+                                <div class="px-4 py-6 sm:px-6">
+                                    <ul role="list" class="px-0">
+                                        <li class="py-1 flex md:py-0"><span class="ml-3 text-base">
+                                                <b>Pathway</b>:
+                                                    <a class="hover:text-blue-600 hover:underline" target="_blank" href="../search?q=np_pathway%3A{{ $molecule->properties && $molecule->properties['np_classifier_pathway'] ? Str::slug($molecule->properties['np_classifier_pathway']) : '-' }}&amp;page=1&amp;type=filters">
+                                                        {{ $molecule->properties && $molecule->properties['np_classifier_pathway'] ? $molecule->properties['np_classifier_pathway'] : '-' }}
+                                                    </a>
+                                            </span>
+                                        </li>
+                                        <li class="py-1 flex md:py-0"><span
+                                                class="ml-3 text-base"><b>Super Class</b>:
+                                                <a class="hover:text-blue-600 hover:underline" target="_blank" href="../search?q=np_superclass%3A{{ $molecule->properties && $molecule->properties['np_classifier_superclass'] ? Str::slug($molecule->properties['np_classifier_superclass']) : '-' }}&amp;page=1&amp;type=filters">
+                                                    {{ $molecule->properties && $molecule->properties['np_classifier_superclass'] ? $molecule->properties['np_classifier_superclass'] : '-' }}</span>
+                                                </a>
+                                        </li>
+                                        <li class="py-1 flex md:py-0"><span
+                                                class="ml-3 text-base"><b>Class</b>:
+                                                    <a class="hover:text-blue-600 hover:underline" target="_blank" href="../search?q=np_class%3A{{ $molecule->properties && $molecule->properties['np_classifier_class'] ? Str::slug($molecule->properties['np_classifier_class']) : '-' }}&amp;page=1&amp;type=filters">
+                                                        {{ $molecule->properties && $molecule->properties['np_classifier_class'] ? $molecule->properties['np_classifier_class'] : '-' }}
+                                                    </a>
+                                            </span>
+                                        </li>
+                                        <li class="py-1 flex md:py-0"><span
+                                                class="ml-3 text-base"><b>Is glycoside</b>:
+                                                    <a class="hover:text-blue-600 hover:underline" target="_blank" href="../search?q=np_glycoside%3A{{ $molecule->properties && $molecule->properties['np_classifier_is_glycoside'] ? Str::slug($molecule->properties['np_classifier_is_glycoside']) : 'false' }}&amp;page=1&amp;type=filters">
+                                                        {{ $molecule->properties && $molecule->properties['np_classifier_is_glycoside'] ? 'True' : 'False' }}
+                                                    </a>
                                             </span>
                                         </li>
                                     </ul>

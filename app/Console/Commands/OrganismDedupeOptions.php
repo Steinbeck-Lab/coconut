@@ -74,8 +74,6 @@ class OrganismDedupeOptions extends Command
 
             array_unshift($choices, 'Skip');
 
-            // dd($choices);
-
             $retainValue = select(
                 'Select the record you want to retain:',
                 $choices
