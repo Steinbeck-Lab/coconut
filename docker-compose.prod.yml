@@ -31,6 +31,7 @@ services:
             - www-data:/var/www
         env_file:
             - ./.env
+        command: /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
     pgsql:
         image: "informaticsmatters/rdkit-cartridge-debian:latest"
         ports:
