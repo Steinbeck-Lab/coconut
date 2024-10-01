@@ -7,6 +7,7 @@ services:
                 WWWGROUP: '${WWWGROUP}'
         image: coconut-8.3/app
         container_name: coconut_app
+        replicas: 2
         networks:
             - coconut
         depends_on:
@@ -16,6 +17,8 @@ services:
             # - typesense
         volumes:
             - www-data:/var/www
+        env_file:
+            - ./.env
     worker:
         build:
             context: .
@@ -33,6 +36,8 @@ services:
             # - typesense
         volumes:
             - www-data:/var/www
+        env_file:
+            - ./.env
     pgsql:
         image: "informaticsmatters/rdkit-cartridge-debian:latest"
         ports:
