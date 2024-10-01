@@ -76,6 +76,14 @@
                                                 <span class="font-bold">Added: </span> <br /> {{implode(', ',array_diff($column_values['new_value'], $column_values['old_value']))}} <br />
                                             @endif
                                         @break
+                                        @case('citations')
+                                            @if ($column_values['old_value'])
+                                                <span class="font-bold">Detached from:</span> <br /> {{$column_values['old_value']?:'N/A'}} <br />
+                                            @endif
+                                            @if ($column_values['new_value'])
+                                                <span class="font-bold">Attached to:</span> <br /> {{$column_values['new_value']?:'N/A'}} <br />
+                                            @endif
+                                        @break
                                         @default
                                             Old Value: <br /> {{$column_values['old_value']??'N/A'}} <br />
                                             New Value: <br /> {{$column_values['new_value']??'N/A'}}
