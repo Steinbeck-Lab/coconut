@@ -201,7 +201,6 @@ function changeAudit(array $data): array
                         if (array_key_exists('identifier', $value)) {
                             $value['name'] = $value['name'].' (ID: '.$value['id'].')'.' (COCONUT ID: '.$value['identifier'].')';
                         } else {
-                            // ! array_key_exists('name', $value) ? dd($value) : '';
                             $value['name'] = $value['name'].' (ID: '.$value['id'].')';
                         }
                     } else {

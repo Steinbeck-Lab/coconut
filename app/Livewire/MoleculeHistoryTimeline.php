@@ -18,8 +18,6 @@ class MoleculeHistoryTimeline extends Component
             $audit_data[$index]['user_name'] = $audit->getMetadata()['user_name'];
             $audit_data[$index]['event'] = $audit->getMetadata()['audit_event'];
             $audit_data[$index]['created_at'] = date('Y/m/d', strtotime($audit->getMetadata()['audit_created_at']));
-            // dd($audit->old_values, $audit->new_values);
-            // dd($audit->getModified());
 
             $key = null;
             $old_key = $audit->old_values ? explode('.', array_keys($audit->old_values)[0])[0] : null;
@@ -41,7 +39,6 @@ class MoleculeHistoryTimeline extends Component
 
         array_push($audit_data, $initial_audit);
         $this->audit_data = $audit_data;
-        // dd($audit_data);
     }
 
     public function render()
