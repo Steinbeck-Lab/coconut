@@ -3,11 +3,8 @@ services:
         build:
             context: .
             dockerfile: ./resources/dc-ops/production/Dockerfile
-            args:
-                WWWGROUP: '${WWWGROUP}'
         image: coconut-8.3/app
         container_name: coconut_app
-        replicas: 2
         networks:
             - coconut
         depends_on:
@@ -23,8 +20,6 @@ services:
         build:
             context: .
             dockerfile: ./resources/dc-ops/production/Dockerfile
-            args:
-                WWWGROUP: '${WWWGROUP}'
         image: coconut-8.3/app
         container_name: coconut_app_worker
         networks:
@@ -106,27 +101,6 @@ services:
             start_period: 60s
         networks:
             - coconut
-    # typesense:
-    #     image: 'typesense/typesense:0.25.2'
-    #     ports:
-    #         - '${FORWARD_TYPESENSE_PORT:-8108}:8108'
-    #     environment:
-    #         TYPESENSE_DATA_DIR: '${TYPESENSE_DATA_DIR:-/typesense-data}'
-    #         TYPESENSE_API_KEY: '${TYPESENSE_API_KEY:-xyz}'
-    #         TYPESENSE_ENABLE_CORS: '${TYPESENSE_ENABLE_CORS:-true}'
-    #     volumes:
-    #         - 'coconut-typesense:/typesense-data'
-    #     networks:
-    #         - coconut
-    #     healthcheck:
-    #         test:
-    #             - CMD
-    #             - wget
-    #             - '--no-verbose'
-    #             - '--spider'
-    #             - 'http://localhost:8108/health'
-    #         retries: 5
-    #         timeout: 7s
 networks:
     coconut:
         driver: bridge
@@ -137,5 +111,3 @@ volumes:
         driver: local
     www-data:
         driver: local
-    # coconut-typesense:
-    #     driver: local
