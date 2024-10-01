@@ -611,7 +611,6 @@ class ReportResource extends Resource
 
     public static function approveReport(array $data, Report $record, Molecule $molecule, $livewire): void
     {
-        // dd($data, $record, $molecule, $livewire);
         // Run SQL queries for the approved changes
         self::runSQLQueries($record);
 
@@ -637,7 +636,6 @@ class ReportResource extends Resource
     {
         DB::transaction(function () use ($record) {
             self::$overall_changes = getOverallChanges(self::$approved_changes);
-            // dd(self::$overall_changes);
 
             // Check if 'molecule_id' is provided or use a default molecule for association/dissociation
             $molecule = Molecule::where('identifier', $record['mol_id_csv'])->first();
