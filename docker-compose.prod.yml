@@ -87,7 +87,7 @@ services:
         volumes:
             - www-data:/var/www
     cm:
-        image: "nfdi4chem/cheminformatics-microservice:dev-latest"
+        image: "nfdi4chem/cheminformatics-microservice:latest-lite"
         environment:
             HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
         ports:

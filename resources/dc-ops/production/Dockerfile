@@ -69,7 +69,7 @@ RUN groupadd -g 1000 www \
 # Copy existing application directory contents
 COPY . /var/www
 
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY ./resources/dc-ops/production/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Set proper permissions
 RUN chown -R www:www /var/www
