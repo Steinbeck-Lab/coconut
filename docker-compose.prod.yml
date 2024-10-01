@@ -4,7 +4,6 @@ services:
             context: .
             dockerfile: ./resources/dc-ops/production/Dockerfile
         image: coconut-8.3/app
-        container_name: coconut_app
         networks:
             - coconut
         depends_on:
@@ -21,7 +20,6 @@ services:
             context: .
             dockerfile: ./resources/dc-ops/production/Dockerfile
         image: coconut-8.3/app
-        container_name: coconut_app_worker
         networks:
             - coconut
         depends_on:
