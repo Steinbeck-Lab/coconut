@@ -122,11 +122,11 @@ class CreateReport extends CreateRecord
 
             $suggested_changes['new_citations'] = $data['new_citations'];
 
-            // seperate copy for Curators
-            $suggested_changes['curator'] = $suggested_changes;
-
             // Overall Changes suggested
             $suggested_changes['overall_changes'] = getOverallChanges($data);
+
+            // seperate copy for Curators
+            $suggested_changes['curator'] = $suggested_changes;
 
             $data['suggested_changes'] = $suggested_changes;
         }
