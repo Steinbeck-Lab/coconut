@@ -180,6 +180,7 @@ function changeAudit(array $data): array
         $whitelist = [
             // 'id' => 'id',
             'name' => 'name',
+            'title' => 'title',
             // 'identifier' => 'identifier',
         ];
 
