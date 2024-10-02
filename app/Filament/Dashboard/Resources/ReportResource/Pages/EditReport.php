@@ -14,7 +14,6 @@ class EditReport extends EditRecord
     {
         if ($this->record['is_change'] == true) {
             // initiate the flags to show only the fields that need to be shown - overall changes are always from the initial suggestions
-            $data['show_geo_location_existing'] = $this->record['suggested_changes']['overall_changes']['geo_location_changes']['delete'] ? true : false;
             if (array_key_exists('geo_location_changes', $this->record['suggested_changes']['overall_changes'])) {
                 $data['show_geo_location_existing'] = $this->record['suggested_changes']['overall_changes']['geo_location_changes']['delete'] ? true : false;
                 $data['show_geo_location_new'] = $this->record['suggested_changes']['overall_changes']['geo_location_changes']['add'] ? true : false;
