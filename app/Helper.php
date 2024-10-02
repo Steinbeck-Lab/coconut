@@ -195,12 +195,14 @@ function changeAudit(array $data): array
                 $data[$key_type][$changed_model] = [];
                 foreach ($changed_data_values as $key => $value) {
                     $value = is_array($value) ? $value : $value->toArray();
-                    if ($value) {
+                    if (array_key_exists('name', $value)) {
                         if (array_key_exists('identifier', $value)) {
                             $value['name'] = $value['name'].' (ID: '.$value['id'].')'.' (COCONUT ID: '.$value['identifier'].')';
                         } else {
                             $value['name'] = $value['name'].' (ID: '.$value['id'].')';
                         }
+                    } else {
+                        $value['name'] = $value['title'].' (ID: '.$value['id'].')';
                     }
                     $data[$key_type][$changed_model][$key] = array_intersect_key($value, $whitelist);
                 }

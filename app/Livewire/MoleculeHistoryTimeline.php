@@ -19,12 +19,12 @@ class MoleculeHistoryTimeline extends Component
             $audit_data[$index]['event'] = $audit->getMetadata()['audit_event'];
             $audit_data[$index]['created_at'] = date('Y/m/d', strtotime($audit->getMetadata()['audit_created_at']));
 
-            $values = !empty($audit->old_values) ? $audit->old_values : $audit->new_values;
-            $first_affected_column = !empty($values) ? array_keys($values)[0] : null;
+            $values = ! empty($audit->old_values) ? $audit->old_values : $audit->new_values;
+            $first_affected_column = ! empty($values) ? array_keys($values)[0] : null;
 
             if (str_contains($first_affected_column, '.')) {
                 $affected_column = explode('.', $first_affected_column)[0];
-                
+
                 $audit_data[$index]['affected_columns'][$affected_column]['old_value'] = $audit->old_values ? array_values($audit->old_values)[0] : null;
                 $audit_data[$index]['affected_columns'][$affected_column]['new_value'] = $audit->new_values ? array_values($audit->new_values)[0] : null;
             } else {
