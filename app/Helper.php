@@ -183,7 +183,6 @@ function changeAudit(array $data): array
             // 'id' => 'id',
             'name' => 'name',
             'title' => 'title',
-            'title' => 'title',
             // 'identifier' => 'identifier',
         ];
 
@@ -198,7 +197,6 @@ function changeAudit(array $data): array
                 $data[$key_type][$changed_model] = [];
                 foreach ($changed_data_values as $key => $value) {
                     $value = is_array($value) ? $value : $value->toArray();
-                    if (array_key_exists('name', $value)) {
                     if (array_key_exists('name', $value)) {
                         if (array_key_exists('identifier', $value)) {
                             $value['name'] = $value['name'].' (ID: '.$value['id'].')'.' (COCONUT ID: '.$value['identifier'].')';
