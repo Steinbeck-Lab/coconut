@@ -163,11 +163,17 @@ class ReportResource extends Resource
 
                                                 return $geo_locations;
                                             })
+                                            ->disabled(function (Get $get) {
+                                                return ! $get('show_geo_location_existing');
+                                            })
                                             ->columnSpan(4),
                                         TagsInput::make('new_geo_locations')
                                             ->label('New')
                                             ->separator(',')
                                             ->splitKeys([','])
+                                            ->disabled(function (Get $get) {
+                                                return ! $get('show_geo_location_new');
+                                            })
                                             ->columnSpan(4),
                                     ])
                                     ->columns(9),
@@ -191,11 +197,17 @@ class ReportResource extends Resource
 
                                                 return $synonyms;
                                             })
+                                            ->disabled(function (Get $get) {
+                                                return ! $get('show_synonym_existing');
+                                            })
                                             ->columnSpan(4),
                                         TagsInput::make('new_synonyms')
                                             ->label('New')
                                             ->separator(',')
                                             ->splitKeys([','])
+                                            ->disabled(function (Get $get) {
+                                                return ! $get('show_synonym_new');
+                                            })
                                             ->columnSpan(4),
                                     ])
                                     ->columns(9),
@@ -213,6 +225,9 @@ class ReportResource extends Resource
                                                 if (self::$molecule) {
                                                     return self::$molecule->name;
                                                 }
+                                            })
+                                            ->disabled(function (Get $get) {
+                                                return ! $get('show_name_change');
                                             })
                                             ->columnSpan(4),
                                     ])
@@ -234,11 +249,17 @@ class ReportResource extends Resource
                                                     return self::$molecule->cas;
                                                 }
                                             })
+                                            ->disabled(function (Get $get) {
+                                                return ! $get('show_cas_existing');
+                                            })
                                             ->columnSpan(4),
                                         TagsInput::make('new_cas')
                                             ->label('New')
                                             ->separator(',')
                                             ->splitKeys([','])
+                                            ->disabled(function (Get $get) {
+                                                return ! $get('show_cas_new');
+                                            })
                                             ->columnSpan(4),
                                     ])
                                     ->columns(9),
@@ -262,8 +283,8 @@ class ReportResource extends Resource
                                                     return self::$molecule->organisms->pluck('name', 'id')->toArray();
                                                 }
                                             })
-                                            ->hidden(function (Get $get) {
-                                                return $get('operation') == 'add';
+                                            ->disabled(function (Get $get) {
+                                                return ! $get('show_organism_existing');
                                             })
                                             ->columnSpan(9),
                                     ])
@@ -285,6 +306,9 @@ class ReportResource extends Resource
                                     ->reorderable(false)
                                     ->addActionLabel('Add New Organism')
                                     ->defaultItems(0)
+                                    ->disabled(function (Get $get) {
+                                        return ! $get('show_organism_new');
+                                    })
                                     ->columns(9),
 
                             ]),
@@ -307,6 +331,9 @@ class ReportResource extends Resource
                                                     return self::$molecule->citations->where('title', '!=', null)->pluck('title', 'id')->toArray();
                                                 }
                                             })
+                                            ->disabled(function (Get $get) {
+                                                return ! $get('show_citation_existing');
+                                            })
                                             ->columnSpan(9),
                                     ])
                                     ->columns(9),
@@ -325,6 +352,9 @@ class ReportResource extends Resource
                                     ->reorderable(false)
                                     ->addActionLabel('Add New Citation')
                                     ->defaultItems(0)
+                                    ->disabled(function (Get $get) {
+                                        return ! $get('show_citation_new');
+                                    })
                                     ->columns(9),
 
                             ]),

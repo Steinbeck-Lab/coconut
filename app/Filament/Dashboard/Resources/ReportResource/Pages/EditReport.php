@@ -13,6 +13,32 @@ class EditReport extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         if ($data['is_change'] == true) {
+            // initiate the flags to show only the fields that need to be shown
+            $data['show_geo_location_existing'] = $data['suggested_changes']['overall_changes']['geo_location_changes']['delete'] ? true : false;
+            if (array_key_exists('geo_location_changes', $data['suggested_changes']['overall_changes'])) {
+                $data['show_geo_location_existing'] = $data['suggested_changes']['overall_changes']['geo_location_changes']['delete'] ? true : false;
+                $data['show_geo_location_new'] = $data['suggested_changes']['overall_changes']['geo_location_changes']['add'] ? true : false;
+            }
+            if (array_key_exists('synonym_changes', $data['suggested_changes']['overall_changes'])) {
+                $data['show_synonym_existing'] = $data['suggested_changes']['overall_changes']['synonym_changes']['delete'] ? true : false;
+                $data['show_synonym_new'] = $data['suggested_changes']['overall_changes']['synonym_changes']['add'] ? true : false;
+            }
+            if (array_key_exists('name_change', $data['suggested_changes']['overall_changes'])) {
+                $data['show_name_change'] = $data['suggested_changes']['overall_changes']['name_change'] ? true : false;
+            }
+            if (array_key_exists('cas_changes', $data['suggested_changes']['overall_changes'])) {
+                $data['show_cas_existing'] = $data['suggested_changes']['overall_changes']['cas_changes']['delete'] ? true : false;
+                $data['show_cas_new'] = $data['suggested_changes']['overall_changes']['cas_changes']['add'] ? true : false;
+            }
+            if (array_key_exists('organism_changes', $data['suggested_changes']['overall_changes'])) {
+                $data['show_organism_existing'] = $data['suggested_changes']['overall_changes']['organism_changes']['delete'] ? true : false;
+                $data['show_organism_new'] = $data['suggested_changes']['overall_changes']['organism_changes']['add'] ? true : false;
+            }
+            if (array_key_exists('citation_changes', $data['suggested_changes']['overall_changes'])) {
+                $data['show_citation_existing'] = $data['suggested_changes']['overall_changes']['citation_changes']['delete'] ? true : false;
+                $data['show_citation_new'] = $data['suggested_changes']['overall_changes']['citation_changes']['add'] ? true : false;
+            }
+
             $curators_copy_changes = $data['suggested_changes']['curator'];
             $data['existing_geo_locations'] = $curators_copy_changes['existing_geo_locations'];
             $data['new_geo_locations'] = $curators_copy_changes['new_geo_locations'];
@@ -70,7 +96,6 @@ class EditReport extends EditRecord
             $data['suggested_changes']['curator']['approve_existing_citations'] = $data['approve_existing_citations'];
 
             $data['suggested_changes']['curator']['new_citations'] = $data['new_citations'];
-
         }
 
         return $data;
