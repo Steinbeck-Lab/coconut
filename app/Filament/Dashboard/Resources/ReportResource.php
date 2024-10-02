@@ -163,17 +163,19 @@ class ReportResource extends Resource
 
                                                 return $geo_locations;
                                             })
-                                            ->disabled(function (Get $get) {
-                                                return ! $get('show_geo_location_existing');
+                                            ->disabled(function (Get $get, string $operation) {
+                                                return ! $get('show_geo_location_existing') && $operation == 'edit';
                                             })
+                                            ->dehydrated()
                                             ->columnSpan(4),
                                         TagsInput::make('new_geo_locations')
                                             ->label('New')
                                             ->separator(',')
                                             ->splitKeys([','])
-                                            ->disabled(function (Get $get) {
-                                                return ! $get('show_geo_location_new');
+                                            ->disabled(function (Get $get, string $operation) {
+                                                return ! $get('show_geo_location_new') && $operation == 'edit';
                                             })
+                                            ->dehydrated()
                                             ->columnSpan(4),
                                     ])
                                     ->columns(9),
@@ -197,17 +199,19 @@ class ReportResource extends Resource
 
                                                 return $synonyms;
                                             })
-                                            ->disabled(function (Get $get) {
-                                                return ! $get('show_synonym_existing');
+                                            ->disabled(function (Get $get, string $operation) {
+                                                return ! $get('show_synonym_existing') && $operation == 'edit';
                                             })
+                                            ->dehydrated()
                                             ->columnSpan(4),
                                         TagsInput::make('new_synonyms')
                                             ->label('New')
                                             ->separator(',')
                                             ->splitKeys([','])
-                                            ->disabled(function (Get $get) {
-                                                return ! $get('show_synonym_new');
+                                            ->disabled(function (Get $get, string $operation) {
+                                                return ! $get('show_synonym_new') && $operation == 'edit';
                                             })
+                                            ->dehydrated()
                                             ->columnSpan(4),
                                     ])
                                     ->columns(9),
@@ -226,9 +230,10 @@ class ReportResource extends Resource
                                                     return self::$molecule->name;
                                                 }
                                             })
-                                            ->disabled(function (Get $get) {
-                                                return ! $get('show_name_change');
+                                            ->disabled(function (Get $get, string $operation) {
+                                                return ! $get('show_name_change') && $operation == 'edit';
                                             })
+                                            ->dehydrated()
                                             ->columnSpan(4),
                                     ])
                                     ->columns(9),
@@ -249,17 +254,19 @@ class ReportResource extends Resource
                                                     return self::$molecule->cas;
                                                 }
                                             })
-                                            ->disabled(function (Get $get) {
-                                                return ! $get('show_cas_existing');
+                                            ->disabled(function (Get $get, string $operation) {
+                                                return ! $get('show_cas_existing') && $operation == 'edit';
                                             })
+                                            ->dehydrated()
                                             ->columnSpan(4),
                                         TagsInput::make('new_cas')
                                             ->label('New')
                                             ->separator(',')
                                             ->splitKeys([','])
-                                            ->disabled(function (Get $get) {
-                                                return ! $get('show_cas_new');
+                                            ->disabled(function (Get $get, string $operation) {
+                                                return ! $get('show_cas_new') && $operation == 'edit';
                                             })
+                                            ->dehydrated()
                                             ->columnSpan(4),
                                     ])
                                     ->columns(9),
@@ -283,9 +290,10 @@ class ReportResource extends Resource
                                                     return self::$molecule->organisms->pluck('name', 'id')->toArray();
                                                 }
                                             })
-                                            ->disabled(function (Get $get) {
-                                                return ! $get('show_organism_existing');
+                                            ->disabled(function (Get $get, string $operation) {
+                                                return ! $get('show_organism_existing') && $operation == 'edit';
                                             })
+                                            ->dehydrated()
                                             ->columnSpan(9),
                                     ])
                                     ->columns(9),
@@ -298,7 +306,6 @@ class ReportResource extends Resource
                                             ->hidden(function (string $operation) {
                                                 return ! auth()->user()->roles()->exists() || $operation == 'create';
                                             })
-                                            ->disabled(false)
                                             ->columnSpanFull(),
                                         Grid::make('new_organism')
                                             ->schema(Organism::getForm())->columns(4),
@@ -306,9 +313,10 @@ class ReportResource extends Resource
                                     ->reorderable(false)
                                     ->addActionLabel('Add New Organism')
                                     ->defaultItems(0)
-                                    ->disabled(function (Get $get) {
-                                        return ! $get('show_organism_new');
+                                    ->disabled(function (Get $get, string $operation) {
+                                        return ! $get('show_organism_new') && $operation == 'edit';
                                     })
+                                    ->dehydrated()
                                     ->columns(9),
 
                             ]),
@@ -331,9 +339,10 @@ class ReportResource extends Resource
                                                     return self::$molecule->citations->where('title', '!=', null)->pluck('title', 'id')->toArray();
                                                 }
                                             })
-                                            ->disabled(function (Get $get) {
-                                                return ! $get('show_citation_existing');
+                                            ->disabled(function (Get $get, string $operation) {
+                                                return ! $get('show_citation_existing') && $operation == 'edit';
                                             })
+                                            ->dehydrated()
                                             ->columnSpan(9),
                                     ])
                                     ->columns(9),
@@ -352,9 +361,10 @@ class ReportResource extends Resource
                                     ->reorderable(false)
                                     ->addActionLabel('Add New Citation')
                                     ->defaultItems(0)
-                                    ->disabled(function (Get $get) {
-                                        return ! $get('show_citation_new');
+                                    ->disabled(function (Get $get, string $operation) {
+                                        return ! $get('show_citation_new') && $operation == 'edit';
                                     })
+                                    ->dehydrated()
                                     ->columns(9),
 
                             ]),
@@ -646,7 +656,7 @@ class ReportResource extends Resource
 
         $suggested_changes = $record['suggested_changes'];
 
-        $suggested_changes['approved_changes'] = self::$overall_changes;
+        $suggested_changes['curator']['approved_changes'] = self::$overall_changes;
         $record['suggested_changes'] = $suggested_changes;
         $record['comment'] = $data['reason'];
         $record['status'] = 'approved';
