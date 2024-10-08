@@ -660,6 +660,9 @@ class ReportResource extends Resource
         $record['suggested_changes'] = $suggested_changes;
         $record['comment'] = $data['reason'];
         $record['status'] = 'approved';
+        $formData = copyChangesToCuratorJSON($record, $livewire->data);
+        $suggested_changes['curator'] = $formData['suggested_changes']['curator'];
+        $record['suggested_changes'] = $suggested_changes;
 
         // Save the report record in any case
         $record->save();

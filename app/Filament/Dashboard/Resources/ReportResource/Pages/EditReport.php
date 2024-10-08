@@ -70,33 +70,8 @@ class EditReport extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-
         if ($this->record->is_change) {
-            $temp = $data;
-            $data = $this->record->toArray();
-
-            $data['suggested_changes']['curator']['existing_geo_locations'] = $temp['existing_geo_locations'] ?? $this->record['suggested_changes']['curator']['existing_geo_locations'];
-            $data['suggested_changes']['curator']['new_geo_locations'] = $temp['new_geo_locations'] ?? $this->record['suggested_changes']['curator']['new_geo_locations'];
-            $data['suggested_changes']['curator']['approve_geo_locations'] = $temp['approve_geo_locations'];
-
-            $data['suggested_changes']['curator']['existing_synonyms'] = $temp['existing_synonyms'] ?? $this->record['suggested_changes']['curator']['existing_synonyms'];
-            $data['suggested_changes']['curator']['new_synonyms'] = $temp['new_synonyms'] ?? $this->record['suggested_changes']['curator']['new_synonyms'];
-            $data['suggested_changes']['curator']['approve_synonyms'] = $temp['approve_synonyms'];
-
-            $data['suggested_changes']['curator']['name'] = $temp['name'] ?? $this->record['suggested_changes']['curator']['name'];
-            $data['suggested_changes']['curator']['approve_name'] = $temp['approve_name'];
-
-            $data['suggested_changes']['curator']['existing_cas'] = $temp['existing_cas'] ?? $this->record['suggested_changes']['curator']['existing_cas'];
-            $data['suggested_changes']['curator']['new_cas'] = $temp['new_cas'] ?? $this->record['suggested_changes']['curator']['new_cas'];
-            $data['suggested_changes']['curator']['approve_cas'] = $temp['approve_cas'];
-
-            $data['suggested_changes']['curator']['existing_organisms'] = $temp['existing_organisms'] ?? $this->record['suggested_changes']['curator']['existing_organisms'];
-            $data['suggested_changes']['curator']['new_organisms'] = $temp['new_organisms'] ?? $this->record['suggested_changes']['curator']['new_organisms'];
-            $data['suggested_changes']['curator']['approve_existing_organisms'] = $temp['approve_existing_organisms'];
-
-            $data['suggested_changes']['curator']['existing_citations'] = $temp['existing_citations'] ?? $this->record['suggested_changes']['curator']['existing_citations'];
-            $data['suggested_changes']['curator']['new_citations'] = $temp['new_citations'] ?? $this->record['suggested_changes']['curator']['new_citations'];
-            $data['suggested_changes']['curator']['approve_existing_citations'] = $temp['approve_existing_citations'];
+            $data = copyChangesToCuratorJSON($this->record, $data);
         }
 
         return $data;

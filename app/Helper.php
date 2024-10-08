@@ -379,3 +379,34 @@ function getOverallChanges($data)
 
     return $overall_changes;
 }
+
+function copyChangesToCuratorJSON($record, $data)
+{
+    $temp = $data;
+    $data = $record->toArray();
+
+    $data['suggested_changes']['curator']['existing_geo_locations'] = $temp['existing_geo_locations'] ?? $record['suggested_changes']['curator']['existing_geo_locations'];
+    $data['suggested_changes']['curator']['new_geo_locations'] = $temp['new_geo_locations'] ?? $record['suggested_changes']['curator']['new_geo_locations'];
+    $data['suggested_changes']['curator']['approve_geo_locations'] = $temp['approve_geo_locations'] ?? false;
+
+    $data['suggested_changes']['curator']['existing_synonyms'] = $temp['existing_synonyms'] ?? $record['suggested_changes']['curator']['existing_synonyms'];
+    $data['suggested_changes']['curator']['new_synonyms'] = $temp['new_synonyms'] ?? $record['suggested_changes']['curator']['new_synonyms'];
+    $data['suggested_changes']['curator']['approve_synonyms'] = $temp['approve_synonyms'] ?? false;
+
+    $data['suggested_changes']['curator']['name'] = $temp['name'] ?? $record['suggested_changes']['curator']['name'];
+    $data['suggested_changes']['curator']['approve_name'] = $temp['approve_name'] ?? false;
+
+    $data['suggested_changes']['curator']['existing_cas'] = $temp['existing_cas'] ?? $record['suggested_changes']['curator']['existing_cas'];
+    $data['suggested_changes']['curator']['new_cas'] = $temp['new_cas'] ?? $record['suggested_changes']['curator']['new_cas'];
+    $data['suggested_changes']['curator']['approve_cas'] = $temp['approve_cas'] ?? false;
+
+    $data['suggested_changes']['curator']['existing_organisms'] = $temp['existing_organisms'] ?? $record['suggested_changes']['curator']['existing_organisms'];
+    $data['suggested_changes']['curator']['new_organisms'] = $temp['new_organisms'] ?? $record['suggested_changes']['curator']['new_organisms'];
+    $data['suggested_changes']['curator']['approve_existing_organisms'] = $temp['approve_existing_organisms'] ?? false;
+
+    $data['suggested_changes']['curator']['existing_citations'] = $temp['existing_citations'] ?? $record['suggested_changes']['curator']['existing_citations'];
+    $data['suggested_changes']['curator']['new_citations'] = $temp['new_citations'] ?? $record['suggested_changes']['curator']['new_citations'];
+    $data['suggested_changes']['curator']['approve_existing_citations'] = $temp['approve_existing_citations'] ?? false;
+
+    return $data;
+}
