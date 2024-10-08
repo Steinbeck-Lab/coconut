@@ -375,7 +375,6 @@ class ReportResource extends Resource
                 TextInput::make('doi')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide the DOI link to the resource you are reporting so as to help curators verify.')
                     ->label('DOI')
-                    ->url()
                     ->suffixAction(
                         fn (?string $state): Action => Action::make('visit')
                             ->icon('heroicon-s-link')
@@ -385,7 +384,7 @@ class ReportResource extends Resource
                             ),
                     )
                     ->hidden(function (string $operation, $record) {
-                        return $operation == 'create' ? request()->has('type') && request()->type == 'change' : $record->is_change;
+                        return $operation == 'create' && request()->has('type') && request()->type == 'change' ? true : false;
                     }),
                 Select::make('collections')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select the Collections you want to report. This will help our Curators in reviewing your report.')
@@ -474,7 +473,7 @@ class ReportResource extends Resource
                     })
                     ->live()
                     ->hidden(function (Get $get, string $operation) {
-                        if ($operation != 'create' || request()->type == 'change') {
+                        if ($operation != 'create' || request()->has('type')) {
                             return true;
                         }
                         if (! request()->has('compound_id') && $get('report_type') != 'molecule') {

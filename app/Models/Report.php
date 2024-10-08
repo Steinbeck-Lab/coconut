@@ -33,6 +33,7 @@ class Report extends Model implements Auditable
         'user_id',
         'suggested_changes',
         'is_change',
+        'doi',
     ];
 
     protected $casts = [
