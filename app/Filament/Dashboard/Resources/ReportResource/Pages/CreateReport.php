@@ -150,6 +150,9 @@ class CreateReport extends CreateRecord
 
     protected function getCreateFormAction(): Action
     {
+        if (! $this->data['is_change']) {
+            return parent::getCreateFormAction();
+        }
         return parent::getCreateFormAction()
             ->submit(null)
             ->form(function () {
