@@ -100,8 +100,8 @@ class ReportResource extends Resource
                                 ->hidden(function (Get $get, string $operation) {
                                     return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation != 'edit';
                                 })
-                                ->action(function (array $data, Report $record, $set): void {
-                                    self::rejectReport($data, $record);
+                                ->action(function (array $data, Report $record, $set, $livewire): void {
+                                    self::rejectReport($data, $record, $livewire);
                                     $set('status', 'rejected');
                                 }),
                             Action::make('viewCompoundPage')
@@ -545,7 +545,7 @@ class ReportResource extends Resource
 
                 //     ])
                 //     ->action(function (array $data, Report $record): void {
-                //         self::rejectReport($data, $record);
+                //         self::rejectReport($data, $record, $livewire);
                 //     }),
             ])
             ->bulkActions([
@@ -666,13 +666,17 @@ class ReportResource extends Resource
 
         // Save the report record in any case
         $record->save();
+
+        $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
     }
 
-    public static function rejectReport(array $data, Report $record): void
+    public static function rejectReport(array $data, Report $record, $livewire): void
     {
         $record['status'] = 'rejected';
         $record['comment'] = $data['reason'];
         $record->save();
+
+        $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
     }
 
     public static function runSQLQueries(Report $record): void
