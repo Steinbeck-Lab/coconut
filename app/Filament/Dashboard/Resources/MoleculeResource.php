@@ -125,6 +125,7 @@ class MoleculeResource extends Resource
                         ])
                         ->action(function (array $data, Molecule $record): void {
                             $record->active = ! $record->active;
+                            $record->active ? $record->status = 'APPROVED' : $record->status = 'REVOKED';
                             self::saveComment($record, $data['reason']);
                         })
                         ->modalHidden(function (Molecule $record) {
@@ -144,6 +145,7 @@ class MoleculeResource extends Resource
                         ->action(function (array $data, Collection $records): void {
                             foreach ($records as $record) {
                                 $record->active = ! $record->active;
+                                $record->active ? $record->status = 'APPROVED' : $record->status = 'REVOKED';
                                 self::saveComment($record, $data['reason']);
                             }
                         })
