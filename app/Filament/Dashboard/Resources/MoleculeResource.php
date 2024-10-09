@@ -124,9 +124,7 @@ class MoleculeResource extends Resource
                                 }),
                         ])
                         ->action(function (array $data, Molecule $record): void {
-                            $record->active = ! $record->active;
-                            $record->active ? $record->status = 'APPROVED' : $record->status = 'REVOKED';
-                            self::saveComment($record, $data['reason']);
+                            self::changeMoleculeStatus($record, $data['reason']);
                         })
                         ->modalHidden(function (Molecule $record) {
                             return ! $record['active'];
@@ -144,9 +142,7 @@ class MoleculeResource extends Resource
                         ])
                         ->action(function (array $data, Collection $records): void {
                             foreach ($records as $record) {
-                                $record->active = ! $record->active;
-                                $record->active ? $record->status = 'APPROVED' : $record->status = 'REVOKED';
-                                self::saveComment($record, $data['reason']);
+                                self::changeMoleculeStatus($record, $data['reason']);
                             }
                         })
                         // ->modalHidden(function (Molecule $record) {
@@ -210,8 +206,11 @@ class MoleculeResource extends Resource
         return Cache::get('stats.molecules');
     }
 
-    public static function saveComment($record, $reason)
+    public static function changeMoleculeStatus($record, $reason)
     {
+        $record->active = ! $record->active;
+        $record->active ? $record->status = 'APPROVED' : $record->status = 'REVOKED';
+
         $record->comment = [[
             'timestamp' => now(),
             'changed_by' => auth()->user()->id,
