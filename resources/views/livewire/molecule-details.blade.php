@@ -264,10 +264,10 @@
                                                     IUPAC name
                                                 </dt>
                                                 <div class="mt-1 break-all text-sm text-gray-900">
-                                                    {{ $molecule->iupac_name }}
+                                                {!! convert_italics_notation($molecule->iupac_name) !!}
                                                     <span class="float-end mr-2 group-hover:block hidden">
                                                         <livewire:copy-button
-                                                            text-to-copy="{{ $molecule->iupac_name }}" />
+                                                            text-to-copy="{{ remove_italics_notation($molecule->iupac_name) }}" />
                                                     </span>
                                                 </div>
                                             </div>
