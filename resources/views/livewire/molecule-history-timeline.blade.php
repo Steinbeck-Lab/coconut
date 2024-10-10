@@ -9,6 +9,7 @@
             <!-- Activity feed -->
             <ul role="list" class="mt-6 space-y-3">
                 @foreach ($audit_data as $audit)
+                @if (array_key_exists('affected_columns', $audit))
                 <li class="relative flex gap-x-1">
                     <div class="absolute -bottom-6 left-0 top-0 flex w-6 justify-center">
                         <div class="w-px bg-gray-200"></div>
@@ -35,25 +36,57 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24">
                                         <path d="M12 2C6.488 2 2 6.489 2 12s4.488 10 10 10 10-4.489 10-10S17.512 2 12 2zM12 4c4.43 0 8 3.57 8 8s-3.57 8-8 8-8-3.57-8-8 3.57-8 8-8zm-1 3v2h2V7h-2zm0 4v6h2v-6h-2z"></path>
                                     </svg>
-                                    <span class="tooltiptext">
-                                        @switch(explode('.', $column_name)[0])
-                                            @case('comment')
-                                                {{ $column_values['new_value'][0]['comment'] ?? 'N/A' }}
-                                                @break
-                                            @case('active')
-                                                {{ $column_values['new_value'] ? 'Activated' : 'Deactivated' }}
-                                                @break
-                                            @case('created')
-                                                Initial creation of the compound on COCONUT
-                                                @break
-                                            @case('organisms')
-                                            @case('sampleLocations')
-                                                <strong>Detached from:</strong> <br /> {{ $column_values['old_value'] ?: 'N/A' }} <br />
-                                                <strong>Attached to:</strong> <br /> {{ $column_values['new_value'] ?: 'N/A' }} <br />
-                                                @break
-                                            @default
-                                                <strong>Old Value:</strong> <br /> {{ $column_values['old_value'] ?: 'N/A' }} <br />
-                                                <strong>New Value:</strong> <br /> {{ $column_values['new_value'] ?: 'N/A' }}
+                                    <span class="tooltiptext ">
+                                        @switch(explode('.',$column_name)[0])
+                                        @case('comment')
+                                            {{$column_values['new_value'][0]['comment'] ?? 'N/A'}}
+                                        @break
+                                        @case('active')
+                                            @if ($column_values['new_value'])
+                                            Activated
+                                            @else
+                                            Deactivated
+                                            @endif
+                                        @break
+                                        @case('created')
+                                            Initial creation of the compound on COCONUT
+                                        @break
+                                        @case('organisms')
+                                        @case('sampleLocations')
+                                            @if ($column_values['old_value'])
+                                                <span class="font-bold">Detached from:</span> <br /> {{$column_values['old_value']?:'N/A'}} <br />
+                                            @endif
+                                            @if ($column_values['new_value'])
+                                                <span class="font-bold">Attached to:</span> <br /> {{$column_values['new_value']?:'N/A'}} <br />
+                                            @endif
+                                        @break
+                                        @case('synonyms')
+                                            @if (array_diff($column_values['old_value'], $column_values['new_value']))
+                                                <span class="font-bold">Removed: </span> <br /> {{implode(', ',array_diff($column_values['old_value'], $column_values['new_value']))}} <br />
+                                            @endif
+                                            @if (array_diff($column_values['new_value'], $column_values['old_value']))
+                                                <span class="font-bold">Added: </span> <br /> {{implode(', ',array_diff($column_values['new_value'], $column_values['old_value']))}} <br />
+                                            @endif
+                                        @break
+                                        @case('cas')
+                                            @if (array_diff($column_values['old_value'], $column_values['new_value']))
+                                                <span class="font-bold">Removed: </span> <br /> {{implode(', ',array_diff($column_values['old_value'], $column_values['new_value']))}} <br />
+                                            @endif
+                                            @if (array_diff($column_values['new_value'], $column_values['old_value']))
+                                                <span class="font-bold">Added: </span> <br /> {{implode(', ',array_diff($column_values['new_value'], $column_values['old_value']))}} <br />
+                                            @endif
+                                        @break
+                                        @case('citations')
+                                            @if ($column_values['old_value'])
+                                                <span class="font-bold">Detached from:</span> <br /> {{$column_values['old_value']?:'N/A'}} <br />
+                                            @endif
+                                            @if ($column_values['new_value'])
+                                                <span class="font-bold">Attached to:</span> <br /> {{$column_values['new_value']?:'N/A'}} <br />
+                                            @endif
+                                        @break
+                                        @default
+                                            Old Value: <br /> {{$column_values['old_value']??'N/A'}} <br />
+                                            New Value: <br /> {{$column_values['new_value']??'N/A'}}
                                         @endswitch
                                     </span>
                                 </div> --}}
@@ -62,6 +95,7 @@
                         @endforeach
                     </div>
                 </li>
+                @endif
                 @endforeach
             </ul>
         </div>

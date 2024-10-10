@@ -245,7 +245,6 @@ class MoleculesRelationManager extends RelationManager
                                     foreach ($molecues_with_muliple_locations as $molecule) {
                                         $current_sample_locations_subset = SampleLocation::findOrFail($molecule['sampleLocations']);
                                         $current_sample_locations_multiple = $records->where('id', $molecule['id'])[0]->sampleLocations()->where('organism_id', $this->getOwnerRecord()->id)->get();
-                                        // dd($current_sample_locations_multiple, $current_sample_locations_subset);
                                         if ($current_sample_locations_multiple->pluck('id') == $current_sample_locations_subset->pluck('id')) {
                                             $currentOrganism->auditDetach('molecules', $molecule['id']);
                                         }
