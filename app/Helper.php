@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\Citation;
+use App\Models\Molecule;
+use Filament\Forms\Components\KeyValue;
 use Illuminate\Support\Facades\Event;
 use OwenIt\Auditing\Events\AuditCustom;
 
@@ -180,6 +182,7 @@ function changeAudit(array $data): array
         $whitelist = [
             // 'id' => 'id',
             'name' => 'name',
+            'title' => 'title',
             // 'identifier' => 'identifier',
         ];
 
@@ -194,12 +197,14 @@ function changeAudit(array $data): array
                 $data[$key_type][$changed_model] = [];
                 foreach ($changed_data_values as $key => $value) {
                     $value = is_array($value) ? $value : $value->toArray();
-                    if ($value) {
+                    if (array_key_exists('name', $value)) {
                         if (array_key_exists('identifier', $value)) {
                             $value['name'] = $value['name'].' (ID: '.$value['id'].')'.' (COCONUT ID: '.$value['identifier'].')';
                         } else {
                             $value['name'] = $value['name'].' (ID: '.$value['id'].')';
                         }
+                    } else {
+                        $value['title'] = $value['title'].' (ID: '.$value['id'].')';
                     }
                     $data[$key_type][$changed_model][$key] = array_intersect_key($value, $whitelist);
                 }
@@ -231,4 +236,202 @@ function flattenArray(array $array, $prefix = ''): array
     }
 
     return $result;
+}
+
+function getChangesToDisplayModal($data)
+{
+    $key_values = [];
+    $overall_changes = getOverallChanges($data);
+
+    foreach ($overall_changes as $key => $value) {
+        if (count($value['changes']) == 0) {
+            continue;
+        }
+        array_push($key_values, KeyValue::make($key)
+            ->addable(false)
+            ->deletable(false)
+            ->keyLabel($value['key'])
+            ->valueLabel($value['value'])
+            ->editableKeys(false)
+            ->editableValues(false)
+            ->default(
+                $value['changes']
+            ));
+    }
+
+    return $key_values;
+}
+
+function getOverallChanges($data)
+{
+    $overall_changes = [];
+    $geo_location_changes = [];
+    $molecule = Molecule::where('identifier', $data['mol_id_csv'])->first();
+
+    $db_geo_locations = $molecule->geo_locations->pluck('name')->toArray();
+    $deletable_locations = array_key_exists('existing_geo_locations', $data) ? array_diff($db_geo_locations, $data['existing_geo_locations']) : [];
+    $new_locations = array_key_exists('new_geo_locations', $data) ? (is_string($data['new_geo_locations']) ? $data['new_geo_locations'] : implode(',', $data['new_geo_locations'])) : null;
+    if (count($deletable_locations) > 0 || $new_locations) {
+        $key = implode(',', $deletable_locations) == '' ? ' ' : implode(',', $deletable_locations);
+        $geo_location_changes[$key] = $new_locations;
+        $overall_changes['geo_location_changes'] = [
+            'key' => 'Delete',
+            'value' => 'Add',
+            'changes' => $geo_location_changes,
+            'delete' => $deletable_locations,
+            'add' => $new_locations,
+        ];
+    }
+
+    $synonym_changes = [];
+    $db_synonyms = $molecule->synonyms;
+    $deletable_synonyms = array_key_exists('existing_synonyms', $data) ? array_diff($db_synonyms, $data['existing_synonyms']) : [];
+    $new_synonyms = array_key_exists('new_synonyms', $data) ? (is_string($data['new_synonyms']) ? $data['new_synonyms'] : implode(',', $data['new_synonyms'])) : null;
+    if (count($deletable_synonyms) > 0 || $new_synonyms) {
+        $key = implode(',', $deletable_synonyms) == '' ? ' ' : implode(',', $deletable_synonyms);
+        $synonym_changes[$key] = $new_synonyms;
+        $overall_changes['synonym_changes'] = [
+            'key' => 'Delete',
+            'value' => 'Add',
+            'changes' => $synonym_changes,
+            'delete' => $deletable_synonyms,
+            'add' => $new_synonyms,
+        ];
+    }
+
+    $name_change = [];
+    if (array_key_exists('name', $data) && $data['name'] && $data['name'] != $molecule->name) {
+        $name_change[$molecule->name] = $data['name'];
+        $overall_changes['name_change'] = [
+            'key' => 'Old',
+            'value' => 'New',
+            'changes' => $name_change,
+            'old' => $molecule->name,
+            'new' => $data['name'],
+        ];
+    }
+
+    $cas_changes = [];
+    $db_cas = $molecule->cas;
+    $deletable_cas = array_key_exists('existing_cas', $data) ? array_diff($db_cas, $data['existing_cas']) : [];
+    $new_cas = array_key_exists('new_cas', $data) ? (is_string($data['new_cas']) ? $data['new_cas'] : implode(',', $data['new_cas'])) : null;
+    if (count($deletable_cas) > 0 || $new_cas) {
+        $key = implode(',', $deletable_cas) == '' ? ' ' : implode(',', $deletable_cas);
+        $cas_changes[$key] = $new_cas;
+        $overall_changes['cas_changes'] = [
+            'key' => 'Delete',
+            'value' => 'Add',
+            'changes' => $cas_changes,
+            'delete' => $deletable_cas,
+            'add' => $new_cas,
+        ];
+    }
+
+    $organism_changes = [];
+    $db_organisms = $molecule->organisms->pluck('name')->toArray();
+    $deletable_organisms = array_key_exists('existing_organisms', $data) ? array_diff($db_organisms, $data['existing_organisms']) : [];
+    $new_organisms = [];
+    $new_organisms_form_data = [];
+    if (array_key_exists('new_organisms', $data)) {
+        foreach ($data['new_organisms'] as $organism) {
+            if ($organism['name']) {
+                $new_organisms[] = $organism['name'];
+                $new_organisms_form_data[] = $organism;
+            }
+        }
+    }
+    if (count($deletable_organisms) > 0 || count($new_organisms) > 0) {
+        $key = implode(',', $deletable_organisms) == '' ? ' ' : implode(',', $deletable_organisms);
+        $organism_changes[$key] = implode(',', $new_organisms);
+        $overall_changes['organism_changes'] = [
+            'key' => 'Delete',
+            'value' => 'Add',
+            'changes' => $organism_changes,
+            'delete' => $deletable_organisms,
+            'add' => $new_organisms_form_data,
+        ];
+    }
+
+    $citation_changes = [];
+    $db_citations = $molecule->citations->where('title', '<>', null)->pluck('title')->toArray();
+    $deletable_citations = array_key_exists('existing_citations', $data) ? array_diff($db_citations, $data['existing_citations']) : [];
+    $new_citations = [];
+    $new_citations_form_data = [];
+    if (array_key_exists('new_citations', $data)) {
+        foreach ($data['new_citations'] as $ciation) {
+            if ($ciation['title']) {
+                $new_citations[] = $ciation['title'];
+                $new_citations_form_data[] = $ciation;
+            }
+        }
+    }
+    if (count($deletable_citations) > 0 || count($new_citations) > 0) {
+        $key = implode(',', $deletable_citations) == '' ? ' ' : implode(',', $deletable_citations);
+        $citation_changes[$key] = implode(',', $new_citations);
+        $overall_changes['citation_changes'] = [
+            'key' => 'Delete',
+            'value' => 'Add',
+            'changes' => $citation_changes,
+            'delete' => $deletable_citations,
+            'add' => $new_citations_form_data,
+        ];
+    }
+
+    return $overall_changes;
+}
+
+function copyChangesToCuratorJSON($record, $data)
+{
+    $temp = $data;
+    $data = $record->toArray();
+
+    $data['suggested_changes']['curator']['existing_geo_locations'] = $temp['existing_geo_locations'] ?? $record['suggested_changes']['curator']['existing_geo_locations'];
+    $data['suggested_changes']['curator']['new_geo_locations'] = $temp['new_geo_locations'] ?? $record['suggested_changes']['curator']['new_geo_locations'];
+    $data['suggested_changes']['curator']['approve_geo_locations'] = $temp['approve_geo_locations'] ?? false;
+
+    $data['suggested_changes']['curator']['existing_synonyms'] = $temp['existing_synonyms'] ?? $record['suggested_changes']['curator']['existing_synonyms'];
+    $data['suggested_changes']['curator']['new_synonyms'] = $temp['new_synonyms'] ?? $record['suggested_changes']['curator']['new_synonyms'];
+    $data['suggested_changes']['curator']['approve_synonyms'] = $temp['approve_synonyms'] ?? false;
+
+    $data['suggested_changes']['curator']['name'] = $temp['name'] ?? $record['suggested_changes']['curator']['name'];
+    $data['suggested_changes']['curator']['approve_name'] = $temp['approve_name'] ?? false;
+
+    $data['suggested_changes']['curator']['existing_cas'] = $temp['existing_cas'] ?? $record['suggested_changes']['curator']['existing_cas'];
+    $data['suggested_changes']['curator']['new_cas'] = $temp['new_cas'] ?? $record['suggested_changes']['curator']['new_cas'];
+    $data['suggested_changes']['curator']['approve_cas'] = $temp['approve_cas'] ?? false;
+
+    $data['suggested_changes']['curator']['existing_organisms'] = $temp['existing_organisms'] ?? $record['suggested_changes']['curator']['existing_organisms'];
+    $data['suggested_changes']['curator']['new_organisms'] = $temp['new_organisms'] ?? $record['suggested_changes']['curator']['new_organisms'];
+    $data['suggested_changes']['curator']['approve_existing_organisms'] = $temp['approve_existing_organisms'] ?? false;
+
+    $data['suggested_changes']['curator']['existing_citations'] = $temp['existing_citations'] ?? $record['suggested_changes']['curator']['existing_citations'];
+    $data['suggested_changes']['curator']['new_citations'] = $temp['new_citations'] ?? $record['suggested_changes']['curator']['new_citations'];
+    $data['suggested_changes']['curator']['approve_existing_citations'] = $temp['approve_existing_citations'] ?? false;
+
+    return $data;
+}
+
+function prepareComment($reason)
+{
+    return [[
+        'timestamp' => now(),
+        'changed_by' => auth()->user()->id,
+        'comment' => $reason,
+    ]];
+}
+
+function convert_italics_notation($text)
+{
+    // Use preg_replace to replace ~{text} with <i>text</i>
+    $converted_text = preg_replace('/~\{([^}]*)\}/', '<i>$1</i>', $text);
+
+    return $converted_text;
+}
+
+function remove_italics_notation($text)
+{
+    // Use preg_replace to find all instances of ~{something} and replace with just something
+    $converted_text = preg_replace('/~\{([^}]*)\}/', '$1', $text);
+
+    return $converted_text;
 }
