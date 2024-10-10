@@ -43,9 +43,11 @@ class CreateReport extends CreateRecord
             $this->data['is_change'] = true;
             $this->data['existing_geo_locations'] = $this->molecule->geo_locations->pluck('name')->toArray();
             $this->data['existing_synonyms'] = $this->molecule->synonyms;
-            $this->data['existing_cas'] = array_values($this->molecule->cas);
+            $this->data['existing_cas'] = array_values($this->molecule->cas ?? []);
             $this->data['existing_organisms'] = $this->molecule->organisms->pluck('name')->toArray();
             $this->data['existing_citations'] = $this->molecule->citations->where('title', '!=', null)->pluck('title')->toArray();
+        } else {
+            $this->data['is_change'] = false;
         }
 
         if ($request->has('collection_uuid')) {
@@ -94,8 +96,7 @@ class CreateReport extends CreateRecord
     {
         $data['user_id'] = auth()->id();
         $data['status'] = 'submitted';
-
-        if ($data['is_change'] == true) {
+        if ($data['is_change']) {
             $suggested_changes = [];
             $suggested_changes['existing_geo_locations'] = $data['existing_geo_locations'];
             $suggested_changes['new_geo_locations'] = $data['new_geo_locations'];
@@ -153,6 +154,7 @@ class CreateReport extends CreateRecord
         if (! $this->data['is_change']) {
             return parent::getCreateFormAction();
         }
+
         return parent::getCreateFormAction()
             ->submit(null)
             ->form(function () {

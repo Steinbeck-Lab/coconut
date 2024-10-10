@@ -410,3 +410,12 @@ function copyChangesToCuratorJSON($record, $data)
 
     return $data;
 }
+
+function prepareComment($reason)
+{
+    return [[
+        'timestamp' => now(),
+        'changed_by' => auth()->user()->id,
+        'comment' => $reason,
+    ]];
+}

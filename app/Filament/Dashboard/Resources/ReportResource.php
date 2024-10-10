@@ -79,11 +79,15 @@ class ReportResource extends Resource
                         Actions::make([
                             Action::make('approve')
                                 ->form(function ($record, $livewire) {
-                                    self::$approved_changes = self::prepareApprovedChanges($record, $livewire);
-                                    $key_value_fields = getChangesToDisplayModal(self::$approved_changes);
-                                    array_unshift($key_value_fields, Textarea::make('reason'));
+                                    if ($record['is_change']) {
+                                        self::$approved_changes = self::prepareApprovedChanges($record, $livewire);
+                                        $key_value_fields = getChangesToDisplayModal(self::$approved_changes);
+                                        array_unshift($key_value_fields, Textarea::make('reason'));
 
-                                    return $key_value_fields;
+                                        return $key_value_fields;
+                                    } else {
+                                        return [Textarea::make('reason')];
+                                    }
                                 })
                                 ->hidden(function (Get $get, string $operation) {
                                     return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation != 'edit';
@@ -107,8 +111,14 @@ class ReportResource extends Resource
                             Action::make('viewCompoundPage')
                                 ->color('info')
                                 ->url(fn (string $operation, $record): string => $operation === 'create' ? env('APP_URL').'/compounds/'.request()->compound_id : env('APP_URL').'/compounds/'.$record->mol_id_csv)
-                                ->openUrlInNewTab(),
+                                ->openUrlInNewTab()
+                                ->hidden(function (Get $get, string $operation) {
+                                    return ! request()->has('type');
+                                }),
                         ])
+                            ->hidden(function (Get $get) {
+                                return $get('report_type') != 'molecule';
+                            })
                             ->verticalAlignment(VerticalAlignment::End)
                             ->columnStart(4),
                     ])
@@ -589,17 +599,6 @@ class ReportResource extends Resource
     {
         $approved_changes = [];
 
-        // In case of reporting a synthetic molecule, Deactivate Molecules
-        if ($record['mol_id_csv'] && ! $record['is_change']) {
-            $molecule_ids = explode(',', $record['mol_id_csv']);
-            $molecule = Molecule::whereIn('id', $molecule_ids)->get();
-            foreach ($molecule as $mol) {
-                $mol->active = false;
-                $mol->save();
-            }
-        }
-
-        // In case of Changes, run SQL queries for the approved changes
         $approved_changes['mol_id_csv'] = $record['mol_id_csv'];
         if ($record['is_change']) {
 
@@ -650,22 +649,33 @@ class ReportResource extends Resource
 
     public static function approveReport(array $data, Report $record, Molecule $molecule, $livewire): void
     {
-        // Run SQL queries for the approved changes
-        self::runSQLQueries($record);
+        // In case of reporting a synthetic molecule, Deactivate Molecules
+        if ($record['mol_id_csv'] && ! $record['is_change']) {
+            $molecule_ids = explode(',', $record['mol_id_csv']);
+            $molecule = Molecule::whereIn('identifier', $molecule_ids)->get();
+            foreach ($molecule as $mol) {
+                $mol->active = false;
+                $mol->status = 'REVOKED';
+                $mol->comment = prepareComment($data['reason']);
+                $mol->save();
+            }
+        } else {
+            // In case of Changes
+            // Run SQL queries for the approved changes
+            self::runSQLQueries($record);
 
-        $suggested_changes = $record['suggested_changes'];
+            $suggested_changes = $record['suggested_changes'];
 
-        $suggested_changes['curator']['approved_changes'] = self::$overall_changes;
-        $record['suggested_changes'] = $suggested_changes;
-        $record['comment'] = $data['reason'];
-        $record['status'] = 'approved';
-        $formData = copyChangesToCuratorJSON($record, $livewire->data);
-        $suggested_changes['curator'] = $formData['suggested_changes']['curator'];
-        $record['suggested_changes'] = $suggested_changes;
+            $suggested_changes['curator']['approved_changes'] = self::$overall_changes;
+            $record['suggested_changes'] = $suggested_changes;
+            $record->comment = prepareComment($data['reason']);
+            $record['status'] = 'approved';
+            $formData = copyChangesToCuratorJSON($record, $livewire->data);
+            $suggested_changes['curator'] = $formData['suggested_changes']['curator'];
+            $record['suggested_changes'] = $suggested_changes;
 
-        // Save the report record in any case
-        $record->save();
-
+            $record->save();
+        }
         $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
     }
 
