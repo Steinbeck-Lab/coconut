@@ -36,7 +36,7 @@
                     <p class="text-secondary-dark text-lg my-0">{{ $molecule->identifier }}</p>
                     <h1
                         class="mb-2 text-2xl break-all font-bold leading-7 break-words text-gray-900 sm:text-3xl sm:tracking-tight">
-                        {{ $molecule->name ? $molecule->name : $molecule->iupac_name }}
+                        {!! convert_italics_notation($molecule->name ? $molecule->name : $molecule->iupac_name) !!}
                     </h1>
                     <p class="text-sm font-medium text-gray-500">Created on <time
                             datetime="{{ $molecule->created_at }}">{{ $molecule->created_at }}</time> &middot; Last
@@ -252,7 +252,7 @@
                                                     Name
                                                 </dt>
                                                 <div class="mt-1 break-all text-sm text-gray-900">
-                                                    {{ $molecule->name ? $molecule->name : '-' }}
+                                                    {!! convert_italics_notation($molecule->name ? $molecule->name : '-') !!}
                                                     <span class="float-end mr-2 group-hover:block hidden">
                                                         <livewire:copy-button text-to-copy="{{ $molecule->name }}" />
                                                     </span>
