@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use Illuminate\Support\Facades\Http;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -10,6 +11,8 @@ class MoleculeDepict2d extends Component
     public $smiles = null;
 
     public $name = null;
+
+    public $identifier = null;
 
     public $height = 200;
 
@@ -31,6 +34,15 @@ class MoleculeDepict2d extends Component
     public function preview()
     {
         return env('CM_API').'depict/2D?smiles='.urlencode($this->smiles);
+    }
+
+    public function downloadMolFile($toolkit)
+    {
+        $response = Http::get(env('CM_API').'convert/mol2D?smiles='.urlencode($this->smiles).'&toolkit='.$toolkit);
+
+        return response()->streamDownload(function () use ($response) {
+            echo $response->body();
+        }, $this->identifier.'.mol');
     }
 
     public function render()
