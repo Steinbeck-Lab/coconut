@@ -1,6 +1,9 @@
 <span x-data="{ copied: false }">
     <span x-ref="copyText" class="hidden">{{ $textToCopy }}</span>
-    <button @click="navigator.clipboard.writeText($refs.copyText.textContent).then(() => copied = true)"
+    <button @click="navigator.clipboard.writeText($refs.copyText.textContent).then(() => { 
+                copied = true; 
+                setTimeout(() => copied = false, 4000); 
+            })"
         class="relative text-center align-middle font-sans text-xs font-medium uppercase transition-all" type="button">
         <span class="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
             <svg x-show="!copied" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
