@@ -19,11 +19,7 @@
                     </div>
                     <div>
                         <h3 class="mt-1 text-base font-bold text-gray-900 capitalize text-clip overflow-hidden truncate ..." title="{{ $molecule->name }}">
-                            @if ($molecule->name)
-                                {{ $molecule->name }}
-                            @else
-                                {{ $molecule->iupac_name }}
-                            @endif
+                        {!! convert_italics_notation( $molecule->name ? $molecule->name : $molecule->iupac_name) !!}
                         </h3>
                     </div>
                 </div>
