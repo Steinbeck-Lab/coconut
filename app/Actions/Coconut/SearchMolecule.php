@@ -73,11 +73,9 @@ class SearchMolecule
             }
 
             return [$results,  $this->collection, $this->organisms];
-
         } catch (QueryException $exception) {
 
             return $this->handleException($exception);
-
         }
     }
 
@@ -89,6 +87,7 @@ class SearchMolecule
         $patterns = [
             'inchi' => '/^((InChI=)?[^J][0-9BCOHNSOPrIFla+\-\(\)\\\\\/,pqbtmsih]{6,})$/i',
             'inchikey' => '/^([0-9A-Z\-]{27})$/i',  // Modified to ensure exact length
+            'parttialinchikey' => '/^([A-Z]{14})$/i',
             'smiles' => '/^([^J][0-9BCOHNSOPrIFla@+\-\[\]\(\)\\\\\/%=#$]{6,})$/i',
         ];
 
@@ -102,6 +101,8 @@ class SearchMolecule
                     return 'inchi';
                 } elseif ($type == 'inchikey' && substr($query, 14, 1) == '-' && strlen($query) == 27) {
                     return 'inchikey';
+                } elseif ($type == 'parttialinchikey' && strlen($query) == 14) {
+                    return 'parttialinchikey';
                 } elseif ($type == 'smiles') {
                     return 'smiles';
                 }
@@ -179,6 +180,7 @@ class SearchMolecule
                 break;
 
             case 'inchikey':
+            case 'parttialinchikey':
                 $statement = "SELECT id, COUNT(*) OVER () 
                           FROM molecules 
                           WHERE standard_inchi_key LIKE '%{$this->query}%' 
@@ -330,7 +332,7 @@ class SearchMolecule
                     WHEN \"name\"::TEXT ILIKE '%{$this->query}%' THEN 4 
                     WHEN \"synonyms\"::TEXT ILIKE '%{$this->query}%' THEN 5 
                     WHEN \"identifier\"::TEXT ILIKE '%{$this->query}%' THEN 6 
-                    ELSE 7 
+                    ELSE 7
                 END
             LIMIT {$this->size} OFFSET {$offset}";
         } else {
