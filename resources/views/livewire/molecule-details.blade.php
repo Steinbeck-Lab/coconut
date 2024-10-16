@@ -932,10 +932,10 @@
                 <dl class="mt-5 flex w-full mx-2">
                     <div class="md:text-left">
                         <dd class="mt-1"><a class="text-base font-semibold text-text-dark hover:text-slate-600"
-                                href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=report">Report
+                                href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=report" target="_blank">Report
                                 this compound <span aria-hidden="true">→</span></a></dd>
                         <dd class="mt-1"><a class="text-base font-semibold text-text-dark hover:text-slate-600"
-                                href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=change">Request
+                                href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=change" target="_blank">Request
                                 changes to this page <span aria-hidden="true">→</span></a></dd>
                     </div>
                 </dl>
