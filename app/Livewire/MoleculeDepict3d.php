@@ -18,7 +18,7 @@ class MoleculeDepict3d extends Component
     #[Computed]
     public function source()
     {
-        return env('CM_API').'depict/3D?smiles='.urlencode($this->smiles).'&height='.$this->height.'&width='.$this->width.'&CIP='.$this->CIP.'&toolkit=openbabel';
+        return env('CM_API').'depict/3D?smiles='.urlencode($this->smiles).'&height='.$this->height.'&width='.$this->width.'&CIP='.$this->CIP.'&toolkit=rdkit';
     }
 
     public function render()
