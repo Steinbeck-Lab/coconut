@@ -60,7 +60,7 @@ class ReportResource extends Resource
 
                         Actions::make([
                             Action::make('assign')
-                                ->hidden(function (Get $get, string $operation, Report $record) {
+                                ->hidden(function (Get $get, string $operation, ?Report $record) {
                                     return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation == 'create' || $record['assigned_to'] != null;
                                 })
                                 ->form([
@@ -76,7 +76,7 @@ class ReportResource extends Resource
                                     $record->refresh();
                                 }),
                             Action::make('approve')
-                                ->hidden(function (Get $get, string $operation, Report $record) {
+                                ->hidden(function (Get $get, string $operation, ?Report $record) {
                                     return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation == 'create' || $record['assigned_to'] != auth()->id();
                                 })
                                 ->form([
@@ -101,7 +101,7 @@ class ReportResource extends Resource
                                 }),
                             Action::make('reject')
                                 ->color('danger')
-                                ->hidden(function (Get $get, string $operation, Report $record) {
+                                ->hidden(function (Get $get, string $operation, ?Report $record) {
                                     return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation == 'create' || $record['assigned_to'] != auth()->id();
                                 })
                                 ->form([
