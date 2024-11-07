@@ -7,11 +7,13 @@ use App\Filament\Dashboard\Resources\ReportResource\RelationManagers;
 use App\Models\Citation;
 use App\Models\Molecule;
 use App\Models\Report;
+use App\Models\User;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\Textarea;
@@ -55,10 +57,27 @@ class ReportResource extends Resource
                             ])
                             ->inline()
                             ->columnSpan(2),
+
                         Actions::make([
+                            Action::make('assign')
+                                ->hidden(function (Get $get, string $operation, Report $record) {
+                                    return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation == 'create' || $record['assigned_to'] != null;
+                                })
+                                ->form([
+                                    Radio::make('curator')
+                                        ->label('Choose a curator')
+                                        ->options(function () {
+                                            return $users = User::whereHas('roles')->pluck('name', 'id');
+                                        }),
+                                ])
+                                ->action(function (array $data, Report $record): void {
+                                    $record['assigned_to'] = $data['curator'];
+                                    $record->save();
+                                    $record->refresh();
+                                }),
                             Action::make('approve')
-                                ->hidden(function (Get $get, string $operation) {
-                                    return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation == 'create';
+                                ->hidden(function (Get $get, string $operation, Report $record) {
+                                    return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation == 'create' || $record['assigned_to'] != auth()->id();
                                 })
                                 ->form([
                                     Textarea::make('reason'),
@@ -82,8 +101,8 @@ class ReportResource extends Resource
                                 }),
                             Action::make('reject')
                                 ->color('danger')
-                                ->hidden(function (Get $get, string $operation) {
-                                    return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation == 'create';
+                                ->hidden(function (Get $get, string $operation, Report $record) {
+                                    return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation == 'create' || $record['assigned_to'] != auth()->id();
                                 })
                                 ->form([
                                     Textarea::make('reason'),
@@ -277,7 +296,7 @@ class ReportResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make()
                     ->visible(function ($record) {
-                        return auth()->user()->roles()->exists() && $record['status'] == 'submitted';
+                        return auth()->user()->roles()->exists() && $record['status'] == 'submitted' && ($record['assigned_to'] == null || $record['assigned_to'] == auth()->id());
                     }),
                 Tables\Actions\Action::make('approve')
                     // ->button()
