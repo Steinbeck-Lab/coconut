@@ -78,9 +78,9 @@ class Report extends Model implements Auditable
         return $this->belongsTo(User::class);
     }
 
-    public function assignedTo(): BelongsTo
+    public function curator(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'assigned_to');
     }
 
     public function transformAudit(array $data): array
