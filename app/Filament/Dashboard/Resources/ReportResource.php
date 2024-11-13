@@ -72,8 +72,8 @@ class ReportResource extends Resource
                                 true => 'Request Changes to Data',
                             ])
                             ->inline()
-                            ->hidden(function (string $operation, $record) {
-                                return $operation == 'create' ? request()->has('type') : true;
+                            ->hidden(function (string $operation, $get) {
+                                return $get('type') == 'change' ? true : false;
                             })
                             ->columnSpan(2),
                         Actions::make([

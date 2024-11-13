@@ -39,7 +39,9 @@ class CreateReport extends CreateRecord
     {
         $request = request();
         $this->data['compound_id'] = $request->compound_id;
+
         if ($request->type == 'change') {
+            $this->data['type'] = $request->type;
             $this->data['is_change'] = true;
             $this->data['existing_geo_locations'] = $this->molecule->geo_locations->pluck('name')->toArray();
             $this->data['existing_synonyms'] = $this->molecule->synonyms;
