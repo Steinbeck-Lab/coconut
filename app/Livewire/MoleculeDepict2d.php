@@ -2,12 +2,13 @@
 
 namespace App\Livewire;
 
-use Illuminate\Support\Facades\Http;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 class MoleculeDepict2d extends Component
 {
+    public $molecule = null;
+
     public $smiles = null;
 
     public $name = null;
@@ -38,11 +39,13 @@ class MoleculeDepict2d extends Component
 
     public function downloadMolFile($toolkit)
     {
-        $response = Http::get(env('CM_API').'convert/mol2D?smiles='.urlencode($this->smiles).'&toolkit='.$toolkit);
+        $structureData = json_decode($this->molecule->structures->getAttributes()['2d'], true);
 
-        return response()->streamDownload(function () use ($response) {
-            echo $response->body();
-        }, $this->identifier.'.mol');
+        return response()->streamDownload(function () use ($structureData) {
+            echo $structureData;
+        }, $this->identifier.'.sdf', [
+            'Content-Type' => 'chemical/x-mdl-sdfile',
+        ]);
     }
 
     public function render()

@@ -934,7 +934,7 @@
             </section>
             <section class="space-y-6 lg:col-span-1 lg:col-start-3 order-1 lg:order-2">
                 <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg bg-white mb-2 mx-2">
-                    <livewire:molecule-depict2d :height="300" :smiles="$molecule->canonical_smiles" :name="$molecule->name" :identifier="$molecule->identifier" :options="true"
+                    <livewire:molecule-depict2d :height="300" :molecule="$molecule" :smiles="$molecule->canonical_smiles" :name="$molecule->name" :identifier="$molecule->identifier" :options="true"
                         lazy="on-load">
                 </div>
                 <div class="mx-2">
