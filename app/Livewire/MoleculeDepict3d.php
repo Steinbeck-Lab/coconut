@@ -21,6 +21,17 @@ class MoleculeDepict3d extends Component
         return env('CM_API').'depict/3D?smiles='.urlencode($this->smiles).'&height='.$this->height.'&width='.$this->width.'&CIP='.$this->CIP.'&toolkit=rdkit';
     }
 
+    public function downloadMolFile($toolkit)
+    {
+        $structureData = json_decode($this->molecule->structures->getAttributes()['3d'], true);
+
+        return response()->streamDownload(function () use ($structureData) {
+            echo $structureData;
+        }, $this->identifier.'.sdf', [
+            'Content-Type' => 'chemical/x-mdl-sdfile',
+        ]);
+    }
+
     public function render()
     {
         return view('livewire.molecule-depict3d');
