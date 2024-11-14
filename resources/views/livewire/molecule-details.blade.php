@@ -938,7 +938,7 @@
                         lazy="on-load">
                 </div>
                 <div class="mx-2">
-                    <livewire:molecule-depict3d :height="300" :smiles="$molecule->canonical_smiles" lazy="on-load">
+                    <livewire:molecule-depict3d :height="300" :molecule="$molecule" :smiles="$molecule->canonical_smiles" lazy="on-load">
                 </div>
                 <dl class="mt-5 flex w-full mx-2">
                     <div class="md:text-left">
