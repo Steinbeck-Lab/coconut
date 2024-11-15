@@ -73,7 +73,7 @@ class ReportResource extends Resource
                             ])
                             ->inline()
                             ->hidden(function (string $operation, $get) {
-                                return $get('type') == 'change' ? true : false;
+                                return $operation == 'create' ? $get('type') != null : true;
                             })
                             ->columnSpan(2),
                         Actions::make([
@@ -82,11 +82,23 @@ class ReportResource extends Resource
                                     if ($record['is_change']) {
                                         self::$approved_changes = self::prepareApprovedChanges($record, $livewire);
                                         $key_value_fields = getChangesToDisplayModal(self::$approved_changes);
-                                        array_unshift($key_value_fields, Textarea::make('reason'));
+                                        array_unshift($key_value_fields,
+                                            Textarea::make('reason')
+                                                ->helperText(function ($get) {
+                                                    if (count(self::$approved_changes) <= 1) {
+                                                        return new HtmlString('<span style="color:red"> You must select at least one change to approve </span>');
+                                                    } else {
+                                                        return null;
+                                                    }
+                                                })
+                                                ->disabled(count(self::$approved_changes) <= 1)
+                                        );
 
                                         return $key_value_fields;
                                     } else {
-                                        return [Textarea::make('reason')];
+                                        return [
+                                            Textarea::make('reason'),
+                                        ];
                                     }
                                 })
                                 ->hidden(function (Get $get, string $operation) {
@@ -95,6 +107,11 @@ class ReportResource extends Resource
                                 ->action(function (array $data, Report $record, Molecule $molecule, $set, $livewire): void {
                                     self::approveReport($data, $record, $molecule, $livewire);
                                     $set('status', 'approved');
+                                })
+                                ->modalSubmitAction(function () {
+                                    if (count(self::$approved_changes) <= 1) {
+                                        return false;
+                                    }
                                 }),
                             Action::make('reject')
                                 ->color('danger')
@@ -113,7 +130,7 @@ class ReportResource extends Resource
                                 ->url(fn (string $operation, $record): string => $operation === 'create' ? env('APP_URL').'/compounds/'.request()->compound_id : env('APP_URL').'/compounds/'.$record->mol_id_csv)
                                 ->openUrlInNewTab()
                                 ->hidden(function (Get $get, string $operation) {
-                                    return ! request()->has('type');
+                                    return ! $get('type');
                                 }),
                         ])
                             ->hidden(function (Get $get) {
@@ -131,13 +148,13 @@ class ReportResource extends Resource
                     ->options(function () {
                         return getReportTypes();
                     })
-                    ->hidden(function (string $operation) {
-                        return $operation != 'create' || request()->has('type');
+                    ->hidden(function (string $operation, $get) {
+                        return $operation != 'create' || $get('type');
                     }),
                 TextInput::make('title')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Title of the report. This is required.')
-                    ->default(function () {
-                        if (request()->type == 'change' && request()->has('compound_id')) {
+                    ->default(function ($get) {
+                        if ($get('type') == 'change' && request()->has('compound_id')) {
                             return 'Request changes to '.request()->compound_id;
                         }
                     })
@@ -393,8 +410,9 @@ class ReportResource extends Resource
                                 shouldOpenInNewTab: true,
                             ),
                     )
-                    ->hidden(function (string $operation, $record) {
-                        return $operation == 'create' && request()->has('type') && request()->type == 'change' ? true : false;
+                    ->hidden(function (string $operation, $get, ?Report $record) {
+                        return true;
+                        // return $operation == 'create' && $get('type') && $get('type') == 'change' ? true : false;
                     }),
                 Select::make('collections')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select the Collections you want to report. This will help our Curators in reviewing your report.')
@@ -483,7 +501,7 @@ class ReportResource extends Resource
                     })
                     ->live()
                     ->hidden(function (Get $get, string $operation) {
-                        if ($operation != 'create' || request()->has('type')) {
+                        if ($operation != 'create' || $get('type')) {
                             return true;
                         }
                         if (! request()->has('compound_id') && $get('report_type') != 'molecule') {

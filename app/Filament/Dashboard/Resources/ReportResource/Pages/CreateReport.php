@@ -17,6 +17,14 @@ class CreateReport extends CreateRecord
 
     protected $molecule;
 
+    protected $is_change = false;
+
+    protected $mol_id_csv = null;
+
+    protected $report_type = null;
+
+    protected $evidence = null;
+
     public function getTitle(): string
     {
         $title = 'Create Report';
@@ -30,6 +38,8 @@ class CreateReport extends CreateRecord
 
     protected function beforeFill(): void
     {
+        $this->data['type'] = request()->type;
+
         if (request()->has('compound_id')) {
             $this->molecule = Molecule::where('identifier', request()->compound_id)->first();
         }
@@ -39,10 +49,12 @@ class CreateReport extends CreateRecord
     {
         $request = request();
         $this->data['compound_id'] = $request->compound_id;
+        $this->data['type'] = $request->type;
 
         if ($request->type == 'change') {
-            $this->data['type'] = $request->type;
             $this->data['is_change'] = true;
+            $this->is_change = true;
+
             $this->data['existing_geo_locations'] = $this->molecule->geo_locations->pluck('name')->toArray();
             $this->data['existing_synonyms'] = $this->molecule->synonyms;
             $this->data['existing_cas'] = array_values($this->molecule->cas ?? []);
@@ -73,6 +85,14 @@ class CreateReport extends CreateRecord
         }
     }
 
+    protected function afterValidate(): void
+    {
+        $this->mol_id_csv = $this->data['mol_id_csv'];
+        $this->is_change = $this->data['is_change'];
+        $this->report_type = $this->data['report_type'];
+        $this->evidence = $this->data['evidence'];
+    }
+
     protected function beforeCreate(): void
     {
         if ($this->data['report_type'] == 'collection') {
@@ -98,6 +118,11 @@ class CreateReport extends CreateRecord
     {
         $data['user_id'] = auth()->id();
         $data['status'] = 'submitted';
+        $data['mol_id_csv'] = $this->mol_id_csv;
+        $data['is_change'] = $this->is_change;
+        $data['report_type'] = $this->report_type;
+        $data['evidence'] = $this->evidence;
+
         if ($data['is_change']) {
             $suggested_changes = [];
             $suggested_changes['existing_geo_locations'] = $data['existing_geo_locations'];
