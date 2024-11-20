@@ -36,12 +36,13 @@ class DedupeFixCollectionSourceLinks extends Command
             54 => "https://go.drugbank.com/drugs/",
             58 => "https://www.way2drug.com/phyto4health/compound_card.php?compound_id="
         ];
+        $batchCount = 1;
 
         // Process all molecules in chunks to avoid memory exhaustion
         DB::table('collection_molecule')
             ->select('id', 'collection_id', 'molecule_id', 'url', 'reference')
             ->orderBy('id')
-            ->chunk($batchSize, function ($collection_molecules) use (&$data, $db_links) {
+            ->chunk($batchSize, function ($collection_molecules) use (&$data, $db_links, &$batchCount) {
                 $this->info('started batch ');
                 foreach ($collection_molecules as $collection_molecule) {
                     $url = null;
@@ -94,8 +95,9 @@ class DedupeFixCollectionSourceLinks extends Command
 
                 // Update the database with the calculated scores in batch
                 if (! empty($data)) {
-                    $this->info('Updating rows up to molecule ID: ' . end($data)['collection_id']);
+                    $this->info('Updating batch '. $batchCount);
                     $this->updateBatch($data);
+                    $batchCount = $batchCount + 1;
                     $data = []; // Reset the data array for the next batch
                 }
             });
@@ -107,11 +109,12 @@ class DedupeFixCollectionSourceLinks extends Command
 
         // Process parent molecules
         $data = [];
+        $batchCount = 1;
         DB::table('molecules')
             ->select('id')
             ->where('is_parent', true)
             ->orderBy('id')
-            ->chunk($batchSize, function ($parent_molecules) use (&$data) {
+            ->chunk($batchSize, function ($parent_molecules) use (&$data, &$batchCount) {
                 $this->info('started parent batch ');
                 $ids_string = implode(',', $parent_molecules->pluck('id')->toArray());
 
@@ -145,8 +148,9 @@ class DedupeFixCollectionSourceLinks extends Command
 
                 // Update the database with the calculated scores in batch
                 if (! empty($data)) {
-                    $this->info('Updating rows up to molecule ID: ' . end($data)['collection_id']);
+                    $this->info('Updating parent batch '. $batchCount);
                     $this->updateBatch($data);
+                    $batchCount = $batchCount + 1;
                     $data = []; // Reset the data array for the next batch
                 }
             });
@@ -165,20 +169,22 @@ class DedupeFixCollectionSourceLinks extends Command
     {
         DB::transaction(function () use ($data) {
             foreach ($data as $row) {
-                $molecule = Molecule::find($row['molecule_id']);
-                $currentPivotData = $molecule->collections()->wherePivot('collection_id', $row['collection_id'])->first()->pivot->toArray();
-                $molecule->collections()->updateExistingPivot($row['collection_id'], ['url' => $row['url'], 'reference' => $row['reference']]);
-                $molecule->auditEvent = 'moleculeCollectionUpdate';
-                $molecule->isCustomEvent = true;
-                $molecule->auditCustomOld = [
-                    'url' => $currentPivotData['url'],
-                    'reference' => $currentPivotData['reference']
-                ];
-                $molecule->auditCustomNew = [
-                    'url' => $row['url'],
-                    'reference' => $row['reference']
-                ];
-                Event::dispatch(AuditCustom::class, [$molecule]);
+                if($row['molecule_id']!=293023 || $row['molecule_id']!=427142 || $row['molecule_id']!=395531 || $row['molecule_id']!=292092 || $row['molecule_id']!=186065 || $row['molecule_id']!=23452 || $row['molecule_id']!=33176) {
+                    $molecule = Molecule::find($row['molecule_id']);
+                    $currentPivotData = $molecule->collections()->wherePivot('collection_id', $row['collection_id'])->first()->pivot->toArray();
+                    $molecule->collections()->updateExistingPivot($row['collection_id'], ['url' => $row['url'], 'reference' => $row['reference']]);
+                    $molecule->auditEvent = 'moleculeCollectionUpdate';
+                    $molecule->isCustomEvent = true;
+                    $molecule->auditCustomOld = [
+                        'url' => $currentPivotData['url'],
+                        'reference' => $currentPivotData['reference']
+                    ];
+                    $molecule->auditCustomNew = [
+                        'url' => $row['url'],
+                        'reference' => $row['reference']
+                    ];
+                    Event::dispatch(AuditCustom::class, [$molecule]);
+                }
             }
         });
     }
