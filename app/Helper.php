@@ -419,3 +419,19 @@ function prepareComment($reason)
         'comment' => $reason,
     ]];
 }
+
+function convert_italics_notation($text)
+{
+    // Use preg_replace to replace ~{text} with <i>text</i>
+    $converted_text = preg_replace('/~\{([^}]*)\}/', '<i>$1</i>', $text);
+
+    return $converted_text;
+}
+
+function remove_italics_notation($text)
+{
+    // Use preg_replace to find all instances of ~{something} and replace with just something
+    $converted_text = preg_replace('/~\{([^}]*)\}/', '$1', $text);
+
+    return $converted_text;
+}

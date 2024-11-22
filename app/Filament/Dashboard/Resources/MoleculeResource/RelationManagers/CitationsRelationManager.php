@@ -2,6 +2,7 @@
 
 namespace App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers;
 
+use App\Models\Citation;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
@@ -28,7 +29,10 @@ class CitationsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make(),
+                Tables\Actions\AttachAction::make()
+                    ->recordSelectSearchColumns(['title', 'authors', 'doi']),
+                Tables\Actions\CreateAction::make()
+                    ->form(Citation::getForm()),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

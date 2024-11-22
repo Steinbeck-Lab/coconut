@@ -128,6 +128,7 @@ class MoleculeResource extends Resource
                             $record->active ? $record->status = 'APPROVED' : $record->status = 'REVOKED';
                             $record->comment = prepareComment($data['reason']);
                             $record->save();
+                            self::changeMoleculeStatus($record, $data['reason']);
                         })
                         ->modalHidden(function (Molecule $record) {
                             return ! $record['active'];
@@ -149,6 +150,7 @@ class MoleculeResource extends Resource
                                 $record->active ? $record->status = 'APPROVED' : $record->status = 'REVOKED';
                                 $record->comment = prepareComment($data['reason']);
                                 $record->save();
+                                self::changeMoleculeStatus($record, $data['reason']);
                             }
                         })
                         // ->modalHidden(function (Molecule $record) {
@@ -210,5 +212,19 @@ class MoleculeResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         return Cache::get('stats.molecules');
+    }
+
+    public static function changeMoleculeStatus($record, $reason)
+    {
+        $record->active = ! $record->active;
+        $record->active ? $record->status = 'APPROVED' : $record->status = 'REVOKED';
+
+        $record->comment = [[
+            'timestamp' => now(),
+            'changed_by' => auth()->user()->id,
+            'comment' => $reason,
+        ]];
+
+        $record->save();
     }
 }

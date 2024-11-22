@@ -59,7 +59,7 @@ class Citation extends Model implements Auditable
         return changeAudit($data);
     }
 
-    public static function getForm()
+    public static function getForm(): array
     {
         return [
             Section::make()
