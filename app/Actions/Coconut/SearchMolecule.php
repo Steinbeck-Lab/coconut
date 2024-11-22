@@ -356,7 +356,6 @@ class SearchMolecule
 
         $ids_array = collect($hits)->pluck('id')->toArray();
         $ids = implode(',', $ids_array);
-        // dd($ids);
 
         if ($ids != '') {
 

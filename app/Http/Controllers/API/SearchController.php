@@ -19,8 +19,6 @@ class SearchController extends Controller
             $queryType = 'text';
             $results = [];
 
-            //dd($request);
-
             $limit = $request->query('limit');
             $sort = $request->query('sort');
             $limit = $limit ? $limit : 24;
@@ -218,7 +216,6 @@ class SearchController extends Controller
                     $statement = $statement.')';
                 }
                 $statement = $statement.' LIMIT '.$limit;
-                // dd($statement );
             } else {
                 if ($query) {
                     $query = str_replace("'", "''", $query);
@@ -289,7 +286,6 @@ class SearchController extends Controller
                 $page
             );
 
-            //dd($pagination);
             return $pagination;
         } catch (QueryException $exception) {
             $message = $exception->getMessage();

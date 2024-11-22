@@ -9,8 +9,6 @@ use App\Filament\Dashboard\Resources\OrganismResource\Widgets\OrganismStats;
 use App\Forms\Components\OrganismsTable;
 use App\Models\Organism;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
-use Filament\Forms;
-use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Section;
@@ -43,102 +41,9 @@ class OrganismResource extends Resource
                         Group::make()
                             ->schema([
                                 Section::make('')
-                                    ->schema([
-                                        Forms\Components\TextInput::make('name')
-                                            ->required()
-                                            ->unique()
-                                            ->maxLength(255)
-                                            ->suffixAction(
-                                                Action::make('infoFromSources')
-                                                    ->icon('heroicon-m-clipboard')
-                                                    // ->fillForm(function ($record, callable $get): array {
-                                                    //     $entered_name = $get('name');
-                                                    //     $name = ucfirst(trim($entered_name));
-                                                    //     $data = null;
-                                                    //     $iri = null;
-                                                    //     $organism = null;
-                                                    //     $rank = null;
-
-                                                    //     if ($name && $name != '') {
-                                                    //         $data = Self::getOLSIRI($name, 'species');
-                                                    //         if ($data) {
-                                                    //             Self::updateOrganismModel($name, $data, $record, 'species');
-                                                    //             Self::info("Mapped and updated: $name");
-                                                    //         } else {
-                                                    //             $data = Self::getOLSIRI(explode(' ', $name)[0], 'genus');
-                                                    //             if ($data) {
-                                                    //                 Self::updateOrganismModel($name, $data, $record, 'genus');
-                                                    //                 Self::info("Mapped and updated: $name");
-                                                    //             } else {
-                                                    //                 $data = Self::getOLSIRI(explode(' ', $name)[0], 'family');
-                                                    //                 if ($data) {
-                                                    //                     Self::updateOrganismModel($name, $data, $record, 'genus');
-                                                    //                     Self::info("Mapped and updated: $name");
-                                                    //                 } else {
-                                                    //                     [$name, $iri, $organism, $rank] = Self::getGNFMatches($name, $record);
-                                                    //                 }
-                                                    //             }
-                                                    //         }
-                                                    //     }
-                                                    //     return [
-                                                    //         'name' => $name,
-                                                    //         'iri' => $iri,
-                                                    //         'rank' => $rank,
-                                                    //     ];
-                                                    // })
-                                                    // ->form([
-                                                    //     Forms\Components\TextInput::make('name')->readOnly(),
-                                                    //     Forms\Components\TextInput::make('iri')->readOnly(),
-                                                    //     Forms\Components\TextInput::make('rank')->readOnly(),
-                                                    // ])
-                                                    // ->action(fn ( $record) => $record->advance())
-                                                    ->modalContent(function ($record, $get): View {
-                                                        $name = ucfirst(trim($get('name')));
-                                                        $data = null;
-                                                        // $iri = null;
-                                                        // $organism = null;
-                                                        // $rank = null;
-
-                                                        if ($name && $name != '') {
-                                                            $data = self::getOLSIRI($name, 'species');
-                                                            // if ($data) {
-                                                            //     Self::updateOrganismModel($name, $data, $record, 'species');
-                                                            // } else {
-                                                            //     $data = Self::getOLSIRI(explode(' ', $name)[0], 'genus');
-                                                            //     if ($data) {
-                                                            //         Self::updateOrganismModel($name, $data, $record, 'genus');
-                                                            //     } else {
-                                                            //         $data = Self::getOLSIRI(explode(' ', $name)[0], 'family');
-                                                            //         if ($data) {
-                                                            //             Self::updateOrganismModel($name, $data, $record, 'genus');
-                                                            //         } else {
-                                                            //             [$name, $iri, $organism, $rank] = Self::getGNFMatches($name, $record);
-                                                            //         }
-                                                            //     }
-                                                            // }
-                                                        }
-
-                                                        return view(
-                                                            'forms.components.organism-info',
-                                                            [
-                                                                'data' => $data,
-                                                            ],
-                                                        );
-                                                    })
-                                                    ->action(function (array $data, Organism $record): void {
-                                                        // Self::updateOrganismModel($data['name'], $data['iri'], $record, $data['rank']);
-                                                    })
-                                                    ->slideOver()
-                                            ),
-                                        Forms\Components\TextInput::make('iri')
-                                            ->label('IRI')
-                                            ->maxLength(255),
-                                        Forms\Components\TextInput::make('rank')
-                                            ->maxLength(255),
-                                    ]),
+                                    ->schema(Organism::getForm()),
                             ])
                             ->columnSpan(1),
-
                         Group::make()
                             ->schema([
                                 Section::make('')
@@ -254,7 +159,6 @@ class OrganismResource extends Resource
         $responseBody = json_decode($response->getBody(), true);
 
         return $responseBody;
-        // dd($responseBody);
 
         // if (isset($responseBody['names']) && count($responseBody['names']) > 0) {
         //     $r_name = $responseBody['names'][0];
@@ -293,7 +197,6 @@ class OrganismResource extends Resource
 
     protected static function updateOrganismModel($name, $iri, $organism = null, $rank = null)
     {
-        // dd($name, $iri, $organism, $rank);
         if (! $organism) {
             $organism = Organism::where('name', $name)->first();
         }
