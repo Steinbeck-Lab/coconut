@@ -7,11 +7,13 @@ use App\Filament\Dashboard\Resources\ReportResource\RelationManagers;
 use App\Models\Citation;
 use App\Models\Molecule;
 use App\Models\Report;
+use App\Models\User;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\Textarea;
@@ -22,10 +24,10 @@ use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\VerticalAlignment;
 use Filament\Tables;
+use Filament\Tables\Actions\Action as TableAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
@@ -55,10 +57,11 @@ class ReportResource extends Resource
                             ])
                             ->inline()
                             ->columnSpan(2),
+
                         Actions::make([
                             Action::make('approve')
-                                ->hidden(function (Get $get, string $operation) {
-                                    return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation == 'create';
+                                ->hidden(function (Get $get, string $operation, ?Report $record) {
+                                    return ! (auth()->user()->roles()->exists() && ($operation == 'view' || $operation == 'edit') && ($get('status') != 'approved' || $get('status') != 'rejected') && ($record['assigned_to'] == null || $record['assigned_to'] == auth()->id()));
                                 })
                                 ->form([
                                     Textarea::make('reason'),
@@ -82,8 +85,8 @@ class ReportResource extends Resource
                                 }),
                             Action::make('reject')
                                 ->color('danger')
-                                ->hidden(function (Get $get, string $operation) {
-                                    return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation == 'create';
+                                ->hidden(function (Get $get, string $operation, ?Report $record) {
+                                    return ! (auth()->user()->roles()->exists() && ($operation == 'view' || $operation == 'edit') && ($get('status') != 'approved' || $get('status') != 'rejected') && ($record['assigned_to'] == null || $record['assigned_to'] == auth()->id()));
                                 })
                                 ->form([
                                     Textarea::make('reason'),
@@ -96,6 +99,33 @@ class ReportResource extends Resource
 
                                     $set('status', 'rejected');
                                 }),
+                            Action::make('assign')
+                                ->hidden(function (Get $get, string $operation, ?Report $record) {
+                                    return ! (auth()->user()->roles()->exists() && ($operation == 'view' || $operation == 'edit') && ($get('status') != 'approved' || $get('status') != 'rejected'));
+                                })
+                                ->form([
+                                    Radio::make('curator')
+                                        ->label('Choose a curator')
+                                        ->options(function () {
+                                            return $users = User::whereHas('roles')->pluck('name', 'id');
+                                        }),
+                                ])
+                                ->action(function (array $data, Report $record): void {
+                                    $record['assigned_to'] = $data['curator'];
+                                    $record->save();
+                                    $record->refresh();
+                                })
+                                ->modalHeading('')
+                                ->modalSubmitActionLabel('Assign')
+                                ->iconButton()
+                                ->icon('heroicon-m-user-group')
+                                // ->badge(function (?Report $record) {
+                                //     return $record->curator->name ?? null;
+                                // })
+                                ->extraAttributes([
+                                    'class' => 'ml-1 mr-0',
+                                ])
+                                ->size('xl'),
                         ])
                             ->verticalAlignment(VerticalAlignment::End)
                             ->columnStart(4),
@@ -261,12 +291,30 @@ class ReportResource extends Resource
                 TextColumn::make('title')
                     ->wrap()
                     ->description(fn (Report $record): string => Str::of($record->evidence)->words(10)),
-                Tables\Columns\TextColumn::make('name')->searchable()
-                    ->formatStateUsing(
-                        fn (Report $record): HtmlString => new HtmlString("<strong>DOI:</strong> {$record->doi}")
-                    )
-                    ->description(fn (Report $record): string => $record->comment ?? '')
-                    ->wrap(),
+                Tables\Columns\TextColumn::make('curator.name')
+                    ->searchable()
+                    ->placeholder('Choose a curator')
+                    ->action(
+                        TableAction::make('select')
+                            ->label('')
+                            ->form([
+                                Radio::make('curator')
+                                    ->label('Choose a curator')
+                                    ->default(function ($record) {
+                                        return $record->assigned_to;
+                                    })
+                                    ->options(function () {
+                                        return $users = User::whereHas('roles')->pluck('name', 'id');
+                                    }),
+                            ])
+                            ->action(function (array $data, Report $record): void {
+                                $record['assigned_to'] = $data['curator'];
+                                $record->save();
+                                $record->refresh();
+                            })
+                            ->modalSubmitActionLabel('Assign')
+                            ->modalHidden(fn (): bool => ! auth()->user()->roles()->exists()),
+                    ),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -274,50 +322,11 @@ class ReportResource extends Resource
                     ->includeColumns(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make()
                     ->visible(function ($record) {
-                        return auth()->user()->roles()->exists() && $record['status'] == 'submitted';
+                        return auth()->user()->roles()->exists() && $record['status'] == 'submitted' && ($record['assigned_to'] == null || $record['assigned_to'] == auth()->id());
                     }),
-                Tables\Actions\Action::make('approve')
-                    // ->button()
-                    ->hidden(function (Report $record) {
-                        return ! auth()->user()->roles()->exists() || $record['status'] == 'draft' || $record['status'] == 'rejected' || $record['status'] == 'approved';
-                    })
-                    ->form([
-                        Textarea::make('reason'),
-                    ])
-                    ->action(function (array $data, Report $record, Molecule $molecule): void {
-
-                        $record['status'] = 'approved';
-                        $record['reason'] = $data['reason'];
-                        $record->save();
-
-                        if ($record['mol_id_csv'] && ! $record['is_change']) {
-                            $molecule_ids = explode(',', $record['mol_id_csv']);
-                            $molecule = Molecule::whereIn('id', $molecule_ids)->get();
-                            foreach ($molecule as $mol) {
-                                $mol->active = false;
-                                $mol->save();
-                            }
-                        }
-                    }),
-                Tables\Actions\Action::make('reject')
-                    // ->button()
-                    ->color('danger')
-                    ->hidden(function (Report $record) {
-                        return ! auth()->user()->roles()->exists() || $record['status'] == 'draft' || $record['status'] == 'rejected' || $record['status'] == 'approved';
-                    })
-                    ->form([
-                        Textarea::make('reason'),
-
-                    ])
-                    ->action(function (array $data, Report $record): void {
-
-                        $record['status'] = 'rejected';
-                        $record['reason'] = $data['reason'];
-                        $record->save();
-                    }),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
