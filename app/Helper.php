@@ -285,7 +285,7 @@ function getOverallChanges($data)
 
     $synonym_changes = [];
     $db_synonyms = $molecule->synonyms;
-    $deletable_synonyms = array_key_exists('existing_synonyms', $data) ? array_diff($db_synonyms, $data['existing_synonyms']) : [];
+    $deletable_synonyms = array_key_exists('existing_synonyms', $data) && ! empty($db_synonyms) ? array_diff($db_synonyms, $data['existing_synonyms']) : [];
     $new_synonyms = array_key_exists('new_synonyms', $data) ? (is_string($data['new_synonyms']) ? $data['new_synonyms'] : implode(',', $data['new_synonyms'])) : null;
     if (count($deletable_synonyms) > 0 || $new_synonyms) {
         $key = implode(',', $deletable_synonyms) == '' ? ' ' : implode(',', $deletable_synonyms);
@@ -313,7 +313,7 @@ function getOverallChanges($data)
 
     $cas_changes = [];
     $db_cas = $molecule->cas;
-    $deletable_cas = array_key_exists('existing_cas', $data) ? array_diff($db_cas, $data['existing_cas']) : [];
+    $deletable_cas = array_key_exists('existing_cas', $data) && ! empty($db_cas) ? array_diff($db_cas, $data['existing_cas']) : [];
     $new_cas = array_key_exists('new_cas', $data) ? (is_string($data['new_cas']) ? $data['new_cas'] : implode(',', $data['new_cas'])) : null;
     if (count($deletable_cas) > 0 || $new_cas) {
         $key = implode(',', $deletable_cas) == '' ? ' ' : implode(',', $deletable_cas);

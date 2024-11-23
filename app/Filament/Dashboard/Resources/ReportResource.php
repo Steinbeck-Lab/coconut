@@ -16,9 +16,8 @@ use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\Tabs;
@@ -72,22 +71,26 @@ class ReportResource extends Resource
                             ->live()
                             ->default(false)
                             ->options([
-                                false => 'Report Synthetic Compound(s)',
-                                true => 'Request Changes to Data',
+                                false => 'Report',
+                                true => 'Request Changes',
                             ])
                             ->inline()
-                            ->hidden(function (string $operation, $get) {
-                                return $operation == 'create' ? $get('type') != null : true;
+                            ->hidden(function (string $operation) {
+                                return $operation == 'create';
+                            })
+                            ->disabled(function (string $operation) {
+                                return $operation == 'edit';
                             })
                             ->columnSpan(2),
 
                         Actions::make([
                             Action::make('approve')
-                                ->form(function ($record, $livewire) {
+                                ->form(function ($record, $livewire, $get) {
                                     if ($record['is_change']) {
                                         self::$approved_changes = self::prepareApprovedChanges($record, $livewire);
                                         $key_value_fields = getChangesToDisplayModal(self::$approved_changes);
-                                        array_unshift($key_value_fields,
+                                        array_unshift(
+                                            $key_value_fields,
                                             Textarea::make('reason')
                                                 ->helperText(function ($get) {
                                                     if (count(self::$approved_changes) <= 1) {
@@ -101,20 +104,31 @@ class ReportResource extends Resource
 
                                         return $key_value_fields;
                                     } else {
-                                        return [
-                                            Textarea::make('reason'),
-                                        ];
+                                        if ($get('report_type') == 'molecule') {
+                                            return [
+                                                Textarea::make('reason')
+                                                    ->required(),
+                                            ];
+                                        } else {
+                                            return [
+                                                Textarea::make('reason')
+                                                    ->required()
+                                                    ->helperText(new HtmlString('<span style="color:red">Make sure you manually made all the changes requested before approving. Approval will only change </span>')),
+                                            ];
+                                        }
                                     }
                                 })
                                 ->hidden(function (Get $get, string $operation) {
                                     return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation != 'edit';
                                 })
-                                ->action(function (array $data, Report $record, Molecule $molecule, $set, $livewire): void {
-                                    self::approveReport($data, $record, $molecule, $livewire);
-                                    $set('status', 'approved');
+                                ->action(function (array $data, Report $record, Molecule $molecule, $set, $livewire, $get): void {
+                                    if ($get('report_type') == 'molecule') {
+                                        self::approveReport($data, $record, $molecule, $livewire);
+                                        $set('status', 'approved');
+                                    }
                                 })
                                 ->modalSubmitAction(function () {
-                                    if (count(self::$approved_changes) <= 1) {
+                                    if (! empty(self::$approved_changes) && count(self::$approved_changes) <= 1) {
                                         return false;
                                     }
                                 }),
@@ -165,9 +179,9 @@ class ReportResource extends Resource
                                 ])
                                 ->size('xl'),
                         ])
-                            ->hidden(function (Get $get) {
-                                return $get('report_type') != 'molecule';
-                            })
+                            // ->hidden(function (Get $get) {
+                            //     return $get('report_type') != 'molecule';
+                            // })
                             ->verticalAlignment(VerticalAlignment::End)
                             ->columnStart(4),
                     ])
@@ -256,7 +270,7 @@ class ReportResource extends Resource
                                                     $synonyms = self::$molecule->synonyms;
                                                 }
 
-                                                return $synonyms;
+                                                return empty($synonyms) ? [] : $synonyms;
                                             })
                                             ->disabled(function (Get $get, string $operation) {
                                                 return ! $get('show_synonym_existing') && $operation == 'edit';
@@ -265,8 +279,9 @@ class ReportResource extends Resource
                                             ->columnSpan(4),
                                         TagsInput::make('new_synonyms')
                                             ->label('New')
-                                            ->separator(',')
-                                            ->splitKeys([','])
+                                            ->hint("Use '|' (pipe) to separate synonyms")
+                                            ->separator('|')
+                                            ->splitKeys(['|'])
                                             ->disabled(function (Get $get, string $operation) {
                                                 return ! $get('show_synonym_new') && $operation == 'edit';
                                             })
@@ -597,32 +612,32 @@ class ReportResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->visible(function ($record) {
-                    //     return auth()->user()->roles()->exists() && $record['status'] == 'submitted';
-                    // }),
-                    // Tables\Actions\Action::make('approve')
-                    //     // ->button()
-                    //     ->hidden(function (Report $record) {
-                    //         return ! auth()->user()->roles()->exists() || $record['status'] == 'draft' || $record['status'] == 'rejected' || $record['status'] == 'approved';
-                    //     })
-                    //     ->form([
-                    //         Textarea::make('reason'),
-                    //     ])
-                    //     ->action(function (array $data, Report $record, Molecule $molecule, $livewire): void {
-                    //         self::approveReport($data, $record, $molecule, $livewire);
-                    //     }),
-                    // Tables\Actions\Action::make('reject')
-                    //     // ->button()
-                    //     ->color('danger')
-                    //     ->hidden(function (Report $record) {
-                    //         return ! auth()->user()->roles()->exists() || $record['status'] == 'draft' || $record['status'] == 'rejected' || $record['status'] == 'approved';
-                    //     })
-                    //     ->form([
-                    //         Textarea::make('reason'),
+                        //     return auth()->user()->roles()->exists() && $record['status'] == 'submitted';
+                        // }),
+                        // Tables\Actions\Action::make('approve')
+                        //     // ->button()
+                        //     ->hidden(function (Report $record) {
+                        //         return ! auth()->user()->roles()->exists() || $record['status'] == 'draft' || $record['status'] == 'rejected' || $record['status'] == 'approved';
+                        //     })
+                        //     ->form([
+                        //         Textarea::make('reason'),
+                        //     ])
+                        //     ->action(function (array $data, Report $record, Molecule $molecule, $livewire): void {
+                        //         self::approveReport($data, $record, $molecule, $livewire);
+                        //     }),
+                        // Tables\Actions\Action::make('reject')
+                        //     // ->button()
+                        //     ->color('danger')
+                        //     ->hidden(function (Report $record) {
+                        //         return ! auth()->user()->roles()->exists() || $record['status'] == 'draft' || $record['status'] == 'rejected' || $record['status'] == 'approved';
+                        //     })
+                        //     ->form([
+                        //         Textarea::make('reason'),
 
-                    //     ])
-                    //     ->action(function (array $data, Report $record): void {
-                    //         self::rejectReport($data, $record, $livewire);
-                    //     }),
+                        //     ])
+                        //     ->action(function (array $data, Report $record): void {
+                        //         self::rejectReport($data, $record, $livewire);
+                        //     }),
                         return auth()->user()->roles()->exists() && $record['status'] == 'submitted' && ($record['assigned_to'] == null || $record['assigned_to'] == auth()->id());
                     }),
                 Tables\Actions\ViewAction::make(),
