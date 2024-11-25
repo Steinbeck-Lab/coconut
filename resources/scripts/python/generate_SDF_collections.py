@@ -225,7 +225,7 @@ def main():
     Main execution function
     """
     parser = argparse.ArgumentParser(description='Download and process COCONUT SDF files')
-    parser.add_argument('--basedir', '-bdr', default="/Users/sagar/Downloads/")
+    parser.add_argument('--basedir', '-bdr', default=os.getcwd())
     parser.add_argument('--month', '-m', default=datetime.now().strftime('%m'))
     parser.add_argument('--year', '-y', default=datetime.now().strftime('%Y'))
     args = parser.parse_args()
