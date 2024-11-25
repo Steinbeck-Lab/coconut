@@ -225,11 +225,12 @@ def main():
     Main execution function
     """
     parser = argparse.ArgumentParser(description='Download and process COCONUT SDF files')
+    parser.add_argument('--basedir', '-bdr', default="/Users/sagar/Downloads/")
     parser.add_argument('--month', '-m', default=datetime.now().strftime('%m'))
     parser.add_argument('--year', '-y', default=datetime.now().strftime('%Y'))
     args = parser.parse_args()
     
-    base_dir = "/Users/sagar/Downloads/"
+    base_dir = args.basedir
     temp_dir, collections_dir, year_month, month_year = setup_directories(base_dir, args.month, args.year)
     
     zip_url = f"https://coconut.s3.uni-jena.de/prod/downloads/{year_month}/coconut_complete-{month_year}.sdf.zip"
