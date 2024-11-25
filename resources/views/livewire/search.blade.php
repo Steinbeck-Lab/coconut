@@ -8,6 +8,16 @@
                 @if ($collection->license)
                     <p class="mt-4 max-w-7xl text-sm text-gray-700">License: {{ $collection->license->title }}</p>
                 @endif
+
+                @php
+                    $slug = Str::slug($collection->title);
+                    $currentYearMonth = now()->format('Y-m');
+                @endphp
+            
+                <a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/collections/{{ $slug }}-{{ $currentYearMonth }}.sdf" 
+                class="mt-4 inline-block text-sm text-blue-600 underline">
+                    Download Collection (SDF) <span aria-hidden="true">→</span>
+                </a>
             </div>
         @elseif ($tagType == 'organisms' && $organisms)
             <div x-data="{ showAll: false }" class="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
