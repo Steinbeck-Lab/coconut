@@ -5,7 +5,6 @@ from rdkit import Chem
 from collections import defaultdict
 from tqdm import tqdm
 import argparse
-import sys
 import requests
 import zipfile
 from datetime import datetime
@@ -16,9 +15,23 @@ import mimetypes
 from dotenv import load_dotenv
 from slugify import slugify
 
+"""
+COCONUT SDF File Processor and S3 Uploader
+This script downloads, processes, and uploads COCONUT database SDF files to S3.
+It splits the main SDF file into collection-specific files and maintains a year-month
+based directory structure.
+"""
+
 def download_file(url, local_filename):
     """
-    Download a file from URL showing progress bar
+    Download a file from URL with progress tracking
+    
+    Args:
+        url (str): Source URL of the file
+        local_filename (str): Destination path for downloaded file
+    
+    Returns:
+        str: Path to downloaded file
     """
     response = requests.get(url, stream=True)
     total_size = int(response.headers.get('content-length', 0))
@@ -32,20 +45,23 @@ def download_file(url, local_filename):
     return local_filename
 
 def setup_directories(base_dir, month, year):
-   
     """
-    Create year-month based directory structure
-    Returns paths for temp and output directories
+    Create and manage year-month based directory structure
+    
+    Args:
+        base_dir (str): Base directory path
+        month (str): Month in MM format
+        year (str): Year in YYYY format
+    
+    Returns:
+        tuple: Paths for temp and collections directories, formatted dates
     """
-    # Create year-month folder structure
     year_month = f"{year}-{month}"
     month_year = f"{month}-{year}"
-
-    # remove existing directorys
+    
     shutil.rmtree(os.path.join(base_dir, year_month, 'temp'), ignore_errors=True)
     shutil.rmtree(os.path.join(base_dir, year_month, 'collections'), ignore_errors=True)
     
-    # Create directory structure
     temp_dir = os.path.join(base_dir, year_month, 'temp')
     collections_dir = os.path.join(base_dir, year_month, 'collections')
     
@@ -55,19 +71,30 @@ def setup_directories(base_dir, month, year):
     return temp_dir, collections_dir, year_month, month_year
 
 def get_collections(mol):
-    """Extract collections from a molecule and return as a list."""
+    """
+    Extract collections from a molecule
+    
+    Args:
+        mol: RDKit molecule object
+    
+    Returns:
+        list: Collection names
+    """
     if mol.HasProp('collections'):
-        collections = mol.GetProp('collections').split('|')
-        return [c.strip() for c in collections]
+        return [c.strip() for c in mol.GetProp('collections').split('|')]
     return []
 
 def process_sdf_files(input_file, output_dir, year_month):
     """
-    Process SDF file and split it by collections into output directory.
+    Process SDF file and split by collections
+    
+    Args:
+        input_file (str): Input SDF file path
+        output_dir (str): Output directory for collection files
+        year_month (str): Year-month string for file naming
     """
     if not os.path.exists(input_file):
-        print(f"Error: Input file not found: {input_file}")
-        return
+        raise FileNotFoundError(f"Input file not found: {input_file}")
     
     writers = defaultdict(lambda: None)
     collection_counts = defaultdict(int)
@@ -76,260 +103,151 @@ def process_sdf_files(input_file, output_dir, year_month):
     try:
         supplier = Chem.ForwardSDMolSupplier(input_file, sanitize=False)
         
-        for mol in supplier:
+        for mol in tqdm(supplier, desc="Processing molecules"):
             if mol is not None:
-                collections = get_collections(mol)
-                for collection in collections:
-                    safe_collection = "".join(c for c in collection if c.isalnum() or c in (' ', '-', '_')).strip()
-                    output_file = os.path.join(output_dir, f"{safe_collection}-{year_month}.sdf")
+                total_molecules_processed += 1
+                for collection in get_collections(mol):
+                    collection = slugify(collection, separator='-', lowercase=True)
+                    filename = f"{collection}-{year_month}.sdf"
+                    output_file = os.path.join(output_dir, filename)
                     
                     if writers[collection] is None:
-                        try:
-                            writers[collection] = Chem.SDWriter(output_file)
-                        except Exception as e:
-                            print(f"\nError creating writer for {collection}: {str(e)}")
-                            continue
+                        writers[collection] = Chem.SDWriter(output_file)
                     
-                    try:
-                        writers[collection].write(mol)
-                        collection_counts[collection] += 1
-                    except Exception as e:
-                        print(f"\nError writing molecule to {collection}: {str(e)}")
-                total_molecules_processed += 1
+                    writers[collection].write(mol)
+                    collection_counts[collection] += 1
                     
-    except Exception as e:
-        print(f"Error processing SDF file: {str(e)}")
-        return
     finally:
         for writer in writers.values():
             if writer is not None:
                 writer.close()
     
-    print("\nProcessing complete!")
-    print(f"Total molecules processed: {total_molecules_processed:,}")
-    print("\nCollection statistics:")
+    # total_size = sum(os.path.getsize(os.path.join(output_dir, slugify(f"{c}-{year_month}.sdf", separator='-', lowercase=True)))
+    #                  for c in collection_counts)
     
-    total_size = 0
-    for collection, count in sorted(collection_counts.items(), key=lambda x: x[1], reverse=True):
-        filename = slugify(f"{collection}-{year_month}.sdf", separator='-', lowercase=True) 
-        safe_filename = "".join(c for c in filename if c.isalnum() or c in (' ', '-', '_', '.')).strip()
-        file_path = os.path.join(output_dir, safe_filename)
-        try:
-            file_size = os.path.getsize(file_path)
-            total_size += file_size
-            print(f"- {safe_filename}:")
-            print(f"  - Molecules: {count:,}")
-            print(f"  - File size: {file_size/1024/1024:.1f} MB")
-        except OSError as e:
-            print(f"- {safe_filename}: Error getting file size - {str(e)}")
-    
-    print(f"\nTotal file size: {total_size/1024/1024:.1f} MB")
-    print(f"Total unique collections: {len(collection_counts)}")
+    print(f"Processed {total_molecules_processed:,} molecules into {len(collection_counts)} collections")
+    # print(f"Total size: {total_size/1024/1024:.1f} MB")
 
 def load_laravel_env():
     """
-    Load environment variables from Laravel's .env file
-    Returns the path to .env file for error checking
+    Load and validate Laravel environment variables
+    
+    Returns:
+        Path: Path to .env file
+    
+    Raises:
+        FileNotFoundError: If .env file is not found
+        ValueError: If required AWS credentials are missing
     """
-    # Get the script's location
-    current_dir = Path(__file__).resolve().parent
-    
-    # Navigate to Laravel root (from resources/scripts/python to root)
-    laravel_root = current_dir.parent.parent.parent
-    
-    # Path to .env file
-    env_path = laravel_root / '.env'
+    env_path = Path(__file__).resolve().parent.parent.parent.parent / '.env'
     
     if not env_path.exists():
         raise FileNotFoundError(f"Laravel .env file not found at {env_path}")
     
-    # Load the .env file
     load_dotenv(env_path)
     
-    # Verify required AWS credentials exist
     required_vars = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_DEFAULT_REGION', 'AWS_BUCKET']
     missing_vars = [var for var in required_vars if not os.getenv(var)]
     
     if missing_vars:
-        raise ValueError(f"Missing required AWS credentials in .env: {', '.join(missing_vars)}")
+        raise ValueError(f"Missing required AWS credentials: {', '.join(missing_vars)}")
     
     return env_path
 
 def initialize_s3_client():
     """
-    Initialize S3 client with credentials and endpoint from .env
+    Initialize S3 client with credentials from environment
+    
+    Returns:
+        boto3.client: Configured S3 client
     """
-    # Load environment variables
-    env_path = load_laravel_env()
-    print(f"Loaded environment from: {env_path}")
+    load_laravel_env()
     
-    # Get AWS credentials from environment
-    aws_access_key = os.getenv('AWS_ACCESS_KEY_ID')
-    aws_secret_key = os.getenv('AWS_SECRET_ACCESS_KEY')
-    aws_region = os.getenv('AWS_DEFAULT_REGION')
-    aws_endpoint = os.getenv('AWS_URL')
-    
-    # Configure the client
     s3_config = Config(
         s3={'addressing_style': 'virtual'},
         signature_version='s3v4',
-        retries={
-            'max_attempts': 3,  # Number of retry attempts
-            'mode': 'standard'
-        }
+        retries={'max_attempts': 3, 'mode': 'standard'}
     )
     
-    # Initialize client with all configurations
-    s3_client = boto3.client(
+    return boto3.client(
         's3',
-        aws_access_key_id=aws_access_key,
-        aws_secret_access_key=aws_secret_key,
-        region_name=aws_region,
-        endpoint_url=aws_endpoint,
+        aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
+        aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+        region_name=os.getenv('AWS_DEFAULT_REGION'),
+        endpoint_url=os.getenv('AWS_URL'),
         config=s3_config
     )
-    
-    return s3_client
 
 def upload_directory_to_s3(local_directory, s3_prefix):
     """
-    Upload a directory to S3
+    Upload directory contents to S3
     
     Args:
-        local_directory (str): Local directory path containing files to upload
-        bucket_name (str): Name of the S3 bucket
-        s3_prefix (str): Prefix (folder path) in the S3 bucket
+        local_directory (str): Source directory path
+        s3_prefix (str): S3 destination prefix
     """
-    try:
-        # Initialize S3 client
-        s3_client = initialize_s3_client()
-        
-        # Get list of all files in directory
-        files_to_upload = []
-        total_size = 0
-        
-        for root, dirs, files in os.walk(local_directory):
-            for filename in files:
-                local_path = os.path.join(root, filename)
-                relative_path = os.path.relpath(local_path, local_directory)
-                s3_path = os.path.join(s3_prefix, relative_path).replace("\\", "/")
-                
-                # Get file size
-                file_size = os.path.getsize(local_path)
-                total_size += file_size
-                
-                files_to_upload.append({
-                    'local_path': local_path,
-                    's3_path': s3_path,
-                    'size': file_size
-                })
-        
-        # Print summary before upload
-        print(f"\nPreparing to upload {len(files_to_upload)} files")
-        print(f"Total size: {total_size / (1024*1024*1024):.2f} GB")
-        
-        # Upload files with progress bar
-        with tqdm(total=total_size, unit='B', unit_scale=True, desc="Uploading") as pbar:
-            for file_info in files_to_upload:
-                bucket_name = os.getenv('AWS_BUCKET')
-
-                # Upload file
-                try:
-                    content_type = mimetypes.guess_type(file_info['local_path'])[0]
-                    if content_type is None:
-                        content_type = 'application/octet-stream'
-                    
-                    # Print debug information
-                    print(f"\nUploading: {file_info['local_path']}")
-                    print(f"To: s3://{bucket_name}/{file_info['s3_path']}")
-                    print(f"Content Type: {content_type}")
-                    
-                    # Upload file
-                    s3_client.upload_file(
-                        Filename=file_info['local_path'],  # Use explicit parameter name
-                        Bucket=bucket_name,                # Use explicit parameter name
-                        Key=file_info['s3_path'],          # Use explicit parameter name
-                        ExtraArgs={
-                            'ContentType': content_type,
-                            'ACL': 'public-read'
-                        },
-                        Callback=lambda bytes_transferred: pbar.update(bytes_transferred)
-                    )
-                except Exception as e:
-                    print(f"\nError uploading {file_info['local_path']}")
-                    print(f"Error details: {str(e)}")
-                    print(f"Bucket: {bucket_name}")
-                    print(f"Key: {file_info['s3_path']}")
-                    continue
-        
-        print("\nUpload completed successfully!")
-        print(f"Files are available in s3://{bucket_name}/{s3_prefix}/")
-        
-    except Exception as e:
-        print(f"Error during upload: {str(e)}")
+    s3_client = initialize_s3_client()
+    bucket_name = os.getenv('AWS_BUCKET')
+    
+    files_to_upload = []
+    total_size = 0
+    
+    for root, _, files in os.walk(local_directory):
+        for filename in files:
+            local_path = os.path.join(root, filename)
+            relative_path = os.path.relpath(local_path, local_directory)
+            s3_path = os.path.join(s3_prefix, relative_path).replace("\\", "/")
+            
+            files_to_upload.append({
+                'local_path': local_path,
+                's3_path': s3_path,
+                'size': os.path.getsize(local_path)
+            })
+            total_size += files_to_upload[-1]['size']
+    
+    with tqdm(total=total_size, unit='B', unit_scale=True, desc="Uploading") as pbar:
+        for file_info in files_to_upload:
+            content_type = mimetypes.guess_type(file_info['local_path'])[0] or 'application/octet-stream'
+            
+            try:
+                s3_client.upload_file(
+                    Filename=file_info['local_path'],
+                    Bucket=bucket_name,
+                    Key=file_info['s3_path'],
+                    ExtraArgs={'ContentType': content_type, 'ACL': 'public-read'},
+                    Callback=lambda bytes_transferred: pbar.update(bytes_transferred)
+                )
+            except Exception as e:
+                print(f"Error uploading {file_info['local_path']}: {str(e)}")
 
 def main():
+    """
+    Main execution function
+    """
     parser = argparse.ArgumentParser(description='Download and process COCONUT SDF files')
-    parser.add_argument('--month', '-m', 
-                       help='Month to download (e.g., 01 for January). Defaults to current month',
-                       default=datetime.now().strftime('%m'))
-    parser.add_argument('--year', '-y',
-                       help='Year to download (e.g., 2024). Defaults to current year',
-                       default=datetime.now().strftime('%Y'))
-    
+    parser.add_argument('--month', '-m', default=datetime.now().strftime('%m'))
+    parser.add_argument('--year', '-y', default=datetime.now().strftime('%Y'))
     args = parser.parse_args()
     
-    # Setup directories
     base_dir = "/Users/sagar/Downloads/"
     temp_dir, collections_dir, year_month, month_year = setup_directories(base_dir, args.month, args.year)
     
-    # Download file
-    zip_url = base_dir + year_month + "/coconut_complete-" + month_year + ".sdf.zip"
-    zip_url = "https://coconut.s3.uni-jena.de/prod/downloads/" + year_month + "/coconut_complete-" + month_year + ".sdf.zip"
+    zip_url = f"https://coconut.s3.uni-jena.de/prod/downloads/{year_month}/coconut_complete-{month_year}.sdf.zip"
     zip_file = os.path.join(temp_dir, "coconut_complete.zip")
     
-    print("Starting download...")
     download_file(zip_url, zip_file)
     
-    # Unzip file
-    print("\nExtracting ZIP file...")
     with zipfile.ZipFile(zip_file, 'r') as zip_ref:
         zip_ref.extractall(temp_dir)
     
-    # Find the SDF file
-    sdf_file = None
-    for file in os.listdir(temp_dir):
-        if file.endswith('.sdf'):
-            sdf_file = os.path.join(temp_dir, file)
-            break
-    
+    sdf_file = next((os.path.join(temp_dir, f) for f in os.listdir(temp_dir) if f.endswith('.sdf')), None)
     if not sdf_file:
-        print("Error: No SDF file found in ZIP archive")
-        return
+        raise FileNotFoundError("No SDF file found in ZIP archive")
     
-    # Process the SDF file
-    print("\nProcessing SDF file...")
     process_sdf_files(sdf_file, collections_dir, year_month)
-
-    # Set folder for Upload
-    s3_prefix = "prod/downloads/" + year_month + "/collections/"
-
-
-    # Upload to S3
-    print("\nUploading to S3...")
-    upload_directory_to_s3(collections_dir, s3_prefix)
+    upload_directory_to_s3(collections_dir, f"prod/downloads/{year_month}/collections/")
     
-    # Cleanup
-    print("\nCleaning up temporary files...")
-    try:
-        os.remove(zip_file)
-        os.remove(sdf_file)
-        # os.rmdir(temp_dir)
-        shutil.rmtree(temp_dir, ignore_errors=True)
-
-        print("Cleanup complete!")
-    except Exception as e:
-        print(f"Error during cleanup: {str(e)}")
+    shutil.rmtree(temp_dir, ignore_errors=True)
 
 if __name__ == "__main__":
     main()
