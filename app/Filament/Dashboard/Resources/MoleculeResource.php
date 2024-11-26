@@ -124,14 +124,7 @@ class MoleculeResource extends Resource
                                 }),
                         ])
                         ->action(function (array $data, Molecule $record): void {
-                            $record->active = ! $record->active;
-                            $record->active ? $record->status = 'APPROVED' : $record->status = 'REVOKED';
-                            $record->comment = prepareComment($data['reason']);
-                            $record->save();
                             self::changeMoleculeStatus($record, $data['reason']);
-                        })
-                        ->modalHidden(function (Molecule $record) {
-                            return ! $record['active'];
                         }),
                 ]),
 
@@ -219,11 +212,7 @@ class MoleculeResource extends Resource
         $record->active = ! $record->active;
         $record->active ? $record->status = 'APPROVED' : $record->status = 'REVOKED';
 
-        $record->comment = [[
-            'timestamp' => now(),
-            'changed_by' => auth()->user()->id,
-            'comment' => $reason,
-        ]];
+        $record->comment = prepareComment($reason);
 
         $record->save();
     }
