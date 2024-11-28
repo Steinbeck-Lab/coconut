@@ -435,3 +435,41 @@ function remove_italics_notation($text)
 
     return $converted_text;
 }
+
+function getFilterMap()
+{
+    return [
+        'mf' => 'molecular_formula',
+        'mw' => 'molecular_weight',
+        'hac' => 'heavy_atom_count',
+        'tac' => 'total_atom_count',
+        'arc' => 'aromatic_ring_count',
+        'rbc' => 'rotatable_bond_count',
+        'mrc' => 'minimal_number_of_rings',
+        'fc' => 'formal_charge',
+        'cs' => 'contains_sugar',
+        'crs' => 'contains_ring_sugars',
+        'cls' => 'contains_linear_sugars',
+        'npl' => 'np_likeness_score',
+        'alogp' => 'alogp',
+        'topopsa' => 'topo_psa',
+        'fsp3' => 'fsp3',
+        'hba' => 'h_bond_acceptor_count',
+        'hbd' => 'h_bond_donor_count',
+        'ro5v' => 'rule_of_5_violations',
+        'lhba' => 'lipinski_h_bond_acceptor_count',
+        'lhbd' => 'lipinski_h_bond_donor_count',
+        'lro5v' => 'lipinski_rule_of_5_violations',
+        'ds' => 'found_in_databases',
+        'class' => 'chemical_class',
+        'subclass' => 'chemical_sub_class',
+        'superclass' => 'chemical_super_class',
+        'parent' => 'direct_parent_classification',
+        'np_class' => 'np_classifier_class',
+        'np_superclass' => 'np_classifier_superclass',
+        'np_pathway' => 'np_classifier_pathway',
+        'np_glycoside' => 'np_classifier_is_glycoside',
+        'org' => 'organism',
+        'cite' => 'ciatation',
+    ];
+}

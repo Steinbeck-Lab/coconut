@@ -1,5 +1,5 @@
 <div x-data="{ activeTab: @entangle('activeTab'), view: 'card' }">
-    <div class="mt-24">
+    <div class="mt-24 px-4 lg:px-8">
         @if ($tagType == 'dataSource' && $collection)
             <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
                 <p class="mt-4 max-w-7xl text-sm text-gray-700">#COLLECTION</p>
@@ -74,8 +74,8 @@
             </div>
         @endif
     </div>
-    <div class="mx-auto max-w-2xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
-        <div>
+    <div class="mx-auto px-4 sm:px-6 lg:max-w-7xl lg:px-8">
+        <div class="px-4">
             <div class="sm:hidden">
                 <label for="tabs" class="sr-only">Select a tab</label>
                 <select id="tabs" name="tabs" x-model="activeTab"
@@ -255,9 +255,11 @@
             </div>
         </div>
     </div>
-    <div class="flex justify-between items-center mx-auto max-w-2xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
-        <h2 class="text-lg font-semibold">&nbsp;</h2>
-        <div class="flex">
+    <div class="flex justify-between items-center mx-auto sm:px-6 lg:max-w-7xl lg:px-8">
+        <div class="pl-4">
+            <livewire:advanced-search />
+        </div>
+        <div class="flex pr-4">
             <button @click="view = 'card'"
                 :class="view === 'card' ? 'bg-gray-600 text-white' : 'bg-gray-200 text-gray-700'"
                 class="px-4 py-2 rounded-l-md font-medium focus:outline-none">
@@ -280,13 +282,13 @@
         </div>
     </div>
     @if ($molecules && count($molecules) > 0)
-        <div class="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-8 lg:max-w-7xl lg:px-8">
+        <div class="mx-auto px-4 py-8 sm:px-6 sm:py-8 lg:max-w-7xl lg:px-8">
             <div class="p-4 w-full">
                 {{ $molecules->links() }}
             </div>
 
             <template x-if="view === 'card'">
-                <div class="relative items-center block p-6 bg-white">
+                <div class="items-center block p-6 bg-white">
                     <div
                         class="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-8">
                         @foreach ($molecules as $molecule)
