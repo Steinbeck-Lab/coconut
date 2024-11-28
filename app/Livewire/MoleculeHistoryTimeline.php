@@ -14,6 +14,9 @@ class MoleculeHistoryTimeline extends Component
     {
         $audit_data = [];
         $audits_collection = $this->mol->audits->merge($this->mol->properties()->get()[0]->audits);
+        if ($this->mol->structures()->get()->count() > 0) {
+            $audits_collection = $audits_collection->merge($this->mol->structures()->get()[0]->audits);
+        }
         foreach ($audits_collection->sortByDesc('created_at') as $index => $audit) {
             $audit_data[$index]['user_name'] = $audit->getMetadata()['user_name'];
             $audit_data[$index]['event'] = $audit->getMetadata()['audit_event'];

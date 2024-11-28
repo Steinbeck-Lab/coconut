@@ -90,6 +90,11 @@ class Molecule extends Model implements Auditable
         return $this->hasOne(Properties::class);
     }
 
+    public function structures(): HasOne
+    {
+        return $this->hasOne(Structure::class);
+    }
+
     /**
      * Get the variants associated with the molecule.
      */
