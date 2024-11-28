@@ -41,13 +41,15 @@ COCONUT infrastructure code is licensed under the MIT license - see the [LICENSE
 
 ## ![Citations](https://www.google.com/s2/favicons?domain=doi.org)Citations
 
+### COCONUT 2.0
+-  Venkata Chandrasekhar, Kohulan Rajan, Sri Ram Sagar Kanakam, Nisha Sharma, Viktor Weißenborn, Jonas Schaub, Christoph Steinbeck, COCONUT 2.0: a comprehensive overhaul and curation of the collection of open natural products database, Nucleic Acids Research, 2024;, gkae1063, https://doi.org/10.1093/nar/gkae1063
+ 
+https://doi.org/10.1093/nar/gkae1063
+
 ### COCONUT (Legacy)
 -  Sorokina, M., Merseburger, P., Rajan, K. et al. (2021). COCONUT online: COlleCtion of Open Natural prodUcTs database. *Journal of Cheminformatics*, 13, 2. 
 https://doi.org/10.1186/s13321-020-00478-9
 
-### COCONUT 2.0
--  Nainala, V.C., Rajan, K., Kanakam, S.R.S., Sharma, N., Weißenborn, V., Schaub, J., et al. (2024). COCONUT 2.0: A comprehensive overhaul and curation of the collection of open natural products database. *ChemRxiv*. 
-https://doi.org/10.26434/chemrxiv-2024-fxq2s
 
 ## ![Maintained](https://www.google.com/s2/favicons?domain=uni-jena.de) Maintained by
 

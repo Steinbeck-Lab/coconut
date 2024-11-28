@@ -11,16 +11,16 @@
                     <time datetime="2020-03-16" class="block text-sm leading-6 text-gray-600"></time>
                     <div class="grid gap-4 mx-auto max-w-sm bg-white shadow-xl p-8 text-slate-700 rounded-md border">
                         <h3 class="text-balance text-xl font-semibold text-slate-900">Cite us</h3>
-                        <p class="text-md/6">
+                        <p class="text-md/6 hover:text-blue-800">
                             <span
-                                class="relative rounded-full bg-gray-50 px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 -ml-1">ChemRxiv
-                                - preprint</span><br />
-                            Nainala VC, Rajan K, Kanakam SRS, Sharma N, Weißenborn V, Schaub J, et al. COCONUT 2.0: A
-                            comprehensive overhaul and curation of the collection of open natural products database.
-                            ChemRxiv. 2024; doi:10.26434/chemrxiv-2024-fxq2s
+                                class="relative rounded-full bg-gray-50 px-3 py-1.5 text-xs text-gray-800 hover:bg-gray-100 -ml-1">NAR
+                                - Journal Article</span><br />
+                                <a target="_blank" href="https://doi.org/10.1093/nar/gkae1063">
+                                    Venkata Chandrasekhar, Kohulan Rajan, Sri Ram Sagar Kanakam, Nisha Sharma, Viktor Weißenborn, Jonas Schaub, Christoph Steinbeck, COCONUT 2.0: a comprehensive overhaul and curation of the collection of open natural products database, Nucleic Acids Research, 2024;, gkae1063, https://doi.org/10.1093/nar/gkae1063
+                                </a>
                         </p>
                         <p class="text-md/6"><span
-                                class="relative rounded-full bg-gray-50 px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 -ml-1">Version
+                                class="relative rounded-full bg-gray-50 px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 -ml-1">COCONUT - Version
                                 1</span><br />Sorokina, M., Merseburger, P., Rajan, K. et al. COCONUT online: COlleCtion
                             of Open Natural prodUcTs database. J Cheminform 13, 2 (2021).
                             https://doi.org/10.1186/s13321-020-00478-9</p>
@@ -31,7 +31,7 @@
                     <div
                         class="mt-4 flex flex-col justify-between gap-6 sm:mt-8 sm:flex-row-reverse sm:gap-8 lg:mt-4 lg:flex-col">
                         <div class="flex px-8">
-                            <a href="https://doi.org/10.1186/s13321-020-00478-9"
+                            <a href="https://doi.org/10.1093/nar/gkae1063"
                                 class="text-sm font-semibold leading-6 text-indigo-600"
                                 aria-describedby="featured-post">more details <span aria-hidden="true">&rarr;</span></a>
                         </div>
