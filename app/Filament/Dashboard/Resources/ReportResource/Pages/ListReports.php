@@ -62,7 +62,7 @@ class ListReports extends ListRecords
         ];
         if (auth()->user()->roles()->exists()) {
             $presetViews['assigned'] = PresetView::make()
-                ->modifyQueryUsing(fn ($query) => $query->where('assigned_to', auth()->id()))
+                ->modifyQueryUsing(fn ($query) => $query->where('assigned_to', auth()->id())->where('status', 'submitted'))
                 ->favorite()
                 ->badge(Report::query()->where('assigned_to', auth()->id())->where('status', 'submitted')->count())
                 ->preserveAll();

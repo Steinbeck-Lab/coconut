@@ -16,9 +16,8 @@ use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\Tabs;
@@ -72,22 +71,26 @@ class ReportResource extends Resource
                             ->live()
                             ->default(false)
                             ->options([
-                                false => 'Report Synthetic Compound(s)',
-                                true => 'Request Changes to Data',
+                                false => 'Report',
+                                true => 'Request Changes',
                             ])
                             ->inline()
-                            ->hidden(function (string $operation, $get) {
-                                return $operation == 'create' ? $get('type') != null : true;
+                            ->hidden(function (string $operation) {
+                                return $operation == 'create';
+                            })
+                            ->disabled(function (string $operation) {
+                                return $operation == 'edit';
                             })
                             ->columnSpan(2),
 
                         Actions::make([
                             Action::make('approve')
-                                ->form(function ($record, $livewire) {
+                                ->form(function ($record, $livewire, $get) {
                                     if ($record['is_change']) {
                                         self::$approved_changes = self::prepareApprovedChanges($record, $livewire);
                                         $key_value_fields = getChangesToDisplayModal(self::$approved_changes);
-                                        array_unshift($key_value_fields,
+                                        array_unshift(
+                                            $key_value_fields,
                                             Textarea::make('reason')
                                                 ->helperText(function ($get) {
                                                     if (count(self::$approved_changes) <= 1) {
@@ -101,20 +104,29 @@ class ReportResource extends Resource
 
                                         return $key_value_fields;
                                     } else {
-                                        return [
-                                            Textarea::make('reason'),
-                                        ];
+                                        if ($get('report_type') == 'molecule') {
+                                            return [
+                                                Textarea::make('reason')
+                                                    ->required(),
+                                            ];
+                                        } else {
+                                            return [
+                                                Textarea::make('reason')
+                                                    ->required()
+                                                    ->helperText(new HtmlString('<span style="color:red">Make sure you manually made all the changes requested before approving. This will only change the status of the report.</span>')),
+                                            ];
+                                        }
                                     }
                                 })
                                 ->hidden(function (Get $get, string $operation) {
                                     return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation != 'edit';
                                 })
-                                ->action(function (array $data, Report $record, Molecule $molecule, $set, $livewire): void {
+                                ->action(function (array $data, Report $record, Molecule $molecule, $set, $livewire, $get): void {
                                     self::approveReport($data, $record, $molecule, $livewire);
                                     $set('status', 'approved');
                                 })
                                 ->modalSubmitAction(function () {
-                                    if (count(self::$approved_changes) <= 1) {
+                                    if (! empty(self::$approved_changes) && count(self::$approved_changes) <= 1) {
                                         return false;
                                     }
                                 }),
@@ -139,35 +151,40 @@ class ReportResource extends Resource
                                 }),
                             Action::make('assign')
                                 ->hidden(function (Get $get, string $operation, ?Report $record) {
-                                    return ! (auth()->user()->roles()->exists() && ($operation == 'view' || $operation == 'edit') && ($get('status') != 'approved' || $get('status') != 'rejected'));
+                                    return ! (auth()->user()->roles()->exists() && ($operation == 'view' || $operation == 'edit') && ($record->status != 'approved') && ($record->status != 'rejected'));
                                 })
                                 ->form([
                                     Radio::make('curator')
                                         ->label('Choose a curator')
+                                        ->default(function ($record) {
+                                            return $record->assigned_to;
+                                        })
                                         ->options(function () {
                                             return $users = User::whereHas('roles')->pluck('name', 'id');
                                         }),
                                 ])
-                                ->action(function (array $data, Report $record): void {
+                                ->action(function (array $data, Report $record, $livewire): void {
                                     $record['assigned_to'] = $data['curator'];
                                     $record->save();
                                     $record->refresh();
+                                    if (auth()->id() == $data['curator']) {
+                                        $livewire->redirect(ReportResource::getUrl('edit', ['record' => $record->id]));
+                                    } else {
+                                        $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
+                                    }
                                 })
                                 ->modalHeading('')
                                 ->modalSubmitActionLabel('Assign')
                                 ->iconButton()
                                 ->icon('heroicon-m-user-group')
-                                // ->badge(function (?Report $record) {
-                                //     return $record->curator->name ?? null;
-                                // })
                                 ->extraAttributes([
                                     'class' => 'ml-1 mr-0',
                                 ])
                                 ->size('xl'),
                         ])
-                            ->hidden(function (Get $get) {
-                                return $get('report_type') != 'molecule';
-                            })
+                            // ->hidden(function (Get $get) {
+                            //     return $get('report_type') != 'molecule';
+                            // })
                             ->verticalAlignment(VerticalAlignment::End)
                             ->columnStart(4),
                     ])
@@ -256,7 +273,7 @@ class ReportResource extends Resource
                                                     $synonyms = self::$molecule->synonyms;
                                                 }
 
-                                                return $synonyms;
+                                                return empty($synonyms) ? [] : $synonyms;
                                             })
                                             ->disabled(function (Get $get, string $operation) {
                                                 return ! $get('show_synonym_existing') && $operation == 'edit';
@@ -265,8 +282,9 @@ class ReportResource extends Resource
                                             ->columnSpan(4),
                                         TagsInput::make('new_synonyms')
                                             ->label('New')
-                                            ->separator(',')
-                                            ->splitKeys([','])
+                                            ->hint("Use '|' (pipe) to separate synonyms")
+                                            ->separator('|')
+                                            ->splitKeys(['|'])
                                             ->disabled(function (Get $get, string $operation) {
                                                 return ! $get('show_synonym_new') && $operation == 'edit';
                                             })
@@ -564,6 +582,13 @@ class ReportResource extends Resource
                 TextColumn::make('title')
                     ->wrap()
                     ->description(fn (Report $record): string => Str::of($record->evidence)->words(10)),
+                TextColumn::make('is_change')
+                    ->label('Type')
+                    ->badge()
+                    ->color(fn (Report $record): string => $record->is_change ? 'warning' : 'gray')
+                    ->formatStateUsing(function (Report $record): string {
+                        return $record->is_change ? 'change' : 'report';
+                    }),
                 Tables\Columns\TextColumn::make('curator.name')
                     ->searchable()
                     ->placeholder('Choose a curator')
@@ -586,7 +611,7 @@ class ReportResource extends Resource
                                 $record->refresh();
                             })
                             ->modalSubmitActionLabel('Assign')
-                            ->modalHidden(fn (): bool => ! auth()->user()->roles()->exists()),
+                            ->modalHidden(fn (Report $record): bool => ! auth()->user()->roles()->exists() || $record['status'] == 'approved' || $record['status'] == 'rejected'),
                     ),
             ])
             ->defaultSort('created_at', 'desc')
@@ -597,32 +622,32 @@ class ReportResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->visible(function ($record) {
-                    //     return auth()->user()->roles()->exists() && $record['status'] == 'submitted';
-                    // }),
-                    // Tables\Actions\Action::make('approve')
-                    //     // ->button()
-                    //     ->hidden(function (Report $record) {
-                    //         return ! auth()->user()->roles()->exists() || $record['status'] == 'draft' || $record['status'] == 'rejected' || $record['status'] == 'approved';
-                    //     })
-                    //     ->form([
-                    //         Textarea::make('reason'),
-                    //     ])
-                    //     ->action(function (array $data, Report $record, Molecule $molecule, $livewire): void {
-                    //         self::approveReport($data, $record, $molecule, $livewire);
-                    //     }),
-                    // Tables\Actions\Action::make('reject')
-                    //     // ->button()
-                    //     ->color('danger')
-                    //     ->hidden(function (Report $record) {
-                    //         return ! auth()->user()->roles()->exists() || $record['status'] == 'draft' || $record['status'] == 'rejected' || $record['status'] == 'approved';
-                    //     })
-                    //     ->form([
-                    //         Textarea::make('reason'),
+                        //     return auth()->user()->roles()->exists() && $record['status'] == 'submitted';
+                        // }),
+                        // Tables\Actions\Action::make('approve')
+                        //     // ->button()
+                        //     ->hidden(function (Report $record) {
+                        //         return ! auth()->user()->roles()->exists() || $record['status'] == 'draft' || $record['status'] == 'rejected' || $record['status'] == 'approved';
+                        //     })
+                        //     ->form([
+                        //         Textarea::make('reason'),
+                        //     ])
+                        //     ->action(function (array $data, Report $record, Molecule $molecule, $livewire): void {
+                        //         self::approveReport($data, $record, $molecule, $livewire);
+                        //     }),
+                        // Tables\Actions\Action::make('reject')
+                        //     // ->button()
+                        //     ->color('danger')
+                        //     ->hidden(function (Report $record) {
+                        //         return ! auth()->user()->roles()->exists() || $record['status'] == 'draft' || $record['status'] == 'rejected' || $record['status'] == 'approved';
+                        //     })
+                        //     ->form([
+                        //         Textarea::make('reason'),
 
-                    //     ])
-                    //     ->action(function (array $data, Report $record): void {
-                    //         self::rejectReport($data, $record, $livewire);
-                    //     }),
+                        //     ])
+                        //     ->action(function (array $data, Report $record): void {
+                        //         self::rejectReport($data, $record, $livewire);
+                        //     }),
                         return auth()->user()->roles()->exists() && $record['status'] == 'submitted' && ($record['assigned_to'] == null || $record['assigned_to'] == auth()->id());
                     }),
                 Tables\Actions\ViewAction::make(),
@@ -720,15 +745,21 @@ class ReportResource extends Resource
     public static function approveReport(array $data, Report $record, Molecule $molecule, $livewire): void
     {
         // In case of reporting a synthetic molecule, Deactivate Molecules
-        if ($record['mol_id_csv'] && ! $record['is_change']) {
-            $molecule_ids = explode(',', $record['mol_id_csv']);
-            $molecule = Molecule::whereIn('identifier', $molecule_ids)->get();
-            foreach ($molecule as $mol) {
-                $mol->active = false;
-                $mol->status = 'REVOKED';
-                $mol->comment = prepareComment($data['reason']);
-                $mol->save();
+        if (! $record['is_change']) {
+            if ($record['report_type'] == 'molecule') {
+                $molecule_ids = explode(',', $record['mol_id_csv']);
+                $molecule = Molecule::whereIn('identifier', $molecule_ids)->get();
+                foreach ($molecule as $mol) {
+                    $mol->active = false;
+                    $mol->status = 'REVOKED';
+                    $mol->comment = prepareComment($data['reason']);
+                    $mol->save();
+                }
             }
+            $record['status'] = 'approved';
+            $record['comment'] = prepareComment($data['reason']);
+            $record['assigned_to'] = auth()->id();
+            $record->save();
         } else {
             // In case of Changes
             // Run SQL queries for the approved changes
@@ -753,6 +784,7 @@ class ReportResource extends Resource
     {
         $record['status'] = 'rejected';
         $record['comment'] = $data['reason'];
+        $record['assigned_to'] = auth()->id();
         $record->save();
 
         $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
@@ -783,7 +815,7 @@ class ReportResource extends Resource
 
             // Apply Synonym Changes
             if (array_key_exists('synonym_changes', self::$overall_changes)) {
-                $db_synonyms = $molecule->synonyms;
+                $db_synonyms = $molecule->synonyms ?? [];
                 if (! empty(self::$overall_changes['synonym_changes']['delete'])) {
                     $db_synonyms = array_diff($db_synonyms, self::$overall_changes['synonym_changes']['delete']);
                     $molecule->synonyms = $db_synonyms;
@@ -804,7 +836,7 @@ class ReportResource extends Resource
 
             // Apply CAS Changes
             if (array_key_exists('cas_changes', self::$overall_changes)) {
-                $db_cas = $molecule->cas;
+                $db_cas = $molecule->cas ?? [];
                 if (! empty(self::$overall_changes['cas_changes']['delete'])) {
                     $db_cas = array_diff($db_cas, self::$overall_changes['cas_changes']['delete']);
                     $molecule->cas = $db_cas;
