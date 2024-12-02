@@ -14,7 +14,7 @@ class AssignDOIs extends Command
      *
      * @var string
      */
-    protected $signature = 'collection:assign-dois';
+    protected $signature = 'coconut:collection-assign-doi';
 
     /**
      * The console command description.
