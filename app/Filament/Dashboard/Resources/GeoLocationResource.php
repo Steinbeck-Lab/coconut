@@ -5,7 +5,6 @@ namespace App\Filament\Dashboard\Resources;
 use App\Filament\Dashboard\Resources\GeoLocationResource\Pages;
 use App\Filament\Dashboard\Resources\GeoLocationResource\Widgets\GeoLocationStats;
 use App\Models\GeoLocation;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -26,11 +25,7 @@ class GeoLocationResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-            ]);
+            ->schema(GeoLocation::getForm());
     }
 
     public static function table(Table $table): Table

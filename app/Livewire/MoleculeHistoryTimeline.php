@@ -14,21 +14,27 @@ class MoleculeHistoryTimeline extends Component
     {
         $audit_data = [];
         $audits_collection = $this->mol->audits->merge($this->mol->properties()->get()[0]->audits);
+        if ($this->mol->structures()->get()->count() > 0) {
+            $audits_collection = $audits_collection->merge($this->mol->structures()->get()[0]->audits);
+        }
         foreach ($audits_collection->sortByDesc('created_at') as $index => $audit) {
             $audit_data[$index]['user_name'] = $audit->getMetadata()['user_name'];
             $audit_data[$index]['event'] = $audit->getMetadata()['audit_event'];
             $audit_data[$index]['created_at'] = date('Y/m/d', strtotime($audit->getMetadata()['audit_created_at']));
 
-            if (str_contains('.', array_keys($audit->old_values)[0])) {
-                $old_key = $audit->old_values ? explode('.', array_keys($audit->old_values)[0])[0] : null;
-                $new_key = $audit->new_values ? explode('.', array_keys($audit->new_values)[0])[0] : null;
+            $values = ! empty($audit->old_values) ? $audit->old_values : $audit->new_values;
+            $first_affected_column = ! empty($values) ? array_keys($values)[0] : null;
 
-                $old_key = $old_key ?: $new_key;
-                $new_key = $new_key ?: $old_key;
+            if (str_contains($first_affected_column, '.')) {
+                $affected_column = explode('.', $first_affected_column)[0];
+
+                $audit_data[$index]['affected_columns'][$affected_column]['old_value'] = $audit->old_values ? array_values($audit->old_values)[0] : null;
+                $audit_data[$index]['affected_columns'][$affected_column]['new_value'] = $audit->new_values ? array_values($audit->new_values)[0] : null;
             } else {
-                foreach ($audit->getModified() as $key => $value) {
-                    $audit_data[$index]['affected_columns'][$key]['old_value'] = $value['old'] ?: null;
-                    $audit_data[$index]['affected_columns'][$key]['new_value'] = $value['new'] ?: null;
+                foreach ($audit->getModified() as $affected_column => $value) {
+
+                    $audit_data[$index]['affected_columns'][$affected_column]['old_value'] = array_key_exists('old', $value) ? $value['old'] : null;
+                    $audit_data[$index]['affected_columns'][$affected_column]['new_value'] = array_key_exists('new', $value) ? $value['new'] : null;
                 }
             }
         }
@@ -42,7 +48,6 @@ class MoleculeHistoryTimeline extends Component
 
         array_push($audit_data, $initial_audit);
         $this->audit_data = $audit_data;
-        // dd($audit_data);
     }
 
     public function render()

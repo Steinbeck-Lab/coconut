@@ -24,23 +24,50 @@ class ListReports extends ListRecords
 
     public function getPresetViews(): array
     {
-        return [
+        $presetViews = [
             'submitted' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where('status', 'submitted'))
                 ->favorite()
-                ->badge(Report::query()->where('status', 'submitted')->count())
+                ->badge(function () {
+                    if (auth()->user()->roles()->exists()) {
+                        return Report::query()->where('status', 'submitted')->count();
+                    }
+
+                    return Report::query()->where('user_id', auth()->id())->where('status', 'submitted')->count();
+                })
                 ->preserveAll()
                 ->default(),
             'approved' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where('status', 'approved'))
                 ->favorite()
-                ->badge(Report::query()->where('status', 'approved')->count())
+                ->badge(function () {
+                    if (auth()->user()->roles()->exists()) {
+                        return Report::query()->where('status', 'approved')->count();
+                    }
+
+                    return Report::query()->where('user_id', auth()->id())->where('status', 'approved')->count();
+                })
                 ->preserveAll(),
             'rejected' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where('status', 'rejected'))
                 ->favorite()
-                ->badge(Report::query()->where('status', 'rejected')->count())
+                ->badge(function () {
+                    if (auth()->user()->roles()->exists()) {
+                        return Report::query()->where('status', 'rejected')->count();
+                    }
+
+                    return Report::query()->where('user_id', auth()->id())->where('status', 'rejected')->count();
+                })
                 ->preserveAll(),
         ];
+        if (auth()->user()->roles()->exists()) {
+            $presetViews['assigned'] = PresetView::make()
+                ->modifyQueryUsing(fn ($query) => $query->where('assigned_to', auth()->id())->where('status', 'submitted'))
+                ->favorite()
+                ->badge(Report::query()->where('assigned_to', auth()->id())->where('status', 'submitted')->count())
+                ->preserveAll();
+        }
+
+        return $presetViews;
     }
 }

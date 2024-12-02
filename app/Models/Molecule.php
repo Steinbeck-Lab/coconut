@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Observers\MoleculeObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,6 +15,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\SchemaOrg\Schema;
 use Spatie\Tags\HasTags;
 
+#[ObservedBy([MoleculeObserver::class])]
 class Molecule extends Model implements Auditable
 {
     use HasFactory;
@@ -87,6 +90,11 @@ class Molecule extends Model implements Auditable
         return $this->hasOne(Properties::class);
     }
 
+    public function structures(): HasOne
+    {
+        return $this->hasOne(Structure::class);
+    }
+
     /**
      * Get the variants associated with the molecule.
      */
@@ -129,7 +137,7 @@ class Molecule extends Model implements Auditable
 
     public function sampleLocations(): BelongsToMany
     {
-        return $this->belongsToMany(SampleLocation::class);
+        return $this->belongsToMany(SampleLocation::class)->withTimestamps();
     }
 
     /**

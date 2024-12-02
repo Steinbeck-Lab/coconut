@@ -60,6 +60,18 @@ class MoleculeDetails extends Component
         HTML;
     }
 
+    public function getReferenceUrls($pivot)
+    {
+        $references = explode('|', $pivot->reference);
+        $urls = explode('|', $pivot->url);
+        $combined = array_combine($references, $urls);
+        $combined = array_map(function ($key, $value) {
+            return [$key => $value];
+        }, $references, $urls);
+
+        return $combined;
+    }
+
     public function render(): View
     {
         return view('livewire.molecule-details');

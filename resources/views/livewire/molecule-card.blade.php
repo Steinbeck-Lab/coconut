@@ -1,7 +1,7 @@
 <div class="bg-white rounded-lg hover:shadow-xl shadow border">
     @if ($molecule && $molecule->identifier)
         <a href="{{ route('compound', $molecule->identifier) }}" wire:navigate>
-            <div class="group relative flex flex-col overflow-hidden">
+            <div class="group flex flex-col overflow-hidden">
                 <div class="aspect-h-3 aspect-w-3 sm:aspect-none group-hover:opacity-75 h-56">
                     <livewire:molecule-depict2d :name="$molecule->name" :smiles="$molecule->canonical_smiles">
                 </div>
@@ -19,11 +19,7 @@
                     </div>
                     <div>
                         <h3 class="mt-1 text-base font-bold text-gray-900 capitalize text-clip overflow-hidden truncate ..." title="{{ $molecule->name }}">
-                            @if ($molecule->name)
-                                {{ $molecule->name }}
-                            @else
-                                {{ $molecule->iupac_name }}
-                            @endif
+                        {!! convert_italics_notation( $molecule->name ? $molecule->name : $molecule->iupac_name) !!}
                         </h3>
                     </div>
                 </div>

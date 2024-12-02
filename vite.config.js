@@ -20,5 +20,8 @@ export default defineConfig({
         alias: {
           '~font' : path.resolve(__dirname,'resources/fonts')
         }
-    }
+    },
+    server: {
+        https: true
+    },
 });

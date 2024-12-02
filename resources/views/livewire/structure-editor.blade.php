@@ -4,14 +4,39 @@
     searchType: 'exact',
     smiles: @entangle('smiles'),
     type: @entangle('type'),
+    draggedFile: null,
     fetchClipboardText() {
         navigator.clipboard.readText().then(text => {
             window.editor.setSmiles(text);
         }).catch(err => {
             console.error('Failed to read clipboard contents: ', err);
         });
+    },
+    handleFileUpload(event) {
+        const file = event?.target?.files?.[0] || this.draggedFile;
+        if (!file) return;
+
+        const allowedExtensions = ['.mol', '.sdf'];
+        const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+        
+        if (!allowedExtensions.includes(fileExtension)) {
+            alert('Only .mol and .sdf files are allowed');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const fileContent = e.target.result;
+            try {
+                window.editor.setMolFile(fileContent);
+            } catch (err) {
+                console.error('Error loading molecule:', err);
+                alert('Failed to load molecule file');
+            }
+        };
+        reader.readAsText(file);
     }
-}">
+}" >
     <div x-init="$watch('isOpen', value => {
         if (value) {
             setTimeout(() => {
@@ -38,10 +63,29 @@
                                 Structure Editor
                             </h3>
                             <div class="py-3">
+                                <div 
+                                x-on:dragover.prevent="draggedFile = null" 
+                                x-on:drop.prevent="draggedFile = $event.dataTransfer.files[0]; handleFileUpload($event)"
+                                class="border-2 border-dashed border-gray-300 p-6 text-center mb-3"
+                            >
+                                <input 
+                                    type="file" 
+                                    accept=".mol,.sdf" 
+                                    class="hidden" 
+                                    id="fileUpload" 
+                                    x-on:change="handleFileUpload($event)"
+                                />
+                                <label for="fileUpload" class="cursor-pointer">
+                                    <p class="text-gray-600">Drag and drop .mol or .sdf files here</p>
+                                    <p class="text-sm text-gray-500 mt-2">Or click to select a file</p>
+                                </label>
+                            </div>
                                 <div id="structureSearchEditor" class="border mb-3" style="height: 400px; width: 100%">
                                 </div>
-                                <div @click="fetchClipboardText"
-                                    class="mt-3 w-full inline-flex justify-center rounded-md shadow-sm px-4 py-2 bg-white-600 text-base font-medium hover:bg-white-700 focus:outline-none sm:w-auto sm:text-sm border">
+                                <div 
+                                    @click="fetchClipboardText"
+                                    class="hover:cursor-pointer w-full text-center rounded-md shadow-sm px-4 py-2 bg-white-600 text-base font-medium hover:bg-white-700 focus:outline-none sm:w-auto sm:text-sm border"
+                                >
                                     Paste from Clipboard
                                 </div>
                             </div>

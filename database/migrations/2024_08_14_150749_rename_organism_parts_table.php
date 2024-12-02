@@ -15,7 +15,6 @@ return new class extends Migration
         Schema::table('sample_locations', function (Blueprint $table) {
             $table->string('collection_ids')->nullable();
             $table->integer('molecule_count')->nullable();
-            $table->renameColumn('ontology', 'iri');
             $table->string('iri')->nullable()->change();
         });
         Schema::table('molecule_organism', function (Blueprint $table) {

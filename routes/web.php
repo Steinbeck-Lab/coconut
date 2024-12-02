@@ -32,8 +32,8 @@ Route::group([
 
 Route::get('/', ApplicationController::class);
 
-Route::get('/policy', Policy::class);
-Route::get('/terms', Terms::class);
+Route::get('/privacy-policy', Policy::class);
+Route::get('/terms-of-service', Terms::class);
 Route::get('/guidelines', Guides::class);
 Route::get('/about', About::class);
 Route::get('/download', Download::class);

@@ -1,0 +1,13 @@
+name: sdf_processor
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - rdkit>=2023.9.1
+  - tqdm>=4.66.1
+  - requests>=2.31.0
+  - boto3>=1.34.0
+  - python-dotenv>=1.0.0
+  - python-slugify>=8.0.1
+  - pip

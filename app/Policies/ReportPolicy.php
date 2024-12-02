@@ -42,11 +42,11 @@ class ReportPolicy
      */
     public function update(User $user, Report $report): bool
     {
-        if ($user->id == $report->user_id) {
+        if (($user->can('update_report') && (($report->assigned_to == null || $report->assigned_to == $user->id) && ($report->status != 'approved') && ($report->status != 'rejected'))) || ($user->id == $report->user_id && $report->status == null)) {
             return true;
+        } else {
+            return false;
         }
-
-        return $user->can('update_report');
     }
 
     /**
