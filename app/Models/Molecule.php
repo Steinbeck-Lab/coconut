@@ -28,19 +28,16 @@ class Molecule extends Model implements Auditable
      * @var array<int, string>
      */
     protected $fillable = [
-        'inchi',
         'standard_inchi',
-        'inchi_key',
         'standard_inchi_key',
         'canonical_smiles',
         'sugar_free_smiles',
-        'molecular_formula',
         'identifier',
         'name',
         'cas',
         'synonyms',
         'iupac_name',
-        'murcko_framework',
+        'murko_framework',
         'structural_comments',
 
         'name_trust_level',
@@ -53,7 +50,8 @@ class Molecule extends Model implements Auditable
         'has_stereo',
         'is_tautomer',
         'is_parent',
-        'is_placeholder'];
+        'is_placeholder',
+    ];
 
     /**
      * The attributes that should be cast.
