@@ -10,12 +10,12 @@ trait HasDOI
         if (! is_null($doi_host)) {
             $identifier = $this->getIdentifier($this, 'identifier');
             if ($this->doi == null) {
-                $url = 'https://dev.coconut.naturalproducts.net/collections/'.$identifier; // ToDo: fix collections url
+                $url = 'https://coconut.naturalproducts.net/collections/'.$identifier;
                 $attributes = $this->getMetadata();
                 $attributes['url'] = $url;
                 $doiResponse = $doiService->createDOI($identifier, $attributes);
                 $this->doi = $doiResponse['data']['id'];
-                // $this->datacite_schema = $doiResponse;
+                $this->datacite_schema = $doiResponse;
                 $this->save();
             }
 
