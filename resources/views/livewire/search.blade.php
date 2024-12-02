@@ -13,7 +13,14 @@
                     $slug = Str::slug($collection->title);
                     $currentYearMonth = now()->format('Y-m');
                 @endphp
-            
+
+                @if ($collection->doi)
+                DOI: <a href="https://doi.org/{{$collection->doi}}" 
+                class="mt-4 inline-block text-sm text-blue-600 underline">
+                    {{ $collection->doi }}
+                </a><br/>
+                @endif
+                
                 <a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/collections/{{ $slug }}-{{ $currentYearMonth }}.sdf" 
                 class="mt-4 inline-block text-sm text-blue-600 underline">
                     Download Collection (SDF) <span aria-hidden="true">→</span>
