@@ -42,6 +42,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Rest::resource('citations', \App\Rest\Controllers\CitationsController::class);
     Rest::resource('organisms', \App\Rest\Controllers\OrganismsController::class);
     Rest::resource('users', \App\Rest\Controllers\UsersController::class);
+    Rest::resource('properties', \App\Rest\Controllers\PropertiesController::class);
 });
 
 Route::prefix('schemas')->group(function () {

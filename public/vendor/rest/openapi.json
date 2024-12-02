@@ -6,48 +6,66 @@
         "description": "A comprehensive platform facilitating natural product research by providing data, tools, and services for deposition, curation, and reuse.",
         "contact": {
             "name": "COCONUT",
-            "url": "http:\/\/localhost",
+            "url": "http://localhost",
             "email": "info.coconut@uni-jena.de"
         },
-        "license": {
-            "name": "MIT",
-            "identifier": "MIT"
-        },
+        "license": { "name": "MIT", "identifier": "MIT" },
         "version": "2.0.0",
-        "termsOfService": "https:\/\/coconut.naturalproducts.net\/terms"
+        "termsOfService": "https://coconut.naturalproducts.net/terms"
     },
     "paths": {
-        "\/api\/molecules": {
+        "/api/molecules": {
             "get": {
-                "tags": [
-                    "Molecules"
-                ],
+                "tags": ["Molecules"],
                 "summary": "Get the resource detail",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
+                            "application/json": {
                                 "example": {
                                     "data": {
                                         "actions": [],
                                         "instructions": [],
                                         "scout_instructions": [],
                                         "fields": [
+                                            "standard_inchi",
+                                            "standard_inchi_key",
+                                            "canonical_smiles",
+                                            "sugar_free_smiles",
                                             "identifier",
                                             "name",
-                                            "canonical_smiles",
-                                            "standard_inchi",
-                                            "standard_inchi_key"
+                                            "cas",
+                                            "iupac_name",
+                                            "murko_framework",
+                                            "structural_comments",
+                                            "name_trust_level",
+                                            "annotation_level",
+                                            "variants_count",
+                                            "status",
+                                            "active",
+                                            "has_variants",
+                                            "has_stereo",
+                                            "is_tautomer",
+                                            "is_parent",
+                                            "is_placeholder"
                                         ],
                                         "scout_fields": [],
-                                        "limits": [
-                                            10,
-                                            25,
-                                            50
-                                        ],
+                                        "limits": [10, 25, 50],
                                         "scopes": [],
-                                        "relations": [],
+                                        "relations": [
+                                            {
+                                                "resource": "App\\Rest\\Resources\\PropertiesResource",
+                                                "relation": "properties",
+                                                "constraints": {
+                                                    "required_on_creation": false,
+                                                    "prohibited_on_creation": false,
+                                                    "required_on_update": false,
+                                                    "prohibited_on_update": false
+                                                },
+                                                "name": "HasOne"
+                                            }
+                                        ],
                                         "rules": {
                                             "all": [],
                                             "create": [],
@@ -59,27 +77,17 @@
                         }
                     }
                 },
-                "description": "Get every detail about the resource according to the current user connected",
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                "description": "Get every detail about the resource according to the current user connected"
             },
             "delete": {
-                "tags": [
-                    "Molecules"
-                ],
+                "tags": ["Molecules"],
                 "summary": "Perform a destroy request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
-                                "example": {
-                                    "data": [],
-                                    "meta": []
-                                }
+                            "application/json": {
+                                "example": { "data": [], "meta": [] }
                             }
                         }
                     }
@@ -87,39 +95,23 @@
                 "description": "Delete database records using primary key",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
-                            "example": {
-                                "resources": [
-                                    1,
-                                    5,
-                                    6
-                                ]
-                            }
+                        "application/json": {
+                            "example": { "resources": [1, 5, 6] }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/molecules\/search": {
+        "/api/molecules/search": {
             "post": {
-                "tags": [
-                    "Molecules"
-                ],
+                "tags": ["Molecules"],
                 "summary": "Perform a search request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
-                                "example": {
-                                    "data": [],
-                                    "meta": []
-                                }
+                            "application/json": {
+                                "example": { "data": [], "meta": [] }
                             }
                         }
                     }
@@ -127,11 +119,31 @@
                 "description": "Crunch the Api's data with multiple attributes",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
+                        "application/json": {
                             "example": {
                                 "search": {
                                     "scopes": [],
                                     "filters": [
+                                        {
+                                            "field": "standard_inchi",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "standard_inchi_key",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "canonical_smiles",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "sugar_free_smiles",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
                                         {
                                             "field": "identifier",
                                             "operator": "=",
@@ -143,28 +155,83 @@
                                             "value": ""
                                         },
                                         {
-                                            "field": "canonical_smiles",
+                                            "field": "cas",
                                             "operator": "=",
                                             "value": ""
                                         },
                                         {
-                                            "field": "standard_inchi",
+                                            "field": "iupac_name",
                                             "operator": "=",
                                             "value": ""
                                         },
                                         {
-                                            "field": "standard_inchi_key",
+                                            "field": "murko_framework",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "structural_comments",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "name_trust_level",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "annotation_level",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "variants_count",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "status",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "active",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "has_variants",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "has_stereo",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "is_tautomer",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "is_parent",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "is_placeholder",
                                             "operator": "=",
                                             "value": ""
                                         }
                                     ],
                                     "sorts": [
                                         {
-                                            "field": "identifier",
+                                            "field": "standard_inchi",
                                             "direction": "desc"
                                         },
                                         {
-                                            "field": "name",
+                                            "field": "standard_inchi_key",
                                             "direction": "desc"
                                         },
                                         {
@@ -172,138 +239,183 @@
                                             "direction": "desc"
                                         },
                                         {
-                                            "field": "standard_inchi",
+                                            "field": "sugar_free_smiles",
                                             "direction": "desc"
                                         },
                                         {
-                                            "field": "standard_inchi_key",
+                                            "field": "identifier",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "name",
+                                            "direction": "desc"
+                                        },
+                                        { "field": "cas", "direction": "desc" },
+                                        {
+                                            "field": "iupac_name",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "murko_framework",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "structural_comments",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "name_trust_level",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "annotation_level",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "variants_count",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "status",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "active",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "has_variants",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "has_stereo",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "is_tautomer",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "is_parent",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "is_placeholder",
                                             "direction": "desc"
                                         }
                                     ],
                                     "selects": [
-                                        {
-                                            "field": "identifier"
-                                        },
-                                        {
-                                            "field": "name"
-                                        },
-                                        {
-                                            "field": "canonical_smiles"
-                                        },
-                                        {
-                                            "field": "standard_inchi"
-                                        },
-                                        {
-                                            "field": "standard_inchi_key"
-                                        }
+                                        { "field": "standard_inchi" },
+                                        { "field": "standard_inchi_key" },
+                                        { "field": "canonical_smiles" },
+                                        { "field": "sugar_free_smiles" },
+                                        { "field": "identifier" },
+                                        { "field": "name" },
+                                        { "field": "cas" },
+                                        { "field": "iupac_name" },
+                                        { "field": "murko_framework" },
+                                        { "field": "structural_comments" },
+                                        { "field": "name_trust_level" },
+                                        { "field": "annotation_level" },
+                                        { "field": "variants_count" },
+                                        { "field": "status" },
+                                        { "field": "active" },
+                                        { "field": "has_variants" },
+                                        { "field": "has_stereo" },
+                                        { "field": "is_tautomer" },
+                                        { "field": "is_parent" },
+                                        { "field": "is_placeholder" }
                                     ],
-                                    "includes": [],
+                                    "includes": [{ "relation": "properties" }],
                                     "aggregates": [],
                                     "instructions": [],
-                                    "gates": [
-                                        "create",
-                                        "update",
-                                        "delete"
-                                    ],
+                                    "gates": ["create", "update", "delete"],
                                     "page": 1,
                                     "limit": 10
                                 }
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/molecules\/mutate": {
+        "/api/molecules/mutate": {
             "post": {
-                "tags": [
-                    "Molecules"
-                ],
+                "tags": ["Molecules"],
                 "summary": "Perform a mutate request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
-                                "example": {
-                                    "created": [
-                                        1
-                                    ],
-                                    "updated": [
-                                        2,
-                                        3
-                                    ]
-                                }
+                            "application/json": {
+                                "example": { "created": [1], "updated": [2, 3] }
                             }
                         }
                     }
                 },
-                "description": "Create \/ Modify the database data with multiple options",
+                "description": "Create / Modify the database data with multiple options",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
+                        "application/json": {
                             "example": {
                                 "mutate": [
                                     {
                                         "operation": "create",
                                         "attributes": {
+                                            "standard_inchi": "",
+                                            "standard_inchi_key": "",
+                                            "canonical_smiles": "",
+                                            "sugar_free_smiles": "",
                                             "identifier": "",
                                             "name": "",
-                                            "canonical_smiles": "",
-                                            "standard_inchi": "",
-                                            "standard_inchi_key": ""
+                                            "cas": "",
+                                            "iupac_name": "",
+                                            "murko_framework": "",
+                                            "structural_comments": "",
+                                            "name_trust_level": "",
+                                            "annotation_level": "",
+                                            "variants_count": "",
+                                            "status": "",
+                                            "active": "",
+                                            "has_variants": "",
+                                            "has_stereo": "",
+                                            "is_tautomer": "",
+                                            "is_parent": "",
+                                            "is_placeholder": ""
                                         },
-                                        "relations": []
+                                        "relations": {
+                                            "properties": {
+                                                "operation": "update",
+                                                "key": 1
+                                            }
+                                        }
                                     }
                                 ]
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/molecules\/actions\/{action}": {
-            "parameters": {
-                "0": {
+        "/api/molecules/actions/{action}": {
+            "parameters": [
+                {
                     "name": "action",
                     "in": "path",
                     "description": "The action uriKey",
                     "required": true,
-                    "schema": {
-                        "type": "string"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
+                    "schema": { "type": "string" }
+                }
+            ],
             "post": {
-                "tags": [
-                    "Molecules"
-                ],
+                "tags": ["Molecules"],
                 "summary": "Perform an action request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
-                                "example": {
-                                    "data": {
-                                        "impacted": 2
-                                    }
-                                }
+                            "application/json": {
+                                "example": { "data": { "impacted": 2 } }
                             }
                         }
                     }
@@ -311,7 +423,7 @@
                 "description": "Launch actions",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
+                        "application/json": {
                             "example": {
                                 "search": {
                                     "filters": [
@@ -330,25 +442,18 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/collections": {
+        "/api/collections": {
             "get": {
-                "tags": [
-                    "Collections"
-                ],
+                "tags": ["Collections"],
                 "summary": "Get the resource detail",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
+                            "application/json": {
                                 "example": {
                                     "data": {
                                         "actions": [],
@@ -361,11 +466,7 @@
                                             "url"
                                         ],
                                         "scout_fields": [],
-                                        "limits": [
-                                            10,
-                                            25,
-                                            50
-                                        ],
+                                        "limits": [10, 25, 50],
                                         "scopes": [],
                                         "relations": [],
                                         "rules": {
@@ -379,28 +480,21 @@
                         }
                     }
                 },
-                "description": "Get every detail about the resource according to the current user connected",
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                "description": "Get every detail about the resource according to the current user connected"
             },
             "delete": {
-                "tags": [
-                    "Collections"
-                ],
+                "tags": ["Collections"],
                 "summary": "Perform a destroy request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
+                            "application/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Beatae et debitis eum dolor.",
-                                        "description": "Sunt cumque ducimus laboriosam ducimus. Aliquam quia aut perferendis et laboriosam error veritatis. Quasi dolorem aut eius tenetur quas eos autem. Ea magni temporibus porro enim omnis.",
-                                        "url": "http:\/\/www.sawayn.com\/modi-aut-sed-blanditiis",
+                                        "title": "Reprehenderit pariatur doloribus consequatur.",
+                                        "description": "Sit autem ab nemo voluptatem possimus consequuntur. Placeat qui ut ab eligendi et ab aspernatur. Sunt voluptatem iste error officiis autem. Iusto id voluptatem alias sed omnis.",
+                                        "url": "http://kiehn.info/",
                                         "identifier": null
                                     },
                                     "meta": []
@@ -412,41 +506,28 @@
                 "description": "Delete database records using primary key",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
-                            "example": {
-                                "resources": [
-                                    1,
-                                    5,
-                                    6
-                                ]
-                            }
+                        "application/json": {
+                            "example": { "resources": [1, 5, 6] }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/collections\/search": {
+        "/api/collections/search": {
             "post": {
-                "tags": [
-                    "Collections"
-                ],
+                "tags": ["Collections"],
                 "summary": "Perform a search request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
+                            "application/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Modi et nisi incidunt placeat neque.",
-                                        "description": "Qui maxime quaerat alias corporis dignissimos doloribus. Incidunt quis corporis qui reprehenderit et hic. Voluptates omnis sint molestias aut et dolore. Veniam dicta et quia omnis et.",
-                                        "url": "https:\/\/www.hyatt.info\/debitis-vel-voluptatum-impedit-dolor-magni-deleniti",
-                                        "identifier": "Et mollitia velit dolor soluta veniam suscipit aut."
+                                        "title": "Occaecati minima commodi.",
+                                        "description": "Repudiandae nemo sunt adipisci illum id quam doloribus. Officia dignissimos molestias nesciunt eveniet voluptates ratione sequi. Officia maxime quis magni quia. Et voluptatum soluta laborum alias dicta saepe.",
+                                        "url": "http://www.altenwerth.net/voluptatem-aut-sit-maiores-recusandae-sint-perspiciatis.html",
+                                        "identifier": null
                                     },
                                     "meta": []
                                 }
@@ -457,7 +538,7 @@
                 "description": "Crunch the Api's data with multiple attributes",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
+                        "application/json": {
                             "example": {
                                 "search": {
                                     "scopes": [],
@@ -496,75 +577,45 @@
                                             "field": "identifier",
                                             "direction": "desc"
                                         },
-                                        {
-                                            "field": "url",
-                                            "direction": "desc"
-                                        }
+                                        { "field": "url", "direction": "desc" }
                                     ],
                                     "selects": [
-                                        {
-                                            "field": "title"
-                                        },
-                                        {
-                                            "field": "description"
-                                        },
-                                        {
-                                            "field": "identifier"
-                                        },
-                                        {
-                                            "field": "url"
-                                        }
+                                        { "field": "title" },
+                                        { "field": "description" },
+                                        { "field": "identifier" },
+                                        { "field": "url" }
                                     ],
                                     "includes": [],
                                     "aggregates": [],
                                     "instructions": [],
-                                    "gates": [
-                                        "create",
-                                        "update",
-                                        "delete"
-                                    ],
+                                    "gates": ["create", "update", "delete"],
                                     "page": 1,
                                     "limit": 10
                                 }
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/collections\/mutate": {
+        "/api/collections/mutate": {
             "post": {
-                "tags": [
-                    "Collections"
-                ],
+                "tags": ["Collections"],
                 "summary": "Perform a mutate request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
-                                "example": {
-                                    "created": [
-                                        1
-                                    ],
-                                    "updated": [
-                                        2,
-                                        3
-                                    ]
-                                }
+                            "application/json": {
+                                "example": { "created": [1], "updated": [2, 3] }
                             }
                         }
                     }
                 },
-                "description": "Create \/ Modify the database data with multiple options",
+                "description": "Create / Modify the database data with multiple options",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
+                        "application/json": {
                             "example": {
                                 "mutate": [
                                     {
@@ -581,46 +632,28 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/collections\/actions\/{action}": {
-            "parameters": {
-                "0": {
+        "/api/collections/actions/{action}": {
+            "parameters": [
+                {
                     "name": "action",
                     "in": "path",
                     "description": "The action uriKey",
                     "required": true,
-                    "schema": {
-                        "type": "string"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
+                    "schema": { "type": "string" }
+                }
+            ],
             "post": {
-                "tags": [
-                    "Collections"
-                ],
+                "tags": ["Collections"],
                 "summary": "Perform an action request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
-                                "example": {
-                                    "data": {
-                                        "impacted": 2
-                                    }
-                                }
+                            "application/json": {
+                                "example": { "data": { "impacted": 2 } }
                             }
                         }
                     }
@@ -628,7 +661,7 @@
                 "description": "Launch actions",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
+                        "application/json": {
                             "example": {
                                 "search": {
                                     "filters": [
@@ -647,25 +680,18 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/citations": {
+        "/api/citations": {
             "get": {
-                "tags": [
-                    "Citations"
-                ],
+                "tags": ["Citations"],
                 "summary": "Get the resource detail",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
+                            "application/json": {
                                 "example": {
                                     "data": {
                                         "actions": [],
@@ -678,11 +704,7 @@
                                             "citation_text"
                                         ],
                                         "scout_fields": [],
-                                        "limits": [
-                                            10,
-                                            25,
-                                            50
-                                        ],
+                                        "limits": [10, 25, 50],
                                         "scopes": [],
                                         "relations": [],
                                         "rules": {
@@ -696,28 +718,21 @@
                         }
                     }
                 },
-                "description": "Get every detail about the resource according to the current user connected",
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                "description": "Get every detail about the resource according to the current user connected"
             },
             "delete": {
-                "tags": [
-                    "Citations"
-                ],
+                "tags": ["Citations"],
                 "summary": "Perform a destroy request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
+                            "application/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1039\/d4np00008k~3",
-                                        "title": "Empowering natural product science with AI: leveraging multimodal data and knowledge graphs.",
-                                        "authors": "Meijer D, Beniddir MA, Coley CW, Mejri YM, \u00d6zt\u00fcrk M, van der Hooft JJJ, Medema MH, Skiredj A.",
+                                        "doi": "10.3389/fchem.2023.1234211~0",
+                                        "title": "Editorial: Advances in natural product chemistry: Yunnan University 100th anniversary.",
+                                        "authors": "Chen W, Dong J, Panda SS.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -729,40 +744,27 @@
                 "description": "Delete database records using primary key",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
-                            "example": {
-                                "resources": [
-                                    1,
-                                    5,
-                                    6
-                                ]
-                            }
+                        "application/json": {
+                            "example": { "resources": [1, 5, 6] }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/citations\/search": {
+        "/api/citations/search": {
             "post": {
-                "tags": [
-                    "Citations"
-                ],
+                "tags": ["Citations"],
                 "summary": "Perform a search request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
+                            "application/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1002\/cbdv.202401069~19",
-                                        "title": "Lamiide and Ipolamiide: A Comprehensive Review of Their Bioactive Properties and Therapeutic Potential.",
-                                        "authors": "Sobhy M, AbouZid SF, Kirollos FN, El-Shiekh RA, Abdel-Sattar E.",
+                                        "doi": "10.3389/abp.2024.12569~0",
+                                        "title": "Marine natural products: potential agents for depression treatment.",
+                                        "authors": "Wang X, Yang C, Zhang X, Ye C, Liu W, Wang C.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -774,7 +776,7 @@
                 "description": "Crunch the Api's data with multiple attributes",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
+                        "application/json": {
                             "example": {
                                 "search": {
                                     "scopes": [],
@@ -801,10 +803,7 @@
                                         }
                                     ],
                                     "sorts": [
-                                        {
-                                            "field": "doi",
-                                            "direction": "desc"
-                                        },
+                                        { "field": "doi", "direction": "desc" },
                                         {
                                             "field": "title",
                                             "direction": "desc"
@@ -819,69 +818,42 @@
                                         }
                                     ],
                                     "selects": [
-                                        {
-                                            "field": "doi"
-                                        },
-                                        {
-                                            "field": "title"
-                                        },
-                                        {
-                                            "field": "authors"
-                                        },
-                                        {
-                                            "field": "citation_text"
-                                        }
+                                        { "field": "doi" },
+                                        { "field": "title" },
+                                        { "field": "authors" },
+                                        { "field": "citation_text" }
                                     ],
                                     "includes": [],
                                     "aggregates": [],
                                     "instructions": [],
-                                    "gates": [
-                                        "create",
-                                        "update",
-                                        "delete"
-                                    ],
+                                    "gates": ["create", "update", "delete"],
                                     "page": 1,
                                     "limit": 10
                                 }
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/citations\/mutate": {
+        "/api/citations/mutate": {
             "post": {
-                "tags": [
-                    "Citations"
-                ],
+                "tags": ["Citations"],
                 "summary": "Perform a mutate request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
-                                "example": {
-                                    "created": [
-                                        1
-                                    ],
-                                    "updated": [
-                                        2,
-                                        3
-                                    ]
-                                }
+                            "application/json": {
+                                "example": { "created": [1], "updated": [2, 3] }
                             }
                         }
                     }
                 },
-                "description": "Create \/ Modify the database data with multiple options",
+                "description": "Create / Modify the database data with multiple options",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
+                        "application/json": {
                             "example": {
                                 "mutate": [
                                     {
@@ -898,46 +870,28 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/citations\/actions\/{action}": {
-            "parameters": {
-                "0": {
+        "/api/citations/actions/{action}": {
+            "parameters": [
+                {
                     "name": "action",
                     "in": "path",
                     "description": "The action uriKey",
                     "required": true,
-                    "schema": {
-                        "type": "string"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
+                    "schema": { "type": "string" }
+                }
+            ],
             "post": {
-                "tags": [
-                    "Citations"
-                ],
+                "tags": ["Citations"],
                 "summary": "Perform an action request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
-                                "example": {
-                                    "data": {
-                                        "impacted": 2
-                                    }
-                                }
+                            "application/json": {
+                                "example": { "data": { "impacted": 2 } }
                             }
                         }
                     }
@@ -945,7 +899,7 @@
                 "description": "Launch actions",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
+                        "application/json": {
                             "example": {
                                 "search": {
                                     "filters": [
@@ -964,25 +918,18 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/organisms": {
+        "/api/organisms": {
             "get": {
-                "tags": [
-                    "Organisms"
-                ],
+                "tags": ["Organisms"],
                 "summary": "Get the resource detail",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
+                            "application/json": {
                                 "example": {
                                     "data": {
                                         "actions": [],
@@ -995,11 +942,7 @@
                                             "molecule_count"
                                         ],
                                         "scout_fields": [],
-                                        "limits": [
-                                            10,
-                                            25,
-                                            50
-                                        ],
+                                        "limits": [10, 25, 50],
                                         "scopes": [],
                                         "relations": [],
                                         "rules": {
@@ -1013,27 +956,17 @@
                         }
                     }
                 },
-                "description": "Get every detail about the resource according to the current user connected",
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                "description": "Get every detail about the resource according to the current user connected"
             },
             "delete": {
-                "tags": [
-                    "Organisms"
-                ],
+                "tags": ["Organisms"],
                 "summary": "Perform a destroy request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
-                                "example": {
-                                    "data": [],
-                                    "meta": []
-                                }
+                            "application/json": {
+                                "example": { "data": [], "meta": [] }
                             }
                         }
                     }
@@ -1041,39 +974,23 @@
                 "description": "Delete database records using primary key",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
-                            "example": {
-                                "resources": [
-                                    1,
-                                    5,
-                                    6
-                                ]
-                            }
+                        "application/json": {
+                            "example": { "resources": [1, 5, 6] }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/organisms\/search": {
+        "/api/organisms/search": {
             "post": {
-                "tags": [
-                    "Organisms"
-                ],
+                "tags": ["Organisms"],
                 "summary": "Perform a search request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
-                                "example": {
-                                    "data": [],
-                                    "meta": []
-                                }
+                            "application/json": {
+                                "example": { "data": [], "meta": [] }
                             }
                         }
                     }
@@ -1081,7 +998,7 @@
                 "description": "Crunch the Api's data with multiple attributes",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
+                        "application/json": {
                             "example": {
                                 "search": {
                                     "scopes": [],
@@ -1112,10 +1029,7 @@
                                             "field": "name",
                                             "direction": "desc"
                                         },
-                                        {
-                                            "field": "iri",
-                                            "direction": "desc"
-                                        },
+                                        { "field": "iri", "direction": "desc" },
                                         {
                                             "field": "rank",
                                             "direction": "desc"
@@ -1126,69 +1040,42 @@
                                         }
                                     ],
                                     "selects": [
-                                        {
-                                            "field": "name"
-                                        },
-                                        {
-                                            "field": "iri"
-                                        },
-                                        {
-                                            "field": "rank"
-                                        },
-                                        {
-                                            "field": "molecule_count"
-                                        }
+                                        { "field": "name" },
+                                        { "field": "iri" },
+                                        { "field": "rank" },
+                                        { "field": "molecule_count" }
                                     ],
                                     "includes": [],
                                     "aggregates": [],
                                     "instructions": [],
-                                    "gates": [
-                                        "create",
-                                        "update",
-                                        "delete"
-                                    ],
+                                    "gates": ["create", "update", "delete"],
                                     "page": 1,
                                     "limit": 10
                                 }
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/organisms\/mutate": {
+        "/api/organisms/mutate": {
             "post": {
-                "tags": [
-                    "Organisms"
-                ],
+                "tags": ["Organisms"],
                 "summary": "Perform a mutate request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
-                                "example": {
-                                    "created": [
-                                        1
-                                    ],
-                                    "updated": [
-                                        2,
-                                        3
-                                    ]
-                                }
+                            "application/json": {
+                                "example": { "created": [1], "updated": [2, 3] }
                             }
                         }
                     }
                 },
-                "description": "Create \/ Modify the database data with multiple options",
+                "description": "Create / Modify the database data with multiple options",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
+                        "application/json": {
                             "example": {
                                 "mutate": [
                                     {
@@ -1205,46 +1092,28 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/organisms\/actions\/{action}": {
-            "parameters": {
-                "0": {
+        "/api/organisms/actions/{action}": {
+            "parameters": [
+                {
                     "name": "action",
                     "in": "path",
                     "description": "The action uriKey",
                     "required": true,
-                    "schema": {
-                        "type": "string"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
+                    "schema": { "type": "string" }
+                }
+            ],
             "post": {
-                "tags": [
-                    "Organisms"
-                ],
+                "tags": ["Organisms"],
                 "summary": "Perform an action request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
-                                "example": {
-                                    "data": {
-                                        "impacted": 2
-                                    }
-                                }
+                            "application/json": {
+                                "example": { "data": { "impacted": 2 } }
                             }
                         }
                     }
@@ -1252,7 +1121,7 @@
                 "description": "Launch actions",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
+                        "application/json": {
                             "example": {
                                 "search": {
                                     "filters": [
@@ -1271,40 +1140,26 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/users": {
+        "/api/users": {
             "get": {
-                "tags": [
-                    "Users"
-                ],
+                "tags": ["Users"],
                 "summary": "Get the resource detail",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
+                            "application/json": {
                                 "example": {
                                     "data": {
                                         "actions": [],
                                         "instructions": [],
                                         "scout_instructions": [],
-                                        "fields": [
-                                            "name",
-                                            "email"
-                                        ],
+                                        "fields": ["name", "email"],
                                         "scout_fields": [],
-                                        "limits": [
-                                            10,
-                                            25,
-                                            50
-                                        ],
+                                        "limits": [10, 25, 50],
                                         "scopes": [],
                                         "relations": [],
                                         "rules": {
@@ -1318,27 +1173,20 @@
                         }
                     }
                 },
-                "description": "Get every detail about the resource according to the current user connected",
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                "description": "Get every detail about the resource according to the current user connected"
             },
             "delete": {
-                "tags": [
-                    "Users"
-                ],
+                "tags": ["Users"],
                 "summary": "Perform a destroy request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
+                            "application/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Dr. Cyrus Gorczany",
-                                        "email": "jacey00@example.org"
+                                        "name": "Prof. Bethel Stroman",
+                                        "email": "btromp@example.com"
                                     },
                                     "meta": []
                                 }
@@ -1349,39 +1197,26 @@
                 "description": "Delete database records using primary key",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
-                            "example": {
-                                "resources": [
-                                    1,
-                                    5,
-                                    6
-                                ]
-                            }
+                        "application/json": {
+                            "example": { "resources": [1, 5, 6] }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/users\/search": {
+        "/api/users/search": {
             "post": {
-                "tags": [
-                    "Users"
-                ],
+                "tags": ["Users"],
                 "summary": "Perform a search request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
+                            "application/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Claire Cummings",
-                                        "email": "virginie.ryan@example.net"
+                                        "name": "Kayleigh Nikolaus",
+                                        "email": "margarete.farrell@example.net"
                                     },
                                     "meta": []
                                 }
@@ -1392,7 +1227,7 @@
                 "description": "Crunch the Api's data with multiple attributes",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
+                        "application/json": {
                             "example": {
                                 "search": {
                                     "scopes": [],
@@ -1419,63 +1254,40 @@
                                         }
                                     ],
                                     "selects": [
-                                        {
-                                            "field": "name"
-                                        },
-                                        {
-                                            "field": "email"
-                                        }
+                                        { "field": "name" },
+                                        { "field": "email" }
                                     ],
                                     "includes": [],
                                     "aggregates": [],
                                     "instructions": [],
-                                    "gates": [
-                                        "create",
-                                        "update",
-                                        "delete"
-                                    ],
+                                    "gates": ["create", "update", "delete"],
                                     "page": 1,
                                     "limit": 10
                                 }
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/users\/mutate": {
+        "/api/users/mutate": {
             "post": {
-                "tags": [
-                    "Users"
-                ],
+                "tags": ["Users"],
                 "summary": "Perform a mutate request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
-                                "example": {
-                                    "created": [
-                                        1
-                                    ],
-                                    "updated": [
-                                        2,
-                                        3
-                                    ]
-                                }
+                            "application/json": {
+                                "example": { "created": [1], "updated": [2, 3] }
                             }
                         }
                     }
                 },
-                "description": "Create \/ Modify the database data with multiple options",
+                "description": "Create / Modify the database data with multiple options",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
+                        "application/json": {
                             "example": {
                                 "mutate": [
                                     {
@@ -1490,46 +1302,28 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/users\/actions\/{action}": {
-            "parameters": {
-                "0": {
+        "/api/users/actions/{action}": {
+            "parameters": [
+                {
                     "name": "action",
                     "in": "path",
                     "description": "The action uriKey",
                     "required": true,
-                    "schema": {
-                        "type": "string"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
+                    "schema": { "type": "string" }
+                }
+            ],
             "post": {
-                "tags": [
-                    "Users"
-                ],
+                "tags": ["Users"],
                 "summary": "Perform an action request",
                 "responses": {
                     "default": {
                         "description": "",
                         "content": {
-                            "application\/json": {
-                                "example": {
-                                    "data": {
-                                        "impacted": 2
-                                    }
-                                }
+                            "application/json": {
+                                "example": { "data": { "impacted": 2 } }
                             }
                         }
                     }
@@ -1537,7 +1331,7 @@
                 "description": "Launch actions",
                 "requestBody": {
                     "content": {
-                        "application\/json": {
+                        "application/json": {
                             "example": {
                                 "search": {
                                     "filters": [
@@ -1556,34 +1350,613 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/auth\/login": {
+        "/api/properties": {
+            "get": {
+                "tags": ["Properties"],
+                "summary": "Get the resource detail",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "data": {
+                                        "actions": [],
+                                        "instructions": [],
+                                        "scout_instructions": [],
+                                        "fields": [
+                                            "total_atom_count",
+                                            "heavy_atom_count",
+                                            "molecular_weight",
+                                            "exact_molecular_weight",
+                                            "molecular_formula",
+                                            "alogp",
+                                            "topological_polar_surface_area",
+                                            "rotatable_bond_count",
+                                            "hydrogen_bond_acceptors",
+                                            "hydrogen_bond_donors",
+                                            "hydrogen_bond_acceptors_lipinski",
+                                            "hydrogen_bond_donors_lipinski",
+                                            "lipinski_rule_of_five_violations",
+                                            "aromatic_rings_count",
+                                            "qed_drug_likeliness",
+                                            "formal_charge",
+                                            "fractioncsp3",
+                                            "number_of_minimal_rings",
+                                            "van_der_walls_volume",
+                                            "contains_sugar",
+                                            "contains_ring_sugars",
+                                            "contains_linear_sugars",
+                                            "murcko_framework",
+                                            "np_likeness",
+                                            "chemical_class",
+                                            "chemical_sub_class",
+                                            "chemical_super_class",
+                                            "direct_parent_classification",
+                                            "np_classifier_pathway",
+                                            "np_classifier_superclass",
+                                            "np_classifier_class",
+                                            "np_classifier_is_glycoside"
+                                        ],
+                                        "scout_fields": [],
+                                        "limits": [10, 25, 50],
+                                        "scopes": [],
+                                        "relations": [
+                                            {
+                                                "resource": "App\\Rest\\Resources\\MoleculeResource",
+                                                "relation": "molecule",
+                                                "constraints": {
+                                                    "required_on_creation": false,
+                                                    "prohibited_on_creation": false,
+                                                    "required_on_update": false,
+                                                    "prohibited_on_update": false
+                                                },
+                                                "name": "HasOne"
+                                            }
+                                        ],
+                                        "rules": {
+                                            "all": [],
+                                            "create": [],
+                                            "update": []
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Get every detail about the resource according to the current user connected"
+            },
+            "delete": {
+                "tags": ["Properties"],
+                "summary": "Perform a destroy request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "example": { "data": [], "meta": [] }
+                            }
+                        }
+                    }
+                },
+                "description": "Delete database records using primary key",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "example": { "resources": [1, 5, 6] }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/properties/search": {
             "post": {
-                "tags": [
-                    "Authentication"
-                ],
+                "tags": ["Properties"],
+                "summary": "Perform a search request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "example": { "data": [], "meta": [] }
+                            }
+                        }
+                    }
+                },
+                "description": "Crunch the Api's data with multiple attributes",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "search": {
+                                    "scopes": [],
+                                    "filters": [
+                                        {
+                                            "field": "total_atom_count",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "heavy_atom_count",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "molecular_weight",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "exact_molecular_weight",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "molecular_formula",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "alogp",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "topological_polar_surface_area",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "rotatable_bond_count",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "hydrogen_bond_acceptors",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "hydrogen_bond_donors",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "hydrogen_bond_acceptors_lipinski",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "hydrogen_bond_donors_lipinski",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "lipinski_rule_of_five_violations",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "aromatic_rings_count",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "qed_drug_likeliness",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "formal_charge",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "fractioncsp3",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "number_of_minimal_rings",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "van_der_walls_volume",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "contains_sugar",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "contains_ring_sugars",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "contains_linear_sugars",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "murcko_framework",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "np_likeness",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "chemical_class",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "chemical_sub_class",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "chemical_super_class",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "direct_parent_classification",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "np_classifier_pathway",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "np_classifier_superclass",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "np_classifier_class",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "np_classifier_is_glycoside",
+                                            "operator": "=",
+                                            "value": ""
+                                        }
+                                    ],
+                                    "sorts": [
+                                        {
+                                            "field": "total_atom_count",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "heavy_atom_count",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "molecular_weight",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "exact_molecular_weight",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "molecular_formula",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "alogp",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "topological_polar_surface_area",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "rotatable_bond_count",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "hydrogen_bond_acceptors",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "hydrogen_bond_donors",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "hydrogen_bond_acceptors_lipinski",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "hydrogen_bond_donors_lipinski",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "lipinski_rule_of_five_violations",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "aromatic_rings_count",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "qed_drug_likeliness",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "formal_charge",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "fractioncsp3",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "number_of_minimal_rings",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "van_der_walls_volume",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "contains_sugar",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "contains_ring_sugars",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "contains_linear_sugars",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "murcko_framework",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "np_likeness",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "chemical_class",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "chemical_sub_class",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "chemical_super_class",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "direct_parent_classification",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "np_classifier_pathway",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "np_classifier_superclass",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "np_classifier_class",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "np_classifier_is_glycoside",
+                                            "direction": "desc"
+                                        }
+                                    ],
+                                    "selects": [
+                                        { "field": "total_atom_count" },
+                                        { "field": "heavy_atom_count" },
+                                        { "field": "molecular_weight" },
+                                        { "field": "exact_molecular_weight" },
+                                        { "field": "molecular_formula" },
+                                        { "field": "alogp" },
+                                        {
+                                            "field": "topological_polar_surface_area"
+                                        },
+                                        { "field": "rotatable_bond_count" },
+                                        { "field": "hydrogen_bond_acceptors" },
+                                        { "field": "hydrogen_bond_donors" },
+                                        {
+                                            "field": "hydrogen_bond_acceptors_lipinski"
+                                        },
+                                        {
+                                            "field": "hydrogen_bond_donors_lipinski"
+                                        },
+                                        {
+                                            "field": "lipinski_rule_of_five_violations"
+                                        },
+                                        { "field": "aromatic_rings_count" },
+                                        { "field": "qed_drug_likeliness" },
+                                        { "field": "formal_charge" },
+                                        { "field": "fractioncsp3" },
+                                        { "field": "number_of_minimal_rings" },
+                                        { "field": "van_der_walls_volume" },
+                                        { "field": "contains_sugar" },
+                                        { "field": "contains_ring_sugars" },
+                                        { "field": "contains_linear_sugars" },
+                                        { "field": "murcko_framework" },
+                                        { "field": "np_likeness" },
+                                        { "field": "chemical_class" },
+                                        { "field": "chemical_sub_class" },
+                                        { "field": "chemical_super_class" },
+                                        {
+                                            "field": "direct_parent_classification"
+                                        },
+                                        { "field": "np_classifier_pathway" },
+                                        { "field": "np_classifier_superclass" },
+                                        { "field": "np_classifier_class" },
+                                        {
+                                            "field": "np_classifier_is_glycoside"
+                                        }
+                                    ],
+                                    "includes": [{ "relation": "molecule" }],
+                                    "aggregates": [],
+                                    "instructions": [],
+                                    "gates": ["create", "update", "delete"],
+                                    "page": 1,
+                                    "limit": 10
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/properties/mutate": {
+            "post": {
+                "tags": ["Properties"],
+                "summary": "Perform a mutate request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "example": { "created": [1], "updated": [2, 3] }
+                            }
+                        }
+                    }
+                },
+                "description": "Create / Modify the database data with multiple options",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "mutate": [
+                                    {
+                                        "operation": "create",
+                                        "attributes": {
+                                            "total_atom_count": "",
+                                            "heavy_atom_count": "",
+                                            "molecular_weight": "",
+                                            "exact_molecular_weight": "",
+                                            "molecular_formula": "",
+                                            "alogp": "",
+                                            "topological_polar_surface_area": "",
+                                            "rotatable_bond_count": "",
+                                            "hydrogen_bond_acceptors": "",
+                                            "hydrogen_bond_donors": "",
+                                            "hydrogen_bond_acceptors_lipinski": "",
+                                            "hydrogen_bond_donors_lipinski": "",
+                                            "lipinski_rule_of_five_violations": "",
+                                            "aromatic_rings_count": "",
+                                            "qed_drug_likeliness": "",
+                                            "formal_charge": "",
+                                            "fractioncsp3": "",
+                                            "number_of_minimal_rings": "",
+                                            "van_der_walls_volume": "",
+                                            "contains_sugar": "",
+                                            "contains_ring_sugars": "",
+                                            "contains_linear_sugars": "",
+                                            "murcko_framework": "",
+                                            "np_likeness": "",
+                                            "chemical_class": "",
+                                            "chemical_sub_class": "",
+                                            "chemical_super_class": "",
+                                            "direct_parent_classification": "",
+                                            "np_classifier_pathway": "",
+                                            "np_classifier_superclass": "",
+                                            "np_classifier_class": "",
+                                            "np_classifier_is_glycoside": ""
+                                        },
+                                        "relations": {
+                                            "molecule": {
+                                                "operation": "update",
+                                                "key": 1
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/properties/actions/{action}": {
+            "parameters": [
+                {
+                    "name": "action",
+                    "in": "path",
+                    "description": "The action uriKey",
+                    "required": true,
+                    "schema": { "type": "string" }
+                }
+            ],
+            "post": {
+                "tags": ["Properties"],
+                "summary": "Perform an action request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "example": { "data": { "impacted": 2 } }
+                            }
+                        }
+                    }
+                },
+                "description": "Launch actions",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "search": {
+                                    "filters": [
+                                        {
+                                            "field": "has_received_welcome_notification",
+                                            "value": false
+                                        }
+                                    ]
+                                },
+                                "fields": [
+                                    {
+                                        "name": "expires_at",
+                                        "value": "2023-04-29"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/login": {
+            "post": {
+                "tags": ["Authentication"],
                 "summary": "Login endpoint",
                 "responses": {
                     "default": {
                         "description": "Login successful",
                         "content": {
-                            "application\/json": {
+                            "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "access_token": {
-                                            "type": "string"
-                                        },
-                                        "token_type": {
-                                            "type": "string"
-                                        }
+                                        "access_token": { "type": "string" },
+                                        "token_type": { "type": "string" }
                                     }
                                 }
                             }
@@ -1592,7 +1965,7 @@
                 },
                 "requestBody": {
                     "content": {
-                        "application\/json": {
+                        "application/json": {
                             "example": {
                                 "email": "john@example.com",
                                 "password": "password"
@@ -1602,59 +1975,42 @@
                 }
             }
         },
-        "\/api\/auth\/logout": {
+        "/api/auth/logout": {
             "get": {
-                "tags": [
-                    "Authentication"
-                ],
+                "tags": ["Authentication"],
                 "summary": "Logout endpoint",
                 "responses": {
                     "default": {
                         "description": "Logout successful",
                         "content": {
-                            "application\/json": {
+                            "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "logout": {
-                                            "type": "string"
-                                        }
+                                        "logout": { "type": "string" }
                                     }
                                 }
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         },
-        "\/api\/auth\/register": {
+        "/api/auth/register": {
             "post": {
-                "tags": [
-                    "Authentication"
-                ],
+                "tags": ["Authentication"],
                 "summary": "Register endpoint",
                 "responses": {
                     "default": {
                         "description": "Successfully created user",
                         "content": {
-                            "application\/json": {
+                            "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "success": {
-                                            "type": "boolean"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        },
-                                        "token": {
-                                            "type": "string"
-                                        }
+                                        "success": { "type": "boolean" },
+                                        "message": { "type": "string" },
+                                        "token": { "type": "string" }
                                     }
                                 }
                             }
@@ -1663,7 +2019,7 @@
                 },
                 "requestBody": {
                     "content": {
-                        "application\/json": {
+                        "application/json": {
                             "example": {
                                 "first_name": "John",
                                 "last_name": "Doe",
@@ -1679,28 +2035,18 @@
             }
         }
     },
-    "servers": [
-        {
-            "url": "\/",
-            "description": "The current server"
-        }
-    ],
-    "security": [],
+    "servers": [{ "url": "/", "description": "The current server" }],
+    "security": [{ "sanctum": [] }],
     "components": {
         "securitySchemes": {
-            "api_key": {
-                "scheme": "",
-                "in": "header",
-                "description": "Authentication via API key",
-                "type": "apiKey",
-                "name": "x-api-key"
-            },
             "sanctum": {
                 "scheme": "Bearer",
                 "in": "header",
+                "flows": [],
                 "description": "Enter token in format (Bearer \\<token\\>)",
                 "type": "apiKey",
-                "name": "Authorization"
+                "name": "Authorization",
+                "openIdConnectUrl": ""
             }
         }
     }
