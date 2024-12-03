@@ -48,6 +48,10 @@ class Properties extends Model implements Auditable
         'chemical_sub_class',
         'chemical_super_class',
         'direct_parent_classification',
+        'np_classifier_pathway',
+        'np_classifier_superclass',
+        'np_classifier_class',
+        'np_classifier_is_glycoside',
     ];
 
     /**
