@@ -12,6 +12,24 @@ services:
         depends_on:
             - pgsql
             - redis
+            - cm
+            # - typesense
+        volumes:
+            - www-data:/var/www
+    worker:
+        build:
+            context: .
+            dockerfile: ./resources/dc-ops/production/Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: coconut-8.3/app
+        container_name: coconut_app_worker
+        networks:
+            - coconut
+        depends_on:
+            - pgsql
+            - redis
+            - cm
             # - typesense
         volumes:
             - www-data:/var/www
@@ -69,6 +87,20 @@ services:
             - app
         volumes:
             - www-data:/var/www
+    cm:
+        image: "nfdi4chem/cheminformatics-microservice:dev-latest"
+        environment:
+            HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
+        ports:
+            - "81:80"
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:81/latest/chem/health"]
+            interval: 1m30s
+            timeout: 10s
+            retries: 20
+            start_period: 60s
+        networks:
+            - coconut
     # typesense:
     #     image: 'typesense/typesense:0.25.2'
     #     ports:

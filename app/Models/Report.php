@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\States\Report\ReportState;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,11 +33,11 @@ class Report extends Model implements Auditable
         'user_id',
         'suggested_changes',
         'is_change',
+        'doi',
     ];
 
     protected $casts = [
         'suggested_changes' => 'array',
-        // 'status' => ReportState::class,
     ];
 
     /**
@@ -70,12 +69,22 @@ class Report extends Model implements Auditable
         return $this->morphedByMany(Organism::class, 'reportable');
     }
 
+    // public function geoLocations(): MorphToMany
+    // {
+    //     return $this->morphedByMany(Organism::class, 'reportable');
+    // }
+
     /**
      * Get all of the users that are assigned this report.
      */
     public function users(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function curator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
     }
 
     public function transformAudit(array $data): array

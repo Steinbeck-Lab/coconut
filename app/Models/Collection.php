@@ -15,6 +15,7 @@ use Str;
 
 class Collection extends Model implements Auditable, HasMedia
 {
+    use HasDOI;
     use HasFactory;
     use HasTags;
     use InteractsWithMedia;
@@ -41,6 +42,7 @@ class Collection extends Model implements Auditable, HasMedia
         'image',
         'status',
         'release_date',
+        'datacite_schema',
     ];
 
     /**

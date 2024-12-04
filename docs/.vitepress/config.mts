@@ -58,6 +58,7 @@ export default defineConfig({
         text: 'Curation',
         items: [
           // { text: 'Analysis', link: '/analysis' },
+          // { text: 'Analysis', link: '/analysis' },
           { text: 'Reporting', link: '/reporting' },
           { text: 'Audit Trail', link: '/audit-trail' }
         ]
@@ -87,6 +88,16 @@ export default defineConfig({
       //     { text: 'Submission', link: '/submission-api' }
       //   ]
       // },
+      // {
+      //   text: 'API',
+      //   items: [
+      //     { text: 'Auth', link: '/auth-api' },
+      //     { text: 'Search', link: '/search-api' },
+      //     { text: 'Schemas', link: '/schemas-api' },
+      //     { text: 'Download', link: '/download-api' },
+      //     { text: 'Submission', link: '/submission-api' }
+      //   ]
+      // },
       {
         text: 'Development',
         items: [
@@ -97,6 +108,9 @@ export default defineConfig({
       {
         text: 'Contribution',
         items: [
+          { text: 'Steering Committee', link: '/steering-committee' },
+          { text: 'Developers', link: '/developers' },
+          // { text: 'Data Contributors', link: '/data-contributors' },
           { text: 'Steering Committee', link: '/steering-committee' },
           { text: 'Developers', link: '/developers' },
           // { text: 'Data Contributors', link: '/data-contributors' },

@@ -131,9 +131,6 @@ class CollectionResource extends Resource
 
     public static function getRelations(): array
     {
-        // $record = static::getOwner();
-        // dd(static::getOwner());
-        // dd(static::$model::molecules()->get());
         $arr = [
             EntriesRelationManager::class,
             CitationsRelationManager::class,

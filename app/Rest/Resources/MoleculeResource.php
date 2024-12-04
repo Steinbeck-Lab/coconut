@@ -3,6 +3,8 @@
 namespace App\Rest\Resources;
 
 use App\Rest\Resource as RestResource;
+use Lomkit\Rest\Http\Requests\RestRequest;
+use Lomkit\Rest\Relations\HasOne;
 
 class MoleculeResource extends RestResource
 {
@@ -21,11 +23,28 @@ class MoleculeResource extends RestResource
     public function fields(\Lomkit\Rest\Http\Requests\RestRequest $request): array
     {
         return [
-            'identifier',
-            'name',
-            'canonical_smiles',
             'standard_inchi',
             'standard_inchi_key',
+            'canonical_smiles',
+            'sugar_free_smiles',
+            'identifier',
+            'name',
+            'cas',
+            'iupac_name',
+            'murko_framework',
+            'structural_comments',
+
+            'name_trust_level',
+            'annotation_level',
+            'variants_count',
+
+            'status',
+            'active',
+            'has_variants',
+            'has_stereo',
+            'is_tautomer',
+            'is_parent',
+            'is_placeholder',
         ];
     }
 
@@ -36,7 +55,9 @@ class MoleculeResource extends RestResource
      */
     public function relations(\Lomkit\Rest\Http\Requests\RestRequest $request): array
     {
-        return [];
+        return [
+            HasOne::make('properties', PropertiesResource::class),
+        ];
     }
 
     /**

@@ -37,6 +37,7 @@ class SearchMolecule
         $this->query = $query;
         $this->size = $size;
         $this->type = $type;
+
         $this->sort = $sort;
         $this->tagType = $tagType;
         $this->page = $page;
@@ -61,10 +62,15 @@ class SearchMolecule
             }
             $queryType = strtolower($queryType);
 
-            $filterMap = $this->getFilterMap();
+            $filterMap = getFilterMap();
 
             if ($queryType == 'tags') {
                 $results = $this->buildTagsStatement($offset);
+            } elseif ($queryType == 'filters') {
+                $statement = $this->buildStatement($queryType, $offset, $filterMap);
+                if ($statement) {
+                    $results = $this->executeQuery($statement);
+                }
             } else {
                 $statement = $this->buildStatement($queryType, $offset, $filterMap);
                 if ($statement) {
@@ -73,11 +79,9 @@ class SearchMolecule
             }
 
             return [$results,  $this->collection, $this->organisms];
-
         } catch (QueryException $exception) {
 
             return $this->handleException($exception);
-
         }
     }
 
@@ -89,6 +93,7 @@ class SearchMolecule
         $patterns = [
             'inchi' => '/^((InChI=)?[^J][0-9BCOHNSOPrIFla+\-\(\)\\\\\/,pqbtmsih]{6,})$/i',
             'inchikey' => '/^([0-9A-Z\-]{27})$/i',  // Modified to ensure exact length
+            'parttialinchikey' => '/^([A-Z]{14})$/i',
             'smiles' => '/^([^J][0-9BCOHNSOPrIFla@+\-\[\]\(\)\\\\\/%=#$]{6,})$/i',
         ];
 
@@ -102,6 +107,8 @@ class SearchMolecule
                     return 'inchi';
                 } elseif ($type == 'inchikey' && substr($query, 14, 1) == '-' && strlen($query) == 27) {
                     return 'inchikey';
+                } elseif ($type == 'parttialinchikey' && strlen($query) == 14) {
+                    return 'parttialinchikey';
                 } elseif ($type == 'smiles') {
                     return 'smiles';
                 }
@@ -109,43 +116,6 @@ class SearchMolecule
         }
 
         return 'text';
-    }
-
-    /**
-     * Return a mapping of filter codes to database columns.
-     */
-    private function getFilterMap()
-    {
-        return [
-            'mf' => 'molecular_formula',
-            'mw' => 'molecular_weight',
-            'hac' => 'heavy_atom_count',
-            'tac' => 'total_atom_count',
-            'arc' => 'aromatic_ring_count',
-            'rbc' => 'rotatable_bond_count',
-            'mrc' => 'minimal_number_of_rings',
-            'fc' => 'formal_charge',
-            'cs' => 'contains_sugar',
-            'crs' => 'contains_ring_sugars',
-            'cls' => 'contains_linear_sugars',
-            'npl' => 'np_likeness_score',
-            'alogp' => 'alogp',
-            'topopsa' => 'topo_psa',
-            'fsp3' => 'fsp3',
-            'hba' => 'h_bond_acceptor_count',
-            'hbd' => 'h_bond_donor_count',
-            'ro5v' => 'rule_of_5_violations',
-            'lhba' => 'lipinski_h_bond_acceptor_count',
-            'lhbd' => 'lipinski_h_bond_donor_count',
-            'lro5v' => 'lipinski_rule_of_5_violations',
-            'ds' => 'found_in_databases',
-            'class' => 'chemical_class',
-            'subclass' => 'chemical_sub_class',
-            'superclass' => 'chemical_super_class',
-            'parent' => 'direct_parent_classification',
-            'org' => 'organism',
-            'cite' => 'ciatation',
-        ];
     }
 
     /**
@@ -175,6 +145,7 @@ class SearchMolecule
                 break;
 
             case 'inchikey':
+            case 'parttialinchikey':
                 $statement = "SELECT id, COUNT(*) OVER () 
                           FROM molecules 
                           WHERE standard_inchi_key LIKE '%{$this->query}%' 
@@ -262,19 +233,23 @@ class SearchMolecule
     private function buildFiltersStatement($filterMap)
     {
         $orConditions = explode('OR', $this->query);
-        $statement = 'SELECT molecule_id as id, COUNT(*) OVER () 
-                  FROM properties WHERE ';
+        $statement = 'SELECT properties.molecule_id as id, COUNT(*) OVER () 
+                  FROM properties 
+                  INNER JOIN molecules ON properties.molecule_id = molecules.id 
+                  WHERE molecules.active = TRUE 
+                  AND NOT (molecules.is_parent = TRUE AND molecules.has_variants = TRUE) 
+                  AND ';
 
-        foreach ($orConditions as $index => $orCondition) {
-            if ($index > 0) {
+        foreach ($orConditions as $outerIndex => $orCondition) {
+            if ($outerIndex > 0) {
                 $statement .= ' OR ';
             }
 
             $andConditions = explode(' ', trim($orCondition));
             $statement .= '(';
 
-            foreach ($andConditions as $index => $andCondition) {
-                if ($index > 0) {
+            foreach ($andConditions as $innerIndex => $andCondition) {
+                if ($innerIndex > 0) {
                     $statement .= ' AND ';
                 }
 
@@ -326,7 +301,7 @@ class SearchMolecule
                     WHEN \"name\"::TEXT ILIKE '%{$this->query}%' THEN 4 
                     WHEN \"synonyms\"::TEXT ILIKE '%{$this->query}%' THEN 5 
                     WHEN \"identifier\"::TEXT ILIKE '%{$this->query}%' THEN 6 
-                    ELSE 7 
+                    ELSE 7
                 END
             LIMIT {$this->size} OFFSET {$offset}";
         } else {
@@ -350,16 +325,16 @@ class SearchMolecule
 
         $ids_array = collect($hits)->pluck('id')->toArray();
         $ids = implode(',', $ids_array);
-        // dd($ids);
 
         if ($ids != '') {
 
             $statement = "
             SELECT identifier, canonical_smiles, annotation_level, name, iupac_name, organism_count, citation_count, geo_count, collection_count
             FROM molecules
-            WHERE id = ANY (array[{$ids}])
+            WHERE id = ANY (array[{$ids}]) AND active = TRUE AND NOT (is_parent = TRUE AND has_variants = TRUE)
             ORDER BY array_position(array[{$ids}], id);
             ";
+
             if ($this->sort == 'recent') {
                 $statement .= ' ORDER BY created_at DESC';
             }
