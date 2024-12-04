@@ -15,25 +15,24 @@
 [![RDKit badge](https://img.shields.io/badge/Powered%20by-RDKit-3838ff.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAFVBMVEXc3NwUFP8UPP9kZP+MjP+0tP////9ZXZotAAAAAXRSTlMAQObYZgAAAAFiS0dEBmFmuH0AAAAHdElNRQfmAwsPGi+MyC9RAAAAQElEQVQI12NgQABGQUEBMENISUkRLKBsbGwEEhIyBgJFsICLC0iIUdnExcUZwnANQWfApKCK4doRBsKtQFgKAQC5Ww1JEHSEkAAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMi0wMy0xMVQxNToyNjo0NyswMDowMDzr2J4AAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjItMDMtMTFUMTU6MjY6NDcrMDA6MDBNtmAiAAAAAElFTkSuQmCC)](https://www.rdkit.org/)
 ![Workflow](https://GitHub.com/Steinbeck-Lab/coconut/actions/workflows/dev-build.yml/badge.svg)
 [![Powered by Laravel](https://img.shields.io/badge/Powered%20by-Laravel-red.svg?style=flat&logo=Laravel)](https://laravel.com)
-[![DOI](https://zenodo.org/badge/778260166.svg)](https://zenodo.org/doi/10.5281/zenodo.13283948)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13897048.svg)](https://doi.org/10.5281/zenodo.13382750)
 
 </div>
 
-## ![About](https://www.google.com/s2/favicons?domain=naturalproducts.net) About COCONUT
+## ![About](https://www.google.com/s2/favicons?domain=coconut.naturalproducts.net) About
 
-COCONUT is an open-access database dedicated to collecting and disseminating natural products. It aims to provide researchers, scientists, and enthusiasts with comprehensive and easily accessible data on a wide variety of natural compounds. The database includes detailed information on the chemical structures, literature references and sources of these compounds, facilitating research and discovery in natural products.
+A comprehensive platform facilitating natural product research by providing data, tools, and services for deposition, curation, and reuse. It aims to provide researchers, scientists, and enthusiasts with comprehensive and easily accessible data on a wide variety of natural compounds. The database includes detailed information on the chemical structures, literature references and sources of these compounds, facilitating research and discovery in natural products.
+
+[https://coconut.naturalproducts.net/](https://coconut.naturalproducts.net/)
 
 ## ![Features](https://www.google.com/s2/favicons?domain=github.com) Features
 
-- **Extensive Database**: Contains information on thousands of natural products from diverse sources (63).
-- **Chemical Structures**: Provides detailed chemical structures for each natural product, aiding research and identification.
-- **Search and Filter**: Advanced search and filtering options to find compounds based on specific criteria easily.
-- **Online Submission and Curation**: Allows users to contribute new data, ensuring the database remains current and comprehensive.
-- **API Access**: Provides API access for seamless integration with other tools and databases.
-
-## ![Calculations](https://www.google.com/s2/favicons?domain=python.org) Descriptor calculations
-
-COCONUT data curation and descriptors calculation are performed using our [microservices](https://github.com/Steinbeck-Lab/cheminformatics-python-microservice). More details can be found in our [API documentation](https://api.naturalproducts.net/docs).
+- **Standardised data aggregation**: COCONUT 2.0 aggregates data from [more than 63 sources](https://coconut.naturalproducts.net/collections?q=) using ChEMBL curation pipeline with RDKit post-processing, standardizing molecular structures and metadata while preserving stereochemistry from sources.
+    - *Descriptor calculations*: COCONUT data curation and descriptors calculation are performed using [Cheminformatics microservice](https://docs.api.naturalproducts.net/).
+- **Comprehensive download options**: The database offers downloads in CSV, SDF, and SQL dump formats, with specialized CSV files for mass spectrometry, molecular descriptors, and substructure analyses accessible [here](https://coconut.naturalproducts.net/download).
+- **Search and Filtering**: Users can search by chemical structure (exact, substructure, similarity), text-based queries for names/SMILES, and filter by organism, chemical class, or literature references.
+- **Online Submission and Curation**: Features community-driven data submission and curation through a web interface, allowing users to submit new structures, report issues, and request changes with full audit trail tracking.
+- **API Access**: Provides a REST API compliant with OpenAPI specifications for programmatic access to chemical structures, metadata, and audit information with real-time data updates - [API documentation](https://coconut.naturalproducts.net/api-documentation).
 
 ## ![License](https://www.google.com/s2/favicons?domain=opensource.org) License
 
@@ -47,7 +46,6 @@ COCONUT infrastructure code is licensed under the MIT license - see the [LICENSE
 ### COCONUT (Legacy)
 -  Sorokina, M., Merseburger, P., Rajan, K. et al. (2021). COCONUT online: COlleCtion of Open Natural prodUcTs database. *Journal of Cheminformatics*, 13, 2. 
 https://doi.org/10.1186/s13321-020-00478-9
-
 
 ## ![Maintained](https://www.google.com/s2/favicons?domain=uni-jena.de) Maintained by
 
