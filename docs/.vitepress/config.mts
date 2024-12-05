@@ -55,6 +55,12 @@ export default defineConfig({
         ]
       },
       {
+        text: 'Rest API',
+        items: [
+          { text: 'API Documentation', link: '/api-documentation' }
+        ]
+      },
+      {
         text: 'Curation',
         items: [
           // { text: 'Analysis', link: '/analysis' },
@@ -108,9 +114,6 @@ export default defineConfig({
       {
         text: 'Contribution',
         items: [
-          { text: 'Steering Committee', link: '/steering-committee' },
-          { text: 'Developers', link: '/developers' },
-          // { text: 'Data Contributors', link: '/data-contributors' },
           { text: 'Steering Committee', link: '/steering-committee' },
           { text: 'Developers', link: '/developers' },
           // { text: 'Data Contributors', link: '/data-contributors' },

@@ -28,10 +28,9 @@ Natural products are small bioactive molecules produced by living organisms with
 ### Citing Paper
 
 ```md
-Nainala VC, Rajan K, Kanakam SRS, Sharma N, Weißenborn V, Schaub J, et al.
-COCONUT 2.0: A comprehensive overhaul and curation of the collection of open natural products database.
-ChemRxiv. 2024;
-https://doi.org/10.26434/chemrxiv-2024-fxq2s
+Venkata Chandrasekhar, Kohulan Rajan, Sri Ram Sagar Kanakam, Nisha Sharma, Viktor Weißenborn, Jonas Schaub, Christoph Steinbeck, 
+COCONUT 2.0: a comprehensive overhaul and curation of the collection of open natural products database, Nucleic Acids Research, 2024;, gkae1063, 
+https://doi.org/10.1093/nar/gkae1063
 ```
 
 ```md
