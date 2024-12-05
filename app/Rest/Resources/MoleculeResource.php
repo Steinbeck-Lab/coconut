@@ -3,7 +3,6 @@
 namespace App\Rest\Resources;
 
 use App\Rest\Resource as RestResource;
-use Lomkit\Rest\Http\Requests\RestRequest;
 use Lomkit\Rest\Relations\HasOne;
 
 class MoleculeResource extends RestResource
@@ -17,8 +16,6 @@ class MoleculeResource extends RestResource
 
     /**
      * The exposed fields that could be provided
-     *
-     * @param  RestRequest  $request
      */
     public function fields(\Lomkit\Rest\Http\Requests\RestRequest $request): array
     {
@@ -50,8 +47,6 @@ class MoleculeResource extends RestResource
 
     /**
      * The exposed relations that could be provided
-     *
-     * @param  RestRequest  $request
      */
     public function relations(\Lomkit\Rest\Http\Requests\RestRequest $request): array
     {
@@ -62,8 +57,6 @@ class MoleculeResource extends RestResource
 
     /**
      * The exposed scopes that could be provided
-     *
-     * @param  RestRequest  $request
      */
     public function scopes(\Lomkit\Rest\Http\Requests\RestRequest $request): array
     {
@@ -72,8 +65,6 @@ class MoleculeResource extends RestResource
 
     /**
      * The exposed limits that could be provided
-     *
-     * @param  RestRequest  $request
      */
     public function limits(\Lomkit\Rest\Http\Requests\RestRequest $request): array
     {
@@ -86,8 +77,6 @@ class MoleculeResource extends RestResource
 
     /**
      * The actions that should be linked
-     *
-     * @param  RestRequest  $request
      */
     public function actions(\Lomkit\Rest\Http\Requests\RestRequest $request): array
     {
@@ -96,8 +85,6 @@ class MoleculeResource extends RestResource
 
     /**
      * The instructions that should be linked
-     *
-     * @param  RestRequest  $request
      */
     public function instructions(\Lomkit\Rest\Http\Requests\RestRequest $request): array
     {
