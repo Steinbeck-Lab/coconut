@@ -2,37 +2,35 @@ services:
     app:
         build:
             context: .
-            dockerfile: ./resources/dc-ops/production/Dockerfile
-            args:
-                WWWGROUP: '${WWWGROUP}'
+            dockerfile: ./FrankenPHP.Dockerfile
         image: coconut-8.3/app
         container_name: coconut_app
+        env_file:
+            - .env
         networks:
             - coconut
+        ports:
+            - '${APP_PORT:-8000}:8000'
         depends_on:
             - pgsql
             - redis
-            - cm
-            # - typesense
-        volumes:
-            - www-data:/var/www
     worker:
         build:
             context: .
-            dockerfile: ./resources/dc-ops/production/Dockerfile
-            args:
-                WWWGROUP: '${WWWGROUP}'
+            dockerfile: ./FrankenPHP.Dockerfile
         image: coconut-8.3/app
         container_name: coconut_app_worker
+        env_file:
+            - .env
         networks:
             - coconut
         depends_on:
+            - app
             - pgsql
             - redis
-            - cm
-            # - typesense
-        volumes:
-            - www-data:/var/www
+        environment:
+            WITH_SCHEDULER: true
+            WITH_HORIZON: true
     pgsql:
         image: "informaticsmatters/rdkit-cartridge-debian:latest"
         ports:
@@ -73,55 +71,20 @@ services:
                 - ping
             retries: 3
             timeout: 5s
-    nginx:
-        build:
-            context: .
-            dockerfile: ./resources/dc-ops/nginx/Dockerfile
-        container_name: coconut_nginx
-        restart: unless-stopped
-        ports:
-            - 80:80
-        networks:
-            - coconut
-        depends_on:
-            - app
-        volumes:
-            - www-data:/var/www
-    cm:
-        image: "nfdi4chem/cheminformatics-microservice:dev-latest"
-        environment:
-            HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
-        ports:
-            - "81:80"
-        healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:81/latest/chem/health"]
-            interval: 1m30s
-            timeout: 10s
-            retries: 20
-            start_period: 60s
-        networks:
-            - coconut
-    # typesense:
-    #     image: 'typesense/typesense:0.25.2'
-    #     ports:
-    #         - '${FORWARD_TYPESENSE_PORT:-8108}:8108'
+    # cm:
+    #     image: "nfdi4chem/cheminformatics-microservice:dev-latest"
     #     environment:
-    #         TYPESENSE_DATA_DIR: '${TYPESENSE_DATA_DIR:-/typesense-data}'
-    #         TYPESENSE_API_KEY: '${TYPESENSE_API_KEY:-xyz}'
-    #         TYPESENSE_ENABLE_CORS: '${TYPESENSE_ENABLE_CORS:-true}'
-    #     volumes:
-    #         - 'coconut-typesense:/typesense-data'
+    #         HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
+    #     ports:
+    #         - "81:80"
+    #     healthcheck:
+    #         test: ["CMD", "curl", "-f", "http://localhost:81/latest/chem/health"]
+    #         interval: 1m30s
+    #         timeout: 10s
+    #         retries: 20
+    #         start_period: 60s
     #     networks:
     #         - coconut
-    #     healthcheck:
-    #         test:
-    #             - CMD
-    #             - wget
-    #             - '--no-verbose'
-    #             - '--spider'
-    #             - 'http://localhost:8108/health'
-    #         retries: 5
-    #         timeout: 7s
 networks:
     coconut:
         driver: bridge
@@ -130,7 +93,3 @@ volumes:
         driver: local
     coconut-redis:
         driver: local
-    www-data:
-        driver: local
-    # coconut-typesense:
-    #     driver: local

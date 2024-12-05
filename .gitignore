@@ -20,3 +20,6 @@ yarn-error.log
 storage/*.tsv
 storage/*.csv
 .DS_store
+**/caddy
+frankenphp
+frankenphp-worker.php
