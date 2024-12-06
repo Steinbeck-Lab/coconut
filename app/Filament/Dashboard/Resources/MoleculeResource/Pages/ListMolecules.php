@@ -19,6 +19,13 @@ class ListMolecules extends ListRecords
     {
         return [
             Actions\CreateAction::make(),
+            Actions\Action::make('openLivewireModal')
+                ->label('Structure Search')
+                ->modalHeading('Structure Search')
+                ->modalWidth('7xl')
+                ->modalContent(view('livewire.molecule-filter'))
+                ->modalSubmitAction(false)
+                ->modalCancelAction(false),
         ];
     }
 

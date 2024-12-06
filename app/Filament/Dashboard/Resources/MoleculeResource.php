@@ -13,6 +13,8 @@ use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\RelatedRe
 use App\Filament\Dashboard\Resources\MoleculeResource\Widgets\MoleculeStats;
 use App\Models\Molecule;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
+use DB;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -22,7 +24,9 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Redirect;
@@ -40,6 +44,11 @@ class MoleculeResource extends Resource
     protected static ?int $navigationSort = 3;
 
     protected static ?string $navigationIcon = 'heroicon-o-share';
+
+    public static function customActionMethod()
+    {
+        // Custom logic here
+    }
 
     public static function form(Form $form): Form
     {
@@ -101,6 +110,45 @@ class MoleculeResource extends Resource
             ->filters([
                 AdvancedFilter::make()
                     ->includeColumns(),
+                Filter::make('structure')
+                    ->form([
+                        Select::make('type')
+                            ->options([
+                                'substructure' => 'Sub Structure',
+                                'exact' => 'Exact',
+                                'similarity' => 'Similarity',
+                            ]),
+                        TextInput::make('smiles'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if ($data['type'] && $data['type'] == 'substructure' && $data['smiles']) {
+                            $statement = "SELECT id, m, 
+                                tanimoto_sml(morganbv_fp(mol_from_smiles('{$data['smiles']}')::mol), morganbv_fp(m::mol)) AS similarity 
+                            FROM mols 
+                            WHERE m@> mol_from_smiles('{$data['smiles']}')::mol 
+                            ORDER BY similarity DESC";
+
+                            $expression = DB::raw($statement);
+
+                            $string = $expression->getValue(DB::connection()->getQueryGrammar());
+
+                            $hits = DB::select($string);
+
+                            $ids_array = collect($hits)->pluck('id')->toArray();
+
+                            if (! empty($ids_array)) {
+                                $query->whereIn('id', $ids_array);
+                            }
+                        }
+
+                        return $query;
+                    })->indicateUsing(function (array $data): ?string {
+                        if (! $data['type'] && ! $data['smiles']) {
+                            return null;
+                        }
+
+                        return $data['type'].':'.$data['smiles'];
+                    }),
             ])
             ->actions([
                 ActionGroup::make([
@@ -127,7 +175,6 @@ class MoleculeResource extends Resource
                             self::changeMoleculeStatus($record, $data['reason']);
                         }),
                 ]),
-
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
