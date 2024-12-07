@@ -1,1 +1,0 @@
-import{_ as t,c as a,o as e,a2 as s}from"./chunks/framework.BY0EG3at.js";const f=JSON.parse('{"title":"Download","description":"","frontmatter":{},"headers":[],"relativePath":"download.md","filePath":"download.md"}'),o={name:"download.md"},i=s("",17),n=[i];function r(l,d,h,u,c,p){return e(),a("div",null,n)}const k=t(o,[["render",r]]);export{f as __pageData,k as default};
