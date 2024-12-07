@@ -20,5 +20,5 @@ yarn-error.log
 storage/*.tsv
 storage/*.csv
 .DS_store
-.vitepress/cache
-.vitepress/dist
+docs/.vitepress/cache
+docs/.vitepress/dist
