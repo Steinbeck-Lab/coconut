@@ -23,6 +23,7 @@
         "vitepress": "^1.2.2"
     },
     "dependencies": {
+        "d3": "^7.9.0",
         "openchemlib": "^8.13.0"
     },
     "name": "coconut",
