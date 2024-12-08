@@ -6,6 +6,7 @@ use App\Http\Controllers\MoleculeController;
 use App\Livewire\About;
 use App\Livewire\CollectionList;
 use App\Livewire\Download;
+use App\Livewire\DensityPlot;
 use App\Livewire\Guides;
 use App\Livewire\Policy;
 use App\Livewire\Search;
@@ -37,6 +38,7 @@ Route::get('/terms-of-service', Terms::class);
 Route::get('/guidelines', Guides::class);
 Route::get('/about', About::class);
 Route::get('/download', Download::class);
+Route::get('/density-plot', DensityPlot::class);
 
 Route::get('/collections', CollectionList::class)->name('collections.index');
 
