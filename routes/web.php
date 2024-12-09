@@ -9,6 +9,7 @@ use App\Livewire\Download;
 use App\Livewire\Guides;
 use App\Livewire\Policy;
 use App\Livewire\Search;
+use App\Livewire\Stats;
 use App\Livewire\Terms;
 use Illuminate\Support\Facades\Route;
 
@@ -37,6 +38,7 @@ Route::get('/terms-of-service', Terms::class);
 Route::get('/guidelines', Guides::class);
 Route::get('/about', About::class);
 Route::get('/download', Download::class);
+Route::get('/stats', Stats::class);
 
 Route::get('/collections', CollectionList::class)->name('collections.index');
 
