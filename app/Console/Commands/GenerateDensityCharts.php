@@ -46,6 +46,8 @@ class GenerateDensityCharts extends Command
         'molecules',
     ];
 
+    private $includedColumnsForCollectionStats = ['annotation_level', 'np_likeness'];
+
     public function handle()
     {
         Schema::table('collection_molecule', function (Blueprint $table) {
@@ -54,6 +56,26 @@ class GenerateDensityCharts extends Command
             }
             if (! Schema::hasIndex('collection_molecule', 'fk_collection_molecule_collection_id')) {
                 $table->index('collection_id', 'fk_collection_molecule_collection_id');
+            }
+        });
+        Schema::table('molecules', function (Blueprint $table) {
+            // Index for active and parent/variant filtering conditions
+            if (! Schema::hasIndex('molecules', 'idx_molecules_active_parent_variants')) {
+                $table->index(['active', 'is_parent', 'has_variants'], 'idx_molecules_active_parent_variants');
+            }
+        });
+
+        Schema::table('properties', function (Blueprint $table) {
+            // Index for molecule_id as it's used in joins
+            if (! Schema::hasIndex('properties', 'idx_properties_molecule_id')) {
+                $table->index('molecule_id', 'idx_properties_molecule_id');
+            }
+        });
+
+        Schema::table('collections', function (Blueprint $table) {
+            // Index for collections id and title as they're used in grouping
+            if (! Schema::hasIndex('collections', 'idx_collections_id_title')) {
+                $table->index(['id', 'title'], 'idx_collections_id_title');
             }
         });
 
@@ -72,6 +94,17 @@ class GenerateDensityCharts extends Command
         Schema::table('collection_molecule', function (Blueprint $table) {
             $table->dropIndex('idx_collection_molecule_molecule');
             $table->dropIndex('fk_collection_molecule_collection_id');
+        });
+        Schema::table('molecules', function (Blueprint $table) {
+            $table->dropIndex('idx_molecules_active_parent_variants');
+        });
+
+        Schema::table('properties', function (Blueprint $table) {
+            $table->dropIndex('idx_properties_molecule_id');
+        });
+
+        Schema::table('collections', function (Blueprint $table) {
+            $table->dropIndex('idx_collections_id_title');
         });
     }
 
@@ -240,7 +273,7 @@ class GenerateDensityCharts extends Command
         ];
 
         // For collection-wise stats
-        if (in_array($column, ['annotation_level', 'np_likeness'])) {
+        if (in_array($column, $this->includedColumnsForCollectionStats)) {
             if ($table !== 'molecules') {
                 $collectionsStats = DB::table('collections as c')
                     ->join('collection_molecule as cm', 'c.id', '=', 'cm.collection_id')
@@ -267,8 +300,8 @@ class GenerateDensityCharts extends Command
                     ->whereNotNull("m.$column")
                     ->groupBy('c.id', 'c.title')
                     ->selectRaw("
-                                            c.id as id,
-                                            c.title as title,
+                                            c.id,
+                                            c.title,
                                             MIN(m.$column) as min_val,
                                             MAX(m.$column) as max_val,
                                             AVG(m.$column) as mean,
@@ -302,8 +335,13 @@ class GenerateDensityCharts extends Command
             return null;
         }
 
+        $id = $stats->id ?? null;
         $min = $stats->min_val;
         $max = $stats->max_val;
+
+        // Check if column is integer type
+        $columnType = Schema::getColumnType($table, $column);
+        $isInteger = in_array($columnType, ['int2', 'int4', 'int8']);
 
         if ($min === $max) {
             return [
@@ -319,45 +357,106 @@ class GenerateDensityCharts extends Command
             ];
         }
 
-        $binWidth = ($max - $min) / $this->density_bins;
         $bins = [];
+        $query = '';
 
-        for ($i = 0; $i < $this->density_bins; $i++) {
-            $binStart = $min + ($i * $binWidth);
-            $binEnd = $binStart + $binWidth;
+        if ($isInteger) {
+            // For integer columns, create a bin for each discrete value
 
             if ($table != 'molecules') {
-                $count = DB::select("
-                                    SELECT count(*) as count 
-                                    FROM $table p 
-                                    JOIN molecules m ON p.molecule_id = m.id
-                                    WHERE (CAST(p.$column AS DECIMAL(10,2)) BETWEEN $binStart AND $binEnd)
-                                    AND m.active = TRUE 
-                                    AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE);
-                                ")[0]->count;
+                $query = "
+                    SELECT distinct p.$column as value, count(*) as count 
+                    FROM $table p
+                    JOIN molecules m ON p.molecule_id = m.id";
+
+                // For collection-wise stats
+                if ($id) {
+                    $query .= " JOIN collection_molecule cm ON cm.molecule_id = m.id AND cm.collection_id = $id";
+                }
+
+                $query .= " WHERE m.active = TRUE AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE)
+                    GROUP BY p.$column";
             } else {
-                $count = DB::select("
-                                    SELECT count(*) as count 
-                                    FROM $table m 
-                                    WHERE (CAST($column AS DECIMAL(10,2)) BETWEEN $binStart AND $binEnd)
-                                    AND active = TRUE 
-                                    AND NOT (is_parent = TRUE AND has_variants = TRUE);
-                                ")[0]->count;
+                $query = "
+                    SELECT distinct m.$column as value, count(*) as count 
+                    FROM $table m";
+
+                // For collection-wise stats
+                if ($id) {
+                    $query .= " JOIN collection_molecule cm ON cm.molecule_id = m.id AND cm.collection_id = $id";
+                }
+
+                $query .= " WHERE m.active = TRUE AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE)
+                    GROUP BY m.$column";
+            }
+            $result = DB::select($query);
+
+            foreach ($result as $row) {
+                $bins[] = [
+                    'x' => $row->value,
+                    'y' => $row->count,
+                    'range' => [$row->value, $row->value],
+                ];
             }
 
-            // if($count > 0){
-            $bins[] = [
-                'x' => ($binStart + $binEnd) / 2,
-                'y' => $count,
-                'range' => [$binStart, $binEnd],
-            ];
-            // }
-        }
+            // For integer values, normalize by total count only (no bin width division)
+            $totalCount = array_sum(array_column($bins, 'y'));
+            foreach ($bins as &$bin) {
+                $bin['y'] = $bin['y'] / $totalCount;
+            }
+        } else {
+            // Original continuous value logic
+            $binWidth = ($max - $min) / $this->density_bins;
 
-        // Normalize
-        $totalCount = array_sum(array_column($bins, 'y'));
-        foreach ($bins as &$bin) {
-            $bin['y'] = $bin['y'] / ($totalCount * $binWidth);
+            for ($i = 0; $i < $this->density_bins; $i++) {
+                $binStart = $min + ($i * $binWidth);
+                $binEnd = $binStart + $binWidth;
+
+                if ($table != 'molecules') {
+                    $query = "
+                        SELECT count(*) as count 
+                        FROM $table p 
+                        JOIN molecules m ON p.molecule_id = m.id";
+
+                    // For collection-wise stats
+                    if ($id) {
+                        $query .= " JOIN collection_molecule cm ON cm.molecule_id = m.id AND cm.collection_id = $id";
+                    }
+
+                    $query .= " WHERE (CAST(p.$column AS DECIMAL(10,2)) BETWEEN ? AND ?)
+                        AND m.active = TRUE 
+                        AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE)";
+
+                    $count = DB::select($query, [$binStart, $binEnd])[0]->count;
+                } else {
+                    $query = "
+                        SELECT count(*) as count 
+                        FROM $table m";
+
+                    // For collection-wise stats
+                    if ($id) {
+                        $query .= " JOIN collection_molecule cm ON cm.molecule_id = m.id AND cm.collection_id = $id";
+                    }
+
+                    $query .= " WHERE (CAST(m.$column AS DECIMAL(10,2)) BETWEEN ? AND ?)
+                        AND m.active = TRUE 
+                        AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE)";
+
+                    $count = DB::select($query, [$binStart, $binEnd])[0]->count;
+                }
+
+                $bins[] = [
+                    'x' => ($binStart + $binEnd) / 2,
+                    'y' => $count,
+                    'range' => [$binStart, $binEnd],
+                ];
+            }
+
+            // Normalize continuous values by count and bin width
+            $totalCount = array_sum(array_column($bins, 'y'));
+            foreach ($bins as &$bin) {
+                $bin['y'] = $bin['y'] / ($totalCount * $binWidth);
+            }
         }
 
         return [
@@ -368,6 +467,7 @@ class GenerateDensityCharts extends Command
                 'count' => $stats->count,
                 'mean' => $stats->mean,
                 'median' => $stats->median,
+                'is_discrete' => $isInteger,
             ],
         ];
     }
