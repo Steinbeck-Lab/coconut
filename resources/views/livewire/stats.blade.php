@@ -49,7 +49,7 @@
                                 COCONUT Analytics: Natural Product Chemical Space Exploration
                             </h1>
                             <p class="relative mt-6 text-lg leading-7 text-gray-600 sm:max-w-md lg:max-w-none">
-                            Natural product chemistry is intrinsically complex, with molecules exhibiting diverse structural features and bioactivities. This analytics dashboard provides comprehensive insights into the COCONUT (COlleCtion of Open NatUral producTs) database, enabling researchers to explore chemical space distributions, structural patterns, and property relationships across various natural product families.
+                                Natural product chemistry is intrinsically complex, with molecules exhibiting diverse structural features and bioactivities. This analytics dashboard provides comprehensive insights into the COCONUT (COlleCtion of Open NatUral producTs) database, enabling researchers to explore chemical space distributions, structural patterns, and property relationships across various natural product families.
                             </p>
                         </div>
                         <div class="mt-14 flex justify-end gap-8 sm:-mt-44 sm:justify-start sm:pl-20 lg:mt-0 lg:pl-0">
@@ -71,7 +71,7 @@
                                         class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-gray-900/10">
                                     </div>
                                 </div>
-                                
+
                             </div>
                             <div class="w-44 flex-none space-y-8 pt-32 sm:pt-0">
                                 <div class="relative">
@@ -88,11 +88,22 @@
             </div>
         </div>
 
-       <div class="mx-auto max-w-6xl pb-32 px-8 w-full">
+        <div class="mx-auto max-w-6xl pb-32 px-8 w-full">
             <livewire:density-plot />
-       </div>
-       <div class="mx-auto max-w-6xl pb-32 px-8 w-full">
+        </div>
+        <div class="mx-auto max-w-6xl pb-32 px-8 w-full">
             <livewire:annotation-score-plot />
-       </div>
+        </div>
+        <div class="ml-10 mr-10 grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+            @foreach ($properties_json_data as $name => $property)
+            @if ($name != 'np_likeness')
+            @livewire('properties-plot', [
+            'property' => $property,
+            'name' => $name
+            ])
+            @endif
+            @endforeach
+        </div>
+
     </div>
 </div>

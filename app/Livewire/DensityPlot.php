@@ -9,10 +9,6 @@ class DensityPlot extends Component
     // Making our data properties public so they're accessible in the view
     public $chartData_overall = [];
 
-    public $chartData_collections = [];
-
-    public $selectedCollections = [];
-
     public function mount()
     {
         $jsonPath = public_path('reports/density_charts.json');
@@ -31,9 +27,7 @@ class DensityPlot extends Component
 
             // Store in the public property
             $this->chartData_overall = $decodedData;
-            // $this->chartData_overall = $decodedData['properties']['np_likeness']['overall']['density_data'];
             $this->chartData_collections = $decodedData['properties']['np_likeness']['collections'];
-            // $this->chartData = $decodedData['properties']['np_likeness']['overall'];
 
         } catch (\Exception $e) {
             \Log::error('Failed to load density chart data: '.$e->getMessage());
