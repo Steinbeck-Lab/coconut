@@ -3,7 +3,10 @@
 /public/build
 /public/hot
 /public/storage
+/resources/scripts/python/20*
 /storage/*.key
+/storage/molecules_2d*
+/storage/molecules_3d*
 /vendor
 .env
 .env.backup
