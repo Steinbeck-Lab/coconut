@@ -1,9 +1,15 @@
 <div>
-    <div style="width: 100%; position: relative; height: 500px;">
+    <div>
         <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-3.5">
             NP-Likeliness (Density Plot)
         </h2>
-        <canvas id="myChart"></canvas>
+        <div class="flex flex-col md:flex-row">
+            <div style="height: 550px;" class="w-full md:w-4/5 md:h-full">
+                <canvas id="myChart"></canvas>
+            </div>
+            <div id="chartLegend" class="chart-legend-container w-full md:w-1/5 md:h-full p-4 overflow-auto">
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,10 +17,9 @@
     <script>
         const ctx = document.getElementById('myChart');
 
-        // Get the data from PHP/Livewire
+        // Data from Livewire/PHP
         const data = @js($data['properties']['np_likeness']);
 
-        // Prepare datasets
         const datasets = [{
             label: 'Overall',
             data: data.overall.density_data.map(point => ({
@@ -22,14 +27,12 @@
                 y: point.y
             })),
             borderColor: 'black',
-            backgroundColor: 'black',
             borderWidth: 2,
             pointRadius: 0,
             tension: 0.4,
             fill: false
         }];
 
-        // Add collections
         Object.entries(data.collections).forEach(([name, collection], index) => {
             datasets.push({
                 label: name,
@@ -46,7 +49,7 @@
             });
         });
 
-        new Chart(ctx, {
+        const myChart = new Chart(ctx, {
             type: 'line',
             data: {
                 datasets: datasets
@@ -54,11 +57,6 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: {
-                    mode: 'nearest',
-                    intersect: false,
-                    axis: 'xy'
-                },
                 scales: {
                     x: {
                         type: 'linear',
@@ -76,97 +74,80 @@
                     }
                 },
                 plugins: {
-                    tooltip: {
-                        enabled: false
+                    htmlLegend: {
+                        containerID: 'chartLegend'
                     },
                     legend: {
-                        position: 'right',
-                        align: 'start',
-                        labels: {
-                            textDecoration: 'none',
-                            font: {
-                                lineHeight: 1,
-                            },
-                            boxWidth: 15,
-                            padding: 8,
-                            filter: function(legendItem, data) {
-                                const dataset = data.datasets[legendItem.datasetIndex];
-                                if (dataset.hidden) {
-                                    legendItem.fillStyle = '#999';
-                                    legendItem.strokeStyle = '#999';
-                                } else {
-                                    legendItem.fillStyle = dataset.borderColor;
-                                    legendItem.strokeStyle = dataset.borderColor;
-                                }
-                                return true;
-                            }
-                        },
-                        onClick: function(e, legendItem, legend) {
-                            const index = legendItem.datasetIndex;
-                            const ci = legend.chart;
-
-                            if (index === 0) return;
-
-                            const dataset = ci.data.datasets[index];
-                            dataset.hidden = !dataset.hidden;
-
-                            if (!dataset.hidden) {
-                                dataset.borderColor = `hsl(${(index-1) * 30}, 70%, 50%)`;
-                            }
-
-                            ci.update();
-                        }
+                        display: false
                     }
                 }
             },
             plugins: [{
-                id: 'legendMargin',
+                id: 'htmlLegend',
                 beforeInit(chart) {
-                    const fitValue = chart.legend.fit;
-                    chart.legend.fit = function fit() {
-                        fitValue.bind(chart.legend)();
-                        return this.height;
-                    }
+                    const container = document.getElementById('chartLegend');
+                    if (!container) return;
+
+                    // Clear existing legend
+                    container.innerHTML = '';
+
+                    const ul = document.createElement('ul');
+                    ul.style.listStyle = 'none';
+                    ul.style.padding = 0;
+
+                    chart.data.datasets.forEach((dataset, i) => {
+                        const li = document.createElement('li');
+                        li.style.marginBottom = '8px';
+                        li.style.opacity = dataset.hidden ? '0.3' : '1';
+
+                        const button = document.createElement('button');
+                        button.style.border = 'none';
+                        button.style.background = dataset.borderColor;
+                        button.style.width = '12px';
+                        button.style.height = '12px';
+                        button.style.marginRight = '10px';
+                        button.style.cursor = 'pointer';
+
+                        const label = document.createTextNode(dataset.label);
+
+                        li.onclick = () => {
+                            dataset.hidden = !dataset.hidden;
+                            chart.update();
+                            li.style.opacity = dataset.hidden ? '0.3' : '1';
+                        };
+                        li.style.cursor = 'pointer';
+                        li.appendChild(button);
+                        li.appendChild(label);
+                        ul.appendChild(li);
+                    });
+
+                    container.appendChild(ul);
                 }
             }]
         });
-
-        // Add custom styles after chart creation
-        setTimeout(() => {
-            const legendContainer = document.querySelector('.chartjs-plugin-legend');
-            if (legendContainer) {
-                Object.assign(legendContainer.style, {
-                    maxHeight: '400px',
-                    overflowY: 'auto',
-                    paddingRight: '10px'
-                });
-            }
-        }, 100);
     </script>
 
     <style>
-        /* Target Chart.js legend container */
-        .chartjs-plugin-legend {
-            max-height: 400px !important;
-            overflow-y: auto !important;
+        .chart-legend-container {
+            margin-top: 7px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 10px;
         }
 
-        /* Scrollbar styling */
-        .chartjs-plugin-legend::-webkit-scrollbar {
-            width: 6px;
+        .chart-legend-container ul {
+            margin: 0;
+            padding: 0;
         }
 
-        .chartjs-plugin-legend::-webkit-scrollbar-track {
-            background: #f1f1f1;
+        .chart-legend-container li {
+            display: flex;
+            align-items: center;
         }
 
-        .chartjs-plugin-legend::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 3px;
-        }
-
-        .chartjs-plugin-legend::-webkit-scrollbar-thumb:hover {
-            background: #555;
+        .chart-legend-container button {
+            cursor: pointer;
         }
     </style>
+
 </div>
