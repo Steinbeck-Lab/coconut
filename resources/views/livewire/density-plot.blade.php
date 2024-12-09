@@ -21,7 +21,7 @@
         const data = @js($data['properties']['np_likeness']);
 
         const datasets = [{
-            label: 'Overall',
+            label: 'COCONUT',
             data: data.overall.density_data.map(point => ({
                 x: point.x,
                 y: point.y

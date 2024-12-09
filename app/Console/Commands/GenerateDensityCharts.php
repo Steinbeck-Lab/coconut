@@ -14,7 +14,7 @@ class GenerateDensityCharts extends Command
 
     protected $description = 'Generate density charts data for molecular tables and columns';
 
-    private $density_bins = 50;
+    private $density_bins = 30;
 
     private $columnsToSkip = [
         'properties' => [
@@ -25,10 +25,25 @@ class GenerateDensityCharts extends Command
             'created_at',
             'updated_at',
         ],
+        'molecules' => [
+            'id',
+            'name_trust_level',
+            'parent_id',
+            'variants_count',
+            'ticker',
+            'organism_count',
+            'geo_count',
+            'citation_count',
+            'collection_count',
+            'synonym_count',
+            'created_at',
+            'updated_at',
+        ],
     ];
 
     private $defaultTables = [
         'properties',
+        'molecules',
     ];
 
     public function handle()
@@ -40,7 +55,6 @@ class GenerateDensityCharts extends Command
             if (! Schema::hasIndex('collection_molecule', 'fk_collection_molecule_collection_id')) {
                 $table->index('collection_id', 'fk_collection_molecule_collection_id');
             }
-
         });
 
         $tableColumnMap = $this->parseArguments();
@@ -63,8 +77,8 @@ class GenerateDensityCharts extends Command
 
     private function determineType($dbType)
     {
-        $numericTypes = ['integer', 'float', 'decimal', 'double precision', 'numeric'];
-        $stringTypes = ['text', 'jsonb', 'character varying', 'varchar'];
+        $numericTypes = ['int2', 'int4', 'int8', 'float4', 'float8', 'numeric', 'decimal'];
+        $stringTypes = ['text', 'jsonb', 'character varying', 'varchar', 'char', 'bpchar', 'uuid'];
 
         if (in_array($dbType, $numericTypes)) {
             return 'range';
@@ -194,15 +208,30 @@ class GenerateDensityCharts extends Command
         });
 
         // For overall stats
-        $stats = DB::table($table)
-            ->selectRaw("
-                    MIN($column) as min_val,
-                    MAX($column) as max_val,
-                    AVG($column) as mean,
-                    COUNT($column) as count,
-                    PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY $column) as median
-                ")
-            ->first();
+        if ($table != 'molecules') {
+            $stats = DB::select("
+                                    SELECT MIN($column) as min_val,
+                                            MAX($column) as max_val,
+                                            AVG($column) as mean,
+                                            COUNT($column) as count,
+                                            PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY $column) as median
+                                    FROM $table p
+                                    LEFT JOIN molecules m ON p.molecule_id = m.id
+                                    WHERE m.active = TRUE 
+                                        AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE);
+                                ")[0];
+        } else {
+            $stats = DB::select("
+                                    SELECT MIN($column) as min_val,
+                                            MAX($column) as max_val,
+                                            AVG($column) as mean,
+                                            COUNT($column) as count,
+                                            PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY $column) as median
+                                    FROM $table m
+                                    WHERE m.active = TRUE 
+                                        AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE);
+                                ")[0];
+        }
 
         $statsForColumn = [
             'type' => $dataType,
@@ -211,13 +240,16 @@ class GenerateDensityCharts extends Command
         ];
 
         // For collection-wise stats
-        if ($table !== 'molecules') {
-            $collectionsStats = DB::table('collections as c')
-                ->join('collection_molecule as cm', 'c.id', '=', 'cm.collection_id')
-                ->join($table.' as p', 'cm.molecule_id', '=', 'p.molecule_id')
-                ->whereNotNull("p.$column")
-                ->groupBy('c.id', 'c.title')
-                ->selectRaw("
+        if (in_array($column, ['annotation_level', 'np_likeness'])) {
+            if ($table !== 'molecules') {
+                $collectionsStats = DB::table('collections as c')
+                    ->join('collection_molecule as cm', 'c.id', '=', 'cm.collection_id')
+                    ->join($table.' as p', 'cm.molecule_id', '=', 'p.molecule_id')
+                    ->join('molecules as m', 'p.molecule_id', '=', 'm.id')
+                    ->whereRaw('m.active = TRUE AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE)')
+                    ->whereNotNull("p.$column")
+                    ->groupBy('c.id', 'c.title')
+                    ->selectRaw("
                                             c.id,
                                             c.title,
                                             MIN(p.$column) as min_val,
@@ -226,14 +258,15 @@ class GenerateDensityCharts extends Command
                                             COUNT(p.$column) as count,
                                             PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY p.$column) as median
                                         ")
-                ->get();
-        } else {
-            $collectionsStats = DB::table('collections as c')
-                ->join('collection_molecule as cm', 'c.id', '=', 'cm.collection_id')
-                ->join($table.' as m', 'cm.molecule_id', '=', 'm.id')
-                ->whereNotNull("m.$column")
-                ->groupBy('c.id', 'c.title')
-                ->selectRaw("
+                    ->get();
+            } else {
+                $collectionsStats = DB::table('collections as c')
+                    ->join('collection_molecule as cm', 'c.id', '=', 'cm.collection_id')
+                    ->join($table.' as m', 'cm.molecule_id', '=', 'm.id')
+                    ->whereRaw('m.active = TRUE AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE)')
+                    ->whereNotNull("m.$column")
+                    ->groupBy('c.id', 'c.title')
+                    ->selectRaw("
                                             c.id as id,
                                             c.title as title,
                                             MIN(m.$column) as min_val,
@@ -242,12 +275,13 @@ class GenerateDensityCharts extends Command
                                             COUNT(m.$column) as count,
                                             PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY m.$column) as median
                                         ")
-                ->get();
-        }
+                    ->get();
+            }
 
-        foreach ($collectionsStats as $collectionStats) {
-            $statsForColumn['collections'][$collectionStats->title] = $this->getDensityStats($collectionStats, $table, $column);
-            // $this->info("For column: $column  Calculated density for collection: {$collectionStats->title}");
+            foreach ($collectionsStats as $collectionStats) {
+                $statsForColumn['collections'][$collectionStats->title] = $this->getDensityStats($collectionStats, $table, $column);
+                // $this->info("For column: $column  Calculated density for collection: {$collectionStats->title}");
+            }
         }
 
         $this->info("Calculated density for column: $column");
@@ -292,16 +326,32 @@ class GenerateDensityCharts extends Command
             $binStart = $min + ($i * $binWidth);
             $binEnd = $binStart + $binWidth;
 
-            $count = DB::table($table)
-                ->selectRaw('count(*) as count')
-                ->whereBetween($column, [$binStart, $binEnd])
-                ->pluck('count')->first();
+            if ($table != 'molecules') {
+                $count = DB::select("
+                                    SELECT count(*) as count 
+                                    FROM $table p 
+                                    JOIN molecules m ON p.molecule_id = m.id
+                                    WHERE (CAST(p.$column AS DECIMAL(10,2)) BETWEEN $binStart AND $binEnd)
+                                    AND m.active = TRUE 
+                                    AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE);
+                                ")[0]->count;
+            } else {
+                $count = DB::select("
+                                    SELECT count(*) as count 
+                                    FROM $table m 
+                                    WHERE (CAST($column AS DECIMAL(10,2)) BETWEEN $binStart AND $binEnd)
+                                    AND active = TRUE 
+                                    AND NOT (is_parent = TRUE AND has_variants = TRUE);
+                                ")[0]->count;
+            }
 
+            // if($count > 0){
             $bins[] = [
                 'x' => ($binStart + $binEnd) / 2,
                 'y' => $count,
                 'range' => [$binStart, $binEnd],
             ];
+            // }
         }
 
         // Normalize
