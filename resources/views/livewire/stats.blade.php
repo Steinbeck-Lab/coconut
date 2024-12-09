@@ -89,7 +89,10 @@
         </div>
 
        <div class="mx-auto max-w-6xl pb-32 px-8 w-full">
-        <livewire:density-plot />
+            <livewire:density-plot />
+       </div>
+       <div class="mx-auto max-w-6xl pb-32 px-8 w-full">
+            <livewire:annotation-score-plot />
        </div>
     </div>
 </div>

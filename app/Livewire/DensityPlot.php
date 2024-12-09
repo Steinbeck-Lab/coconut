@@ -52,17 +52,6 @@ class DensityPlot extends Component
         }
     }
 
-    public function toggleCollection($collection)
-    {
-        if (in_array($collection, $this->selectedCollections)) {
-            $this->selectedCollections = array_diff($this->selectedCollections, [$collection]);
-        } else {
-            $this->selectedCollections[] = $collection;
-        }
-
-        $this->dispatch('collectionsUpdated', $this->selectedCollections);
-    }
-
     public function render()
     {
         // Pass the data to the view explicitly
