@@ -294,7 +294,7 @@
                 {{ $molecules->links() }}
             </div>
 
-            <template x-if="view === 'card'">
+            <div x-show="view === 'card'">
                 <div class="items-center block p-6 bg-white">
                     <div
                         class="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-4 lg:gap-x-8">
@@ -303,8 +303,8 @@
                         @endforeach
                     </div>
                 </div>
-            </template>
-            <template x-if="view === 'table'">
+            </div>
+            <div x-show="view === 'table'">
                 <div class="relative overflow-x-auto shadow-md sm:rounded-lg border border-gray-200">
                     <table class="w-full rounded-md border-collapse">
                         <tbody>
@@ -312,12 +312,11 @@
                                 <tr>
                                     <td class="border border-gray-200 px-4 py-2 text-center" style="width: 300px;">
                                         <div class="aspect-h-3 aspect-w-3 sm:aspect-none group-hover:opacity-75">
-                                            <livewire:molecule-depict2d :name="$molecule->name" :smiles="$molecule->canonical_smiles">
-                                                <a href="{{ route('compound', $molecule->identifier) }}" wire:navigate
-                                                    class="text-blue-500 hover:underline">
-                                                    {{ $molecule->identifier }}
-                                                </a>
-
+                                            <livewire:molecule-depict2d :key="$loop->index . '_' . $molecule->identifier"  :name="$molecule->name" :smiles="$molecule->canonical_smiles">
+                                            <a href="{{ route('compound', $molecule->identifier) }}" wire:navigate
+                                                class="text-blue-500 hover:underline">
+                                                {{ $molecule->identifier }}
+                                            </a>
                                         </div>
                                     </td>
                                     <td class="border border-gray-200 px-4 py-2 text-left text-wrap align-top pt-5">
@@ -441,8 +440,7 @@
                         </tbody>
                     </table>
                 </div>
-
-            </template>
+            </div>
             <div wire:loading role="status"
                 class="border rounded-lg shadow-md opacity-90 absolute -translate-x-1/2 top-24 left-1/2 text-center justify-center">
                 <img class="w-full rounded-md" alt="loading" src="/img/loading.gif" />
