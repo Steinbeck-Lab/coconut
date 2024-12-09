@@ -3,17 +3,18 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\File;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 
 class GenerateDensityCharts extends Command
 {
     protected $signature = 'coconut:generate-density-charts {tables?* : Format: table1:col1,col2 table2:col1,col3}';
+
     protected $description = 'Generate density charts data for molecular tables and columns';
 
-    private  $density_bins = 50;
+    private $density_bins = 50;
 
     private $columnsToSkip = [
         'properties' => [
@@ -33,13 +34,13 @@ class GenerateDensityCharts extends Command
     public function handle()
     {
         Schema::table('collection_molecule', function (Blueprint $table) {
-            if (!Schema::hasIndex('collection_molecule', 'idx_collection_molecule_molecule')) {
+            if (! Schema::hasIndex('collection_molecule', 'idx_collection_molecule_molecule')) {
                 $table->index('molecule_id', 'idx_collection_molecule_molecule');
             }
-            if (!Schema::hasIndex('collection_molecule', 'fk_collection_molecule_collection_id')) {
+            if (! Schema::hasIndex('collection_molecule', 'fk_collection_molecule_collection_id')) {
                 $table->index('collection_id', 'fk_collection_molecule_collection_id');
             }
-            
+
         });
 
         $tableColumnMap = $this->parseArguments();
@@ -50,9 +51,9 @@ class GenerateDensityCharts extends Command
             mkdir(dirname($filePath), 0777, true);
         }
 
-        File::put($filePath, json_encode($densityData, JSON_PRETTY_PRINT));
+        File::put($filePath, json_encode($densityData, JSON_UNESCAPED_SLASHES));
 
-        $this->info("Density charts data saved to: public/reports/density_charts.json");
+        $this->info('Density charts data saved to: public/reports/density_charts.json');
 
         Schema::table('collection_molecule', function (Blueprint $table) {
             $table->dropIndex('idx_collection_molecule_molecule');
@@ -90,6 +91,7 @@ class GenerateDensityCharts extends Command
                     $tableColumnMap[$table] = $this->getValidColumns($table);
                 }
             }
+
             return $tableColumnMap;
         }
 
@@ -97,14 +99,16 @@ class GenerateDensityCharts extends Command
         foreach ($args as $arg) {
             [$table, $columns] = array_pad(explode(':', $arg), 2, '');
 
-            if (!Schema::hasTable($table)) {
+            if (! Schema::hasTable($table)) {
                 $this->warn("Table '$table' does not exist, skipping...");
+
                 continue;
             }
 
             // If no columns specified, use all valid numeric columns
             if (empty($columns)) {
                 $tableColumnMap[$table] = $this->getValidColumns($table);
+
                 continue;
             }
 
@@ -112,7 +116,7 @@ class GenerateDensityCharts extends Command
             $validColumns = $this->getValidColumns($table);
 
             $tableColumnMap[$table] = array_filter($requestedColumns, function ($col) use ($validColumns, $table) {
-                if (!in_array($col, $validColumns)) {
+                if (! in_array($col, $validColumns)) {
                     $columnType = Schema::getColumnType($table, $col);
                     $dataType = $this->determineType($columnType);
                     if ($dataType !== 'range') {
@@ -120,8 +124,10 @@ class GenerateDensityCharts extends Command
                     } else {
                         $this->warn("Column '$col' in table '$table' is invalid or excluded, skipping...");
                     }
+
                     return false;
                 }
+
                 return true;
             });
         }
@@ -181,8 +187,8 @@ class GenerateDensityCharts extends Command
         $statsForColumn = [];
 
         Schema::table($table, function (Blueprint $table1) use ($table, $column) {
-            $indexName = 'idx_' . $table1->getTable() . '_' . $column;
-            if (!Schema::hasIndex($table, $indexName)) {
+            $indexName = 'idx_'.$table1->getTable().'_'.$column;
+            if (! Schema::hasIndex($table, $indexName)) {
                 $table1->index([$column], $indexName);
             }
         });
@@ -201,14 +207,14 @@ class GenerateDensityCharts extends Command
         $statsForColumn = [
             'type' => $dataType,
             'overall' => $this->getDensityStats($stats, $table, $column),
-            'collections' => []
+            'collections' => [],
         ];
 
         // For collection-wise stats
         if ($table !== 'molecules') {
             $collectionsStats = DB::table('collections as c')
                 ->join('collection_molecule as cm', 'c.id', '=', 'cm.collection_id')
-                ->join($table . ' as p', 'cm.molecule_id', '=', 'p.molecule_id')
+                ->join($table.' as p', 'cm.molecule_id', '=', 'p.molecule_id')
                 ->whereNotNull("p.$column")
                 ->groupBy('c.id', 'c.title')
                 ->selectRaw("
@@ -224,7 +230,7 @@ class GenerateDensityCharts extends Command
         } else {
             $collectionsStats = DB::table('collections as c')
                 ->join('collection_molecule as cm', 'c.id', '=', 'cm.collection_id')
-                ->join($table . ' as m', 'cm.molecule_id', '=', 'm.id')
+                ->join($table.' as m', 'cm.molecule_id', '=', 'm.id')
                 ->whereNotNull("m.$column")
                 ->groupBy('c.id', 'c.title')
                 ->selectRaw("
@@ -238,7 +244,7 @@ class GenerateDensityCharts extends Command
                                         ")
                 ->get();
         }
-        
+
         foreach ($collectionsStats as $collectionStats) {
             $statsForColumn['collections'][$collectionStats->title] = $this->getDensityStats($collectionStats, $table, $column);
             // $this->info("For column: $column  Calculated density for collection: {$collectionStats->title}");
@@ -247,18 +253,18 @@ class GenerateDensityCharts extends Command
         $this->info("Calculated density for column: $column");
 
         Schema::table($table, function (Blueprint $table1) use ($table, $column) {
-            $indexName = 'idx_' . $table1->getTable() . '_' . $column;
+            $indexName = 'idx_'.$table1->getTable().'_'.$column;
             if (Schema::hasIndex($table, $indexName)) {
                 $table1->dropIndex($indexName);
             }
         });
 
-        return $statsForColumn;        
+        return $statsForColumn;
     }
 
     private function getDensityStats($stats, $table, $column)
     {
-        if (!$stats || $stats->min_val === null || $stats->count === 0) {
+        if (! $stats || $stats->min_val === null || $stats->count === 0) {
             return null;
         }
 
@@ -274,8 +280,8 @@ class GenerateDensityCharts extends Command
                     'count' => $stats->count,
                     'mean' => $stats->mean,
                     'median' => $stats->median,
-                    'single_value' => true
-                ]
+                    'single_value' => true,
+                ],
             ];
         }
 
@@ -294,7 +300,7 @@ class GenerateDensityCharts extends Command
             $bins[] = [
                 'x' => ($binStart + $binEnd) / 2,
                 'y' => $count,
-                'range' => [$binStart, $binEnd]
+                'range' => [$binStart, $binEnd],
             ];
         }
 
@@ -311,8 +317,8 @@ class GenerateDensityCharts extends Command
                 'max' => $max,
                 'count' => $stats->count,
                 'mean' => $stats->mean,
-                'median' => $stats->median
-            ]
+                'median' => $stats->median,
+            ],
         ];
     }
 }
