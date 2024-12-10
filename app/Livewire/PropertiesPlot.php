@@ -10,6 +10,17 @@ class PropertiesPlot extends Component
 
     public $name;
 
+    public $name_corrections = [
+        'van_der_walls_volume' => 'Van der Waals volume <span style="font-family: \'Times New Roman\', serif;">
+                                                                <span style="font-size: 20px;">(V<span style="font-size: 16px; position: relative;  font-style: italic;">w</span>
+                                                                )</span>
+                                                                </span>',
+        'fractioncsp3' => 'Fraction Csp3',
+        'qed_drug_likeliness' => 'QED drug likeness',
+        'hydrogen_bond_acceptors_lipinski' => 'Hydrogen bond acceptors Lipinski',
+        'hydrogen_bond_donors_lipinski' => 'Hydrogen bond donors Lipinski',
+    ];
+
     public function mount($property, $name)
     {
         $this->property = $property;
