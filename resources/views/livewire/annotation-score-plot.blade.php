@@ -1,13 +1,13 @@
 <div>
     <div>
         <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-3.5">
-            NP-Likeliness
+            Annotations Score
         </h2>
         <div class="flex flex-col md:flex-row">
             <div style="height: 550px;" class="w-full md:w-4/5 md:h-full">
-                <canvas id="myChart"></canvas>
+                <canvas id="annotations-score-plot"></canvas>
             </div>
-            <div id="chartLegend" class="chart-legend-container w-full md:w-1/5 md:h-full p-4 overflow-auto">
+            <div id="annotations-score-legend" class="chart-legend-container w-full md:w-1/5 md:h-full p-4 overflow-auto">
             </div>
         </div>
     </div>
@@ -15,14 +15,14 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-        const ctx = document.getElementById('myChart');
+        const asp = document.getElementById('annotations-score-plot');
 
         // Data from Livewire/PHP
-        const data = @js($data['properties']['np_likeness']);
+        const data_annotation = @js($data['molecules']['annotation_level']);
 
-        const datasets = [{
+        const datasets_annotation = [{
             label: 'COCONUT',
-            data: data.overall.density_data.map(point => ({
+            data: data_annotation.overall.density_data.map(point => ({
                 x: point.x,
                 y: point.y
             })),
@@ -33,8 +33,8 @@
             fill: false
         }];
 
-        Object.entries(data.collections).forEach(([name, collection], index) => {
-            datasets.push({
+        Object.entries(data_annotation.collections).forEach(([name, collection], index) => {
+            datasets_annotation.push({
                 label: name,
                 data: collection.density_data.map(point => ({
                     x: point.x,
@@ -49,10 +49,10 @@
             });
         });
 
-        const myChart = new Chart(ctx, {
+        const myChart_annotation = new Chart(asp, {
             type: 'line',
             data: {
-                datasets: datasets
+                datasets: datasets_annotation
             },
             options: {
                 responsive: true,
@@ -62,8 +62,11 @@
                         type: 'linear',
                         title: {
                             display: true,
-                            text: 'NP-likeness'
-                        }
+                            text: 'Annotations Score'
+                        },
+                        ticks: {
+                            stepSize: 1
+                        },
                     },
                     y: {
                         type: 'linear',
@@ -75,7 +78,7 @@
                 },
                 plugins: {
                     htmlLegend: {
-                        containerID: 'chartLegend'
+                        containerID: 'annotations-score-legend'
                     },
                     legend: {
                         display: false
@@ -85,7 +88,7 @@
             plugins: [{
                 id: 'htmlLegend',
                 beforeInit(chart) {
-                    const container = document.getElementById('chartLegend');
+                    const container = document.getElementById('annotations-score-legend');
                     if (!container) return;
 
                     // Clear existing legend
