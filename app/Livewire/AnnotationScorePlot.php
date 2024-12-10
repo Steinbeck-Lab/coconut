@@ -4,9 +4,10 @@ namespace App\Livewire;
 
 use Livewire\Component;
 
-class Stats extends Component
+class AnnotationScorePlot extends Component
 {
-    public $properties_json_data = [];
+    // Making our data properties public so they're accessible in the view
+    public $chartData_overall = [];
 
     public function mount()
     {
@@ -25,17 +26,30 @@ class Stats extends Component
             }
 
             // Store in the public property
-            $this->properties_json_data = $decodedData['properties'];
+            $this->chartData_overall = $decodedData;
 
         } catch (\Exception $e) {
             \Log::error('Failed to load density chart data: '.$e->getMessage());
+
+            $this->chartData = [
+                'properties' => [
+                    'alogp' => [
+                        'overall' => [
+                            'density_data' => [],
+                            'statistics' => [],
+                        ],
+                        'collections' => [],
+                    ],
+                ],
+            ];
         }
     }
 
     public function render()
     {
-        return view('livewire.stats', [
-            'properties_json_data' => $this->properties_json_data,
+        // Pass the data to the view explicitly
+        return view('livewire.annotation-score-plot', [
+            'data' => $this->chartData_overall,
         ]);
     }
 }
