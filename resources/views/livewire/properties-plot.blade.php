@@ -1,7 +1,7 @@
 <div class="w-full">
     <div>
         <h2 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl mb-3">
-            {{ ucfirst(str_replace('_', ' ', $name)) }}
+        {!! $name_corrections[$name] ?? ucfirst(str_replace('_', ' ', $name)) !!}
         </h2>
         <div class="flex flex-col">
             <div style="height: 400px;" class="w-full">

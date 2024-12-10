@@ -1,9 +1,13 @@
 <div>
     <div>
-        <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-3.5">
-            NP-Likeliness
+        <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-1">
+            NP-Likeness
+            <span class=" text-sm ">
+                (<a class="text-sm text-blue-500 hover:text-blue-600" href="http://dx.doi.org/10.1021/ci700286x" target="_blank">DOI</a>)
+            </span>
         </h2>
-        <div class="flex flex-col md:flex-row">
+
+        <div class="flex flex-col md:flex-row mt-3.5">
             <div style="height: 550px;" class="w-full md:w-4/5 md:h-full">
                 <canvas id="myChart"></canvas>
             </div>
