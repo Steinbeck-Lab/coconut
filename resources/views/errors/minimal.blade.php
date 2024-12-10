@@ -24,7 +24,7 @@
                         @yield('code')
                     </div>
 
-                    <div class="ml-4 text-lg text-gray-500 uppercase tracking-wider">
+                    <div class="ml-4 text-lg text-gray-500 tracking-wider">
                         @yield('message')
                     </div>
                 </div>
