@@ -7,4 +7,4 @@ The site will be back up shortly.
 
 Thank you for your patience!
 
-For urgent inquiries, please contact us at info.coconut@uni-jena de.'))
+For urgent inquiries, please contact us at info.coconut@uni-jena.de'))
