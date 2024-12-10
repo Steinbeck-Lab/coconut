@@ -94,16 +94,19 @@
         <div class="mx-auto max-w-6xl pb-32 px-8 w-full">
             <livewire:annotation-score-plot />
         </div>
-        <div class="ml-10 mr-10 grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-            @foreach ($properties_json_data as $name => $property)
-            @if ($name != 'np_likeness')
-            @livewire('properties-plot', [
-            'property' => $property,
-            'name' => $name
-            ])
-            @endif
-            @endforeach
+        <div class="mx-auto max-w-6xl pb-32 px-8 w-full">
+            <div class=" grid grid-cols-1 md:grid-cols-2 gap-2 p-2">
+                @foreach ($properties_json_data as $name => $property)
+                    @if ($name != 'np_likeness')
+                        @livewire('properties-plot', [
+                        'property' => $property,
+                        'name' => $name
+                        ])
+                    @endif
+                @endforeach
+            </div>
         </div>
+
 
     </div>
 </div>

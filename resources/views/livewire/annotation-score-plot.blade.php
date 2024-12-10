@@ -1,7 +1,7 @@
 <div>
     <div>
         <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-3.5">
-            Annotations Score (Density Plot)
+            Annotations Score
         </h2>
         <div class="flex flex-col md:flex-row">
             <div style="height: 550px;" class="w-full md:w-4/5 md:h-full">
