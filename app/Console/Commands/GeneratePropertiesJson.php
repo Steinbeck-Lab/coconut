@@ -113,7 +113,6 @@ class GeneratePropertiesJson extends Command
 
             // Determine the key for the JSON output
             $key = $invertedFilterMap[$column] ?? $column;
-            $columnData['key'] = $key;
 
             // Add the column data using the determined key
             $jsonOutput[$key] = $columnData;

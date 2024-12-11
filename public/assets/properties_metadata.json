@@ -5,8 +5,7 @@
         "range": {
             "min": 1,
             "max": 1071
-        },
-        "key": "tac"
+        }
     },
     "hac": {
         "type": "range",
@@ -14,8 +13,7 @@
         "range": {
             "min": 0,
             "max": 551
-        },
-        "key": "hac"
+        }
     },
     "mw": {
         "type": "range",
@@ -23,17 +21,15 @@
         "range": {
             "min": "1.01",
             "max": "7860.71"
-        },
-        "key": "mw"
+        }
     },
-    "emw": {
+    "exact_molecular_weight": {
         "type": "range",
         "label": "Exact molecular weight",
         "range": {
             "min": "1.00728",
             "max": "7855.66038"
-        },
-        "key": "emw"
+        }
     },
     "alogp": {
         "type": "range",
@@ -41,17 +37,15 @@
         "range": {
             "min": "-83.67",
             "max": "67.03"
-        },
-        "key": "alogp"
+        }
     },
-    "topopsa": {
+    "topological_polar_surface_area": {
         "type": "range",
         "label": "Topological polar surface area",
         "range": {
             "min": "0.00",
             "max": "3453.72"
-        },
-        "key": "topopsa"
+        }
     },
     "rbc": {
         "type": "range",
@@ -59,71 +53,63 @@
         "range": {
             "min": 0,
             "max": 224
-        },
-        "key": "rbc"
+        }
     },
-    "hba": {
+    "hydrogen_bond_acceptors": {
         "type": "range",
         "label": "Hydrogen bond acceptors",
         "range": {
             "min": 0,
             "max": 191
-        },
-        "key": "hba"
+        }
     },
-    "hbd": {
+    "hydrogen_bond_donors": {
         "type": "range",
         "label": "Hydrogen bond donors",
         "range": {
             "min": 0,
             "max": 116
-        },
-        "key": "hbd"
+        }
     },
-    "lhba": {
+    "hydrogen_bond_acceptors_lipinski": {
         "type": "range",
         "label": "Hydrogen bond acceptors lipinski",
         "range": {
             "min": 0,
             "max": 191
-        },
-        "key": "lhba"
+        }
     },
-    "lhbd": {
+    "hydrogen_bond_donors_lipinski": {
         "type": "range",
         "label": "Hydrogen bond donors lipinski",
         "range": {
             "min": 0,
             "max": 116
-        },
-        "key": "lhbd"
+        }
     },
-    "lro5v": {
+    "lipinski_rule_of_five_violations": {
         "type": "range",
         "label": "Lipinski rule of five violations",
         "range": {
             "min": 0,
             "max": 4
-        },
-        "key": "lro5v"
+        }
     },
-    "arc": {
+    "aromatic_rings_count": {
         "type": "range",
         "label": "Aromatic rings count",
         "range": {
             "min": 0,
             "max": 31
-        },
-        "key": "arc"
+        }
     },
-    "qed": {
+    "qed_drug_likeliness": {
         "type": "range",
         "label": "Qed drug likeliness",
         "range": {
             "min": "0.00",
             "max": "0.95"
-        },
-        "key": "qed"
+        }
     },
     "fc": {
         "type": "range",
@@ -131,35 +117,31 @@
         "range": {
             "min": -8,
             "max": 7
-        },
-        "key": "fc"
+        }
     },
-    "fcsp3": {
+    "fractioncsp3": {
         "type": "range",
         "label": "Fractioncsp3",
         "range": {
             "min": "0.00",
             "max": "1.00"
-        },
-        "key": "fcsp3"
+        }
     },
-    "mrc": {
+    "number_of_minimal_rings": {
         "type": "range",
         "label": "Number of minimal rings",
         "range": {
             "min": 0,
             "max": 51
-        },
-        "key": "mrc"
+        }
     },
-    "vdwv": {
+    "van_der_walls_volume": {
         "type": "range",
         "label": "Van der walls volume",
         "range": {
             "min": "10.14",
             "max": "5177.31"
-        },
-        "key": "vdwv"
+        }
     },
     "cs": {
         "type": "boolean",
@@ -167,8 +149,7 @@
         "values": [
             true,
             false
-        ],
-        "key": "cs"
+        ]
     },
     "crs": {
         "type": "boolean",
@@ -176,8 +157,7 @@
         "values": [
             true,
             false
-        ],
-        "key": "crs"
+        ]
     },
     "cls": {
         "type": "boolean",
@@ -185,29 +165,25 @@
         "values": [
             true,
             false
-        ],
-        "key": "cls"
+        ]
     },
     "fragments": {
         "type": "select",
         "label": "Fragments",
-        "unique_values": [],
-        "key": "fragments"
+        "unique_values": []
     },
-    "fws": {
+    "fragments_with_sugar": {
         "type": "select",
         "label": "Fragments with sugar",
-        "unique_values": [],
-        "key": "fws"
+        "unique_values": []
     },
-    "np": {
+    "np_likeness": {
         "type": "range",
         "label": "Np likeness",
         "range": {
             "min": "-3.53",
             "max": "4.12"
-        },
-        "key": "np"
+        }
     },
     "class": {
         "type": "select",
@@ -677,8 +653,7 @@
             "Vobasan alkaloids",
             "Yohimbine alkaloids",
             "Yuzurimine-type alkaloids"
-        ],
-        "key": "class"
+        ]
     },
     "subclass": {
         "type": "select",
@@ -1812,8 +1787,7 @@
             "Zearalenones",
             "p-Dioxolo[2,3-g]coumarins",
             "p-Dioxolo[2,3-h]coumarins"
-        ],
-        "key": "subclass"
+        ]
     },
     "superclass": {
         "type": "select",
@@ -1842,8 +1816,7 @@
             "Organophosphorus compounds",
             "Organosulfur compounds",
             "Phenylpropanoids and polyketides"
-        ],
-        "key": "superclass"
+        ]
     },
     "parent": {
         "type": "select",
@@ -3984,8 +3957,7 @@
             "p-Phthalate esters",
             "p-Xylenes",
             "p-Xylenols"
-        ],
-        "key": "parent"
+        ]
     },
     "np_pathway": {
         "type": "select",
@@ -3998,8 +3970,7 @@
             "Polyketides",
             "Shikimates and Phenylpropanoids",
             "Terpenoids"
-        ],
-        "key": "np_pathway"
+        ]
     },
     "np_superclass": {
         "type": "select",
@@ -4019,9 +3990,7 @@
             "Cyclic polyketides",
             "Diarylheptanoids",
             "Diazotetronic acids and derivatives",
-            "Diphenyl ethers (DPEs)",
             "Diterpenoids",
-            "Docosanoids",
             "Eicosanoids",
             "Fatty Acids and Conjugates",
             "Fatty acyl glycosides",
@@ -4029,10 +3998,8 @@
             "Fatty amides",
             "Fatty esters",
             "Flavonoids",
-            "Fluorenes",
             "Glycerolipids",
             "Glycerophospholipids",
-            "Guanidine alkaloids",
             "Histidine alkaloids",
             "Isoflavonoids",
             "Lignans",
@@ -4040,11 +4007,9 @@
             "Lysine alkaloids",
             "Macrolides",
             "Meroterpenoids",
-            "Miscellaneous alkaloids",
             "Miscellaneous polyketides",
             "Mitomycin derivatives",
             "Monoterpenoids",
-            "Mycosporine derivatives",
             "Naphthalenes",
             "Nicotinic acid alkaloids",
             "Nucleosides",
@@ -4081,14 +4046,12 @@
             "Xanthones",
             "\u03b2-lactams",
             "\u03b3-lactam-\u03b2-lactones"
-        ],
-        "key": "np_superclass"
+        ]
     },
     "np_class": {
         "type": "select",
         "label": "Np classifier class",
         "unique_values": [
-            "12-oxophytodienoic acid metabolites",
             "2-arylbenzofurans",
             "2-pyrone derivatives",
             "3-Decalinoyltetramic acids",
@@ -4098,34 +4061,25 @@
             "4-pyrone derivatives",
             "Abeoabietane diterpenoids",
             "Abeolupane triterpenoids",
-            "Abeotaxane diterpenoids",
             "Abietane diterpenoids",
             "Acetate-derived alkaloids",
             "Acetogenins",
-            "Acidic glycosphingolipids",
             "Acorane sesquiterpenoids",
             "Acridone alkaloids",
             "Actinomycins",
-            "Acutumine alkaloids",
-            "Acyclic guanidine alkaloids",
             "Acyclic monoterpenoids",
             "Acyclic triterpenoids",
             "Acyl phloroglucinols",
             "Adianane triterpenoids",
-            "Aeruginosins",
-            "Aflatoxins",
             "Africanane sesquiterpenoids",
             "Agarofuran sesquiterpenoids",
-            "Ahp-containing cyclodepsipeptides",
             "Alliacane sesquiterpenoids",
-            "Allohimachalane sesquiterpenoids",
             "Amarylidaceae alkaloids",
             "Amino cyclitols",
             "Amino fatty acids",
             "Aminoacids",
             "Aminoglycosides",
             "Aminosugars",
-            "Amphilectane diterpenoids",
             "Anabaenopeptins",
             "Androstane steroids",
             "Angucyclines",
@@ -4136,32 +4090,23 @@
             "Anthranillic acid derivatives",
             "Anthraquinones and anthrones",
             "Antimycins",
-            "Aphidicolane diterpenoids",
-            "Aplysiatoxins",
             "Apocarotenoids (C30, \u03a8-\u03a8)",
             "Apocarotenoids (\u03a8-)",
             "Apocarotenoids (\u03b2-)",
             "Apocarotenoids(\u03b5-)",
             "Aporphine alkaloids",
             "Apotirucallane triterpenoids",
-            "Aristolane sesquiterpenoids",
             "Aromadendrane sesquiterpenoids",
-            "Aromatic polyketides with side chains",
             "Arteminisin",
             "Arylnaphthalene and aryltetralin lignans",
-            "Asbestinane diterpenoids",
-            "Ascarosides",
             "Ascomycins and Rapamycins",
-            "Asperane sesterterpenoids",
             "Aspidosperma type",
             "Aspidosperma-Iboga hybrid type (Vinca alkaloids)",
-            "Asteriscane sesquiterpenoids",
             "Atisane diterpenoids",
             "Aurones",
             "Avermectins",
             "Azaphilones",
             "Azo and Azoxy alkaloids",
-            "Baccharane triterpenoids",
             "Bactoprenols",
             "Bafilomycins",
             "Bagremycins",
@@ -4171,31 +4116,19 @@
             "Benzophenones",
             "Benzoquinones",
             "Bergamotane sesquiterpenoids",
-            "Betaestacin-type sesterterpenoids",
             "Betalain alkaloids",
             "Beyerane diterpenoids",
             "Biaryl type diarylheptanoids",
-            "Bicyclic guanidine alkaloids",
-            "Bicyclogermacrane sesquiterpenoids",
-            "Bicyclohumulane sesquiterpenoids",
             "Bisabolane sesquiterpenoids",
             "Bisnaphthalenes",
             "Bleomycins",
-            "Boromycins",
-            "Botryane sesquiterpenoids",
-            "Bourbonane sesquiterpenoids",
             "Branched fatty acids",
-            "Brasilane sesquiterpenoids",
-            "Breviane diterpenoids",
-            "Briarane diterpenoids",
-            "Bryostatins",
             "Bufadienolides",
             "CDP-Glycerols",
             "Cadinane sesquiterpenoids",
             "Camphane monoterpenoids",
             "Campherenane sesquiterpenoids",
             "Cannabinoids",
-            "Capnellane sesquiterpenoids",
             "Capsaicins and Capsaicinoids",
             "Carabrane sesquiterpenoids",
             "Carane monoterpenoids",
@@ -4242,11 +4175,9 @@
             "Cephalotaxus alkaloids",
             "Cephamycins",
             "Ceramides",
-            "Cericerane sesterterpenoids",
             "Chalcones",
             "Chamigrane sesquiterpenoids",
             "Cheilanthane sesterterpenoids",
-            "Chiloscyphane sesquiterpenoids",
             "Cholane steroids",
             "Cholestane steroids",
             "Chromones",
@@ -4254,68 +4185,39 @@
             "Cinnamic acids and derivatives",
             "Cinnamoyl phenols",
             "Clavams",
-            "Clavulones",
-            "Cleistanthane diterpenoids",
-            "Clovane sesquiterpenoids",
             "Colensane and Clerodane diterpenoids",
             "Coloratane sesquiterpenoids",
             "Copaane sesquiterpenoids",
-            "Copacamphane sesquiterpenoids",
             "Corynanthe type",
             "Coumarinolignans",
             "Coumaronochromones",
             "Coumestan",
-            "Cryptophycins",
             "Cubebane sesquiterpenoids",
             "Cucurbitane triterpenoids",
-            "Cuparane sesquiterpenoids",
-            "Cyano esters",
             "Cyanogenic glycosides",
             "Cyathane diterpenoids",
             "Cyclic peptides",
             "Cyclitols",
-            "Cycloabietane diterpenoids",
-            "Cycloamphilectane diterpenoids",
-            "Cycloapotirucallane triterpenoids",
             "Cycloartane triterpenoids",
             "Cyclobisabolane sesquiterpenoids",
-            "Cycloeudesmane sesquiterpenoids",
             "Cyclofarnesane sesquiterpenoids",
-            "Cyclolaurane sesquiterpenoids",
-            "Cyclonerane sesquiterpenoids",
             "Cyclophytane diterpenoids",
-            "Cyclopiane diterpenoids",
-            "Cyclopiazonic acid-tpye tetramate alkaloids",
             "Cytochalasan alkaloids",
-            "Cytosporins",
-            "DKXanthenes and derivatives",
-            "Dactylomelane diterpenoids",
             "Dammarane and Protostane triterpenoids",
-            "Daphnane diterpenoids",
             "Daucane sesquiterpenoids",
-            "Decalins with 2-pyrones",
             "Decalins with side chains",
-            "Decipiane diterpenoids",
             "Depsides",
             "Depsidones",
             "Depsipeptides",
-            "Devadarane diterpenoids",
             "Diacylglycerols",
-            "Dialkylresorcinols",
-            "Diarylether type diarylheptanoids",
             "Dibenzocyclooctadienes lignans",
             "Dibenzylbutane lignans",
             "Dibenzylbutyrolactone lignans",
             "Dicarboxylic acids",
             "Dihydroflavonols",
-            "Dimeric phloroglucinols",
             "Dipeptides",
             "Disaccharides",
-            "Dolabellane diterpenoids",
-            "Dolastane diterpenoids",
-            "Dolichols",
             "Drimane sesquiterpenoids",
-            "Duclauxin and derivatives",
             "Dunniane sesquiterpenoids",
             "Ecdysteroids",
             "Elemane sesquiterpenoids",
@@ -4323,43 +4225,29 @@
             "Enediynes",
             "Epothilones",
             "Epoxy fatty acids",
-            "Epoxyeicosatrienoic acids",
-            "Eremane diterpenoids",
             "Eremophilane sesquiterpenoids",
             "Ergostane steroids",
             "Ergot alkaloids",
             "Ericamycins",
             "Erythromycins",
-            "Erythroxylane diterpenoids",
             "Estrane steroids",
             "Eudesmane sesquiterpenoids",
             "Eunicellane diterpenoids",
             "Farnesane sesquiterpenoids",
             "Fasamycins and derivatives",
-            "Fatty acid estolides",
             "Fatty acyl CoAs",
-            "Fatty acyl carnitines",
             "Fatty acyl glycosides of mono- and disaccharides",
-            "Fatty acyl homoserine lactones",
             "Fatty alcohols",
             "Fatty aldehydes",
-            "Fatty ethers",
-            "Fatty nitriles",
             "Fenchane monoterpenoids",
             "Fernane and Arborinane triterpenoids",
-            "Filicane triterpenoids",
             "Flavan-3-ols",
             "Flavandiols (Leucoanthocyanidins)",
             "Flavanones",
             "Flavans",
             "Flavones",
-            "Flavonolignans",
             "Flavonols",
-            "Flavonostilbenes",
             "Friedelane triterpenoids",
-            "Fukinane sesquiterpenoids",
-            "Fungal DPEs",
-            "Fungal cyclic polyketides (Miscellaneous)",
             "Furanoabietane diterpenoids",
             "Furanoid lignans",
             "Furans",
@@ -4371,50 +4259,28 @@
             "Gallotannins",
             "Gammacerane triterpenoids",
             "Germacrane sesquiterpenoids",
-            "Gersemiane diterpenoids",
             "Gibberellins",
             "Glucosinolates",
-            "Glutinane triterpenoids",
             "Glycerophosphates",
             "Glycerophosphocholines",
             "Glycerophosphoethanolamines",
-            "Glycerophosphoglycerols",
-            "Glycerophosphoglycerophosphates",
-            "Glycerophosphoglycerophosphoglycerols",
             "Glycerophosphoinositol phosphates",
             "Glycerophosphoinositolglycans",
             "Glycerophosphoinositols",
-            "Glycerophosphoserines",
             "Glycosyldiacylglycerols",
             "Glycosylglycerophospholipids",
-            "Glycosylmonoacylglycerols",
             "Gorgonane sesquiterpenoids",
-            "Grayanotoxane diterpenoids",
             "Griseofulvins",
             "Guaiane sesquiterpenoids",
-            "Guanacastane diterpenoids",
-            "Gymnomitrane sesquiterpenoids",
             "Halimane diterpenoids",
             "Halogenated hydrocarbons",
-            "Hamigerane sesquiterpenoids",
-            "Hapalindole alkaloids",
-            "Hasubanan alkaloids",
-            "Hepoxilins",
-            "Herbertane sesquiterpenoids",
-            "Heterocyclic fatty acids",
             "Himachalane sesquiterpenoids",
-            "Hirsutane sesquiterpenoids",
-            "Homoerythrina alkaloids",
             "Homofarnesane sesquiterpenoids",
             "Hopane and Moretane triterpenoids",
-            "Humbertiane sesquiterpenoids",
             "Humulane sesquiterpenoids",
             "Hydrocarbons",
             "Hydroperoxy fatty acids",
             "Hydroxy fatty acids",
-            "Hydroxy-hydroperoxyeicosapentaenoic acids",
-            "Hydroxy-hydroperoxyeicosatetraenoic acids",
-            "Hydroxy-hydroperoxyeicosatrienoic acids",
             "Iboga type",
             "Icetexane diterpenoids",
             "Illudalane sesquiterpenoids",
@@ -4428,37 +4294,22 @@
             "Ingenane diterpenoids",
             "Iphionane sesquiterpenoids",
             "Iridoids monoterpenoids",
-            "Irregular monoterpenoids",
-            "Isariotin alkaloids",
-            "Ishwarane sesquiterpenoids",
             "Isoaurones",
-            "Isocomane sesquiterpenoids",
             "Isocoumarins",
             "Isodaucane sesquiterpenoids",
             "Isoflavanones",
             "Isoflavones",
-            "Isofurans",
-            "Isoindole alkaloids",
-            "Isolactarane sesquiterpenoids",
             "Isoprostanes",
             "Isoquinoline alkaloids",
-            "Ivaxillarane sesquiterpenoids",
             "Jasmonic acids",
-            "Jatrophane diterpenoids",
-            "Jatropholane diterpenoids",
             "Kaurane and Phyllocladane diterpenoids",
             "Kavalactones and derivatives",
-            "Kempane diterpenoids",
             "Labdane diterpenoids",
-            "Lactam bearing macrolide lactones",
-            "Lactarane sesquiterpenoids",
             "Lactones",
             "Ladder polyethers",
             "Lanostane, Tirucallane and Euphane triterpenoids",
             "Lathyrane diterpenoids",
             "Laurane sesquiterpenoids",
-            "Leukotrienes",
-            "Levuglandins",
             "Limonoids",
             "Linear diarylheptanoids",
             "Linear peptides",
@@ -4466,37 +4317,20 @@
             "Linear sesterterpenoids",
             "Linear tetronates",
             "Lipopeptides",
-            "Lipoxins",
-            "Lippifoliane sesquiterpenoids",
-            "Lobane diterpenoids",
-            "Long-Chain Bicyclic Phosphotriester",
-            "Longibornane sesquiterpenoids",
             "Longifolane sesquiterpenoids",
-            "Longipinane sesquiterpenoids",
             "Luminacins and derivatives",
             "Lupane triterpenoids",
             "Macrocyclic tetramic acids",
             "Macrolide lactams",
             "Macrolide lactones",
             "Macrotetrolides",
-            "Malabaricane triterpenoids",
-            "Mangicol-type sesterterpenoids",
-            "Marasmane sesquiterpenoids",
-            "Maresins",
-            "Marine-bacterial DPEs",
             "Megastigmanes",
-            "Melithiazole and Myxothiazole derivatives",
             "Menthane monoterpenoids",
             "Merohemiterpenoids",
             "Meromonoterpenoids",
             "Merosesquiterpenoids",
-            "Meroterpenoids with 5- or 6-membered ring",
-            "Meroterpenoids with bridged ring",
-            "Methoxy fatty acids",
             "Methyl xanthones",
-            "Microcystins",
             "Minor lignans",
-            "Miscellaneous alkaloids",
             "Miscellaneous apocarotenoids",
             "Miscellaneous meroterpenoids",
             "Miscellaneous polyketides",
@@ -4504,79 +4338,41 @@
             "Monacolins and Monacolin derivatives",
             "Monoacylglycerols",
             "Monoalkylresorcinols",
-            "Monocarbocyclic sesterterpenoids",
-            "Monocyclic guanidine alkaloids",
             "Monocyclic monoterpenoids",
             "Monocyclic \u03b2-lactams",
             "Monomeric stilbenes",
             "Monosaccharides",
             "Morphinan alkaloids",
-            "Mulinane diterpenoids",
-            "Multiflorane triterpenoids",
-            "Mycolic acids",
-            "Mycosporine and Mycosporine-like amino acids",
-            "Myrsinane diterpenoids",
             "N-acyl amines",
             "N-acyl ethanolamines (endocannabinoids)",
-            "Nagilactone diterpenoids",
             "Naphthalenes and derivatives",
             "Naphthalenones",
             "Naphthoquinones",
-            "Nardosinane sesquiterpenoids",
             "Neoflavonoids",
             "Neohopane triterpenoids",
             "Neolignans",
-            "Neuroprostanes",
             "Neutral glycosphingolipids",
-            "Nitro fatty acids",
-            "Nonadrides",
-            "Norcembrane diterpenoids",
-            "Noreremophilane sesquiterpenoids",
-            "Noreudesmane sesquiterpenoids",
             "Norkaurane diterpenoids",
             "Norlabdane diterpenoids",
             "Norpimarane and Norisopimarane diterpenoids",
-            "Norsesterterpenoids",
-            "Oblogolides",
-            "Obtusane diterpenoids",
             "Oleanane triterpenoids",
             "Oligomeric phloroglucinols (phlorotannins)",
             "Oligomeric stibenes",
             "Oligomycins",
-            "Onocerane triterpenoids",
             "Open-chain polyketides",
-            "Open-chained neoflavonoids",
-            "Ophiobolane sesterterpenoids",
-            "Oplopane sesquiterpenoids",
-            "Oppositane sesquiterpenoids",
             "Orthosomycins",
-            "Other Docosanoids",
-            "Other Eicosanoids",
             "Other Octadecanoids",
             "Other indole diketopiperazine alkaloids",
-            "Other polyketide meroterpenoids",
             "Oxa-Bridged Macrolides",
             "Oxasqualenoids",
-            "Oxazole alkaloids",
             "Oxidized glycerophospholipids",
             "Oxo fatty acids",
             "Oxygenated hydrocarbons",
-            "Pachydictyane diterpenoids",
             "Pachysanane triterpenoids",
-            "Pacifigorgiane sesquiterpenoids",
-            "Panasinsane sesquiterpenoids",
-            "Paraconic acids and derivatives",
-            "Paraliane diterpenoids",
-            "Parguerane diterpenoids",
             "Patchoulane sesquiterpenoids",
             "Paulomycins and derivatives",
             "Penicillins",
-            "Pentacyclic guanidine alkaloids",
             "Pentalenane sesquiterpenoids",
-            "Pepluane diterpenoids",
-            "Peptaibols",
-            "Perforane sesquiterpenoids",
-            "Phenalens",
             "Phenanthrenes",
             "Phenazine alkaloids",
             "Phenethylisoquinoline alkaloids",
@@ -4584,16 +4380,11 @@
             "Phenylalanine-derived alkaloids",
             "Phenylethanoids",
             "Phenylethylamines",
-            "Phloroglucinol-terpene hybrids",
             "Phoslactomycins or Phosphazomycins",
-            "Phosphosphingolipids",
             "Phthalide derivatives",
             "Phytane diterpenoids",
-            "Phytofurans",
-            "Phytoprostanes",
             "Picrotoxane sesquiterpenoids",
             "Pimarane and Isopimarane diterpenoids",
-            "Pimprinine alkaloids",
             "Pinane monoterpenoids",
             "Pinguisane sesquiterpenoids",
             "Piperidine alkaloids",
@@ -4602,20 +4393,12 @@
             "Podocarpane diterpenoids",
             "Polyamines",
             "Polyene macrolides",
-            "Polyesters",
             "Polyether ionophores",
-            "Polypodane triterpenoids",
-            "Polyprenol derivatives",
             "Polyprenylated cyclic polyketides (Hop meroterpenoids)",
             "Polysaccharides",
-            "Pradimicins",
             "Pregnane steroids",
-            "Premyrsinane diterpenoids",
             "Prenyl quinone meroterpenoids",
             "Prenylated,geranylated phloroglucinols",
-            "Prenylbisabolane diterpenoids",
-            "Prenyleudesmane diterpenoids",
-            "Presilphiperfolane and Probotryane sesquiterpenoids",
             "Prezizaane sesquiterpenoids",
             "Primary amides",
             "Proanthocyanins",
@@ -4623,9 +4406,7 @@
             "Prostaglandins",
             "Protoberberine alkaloids",
             "Protoilludane sesquiterpenoids",
-            "Protopine alkaloids",
             "Pseudoguaiane sesquiterpenoids",
-            "Pseudopterane diterpenoids",
             "Pterocarpan",
             "Pulvinones",
             "Purine alkaloids",
@@ -4634,54 +4415,31 @@
             "Pyrazine and Piperazine alkaloids",
             "Pyridine alkaloids",
             "Pyrimidine nucleos(t)ides",
-            "Pyrrocidine tetramate alkaloids",
             "Pyrrole alkaloids",
             "Pyrrolidine alkaloids",
             "Pyrrolizidine alkaloids",
             "Pyrroloindole alkaloids",
             "Pyrroloquinoline alkaloids",
-            "Quadrane sesquiterpenoids",
             "Quassinoids",
             "Quinazoline alkaloids",
             "Quinoline alkaloids",
             "Quinolizidine alkaloids",
             "Resin glycosides",
-            "Resolvin Ds",
-            "Resolvin Es",
-            "Rhamnofolane diterpenoids",
             "Rhamnolipids",
-            "Rhizoxins",
-            "RiPPs-Amatoxins and Phallotoxins",
             "RiPPs-Bottromycins",
-            "RiPPs-Cyanobactins",
             "RiPPs-Lanthipeptides",
             "RiPPs-Lasso peptides",
-            "RiPPs-Microcins",
             "RiPPs-Thiopeptides",
             "Rotenoids",
             "Rotundane sesquiterpenoids",
             "Sacculatane diterpenoids",
             "Salinosporamides",
             "Santalane sesquiterpenoids",
-            "Saponaceolide triterpenoids",
             "Sativane sesquiterpenoids",
-            "Saxitoxins",
-            "Scalarane sesterterpenoids",
-            "Secoabietane diterpenoids",
-            "Secochamigrane sesquiterpenoids",
-            "Secoeudesmane sesquiterpenoids",
-            "Secogermacrane sesquiterpenoids",
             "Secoiridoid monoterpenoids",
-            "Secokaurane diterpenoids",
             "Secolabdane diterpenoids",
-            "Segetane diterpenoids",
-            "Selaginellins",
             "Serratane triterpenoids",
-            "Serrulatane and Biflorane diterpenoids",
             "Shikimic acids and derivatives",
-            "Shionane triterpenoids",
-            "Silphinane sesquiterpenoids",
-            "Silphiperfolane sesquiterpenoids",
             "Simple amide alkaloids",
             "Simple aromatic polyketides",
             "Simple coumarins",
@@ -4691,54 +4449,34 @@
             "Simple oxindole alkaloids",
             "Simple phenolic acids",
             "Simple tetramate alkaloids",
-            "Sinularane sesquiterpenoids",
-            "Sophorolipids",
             "Sorbicilinoids",
-            "Sphaerane diterpenoids",
-            "Sphaeroane diterpenoids",
-            "Sphenolobane diterpenoids",
             "Sphingoid bases",
-            "Spiroaxane sesquiterpenoids",
             "Spirodioxynaphthalenes",
             "Spirostane steroids",
             "Spirotetronate macrolides",
             "Spirovetivane sesquiterpenoids",
             "Spongiane diterpenoids",
-            "Spriromeroterpenoids",
-            "Stemona alkaloids",
             "Steroidal alkaloids",
-            "Sterpurane sesquiterpenoids",
-            "Stictane triterpenoids",
             "Stigmastane steroids",
-            "Stilbenolignans",
             "Streptothricins and derivatives",
-            "Strobilurins and derivatives",
             "Strychnos type",
             "Taraxerane triterpenoids",
             "Taxane diterpenoids",
             "Terpenoid alkaloids",
-            "Terpenoid tetrahydroisoquinoline alkaloids",
             "Tetracyclic diterpenoids",
             "Tetracyclines",
             "Tetrahydroisoquinoline alkaloids",
             "Tetraketide meroterpenoids",
-            "Tetrodotoxins",
             "Thapsane sesquiterpenoids",
             "Thia fatty acids",
             "Thiazole alkaloids",
             "Thiodiketopiperazine alkaloids",
-            "Thromboxanes",
             "Thujane monoterpenoids",
-            "Thujopsane sesquiterpenoids",
             "Tigliane diterpenoids",
             "Totarane diterpenoids",
             "Trachylobane diterpenoids",
-            "Tremulane sesquiterpenoids",
             "Triacylglycerols",
             "Trichothecane sesquiterpenoids",
-            "Tricyclic guanidine alkaloids",
-            "Triketide meroterpenoids",
-            "Trinervitane diterpenoids",
             "Tripeptides",
             "Tropane alkaloids",
             "Tropolones and derivatives (PKS)",
@@ -4747,28 +4485,19 @@
             "Unsaturated fatty acids",
             "Ursane and Taraxastane triterpenoids",
             "Usnic acid and derivatives",
-            "Valerane sesquiterpenoids",
-            "Valerenane sesquiterpenoids",
-            "Valparane diterpenoids",
             "Vancomycins and Teicoplanins",
-            "Verrucosane diterpenoids",
             "Verticillane diterpenoids",
-            "Villanovane diterpenoids",
-            "Viscidane diterpenoids",
             "Vitamin D2 and derivatives",
             "Vitamin D3 and derivatives",
             "Wax diesters",
             "Wax monoesters",
-            "Xeniaphyllane diterpenoids",
             "Xenicane diterpenoids",
             "Yohimbine-like alkaloids",
             "Zearalenones",
             "Zizaane sesquiterpenoids",
-            "m-Terphenyls",
             "p-Terphenyls",
             "pteridine alkaloids"
-        ],
-        "key": "np_class"
+        ]
     },
     "np_glycoside": {
         "type": "boolean",
@@ -4776,7 +4505,6 @@
         "values": [
             true,
             false
-        ],
-        "key": "np_glycoside"
+        ]
     }
 }

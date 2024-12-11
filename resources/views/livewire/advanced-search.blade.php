@@ -46,14 +46,14 @@
                     }
                 } else if (config.type === 'select' && Array.isArray(value)) {
                     if (value.length > 0) {
-                        parts.push(`${key}:${value.join('|').replace(/ /g, '+')}`);
+                        parts.push(`${key}:${value.join('|')}`);
                     }
                 } else if (config.type === 'boolean') {
                     if (value !== 'undefined') {
-                        parts.push(`${key}:${value}`);
+                        parts.push(`${key}=${value}`);
                     }
                 } else if (value && value !== config.default) {
-                    parts.push(`${key}:${value}.replace(/ /g, '+')`);
+                    parts.push(`${key}:${value}`);
                 }
             }
         }
