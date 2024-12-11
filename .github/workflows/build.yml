@@ -8,7 +8,7 @@
 #   - name: Chandu Nainala
 #   - email: chandu.nainala@uni-jena.de
 
-name : Build and Deploy to Dev
+name : Build COCONUT image
 
 on:
   push:
