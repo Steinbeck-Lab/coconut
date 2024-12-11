@@ -60,10 +60,6 @@ class Properties extends Model implements Auditable
      * @var array
      */
     protected $casts = [
-        'chemical_class' => 'array',
-        'chemical_sub_class' => 'array',
-        'chemical_super_class' => 'array',
-        'direct_parent_classification' => 'array',
         'pathway_results' => 'array',
         'superclass_results' => 'array',
         'class_results' => 'array',
