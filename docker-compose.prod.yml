@@ -14,12 +14,13 @@ services:
         depends_on:
             - pgsql
             - redis
+            - cm
     worker:
         build:
             context: .
             dockerfile: ./FrankenPHP.Dockerfile
         image: coconut-8.3/app
-        container_name: coconut_app_worker
+        container_name: coconut_worker
         env_file:
             - .env
         networks:
@@ -28,6 +29,7 @@ services:
             - app
             - pgsql
             - redis
+            - cm
         environment:
             WITH_SCHEDULER: true
             WITH_HORIZON: true
@@ -71,20 +73,20 @@ services:
                 - ping
             retries: 3
             timeout: 5s
-    # cm:
-    #     image: "nfdi4chem/cheminformatics-microservice:dev-latest"
-    #     environment:
-    #         HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
-    #     ports:
-    #         - "81:80"
-    #     healthcheck:
-    #         test: ["CMD", "curl", "-f", "http://localhost:81/latest/chem/health"]
-    #         interval: 1m30s
-    #         timeout: 10s
-    #         retries: 20
-    #         start_period: 60s
-    #     networks:
-    #         - coconut
+    cm:
+        image: "nfdi4chem/cheminformatics-microservice:latest-lite"
+        environment:
+            HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
+        ports:
+            - '${APP_PORT:-8001}:80'
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://cm:80/latest/chem/health"]
+            interval: 1m30s
+            timeout: 10s
+            retries: 20
+            start_period: 60s
+        networks:
+            - coconut
 networks:
     coconut:
         driver: bridge
