@@ -1,6 +1,9 @@
 services:
     app:
-        image: nfdi4chem/coconut:latest
+        build:
+            context: .
+            dockerfile: ./FrankenPHP.Dockerfile
+        image: coconut-8.3/app
         container_name: coconut_app
         env_file:
             - .env
@@ -13,7 +16,10 @@ services:
             - redis
             - cm
     worker:
-        image: nfdi4chem/coconut:latest
+        build:
+            context: .
+            dockerfile: ./FrankenPHP.Dockerfile
+        image: coconut-8.3/app
         container_name: coconut_worker
         env_file:
             - .env
