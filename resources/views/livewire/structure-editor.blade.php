@@ -141,7 +141,7 @@
                                     <div class="mt-6">
                                         <h3 class="contents text-base font-medium text-gray-900">Previous searches</h3>
                                         <ul class="mt-2">
-                                            <div class="grid grid-cols-2 gap-2">
+                                            <div class="grid grid-cols-2 gap-2 h-96 overflow-y-auto">
                                                 <template x-for="(search, index) in recentSearches"
                                                     :key="index">
                                                     <div>
