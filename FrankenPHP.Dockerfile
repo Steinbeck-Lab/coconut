@@ -20,6 +20,9 @@ ARG WWWUSER=1000
 ARG WWWGROUP=1000
 ARG TZ=UTC
 ARG APP_DIR=/var/www/html
+ARG COMPOSER_AUTH
+
+ENV COMPOSER_AUTH=$COMPOSER_AUTH
 
 ENV DEBIAN_FRONTEND=noninteractive \
     TERM=xterm-color \
@@ -109,7 +112,7 @@ USER ${USER}
 COPY --link --chown=${WWWUSER}:${WWWUSER} --from=vendor /usr/bin/composer /usr/bin/composer
 COPY --link --chown=${WWWUSER}:${WWWUSER} composer.json composer.lock ./
 
-RUN composer install \
+RUN COMPOSER_AUTH="$COMPOSER_AUTH" composer install \
     --no-dev \
     --no-interaction \
     --no-autoloader \
