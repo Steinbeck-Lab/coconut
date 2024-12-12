@@ -51,8 +51,6 @@ class GenerateBubbleFrequencyCharts extends Command
             SELECT t1.col column_values,  t1.count second_column_count   from t1 order by 2 desc limit 170;
             ");
 
-            
-
             // $bubbleFrequencyPlotData[$first_column.'|'.$second_column.'|'.uniqid()] = DB::select("
             //     WITH
             //     t1 as ($query1),

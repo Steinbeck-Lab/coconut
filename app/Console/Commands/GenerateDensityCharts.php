@@ -16,6 +16,8 @@ class GenerateDensityCharts extends Command
 
     private $density_bins = 30;
 
+    private $excluded_collections = '63';
+
     private $columnsToSkip = [
         'properties' => [
             'id',
@@ -249,9 +251,9 @@ class GenerateDensityCharts extends Command
                                             COUNT($column) as count,
                                             PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY $column) as median
                                     FROM $table p
-                                    LEFT JOIN molecules m ON p.molecule_id = m.id
-                                    WHERE m.active = TRUE 
-                                        AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE);
+                                     JOIN molecules m ON p.molecule_id = m.id
+                                    join collection_molecule cm on p.molecule_id = cm.molecule_id
+                                    WHERE m.active = TRUE AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE) and cm.collection_id!=63;
                                 ")[0];
         } else {
             $stats = DB::select("
@@ -261,8 +263,10 @@ class GenerateDensityCharts extends Command
                                             COUNT($column) as count,
                                             PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY $column) as median
                                     FROM $table m
+                                    join collection_molecule cm on m.id = cm.molecule_id
                                     WHERE m.active = TRUE 
-                                        AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE);
+                                        AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE)
+                                        and cm.collection_id!=63;
                                 ")[0];
         }
 
@@ -367,11 +371,13 @@ class GenerateDensityCharts extends Command
                 $query = "
                     SELECT distinct p.$column as value, count(*) as count 
                     FROM $table p
-                    JOIN molecules m ON p.molecule_id = m.id";
+                    JOIN molecules m ON p.molecule_id = m.id ";
 
                 // For collection-wise stats
                 if ($id) {
                     $query .= " JOIN collection_molecule cm ON cm.molecule_id = m.id AND cm.collection_id = $id";
+                } else {
+                    $query .= " JOIN collection_molecule cm ON cm.molecule_id = m.id AND cm.collection_id not in ($this->excluded_collections) ";
                 }
 
                 $query .= " WHERE m.active = TRUE AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE)
@@ -379,11 +385,13 @@ class GenerateDensityCharts extends Command
             } else {
                 $query = "
                     SELECT distinct m.$column as value, count(*) as count 
-                    FROM $table m";
+                    FROM $table m ";
 
                 // For collection-wise stats
                 if ($id) {
                     $query .= " JOIN collection_molecule cm ON cm.molecule_id = m.id AND cm.collection_id = $id";
+                } else {
+                    $query .= " JOIN collection_molecule cm ON cm.molecule_id = m.id AND cm.collection_id not in ($this->excluded_collections) ";
                 }
 
                 $query .= " WHERE m.active = TRUE AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE)
@@ -414,13 +422,15 @@ class GenerateDensityCharts extends Command
 
                 if ($table != 'molecules') {
                     $query = "
-                        SELECT count(*) as count 
+                        SELECT count(distinct m.id) as count 
                         FROM $table p 
-                        JOIN molecules m ON p.molecule_id = m.id";
+                        JOIN molecules m ON p.molecule_id = m.id ";
 
                     // For collection-wise stats
                     if ($id) {
                         $query .= " JOIN collection_molecule cm ON cm.molecule_id = m.id AND cm.collection_id = $id";
+                    } else {
+                        $query .= " JOIN collection_molecule cm ON cm.molecule_id = m.id AND cm.collection_id not in ($this->excluded_collections) ";
                     }
 
                     $query .= " WHERE (CAST(p.$column AS DECIMAL(10,2)) BETWEEN ? AND ?)
@@ -430,12 +440,14 @@ class GenerateDensityCharts extends Command
                     $count = DB::select($query, [$binStart, $binEnd])[0]->count;
                 } else {
                     $query = "
-                        SELECT count(*) as count 
-                        FROM $table m";
+                        SELECT count(distinct m.id) as count 
+                        FROM $table m ";
 
                     // For collection-wise stats
                     if ($id) {
                         $query .= " JOIN collection_molecule cm ON cm.molecule_id = m.id AND cm.collection_id = $id";
+                    } else {
+                        $query .= " JOIN collection_molecule cm ON cm.molecule_id = m.id AND cm.collection_id not in ($this->excluded_collections) ";
                     }
 
                     $query .= " WHERE (CAST(m.$column AS DECIMAL(10,2)) BETWEEN ? AND ?)
