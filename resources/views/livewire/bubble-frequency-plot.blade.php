@@ -10,14 +10,21 @@
         document.addEventListener('DOMContentLoaded', function() {
             const data = @json($chartData);
 
-            const width = 800;
-            const height = 600;
+            // Get container width
+            const container = d3.select('#{{$chartId}}');
+            const width = container.node().getBoundingClientRect().width;
+            const height = width; // Keep it square, or use a specific height if preferred
+
+            // const width = 1200;
+            // const height = 1200;
 
             // Create SVG
-            const svg = d3.select('#{{$chartId}}')
+            const svg = container
                 .append('svg')
-                .attr('width', width)
-                .attr('height', height);
+                .attr('viewBox', `0 0 ${width} ${height}`)
+                .attr('preserveAspectRatio', 'xMidYMid meet')
+                .style('width', '100%')
+                .style('height', 'auto');
 
             // Calculate radius based on total value
             const radiusScale = d3.scaleSqrt()
@@ -46,19 +53,29 @@
             const arc = d3.arc()
                 .innerRadius(0);
 
+            // Create color scale based on total count
+            const colorScale = d3.scaleSequential()
+                .domain([
+                    0,
+                    d3.max(data, d => d.first_column_count + d.second_column_count)
+                ])
+                .interpolator(d3.interpolateBlues);
+
             // Add split circles
             bubbles.each(function(d) {
                 const radius = radiusScale(d.first_column_count + d.second_column_count);
                 const g = d3.select(this);
 
+
+
                 // Prepare data for pie
                 const pieData = pie([{
                         value: d.first_column_count,
-                        color: '#99B3FF'
+                        color: colorScale(d.first_column_count + d.second_column_count)
                     },
                     {
                         value: d.second_column_count,
-                        color: '#FFB3B3'
+                        color: colorScale(d.first_column_count + d.second_column_count).replace('rgb(', 'rgba(').replace(')', ', 0.7)') // Slightly transparent for contrast
                     }
                 ]);
 
@@ -83,12 +100,11 @@
                 // Add values label
                 g.append('text')
                     .attr('text-anchor', 'middle')
-                    .attr('dy', '-0.2em') // Move text up a bit from center
+                    // .attr('dy', '-0.2em') // Move text up a bit from center
                     .style('font-size', `${radius * 0.25}px`)
                     .style('fill', '#666')
                     .style('font-weight', 'bold')
-                    .text(d => d.column_values)
-                    .call(wrapText, radius * 1.2);
+                    .text(d => d.column_values);
             });
 
             // Update bubble positions on simulation tick
@@ -96,51 +112,15 @@
                 bubbles.attr('transform', d => `translate(${d.x},${d.y})`);
             });
 
-            function wrapText(text, width) {
-                text.each(function() {
-                    const text = d3.select(this);
-                    const words = text.text().split(/\s+/);
-                    const lineHeight = 1.1;
-
-                    text.text(null);
-
-                    // Calculate total lines for vertical centering
-                    let lines = [];
-                    let currentLine = [];
-                    let tempText = text.append('tspan').attr('x', 0);
-
-                    // First pass: determine number of lines
-                    for (let word of words) {
-                        currentLine.push(word);
-                        tempText.text(currentLine.join(' '));
-
-                        if (tempText.node().getComputedTextLength() > width) {
-                            currentLine.pop();
-                            lines.push(currentLine.join(' '));
-                            currentLine = [word];
-                        }
-                    }
-                    lines.push(currentLine.join(' '));
-                    tempText.remove();
-
-                    // Calculate starting position to center vertically
-                    const totalLines = lines.length;
-                    const startDy = (-((totalLines - 1) * lineHeight) / 2) + 'em';
-
-                    // Second pass: actually create the lines
-                    let tspan = text.append('tspan')
-                        .attr('x', 0)
-                        .attr('dy', startDy)
-                        .text(lines[0]);
-
-                    for (let i = 1; i < lines.length; i++) {
-                        text.append('tspan')
-                            .attr('x', 0)
-                            .attr('dy', `${lineHeight}em`)
-                            .text(lines[i]);
-                    }
-                });
-            }
+            // Create color scale based on total count ranges
+function getColor(totalCount) {
+    if (totalCount <= 1000) return '#AED6F1';  // Light blue
+    if (totalCount <= 2500) return '#5DADE2';  // Medium blue
+    if (totalCount <= 5000) return '#27AE60';  // Green
+    if (totalCount <= 7500) return '#F4D03F';  // Yellow
+    if (totalCount <= 10000) return '#E67E22'; // Orange
+    return '#E74C3C';                          // Red
+}
         });
     </script>
 
