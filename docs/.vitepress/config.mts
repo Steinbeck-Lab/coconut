@@ -52,6 +52,7 @@ export default defineConfig({
           { text: 'Versions', link: '/versions' },
           { text: 'Data', link: '/data-base' },
           { text: 'Use Cases', link: '/use-cases' },
+          { text: '2D/3D SDFs', link: '/2d-3d-sdfs' },
         ]
       },
       {
