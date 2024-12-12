@@ -3,11 +3,13 @@
     <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-1">
         {!! $name_corrections[$firstColumnName] ?? ucfirst(str_replace('_', ' ', $firstColumnName)) !!} vs {!! $name_corrections[$secondColumnName] ?? ucfirst(str_replace('_', ' ', $secondColumnName)) !!}
     </h2>
-    <div id="{{$chartId}}" class="chart-container border rounded-lg" style="height: 600px; position: relative; overflow: auto;">
-        <div class="zoom-controls" style="position: sticky; top: 10px; right: 10px; z-index: 1000; display: flex; gap: 5px; justify-content: flex-end; padding-right: 10px;">
+    <div id="{{$chartId}}" class="chart-container border rounded-lg" style="height: 600px; position: relative;">
+        <div class="zoom-controls" style="position: absolute; top: 10px; right: 10px; z-index: 1000; display: flex; gap: 5px;">
             <button class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded">+</button>
             <button class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded">-</button>
             <button class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded">Reset</button>
+        </div>
+        <div class="svg-container" style="width: 100%; height: 100%; overflow: auto;">
         </div>
     </div>
 
@@ -16,33 +18,44 @@
         document.addEventListener('DOMContentLoaded', function() {
             const data = @json($chartData);
 
-            // Get container width
-            const container = d3.select('#{{$chartId}}');
+            // Get container dimensions
+            const container = d3.select('#{{$chartId}} .svg-container');
             const containerWidth = container.node().getBoundingClientRect().width;
-            const width = Math.max(containerWidth, 1000); // Minimum width to ensure scrolling
-            const height = Math.max(600, width); // Minimum height to ensure scrolling
+            const containerHeight = container.node().getBoundingClientRect().height;
+            
+            // Set base dimensions for the visualization
+            const baseWidth = Math.max(containerWidth, 1000);
+            const baseHeight = Math.max(containerHeight, 1000);
 
-            // Create SVG with larger dimensions
+            // Create SVG with base dimensions
             const svg = container
                 .append('svg')
-                .attr('width', width)
-                .attr('height', height)
-                .style('display', 'block'); // Ensure proper sizing
+                .attr('width', baseWidth)
+                .attr('height', baseHeight)
+                .style('min-width', '100%')
+                .style('min-height', '100%');
 
             // Add zoom container
-            const g = svg.append('g');
+            const g = svg.append('g')
+                .attr('transform', `translate(${baseWidth/2},${baseHeight/2})`);
 
             // Add zoom behavior
             const zoom = d3.zoom()
                 .scaleExtent([0.5, 5])
                 .on('zoom', (event) => {
                     g.attr('transform', event.transform);
+                    
+                    // Update SVG dimensions based on zoom
+                    const scale = event.transform.k;
+                    svg
+                        .attr('width', baseWidth * scale)
+                        .attr('height', baseHeight * scale);
                 });
 
             svg.call(zoom);
 
             // Add zoom controls functionality
-            const zoomButtons = container.selectAll('button');
+            const zoomButtons = d3.select('#{{$chartId}}').selectAll('button');
             
             // Zoom in button
             zoomButtons.nodes()[0].addEventListener('click', () => {
@@ -73,7 +86,6 @@
             // Create force simulation
             const simulation = d3.forceSimulation(data)
                 .force('charge', d3.forceManyBody().strength(5))
-                .force('center', d3.forceCenter(width / 2, height / 2))
                 .force('collision', d3.forceCollide().radius(d => radiusScale(d.first_column_count + d.second_column_count) + 2));
 
             // Function to determine if color is dark
@@ -179,6 +191,10 @@
             background: rgba(255, 255, 255, 0.9);
             border-radius: 0.5rem;
             padding: 5px;
+        }
+
+        .svg-container {
+            scroll-behavior: smooth;
         }
     </style>
 </div>
