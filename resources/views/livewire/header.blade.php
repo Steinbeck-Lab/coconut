@@ -73,6 +73,14 @@
                                         <span class="whitespace-nowrap">Codebase</span>
                                     </a>
                                 </li>
+                                <li>
+                                    <a class="text-slate-800 hover:bg-slate-50 flex items-center p-2" href="/stats" target="_blank">
+                                        <div class="flex items-center justify-center bg-white rounded shadow-sm h-7 w-7 shrink-0 mr-3">
+                                        <x-heroicon-o-chart-pie />
+                                        </div>
+                                        <span class="whitespace-nowrap">Statistics</span>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         <li class="p-4 lg:px-8">

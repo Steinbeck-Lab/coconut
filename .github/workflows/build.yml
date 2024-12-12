@@ -1,0 +1,53 @@
+
+# This worklflow will perform following actions when the code is pushed to development branch:
+# - Build the latest docker image in development.
+# - Push the latest docker image to Google Artifact Registry-Dev.
+# - Rollout the latest image in GKE.
+# 
+# Maintainers:
+#   - name: Chandu Nainala
+#   - email: chandu.nainala@uni-jena.de
+
+name : Build COCONUT image
+
+on:
+  push:
+    branches: [development]
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  REPOSITORY_NAME: coconut
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+  APP_IMAGE: coconut-app
+  REPOSITORY_NAMESPACE: nfdi4chem
+
+jobs:
+  setup-build-publish-deploy-dev:
+    name: Build & deploy to development
+    runs-on: ubuntu-latest
+    environment:
+      name: Dev
+    steps:
+    # Checkout code
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    # Login to Docker
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ env.DOCKER_HUB_USERNAME  }}
+        password: ${{ env.DOCKER_HUB_PASSWORD  }}
+
+    # Build and push the app Docker image
+    - name: Build and push App Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./FrankenPHP.Dockerfile
+        push: true
+        build-args: |
+          RELEASE_VERSION=latest
+          COMPOSER_AUTH=${{ secrets.COMPOSER_AUTH }}
+        tags: ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest

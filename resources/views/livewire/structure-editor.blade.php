@@ -5,6 +5,7 @@
     smiles: @entangle('smiles'),
     type: @entangle('type'),
     draggedFile: null,
+    recentSearches: JSON.parse(localStorage.getItem('recentSearches') || '[]'),
     fetchClipboardText() {
         navigator.clipboard.readText().then(text => {
             window.editor.setSmiles(text);
@@ -18,7 +19,7 @@
 
         const allowedExtensions = ['.mol', '.sdf'];
         const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
-        
+
         if (!allowedExtensions.includes(fileExtension)) {
             alert('Only .mol and .sdf files are allowed');
             return;
@@ -35,8 +36,28 @@
             }
         };
         reader.readAsText(file);
+    },
+    performSearch() {
+        const smiles = window.getEditorSmiles();
+        const query = { type: this.type, q: smiles };
+
+        this.recentSearches.push(query);
+        this.recentSearches = Array.from(
+            new Map(this.recentSearches.map(item => [item.q, item])).values()
+        );
+        localStorage.setItem('recentSearches', JSON.stringify(this.recentSearches));
+
+        window.location.href = `/search?type=${this.type}&q=${encodeURIComponent(smiles)}`;
+    },
+    deleteSearch(index) {
+        this.recentSearches.splice(index, 1);
+        localStorage.setItem('recentSearches', JSON.stringify(this.recentSearches));
+    },
+    loadSearch(search) {
+        this.type = search.type;
+        window.editor.setSmiles(search.q);
     }
-}" >
+}">
     <div x-init="$watch('isOpen', value => {
         if (value) {
             setTimeout(() => {
@@ -50,90 +71,120 @@
     });">
         <div x-show="isOpen" x-cloak class="fixed z-20 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
             aria-modal="true">
-            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="flex items-center justify-center min-h-screen text-center px-8">
                 <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-
-                <!-- This element is to trick the browser into centering the modal contents. -->
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
                 <div
-                    class="z-20 inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                    class="z-20 inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:w-full sm:p-6">
                     <div class="sm:flex sm:items-start">
                         <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
                             <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
                                 Structure Editor
                             </h3>
-                            <div class="py-3">
-                                <div 
-                                x-on:dragover.prevent="draggedFile = null" 
-                                x-on:drop.prevent="draggedFile = $event.dataTransfer.files[0]; handleFileUpload($event)"
-                                class="border-2 border-dashed border-gray-300 p-6 text-center mb-3"
-                            >
-                                <input 
-                                    type="file" 
-                                    accept=".mol,.sdf" 
-                                    class="hidden" 
-                                    id="fileUpload" 
-                                    x-on:change="handleFileUpload($event)"
-                                />
-                                <label for="fileUpload" class="cursor-pointer">
-                                    <p class="text-gray-600">Drag and drop .mol or .sdf files here</p>
-                                    <p class="text-sm text-gray-500 mt-2">Or click to select a file</p>
-                                </label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div class="my-4">
+                                    <div id="structureSearchEditor" class="border mb-3"
+                                        style="height: 400px; width: 100%">
+                                    </div>
+                                    <div class="py-3">
+                                        <div x-on:dragover.prevent="draggedFile = null"
+                                            x-on:drop.prevent="draggedFile = $event.dataTransfer.files[0]; handleFileUpload($event)"
+                                            class="border-2 border-dashed border-gray-300 p-6 text-center mb-3">
+                                            <input type="file" accept=".mol,.sdf" class="hidden" id="fileUpload"
+                                                x-on:change="handleFileUpload($event)" />
+                                            <label for="fileUpload" class="cursor-pointer">
+                                                <p class="text-gray-600">Drag and drop .mol or .sdf files here</p>
+                                                <p class="text-sm text-gray-500 mt-2">Or click to select a file</p>
+                                            </label>
+                                        </div>
+                                        <div @click="fetchClipboardText"
+                                            class="hover:cursor-pointer w-full text-center rounded-md shadow-sm px-4 py-2 bg-white-600 text-base font-medium hover:bg-white-700 focus:outline-none sm:w-auto sm:text-sm border">
+                                            Paste from Clipboard
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <fieldset class="mt-1">
+                                        <legend class="contents text-base font-medium text-gray-900">
+                                            Select search type
+                                        </legend>
+                                        <div class="mt-4 space-y-4">
+                                            <div class="flex items-center">
+                                                <label for="search-type-exact"
+                                                    class="block cursor-pointer text-sm font-medium text-gray-700">
+                                                    <input id="search-type-exact" name="search-type" x-model="type"
+                                                        value="exact" type="radio"
+                                                        class="mr-3 h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
+                                                    Exact match
+                                                </label>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <label for="search-type-sub"
+                                                    class="block cursor-pointer text-sm font-medium text-gray-700">
+                                                    <input id="search-type-sub" name="search-type" x-model="type"
+                                                        value="substructure" type="radio"
+                                                        class="mr-3 h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
+                                                    Substructure Search
+                                                </label>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <label for="search-type-similar"
+                                                    class="block cursor-pointer text-sm font-medium text-gray-700">
+                                                    <input id="search-type-similar" name="search-type" x-model="type"
+                                                        value="similarity" type="radio"
+                                                        class="mr-3 h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
+                                                    Similarity Search (tanimoto_threshold=0.5)
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                    <div class="mt-6">
+                                        <h3 class="contents text-base font-medium text-gray-900">Previous searches</h3>
+                                        <ul class="mt-2">
+                                            <div class="grid grid-cols-2 gap-2 h-96 overflow-y-auto">
+                                                <template x-for="(search, index) in recentSearches"
+                                                    :key="index">
+                                                    <div>
+                                                        <div
+                                                            class="group relative flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white">
+                                                            <span class="cursor-pointer" @click="loadSearch(search)">
+                                                                <img :src="`https://api.cheminf.studio/latest/depict/2D?smiles=${search.q}&height=300&width=300&CIP=true&toolkit=cdk`"
+                                                                    alt="Molecule Structure"
+                                                                    class="object-cover sm:h-36 sm:w-36 mx-auto my-2">
+                                                                <div
+                                                                    class="flex flex-1 flex-col space-y-2 p-4 border-t">
+                                                                    <span x-text="`${search.type}`"
+                                                                        class="float rounded-lg pt-0.5 text-xs/6 font-semibold whitespace-nowrap text-slate-700">
+                                                                    </span>
+                                                                    <p x-text="`${search.q}`"
+                                                                        class="text-sm text-gray-500 truncate pt-0">
+                                                                    </p>
+
+                                                                </div>
+                                                            </span>
+                                                            <button @click="deleteSearch(index)"
+                                                                class="p-2 border-t text-red-600 hover:text-red-700 text-sm font-medium hover:underline">
+                                                                Delete
+                                                            </button>
+                                                        </div>
+
+                                                    </div>
+
+                                                </template>
+                                            </div>
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
-                                <div id="structureSearchEditor" class="border mb-3" style="height: 400px; width: 100%">
-                                </div>
-                                <div 
-                                    @click="fetchClipboardText"
-                                    class="hover:cursor-pointer w-full text-center rounded-md shadow-sm px-4 py-2 bg-white-600 text-base font-medium hover:bg-white-700 focus:outline-none sm:w-auto sm:text-sm border"
-                                >
-                                    Paste from Clipboard
-                                </div>
-                            </div>
-                            <fieldset class="mt-1">
-                                <legend class="contents text-base font-medium text-gray-900">
-                                    Select search type
-                                </legend>
-                                <div class="mt-4 space-y-4">
-                                    <div class="flex items-center">
-                                        <label for="search-type-exact"
-                                            class="block cursor-pointer text-sm font-medium text-gray-700">
-                                            <input id="search-type-exact" name="search-type" x-model="type"
-                                                value="exact" type="radio"
-                                                class="mr-3 h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
-                                            Exact match
-                                        </label>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <label for="search-type-sub"
-                                            class="block cursor-pointer text-sm font-medium text-gray-700">
-                                            <input id="search-type-sub" name="search-type" x-model="type"
-                                                value="substructure" type="radio"
-                                                class="mr-3 h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
-                                            Substructure Search
-                                        </label>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <label for="search-type-similar"
-                                            class="block cursor-pointer text-sm font-medium text-gray-700">
-                                            <input id="search-type-similar" name="search-type" x-model="type"
-                                                value="similarity" type="radio"
-                                                class="mr-3 h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
-                                            Similarity Search (tanimoto_threshold=0.5)
-                                        </label>
-                                    </div>
-                                </div>
-                            </fieldset>
                         </div>
                     </div>
-                    <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                    <div class="mt-2 sm:mt-4 sm:flex sm:flex-row-reverse border-t pt-3 px-6 -mx-6">
                         <button @click="isOpen = false" type="button"
-                            class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                             Close
                         </button>
-                        <button
-                            @click="const smiles = window.getEditorSmiles(); window.location.href = `/search?type=${type}&q=${encodeURIComponent(smiles)}`"
-                            type="button"
-                            class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        <button @click="performSearch()" type="button"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
                             Search
                         </button>
                     </div>
