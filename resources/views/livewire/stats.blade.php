@@ -106,7 +106,13 @@
                 @endforeach
             </div>
         </div>
-
-
+        <div class="mx-auto max-w-6xl pb-32 px-8 w-full">
+            @foreach ($bubble_frequency_json_data as $chartName => $chartData)
+            @livewire('bubble-frequency-plot', [
+                'chartName' => $chartName,
+                'chartData' => $chartData,
+                ])
+            @endforeach
+        </div>
     </div>
 </div>
