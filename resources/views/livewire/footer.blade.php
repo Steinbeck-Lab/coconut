@@ -13,13 +13,18 @@
         <div class="mx-auto mt-16 max-w-7xl px-6 lg:px-8">
             <footer class="bg-white">
                 <div class="mx-auto max-w-7xl overflow-hidden pb-12 px-4 sm:px-6 lg:px-8">
-                    <div class="flex justify-center space-x-6"><a href="https://github.com/Steinbeck-Lab"
-                            class="text-gray-400 hover:text-gray-500"><span class="sr-only">GitHub</span><svg
-                                class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path fill-rule="evenodd"
-                                    d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-                                    clip-rule="evenodd"></path>
-                            </svg></a></div>
+                    <div class="flex justify-center space-x-6">
+                        <a target="_blank" class="flex" href="https://github.com/Steinbeck-Lab/coconut">
+                            <div class="flex items-center">
+                                <button type="button" class="ml-2 flex items-center w-full px-2 py-1 text-base font-medium text-black bg-white border -mr-1 rounded-l-md">
+                                    <svg class="my-1" width="16" height="16" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.20235 0.977013C3.67055 0.977013 0 4.64756 0 9.17936C0 12.8089 2.34792 15.8745 5.60836 16.9613C6.01847 17.0331 6.17227 16.787 6.17227 16.5717C6.17227 16.3769 6.16202 15.731 6.16202 15.044C4.10118 15.4234 3.56802 14.5416 3.40398 14.0803C3.3117 13.8444 2.91183 13.1165 2.56323 12.9217C2.27615 12.7679 1.86603 12.3885 2.55298 12.3783C3.19892 12.368 3.6603 12.9729 3.81409 13.219C4.5523 14.4596 5.73139 14.111 6.20303 13.8957C6.2748 13.3626 6.49011 13.0037 6.72593 12.7986C4.9009 12.5936 2.99386 11.8861 2.99386 8.74874C2.99386 7.85673 3.3117 7.11852 3.8346 6.54436C3.75258 6.3393 3.46549 5.49856 3.91662 4.37074C3.91662 4.37074 4.60357 4.15542 6.17227 5.21148C6.82846 5.02692 7.52566 4.93465 8.22286 4.93465C8.92006 4.93465 9.61726 5.02692 10.2734 5.21148C11.8421 4.14517 12.5291 4.37074 12.5291 4.37074C12.9802 5.49856 12.6931 6.3393 12.6111 6.54436C13.134 7.11852 13.4519 7.84648 13.4519 8.74874C13.4519 11.8964 11.5346 12.5936 9.70953 12.7986C10.0069 13.055 10.2632 13.5471 10.2632 14.3161C10.2632 15.4131 10.2529 16.2949 10.2529 16.5717C10.2529 16.787 10.4067 17.0434 10.8168 16.9613C12.4452 16.4116 13.8601 15.3651 14.8625 13.9691C15.8649 12.5732 16.4043 10.898 16.4047 9.17936C16.4047 4.64756 12.7341 0.977013 8.20235 0.977013Z" fill="#333333"></path></svg>
+                                </button>
+                                <button style="font-family: 'SF Pro Display Bold', sans-serif" type="button" class="w-full px-2 py-1 text-base font-bold text-black bg-white border rounded-r-md">
+                                    View&nbsp;on&nbsp;Github
+                                </button>
+                            </div>
+                        </a>
+                    </div>
                     <p class="mt-8 text-center text-base text-gray-400"> © 2024 COCONUT. All rights reserved. </p>
                     <div class="mt-2 text-center text-base text-gray-400"><a target="_blank" href="/terms-of-service"
                             class="underline text-sm text-gray-600 hover:text-gray-900">Terms of Service</a> and <a

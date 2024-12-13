@@ -136,19 +136,28 @@
             <section class="space-y-6 lg:col-span-2 lg:col-start-1 order-2 lg:order-1">
                 @if ($molecule->organisms && count($molecule->organisms) > 0)
                 <section>
-                    <div class="bg-white border shadow sm:rounded-lg" x-data="{ showAll: false }">
+                    <div class="bg-white border shadow sm:rounded-lg" x-data="{ showAll: false, searchTerm: '' }">
                         <div class="px-4 py-5 sm:px-6">
-                            <h2 id="applicant-information-title"
-                                class="text-lg font-medium leading-6 text-gray-900">
+                            <h2 id="applicant-information-title" class="text-lg font-medium leading-6 text-gray-900">
                                 Organisms ({{ count($molecule->organisms) }})
                             </h2>
                         </div>
                         <div class="border-t border-gray-200">
                             <div class="no-scrollbar px-4 py-4 lg:px-8 min-w-0">
+                                <!-- Search Bar -->
+                                <div class="mb-4">
+                                    <input 
+                                        type="text" 
+                                        x-model="searchTerm" 
+                                        placeholder="Search organisms..." 
+                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-secondary-dark focus:ring-secondary-dark sm:text-sm"
+                                    />
+                                </div>
                                 <ul role="list" class="mt-2 leading-8">
                                     @foreach ($molecule->organisms as $index => $organism)
                                     @if ($organism != '')
-                                    <li class="inline" x-show="showAll || {{ $index }} < 10">
+                                    <li class="inline" 
+                                        x-show="(showAll || {{ $index }} < 10) && (searchTerm === '' || '{{ strtolower($organism->name) }}'.includes(searchTerm.toLowerCase()))">
                                         <span class="isolate inline-flex rounded-md shadow-sm mb-2">
                                             <a href="/search?type=tags&amp;q={{ urlencode($organism->name) }}&amp;tagType=organisms"
                                                 target="_blank"
@@ -169,9 +178,9 @@
                                                     stroke="currentColor" class="size-4">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                                                </svg>
-                                            </a>
-                                        </span>
+                                                    </svg>
+                                                </a>
+                                            </span>
                                     </li>
                                     @endif
                                     @endforeach

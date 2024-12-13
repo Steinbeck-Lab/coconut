@@ -12,10 +12,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
         $schedule->command('coconut:entries-process')->everyMinute()->withoutOverlapping();
         $schedule->command('coconut:entries-import')->everyMinute()->withoutOverlapping();
-        $schedule->command('app:dash-widgets-refresh')->everyFifteenMinutes()->withoutOverlapping();
+        $schedule->command('coconut:cache')->everyFifteenMinutes()->withoutOverlapping();
     }
 
     /**

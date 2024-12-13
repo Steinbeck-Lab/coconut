@@ -52,8 +52,17 @@
         </div>
 
     </fieldset>
-    <img alt="{{ $this->name }}" class="mx-auto w-100"
-        :src="'{{ $this->source }}&toolkit=' + toolkit + '&CIP=true&unicolor=false'" alt="smiles" />
-
-
+    <img 
+        alt="{{ $this->name }}" 
+        class="mx-auto w-100"
+        x-data="{ highlightParam: '' }"
+        x-init="
+            let urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('type') && urlParams.get('type') == 'substructure' && urlParams.has('q')) {
+                highlightParam = '&highlight=' + urlParams.get('q');
+            }
+        "
+        :src="'{{ $this->source }}&toolkit=' + toolkit + '&CIP=true&unicolor=false' + highlightParam" 
+        alt="smiles" 
+    />
 </div>

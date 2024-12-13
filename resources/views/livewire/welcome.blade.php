@@ -268,7 +268,6 @@
             </div>
         </div>
     </div>
-
     <div class="bg-gray-900">
         <div class="mx-auto max-w-7xl">
             <div class="grid grid-cols-1 gap-px bg-white/5 sm:grid-cols-2 lg:grid-cols-4">
@@ -435,7 +434,7 @@
     <livewire:faqs lazy="on-load" />
     <div class="bg-gray-900 border-y">
         <div
-            class="mx-auto max-w-4xl py-16 px-10 sm:px-10 sm:py-24 lg:flex lg:max-w-7xl lg:items-center lg:justify-between lg:px-8">
+            class="mx-auto max-w-4xl py-16 px-10 sm:px-10 sm:py-24 lg:flex lg:max-w-6xl lg:items-center lg:justify-between lg:px-8">
             <div>
                 <h2 class="text-4xl font-bold tracking-tight text-white sm:text-4xl"><span class="block">Want to
                         contribute?</span><span
