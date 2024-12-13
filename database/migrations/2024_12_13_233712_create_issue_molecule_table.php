@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('issue_id');
             $table->foreignId('molecule_id');
             $table->boolean('is_active')->default(true);
-            $table->boolean('is_fixed')->default(false);
+            $table->boolean('is_resolved')->default(false);
             $table->timestamps();
         });
     }

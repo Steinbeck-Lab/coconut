@@ -18,21 +18,19 @@ class IssuesRelationManager extends RelationManager
             ->schema([
                 Forms\Components\TextInput::make('title')
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('comment')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('is_active')
-                    ->label('Active')
+                    ->maxLength(255)
+                    ->columnSpanFull(),
+                Forms\Components\TextArea::make('comment')
                     ->required()
                     ->maxLength(255)
+                    ->columnSpanFull(),
+                Forms\Components\Toggle::make('is_acive')
+                    ->label('Active')
                     ->hidden(function (string $operation) {
                         return $operation == 'create';
                     }),
-                Forms\Components\TextInput::make('is_fixed')
-                    ->label('Fixed')
-                    ->required()
-                    ->maxLength(255)
+                Forms\Components\Toggle::make('is_resolved')
+                    ->label('Resolved')
                     ->hidden(function (string $operation) {
                         return $operation == 'create';
                     }),
@@ -53,8 +51,8 @@ class IssuesRelationManager extends RelationManager
                             return $state ? 'Yes' : 'No';
                         }
                     ),
-                Tables\Columns\TextColumn::make('is_fixed')
-                    ->label('Fixed')
+                Tables\Columns\TextColumn::make('is_resolved')
+                    ->label('Resolved')
                     ->formatStateUsing(
                         function (string $state) {
                             return $state ? 'Yes' : 'No';
@@ -75,11 +73,11 @@ class IssuesRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DetachAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DetachBulkAction::make(),
                 ]),
             ]);
     }

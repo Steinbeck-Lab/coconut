@@ -34,6 +34,6 @@ class Issue extends Model implements Auditable
      */
     public function molecules(): BelongsToMany
     {
-        return $this->belongsToMany(Molecule::class)->withPivot('is_active', 'is_fixed')->withTimestamps();
+        return $this->belongsToMany(Molecule::class)->withPivot('is_active', 'is_resolved')->withTimestamps();
     }
 }
