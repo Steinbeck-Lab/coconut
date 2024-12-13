@@ -153,4 +153,5 @@
                 </div>
             </div>
         </div>
+        <livewire:banner-component />
     </header>
