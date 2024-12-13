@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('molecule_id');
             $table->boolean('is_active')->default(true);
             $table->boolean('is_resolved')->default(false);
+            $table->jsonb('meta_data')->nullable();
             $table->timestamps();
         });
     }

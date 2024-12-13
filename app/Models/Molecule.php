@@ -159,7 +159,7 @@ class Molecule extends Model implements Auditable
      */
     public function issues(): BelongsToMany
     {
-        return $this->belongsToMany(Issue::class)->withPivot('is_active', 'is_resolved')->withTimestamps();
+        return $this->belongsToMany(Issue::class)->withPivot('is_active', 'is_resolved', 'meta_data')->withTimestamps();
     }
 
     public function transformAudit(array $data): array
