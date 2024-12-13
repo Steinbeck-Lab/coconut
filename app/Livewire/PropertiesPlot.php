@@ -19,6 +19,7 @@ class PropertiesPlot extends Component
         'qed_drug_likeliness' => 'QED drug likeness',
         'hydrogen_bond_acceptors_lipinski' => 'Hydrogen bond acceptors Lipinski',
         'hydrogen_bond_donors_lipinski' => 'Hydrogen bond donors Lipinski',
+        'lipinski_rule_of_five_violations' => 'Lipinski\'s rule of 5 violations',
     ];
 
     public function mount($property, $name)
