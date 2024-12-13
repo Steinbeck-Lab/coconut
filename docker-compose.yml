@@ -27,11 +27,11 @@ services:
             - mailpit
             - cm
     cm:
-        image: "nfdi4chem/cheminformatics-microservice:dev-latest"
+        image: "nfdi4chem/cheminformatics-microservice:latest-lite"
         environment:
             HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
         ports:
-            - "81:80"
+            - '${API_PORT:-8001}:80'
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:81/latest/chem/health"]
             interval: 1m30s

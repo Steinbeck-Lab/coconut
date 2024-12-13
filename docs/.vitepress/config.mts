@@ -11,8 +11,8 @@ export default defineConfig({
     siteTitle: '',
 
     head: [
-      ['link', { rel: "manifest", href: "/coconut/site.webmanifest"}],
-      ['link', { rel: "icon", href: "/coconut/favicon.ico"}],
+      ['link', { rel: "manifest", href: "/site.webmanifest"}],
+      ['link', { rel: "icon", href: "/favicon.ico"}],
       ['meta', { name: "theme-color", content: "#ffffff"}],
     ],
 
