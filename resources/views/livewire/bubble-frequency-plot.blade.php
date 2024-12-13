@@ -1,9 +1,9 @@
 {{-- resources/views/livewire/word-bubble-chart.blade.php --}}
 <div class="mb-10 ">
-    <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-1">
+    <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-5">
         {!! $name_corrections[$columnName] ?? ucfirst(str_replace('_', ' ', $columnName)) !!}
     </h2>
-    <div id="{{$chartId}}" class="chart-container border rounded-lg ml-10" style="height: 600px; position: relative;">
+    <div id="{{$chartId}}" class="chart-container border rounded-lg ml-10 mr-5" style="height: 600px; position: relative;">
         <div class="zoom-controls" style="position: absolute; top: 10px; right: 10px; z-index: 1000; display: flex; gap: 5px;">
             <button class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded">+</button>
             <button class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded">-</button>
