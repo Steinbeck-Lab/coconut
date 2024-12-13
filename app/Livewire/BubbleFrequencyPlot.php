@@ -8,9 +8,7 @@ class BubbleFrequencyPlot extends Component
 {
     public $chartData;
 
-    public $firstColumnName;
-
-    public $secondColumnName;
+    public $columnName;
 
     public $chartId;
 
@@ -21,7 +19,7 @@ class BubbleFrequencyPlot extends Component
     public function mount($chartName, $chartData)
     {
         // Extract column names
-        [$this->firstColumnName, $this->secondColumnName] = explode('|', $chartName);
+        [$this->columnName] = explode('|', $chartName);
 
         // Ensure data is properly formatted
         $this->chartData = array_map(function ($item) {
