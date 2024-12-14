@@ -56,10 +56,10 @@
             style="background-color: {{ $banner->start_color }}; background-image: linear-gradient(to right, {{ $start_color }}, {{ $end_color }}) ;color: {{ $banner->text_color ?? '#FFFFFF' }};"
             id="{{ $banner->id }}"
             @class([
-               'grid grid-cols-12 pl-6 py-2 pr-8',
+               'pl-6 py-2 pr-8',
                'rounded-lg' => $banner->render_location !== \Filament\View\PanelsRenderHook::BODY_START
             ])>
-            <div class="col-span-12 flex items-center text-sm text-center w-full px-4">
+            <div class="flex items-center text-sm text-center w-full px-4">
                 <div>
                     @if ($banner->icon)
                         <x-filament::icon
