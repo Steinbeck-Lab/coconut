@@ -27,7 +27,7 @@ class CollectionController extends Controller
 
         $query = [
             'type' => 'tags',
-            'q' => urlencode($collection->title),
+            'q' => str_replace(' ', '+', $collection->title),
             'tagType' => 'dataSource',
         ];
 
