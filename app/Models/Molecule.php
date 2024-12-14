@@ -154,6 +154,14 @@ class Molecule extends Model implements Auditable
         return $this->belongsToMany(Molecule::class, 'molecule_related', 'molecule_id', 'related_id');
     }
 
+    /**
+     * Get the issues associated with the molecule.
+     */
+    public function issues(): BelongsToMany
+    {
+        return $this->belongsToMany(Issue::class)->withPivot('is_active', 'is_resolved', 'meta_data')->withTimestamps();
+    }
+
     public function transformAudit(array $data): array
     {
         return changeAudit($data);
