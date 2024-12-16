@@ -5,6 +5,7 @@ namespace SocialiteProviders\NFDIAAI;
 use GuzzleHttp\RequestOptions;
 use SocialiteProviders\Manager\OAuth2\AbstractProvider;
 use SocialiteProviders\Manager\OAuth2\User;
+use InvalidArgumentException;
 
 class Provider extends AbstractProvider
 {
