@@ -39,13 +39,13 @@ class GenerateBubbleFrequencyCharts extends Command
             $query1 .= 'GROUP BY 1';
             $query2 .= 'GROUP BY 1';
 
-            $bubbleFrequencyPlotData[$first_column.'|'.$second_column.'|'.uniqid()] = DB::select("
+            $bubbleFrequencyPlotData[$first_column.'|'.$first_column.'|'.uniqid()] = DB::select("
                 WITH
                 t1 as ($query1)
                 SELECT t1.col column_values,  t1.count first_column_count   from t1 order by 2 desc limit 170;
             ");
 
-            $bubbleFrequencyPlotData[$first_column.'|'.$second_column.'|'.uniqid()] = DB::select("
+            $bubbleFrequencyPlotData[$second_column.'|'.$second_column.'|'.uniqid()] = DB::select("
             WITH
             t1 as ($query2)
             SELECT t1.col column_values,  t1.count second_column_count   from t1 order by 2 desc limit 170;
