@@ -6,6 +6,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const data = JSON.parse(@js($collectionsData));
+        const statsData = JSON.parse(@js($statsData ?? '{}')); // Get the stats data if available
 
         // Clear any existing chart
         d3.select("#heatmap").selectAll("*").remove();
@@ -14,12 +15,12 @@
         const containerWidth = document.getElementById('heatmap').offsetWidth;
         const margin = {
             top: 60,
-            right: 120,
+            right: 160, // Increased right margin for vertical legend
             bottom: 120,
             left: 360
         };
         const width = containerWidth - margin.left - margin.right;
-        const height = Math.min(800, width); // Cap height at 800px
+        const height = Math.min(800, width);
 
         // Create SVG
         const svg = d3.select("#heatmap")
@@ -30,7 +31,8 @@
             .attr("transform", `translate(${margin.left},${margin.top})`);
 
         // Get collection names
-        const collections = Object.keys(data);
+        const collections = Object.keys(data).map(key => key.split('|')[1]);
+        console.log(collections)
 
         // Create scales
         const x = d3.scaleBand()
@@ -43,7 +45,6 @@
             .domain(collections)
             .padding(0.05);
 
-        // Custom color scale - using a more visually appealing gradient
         const color = d3.scaleSequential()
             .interpolator(d3.interpolateBlues)
             .domain([0, 100]);
@@ -65,27 +66,31 @@
             .selectAll("text")
             .style("font-size", "12px");
 
-        // Create tooltip
+        // Create tooltip with enhanced styling
         const tooltip = d3.select("#heatmap")
             .append("div")
             .style("position", "absolute")
             .style("visibility", "hidden")
             .style("background-color", "rgba(0, 0, 0, 0.85)")
             .style("color", "white")
-            .style("padding", "8px")
+            .style("padding", "12px")
             .style("border-radius", "6px")
             .style("font-size", "14px")
-            .style("box-shadow", "0 2px 4px rgba(0,0,0,0.2)");
+            .style("box-shadow", "0 4px 6px rgba(0,0,0,0.3)")
+            .style("max-width", "300px");
 
         // Add cells
-        collections.forEach(row => {
-            collections.forEach(col => {
+        Object.keys(data).forEach(rowKey => {
+            Object.keys(data).forEach(colKey => {
+                const rowName = rowKey.split('|')[1];
+                const colName = colKey.split('|')[1];
+
                 svg.append("rect")
-                    .attr("x", x(col))
-                    .attr("y", y(row))
+                    .attr("x", x(colName))
+                    .attr("y", y(rowName))
                     .attr("width", x.bandwidth())
                     .attr("height", y.bandwidth())
-                    .style("fill", color(data[row][col]))
+                    .style("fill", color(data[rowKey][colKey]))
                     .style("stroke", "white")
                     .style("stroke-width", 1)
                     .on("mouseover", function(event) {
@@ -96,9 +101,9 @@
                         tooltip
                             .style("visibility", "visible")
                             .html(`
-                                    <div class="font-bold mb-1">${row} → ${col}</div>
-                                    <div>Overlap: ${data[row][col].toFixed(1)}%</div>
-                                `)
+                        <div class="font-bold mb-1">${rowName} → ${colName}</div>
+                        <div>Overlap: ${data[rowKey][colKey].toFixed(1)}%</div>
+                    `)
                             .style("left", (event.pageX + 10) + "px")
                             .style("top", (event.pageY - 10) + "px");
                     })
@@ -110,7 +115,6 @@
                     });
             });
         });
-
         // Add title
         svg.append("text")
             .attr("x", width / 2)
@@ -120,28 +124,21 @@
             .style("font-weight", "bold")
             .text("Collection Overlap Heatmap");
 
-        // Add color scale legend
-        const legendWidth = Math.min(400, width * 0.6);
-        const legendHeight = 15;
+        // Vertical legend
+        const legendWidth = 20;
+        const legendHeight = height * 0.6;
 
-        const legendScale = d3.scaleLinear()
-            .domain([0, 100])
-            .range([0, legendWidth]);
-
-        const legendAxis = d3.axisBottom(legendScale)
-            .ticks(5)
-            .tickFormat(d => d + "%");
-
+        // Create legend group
         const legend = svg.append("g")
-            .attr("transform", `translate(${(width - legendWidth) / 2},${height + margin.bottom - 30})`);
+            .attr("transform", `translate(${width + 40},${(height - legendHeight) / 2})`);
 
         // Create gradient
         const defs = legend.append("defs");
         const gradient = defs.append("linearGradient")
             .attr("id", "heatmap-gradient")
             .attr("x1", "0%")
-            .attr("x2", "100%")
-            .attr("y1", "0%")
+            .attr("x2", "0%")
+            .attr("y1", "100%")
             .attr("y2", "0%");
 
         // Add gradient stops
@@ -158,15 +155,25 @@
             .attr("height", legendHeight)
             .style("fill", "url(#heatmap-gradient)");
 
+        // Create scale for legend axis
+        const legendScale = d3.scaleLinear()
+            .domain([0, 100])
+            .range([legendHeight, 0]);
+
         // Add legend axis
+        const legendAxis = d3.axisRight(legendScale)
+            .ticks(5)
+            .tickFormat(d => d + "%");
+
         legend.append("g")
-            .attr("transform", `translate(0,${legendHeight})`)
+            .attr("transform", `translate(${legendWidth},0)`)
             .call(legendAxis);
 
         // Add legend title
         legend.append("text")
-            .attr("x", legendWidth / 2)
-            .attr("y", legendHeight + 40)
+            .attr("transform", "rotate(-90)")
+            .attr("x", -legendHeight / 2)
+            .attr("y", -30)
             .attr("text-anchor", "middle")
             .style("font-size", "12px")
             .text("Overlap Percentage");
