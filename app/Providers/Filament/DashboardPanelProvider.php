@@ -20,6 +20,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Kenepa\Banner\BannerPlugin;
 use pxlrbt\FilamentSpotlight\SpotlightPlugin;
 
 class DashboardPanelProvider extends PanelProvider
@@ -46,6 +47,8 @@ class DashboardPanelProvider extends PanelProvider
                     ->favoritesBarDefaultView(false)
                     ->presetViewsManageable(false),
                 SpotlightPlugin::make(),
+                BannerPlugin::make()
+                    ->disableBannerManager(),
             ])
             ->discoverWidgets(in: app_path('Filament/Dashboard/Widgets'), for: 'App\\Filament\\Dashboard\\Widgets')
             ->widgets([

@@ -19,6 +19,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Kenepa\Banner\BannerPlugin;
 use pxlrbt\FilamentSpotlight\SpotlightPlugin;
 use Stephenjude\FilamentDebugger\DebuggerPlugin;
 
@@ -47,6 +48,7 @@ class AdminPanelProvider extends PanelProvider
                 DebuggerPlugin::make(),
                 SpotlightPlugin::make(),
                 AdvancedTablesPlugin::make(),
+                BannerPlugin::make(),
             ])
             ->middleware([
                 EncryptCookies::class,

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ad69f15516dcedc03de1ca5010d241a3",
+    "content-hash": "c0b2c7cb27af81eb2917987258dd2c81",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -3161,6 +3161,86 @@
                 }
             ],
             "time": "2023-12-03T19:50:20+00:00"
+        },
+        {
+            "name": "kenepa/banner",
+            "version": "0.0.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/kenepa/banner.git",
+                "reference": "4c5ad62e8bdc1216713a21a265f3e1ecea74d2b0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/kenepa/banner/zipball/4c5ad62e8bdc1216713a21a265f3e1ecea74d2b0",
+                "reference": "4c5ad62e8bdc1216713a21a265f3e1ecea74d2b0",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^3.0",
+                "php": "^8.1",
+                "spatie/laravel-package-tools": "^1.15.0"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0",
+                "nunomaduro/collision": "^7.9",
+                "nunomaduro/larastan": "^2.0.1",
+                "orchestra/testbench": "^8.0",
+                "pestphp/pest": "^2.1",
+                "pestphp/pest-plugin-arch": "^2.0",
+                "pestphp/pest-plugin-laravel": "^2.0",
+                "pestphp/pest-plugin-livewire": "^2.1",
+                "phpstan/extension-installer": "^1.1",
+                "phpstan/phpstan-deprecation-rules": "^1.0",
+                "phpstan/phpstan-phpunit": "^1.0",
+                "tightenco/duster": "^3.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Kenepa\\Banner\\BannerServiceProvider"
+                    ],
+                    "aliases": {
+                        "Banner": "BannerManager"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Kenepa\\Banner\\": "src/",
+                    "Kenepa\\Banner\\Database\\Factories\\": "database/factories/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jehizkia",
+                    "email": "Jehizkia@users.noreply.github.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Displays a informative banner to users",
+            "homepage": "https://github.com/kenepa/banner",
+            "keywords": [
+                "Kenepa",
+                "banner",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/kenepa/banner/issues",
+                "source": "https://github.com/kenepa/banner"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/kenepa",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-09-17T09:26:48+00:00"
         },
         {
             "name": "kirschbaum-development/eloquent-power-joins",
@@ -15835,12 +15915,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.3"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.6.0"
 }

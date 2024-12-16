@@ -6,6 +6,7 @@ use App\Filament\Dashboard\Resources\MoleculeResource\Pages;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\CitationsRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\CollectionsRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\GeoLocationRelationManager;
+use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\IssuesRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\MoleculesRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\OrganismsRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\PropertiesRelationManager;
@@ -225,6 +226,7 @@ class MoleculeResource extends Resource
             GeoLocationRelationManager::class,
             OrganismsRelationManager::class,
             AuditsRelationManager::class,
+            IssuesRelationManager::class,
         ];
     }
 

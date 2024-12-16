@@ -86,7 +86,7 @@ services:
         environment:
             HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
         ports:
-            - '${APP_PORT:-8001}:80'
+            - '${API_PORT:-8001}:80'
         healthcheck:
             test: ["CMD", "curl", "-f", "http://cm:80/latest/chem/health"]
             interval: 1m30s

@@ -7,5 +7,6 @@ export default {
         './resources/views/filament/dashboard/**/*.blade.php',
         './vendor/filament/**/*.blade.php',
         './vendor/archilex/filament-filter-sets/**/*.php',
+        './vendor/kenepa/banner/resources/**/*.php',
     ],
 }
