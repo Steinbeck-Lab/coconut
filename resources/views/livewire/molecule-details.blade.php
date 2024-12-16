@@ -708,9 +708,9 @@
                                                     <div x-data="{ collection: {{ $collection }} }"
                                                         x-show="showAllCollections || {{ $index }} < 6">
                                                         <div
-                                                            class="group relative rounded-xl border border-slate-200">
+                                                            class="group rounded-xl border border-slate-200">
                                                             <div
-                                                                class="relative overflow-hidden rounded-xl p-6">
+                                                                class="overflow-hidden rounded-xl p-6">
                                                                 <svg aria-hidden="true" viewBox="0 0 32 32"
                                                                     fill="none"
                                                                     class="mb-2 h-8 w-8 [--icon-foreground:theme(colors.slate.900)] [--icon-background:theme(colors.white)]">
@@ -803,46 +803,42 @@
                                                                     class="mt-2 font-display text-base text-slate-900">
                                                                     {{ $collection->doi }}
                                                                 </h2>
-                                                                <h2 x-show="collection.pivot.reference"
+                                                                <div x-show="collection.pivot.reference"
                                                                     class="mt-1 font-display text-base text-slate-900">
                                                                     @foreach ($this->getReferenceUrls($collection->pivot) as $key => $item)
                                                                     @foreach ($item as $reference => $url)
-                                                                    @if (!empty($url))
-                                                                    <a href="{{ $url }}"
-                                                                        class="hover:text-blue-500"
-                                                                        target="_blank">
-                                                                        {{ $reference }}
-                                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                                            fill="none"
-                                                                            viewBox="0 0 24 24"
-                                                                            stroke-width="1.5"
-                                                                            stroke="currentColor"
-                                                                            class="size-4 inline">
-                                                                            <path
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25">
-                                                                            </path>
-                                                                        </svg>
-                                                                    </a>
-                                                                    <span class="ml-2 mr-1">
-                                                                        <livewire:copy-button
-                                                                            text-to-copy="{{ $reference }}" />
-                                                                    </span>
-                                                                    @else
-                                                                    {{ $reference }}
-                                                                    <span class="ml-2 mr-1">
-                                                                        <livewire:copy-button
-                                                                            text-to-copy="{{ $reference }}" />
-                                                                    </span>
-                                                                    @endif
-                                                                    <span class="ml-2 mr-4 inline">
+                                                                    <span class="inline-flex rounded-md shadow-xs mb-2">
                                                                         <livewire:entry-details-display :mol="$molecule" :collection="$collection" :reference="$reference" lazy="on-load" />
+
+                                                                        @if (!empty($url))
+                                                                        <a target="_blank" href="{{ $url }}" type="button" class="-ml-px inline-flex items-center bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                fill="none"
+                                                                                viewBox="0 0 24 24"
+                                                                                stroke-width="1.5"
+                                                                                stroke="currentColor"
+                                                                                class="size-4 inline text-gray-900">
+                                                                                <path
+                                                                                    stroke-linecap="round"
+                                                                                    stroke-linejoin="round"
+                                                                                    d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25">
+                                                                                </path>
+                                                                            </svg>
+                                                                        </a>
+                                                                        @endif
+                                                                        @if (!empty($reference))
+                                                                        <div class="-ml-px inline-flex items-center bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 rounded-r-md ring-gray-300 ring-inset hover:bg-gray-50">
+                                                                            <span class="ml-2 mr-1">
+                                                                                <livewire:copy-button
+                                                                                    :key="'copy-button-' . $loop->index"
+                                                                                    text-to-copy="{{ $reference }}" />
+                                                                            </span>
+                                                                        </div>
+                                                                        @endif
                                                                     </span>
                                                                     @endforeach
                                                                     @endforeach
-
-                                                                </h2>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>

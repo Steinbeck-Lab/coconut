@@ -1,9 +1,11 @@
 <div x-data="{ open: false }" x-effect="open && $wire.getEntryDetails()" class="inline">
-    <!-- Trigger Button -->
-    <svg @click="open = true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 inline cursor-pointer hover:text-gray-700">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-    </svg>
+
+    <button @click="open = true" type="button" class="inline-flex items-center gap-x-1.5 rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 ring-inset hover:bg-gray-50">
+        <svg class="-ml-0.5 size-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+            <path fill-rule="evenodd" d="M10 2c-1.716 0-3.408.106-5.07.31C3.806 2.45 3 3.414 3 4.517V17.25a.75.75 0 0 0 1.075.676L10 15.082l5.925 2.844A.75.75 0 0 0 17 17.25V4.517c0-1.103-.806-2.068-1.93-2.207A41.403 41.403 0 0 0 10 2Z" clip-rule="evenodd"></path>
+        </svg>
+        Reference ID: {{ $reference }}
+    </button>
 
     <!-- Modal Backdrop -->
     <div x-show="open"
@@ -29,7 +31,7 @@
         @click.away="open = false">
 
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full">
                 <!-- Modal Header -->
                 <div class="flex items-center justify-between p-4 border-b">
                     <h3 class="text-xl font-semibold text-gray-900">Entry Details</h3>
