@@ -6,8 +6,11 @@ use App\Listeners\ReportEventSubscriber;
 use BezhanSalleh\PanelSwitch\PanelSwitch;
 use Filament\Facades\Filament;
 use Filament\Navigation\UserMenuItem;
+use Filament\Support\Assets\Js;
+use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -56,5 +59,9 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Event::subscribe(ReportEventSubscriber::class);
+
+        FilamentAsset::register([
+            Js::make('coconut-js', Vite::asset('resources/js/app.js'))->module(),
+        ]);
     }
 }

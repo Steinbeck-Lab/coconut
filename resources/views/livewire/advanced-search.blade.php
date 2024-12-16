@@ -46,14 +46,14 @@
                     }
                 } else if (config.type === 'select' && Array.isArray(value)) {
                     if (value.length > 0) {
-                        parts.push(`${key}:${value.join('|')}`);
+                        parts.push(`${key}:${value.join('|').replace(/ /g, '+')}`);
                     }
                 } else if (config.type === 'boolean') {
                     if (value !== 'undefined') {
-                        parts.push(`${key}=${value}`);
+                        parts.push(`${key}:${value}`);
                     }
                 } else if (value && value !== config.default) {
-                    parts.push(`${key}:${value}`);
+                    parts.push(`${key}:${value}.replace(/ /g, '+')`);
                 }
             }
         }
@@ -111,7 +111,7 @@
                 <p class="text-gray-600">Loading...</p>
             </div>
 
-            <div x-show="!isLoading" class="overflow-y-auto h-[600px] py-4 px-2">
+            <div x-show="!isLoading" class="overflow-y-auto py-4 px-2" style="max-height: calc(100vh - 320px);">
                 <div class="grid grid-cols-2 gap-8">
                     <template x-for="(config, key) in schema" :key="key">
                         <div x-show="config.unique_values?.length > 0 || config.type !== 'select'" class="mb-4 px-2">

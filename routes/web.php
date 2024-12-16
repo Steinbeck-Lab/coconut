@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Auth\SocialController;
+use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\MoleculeController;
 use App\Livewire\About;
 use App\Livewire\CollectionList;
@@ -9,6 +10,7 @@ use App\Livewire\Download;
 use App\Livewire\Guides;
 use App\Livewire\Policy;
 use App\Livewire\Search;
+use App\Livewire\Stats;
 use App\Livewire\Terms;
 use Illuminate\Support\Facades\Route;
 
@@ -37,10 +39,14 @@ Route::get('/terms-of-service', Terms::class);
 Route::get('/guidelines', Guides::class);
 Route::get('/about', About::class);
 Route::get('/download', Download::class);
+Route::get('/stats', Stats::class);
 
 Route::get('/collections', CollectionList::class)->name('collections.index');
 
 // Compound pages
 Route::get('compound/coconut_id/{id}', MoleculeController::class)->name('old_compound');
 Route::get('compounds/{id}', MoleculeController::class)->name('compound');
+
+Route::get('collections/{id}', CollectionController::class)->name('collection');
+
 Route::get('/search', Search::class)->name('browse');

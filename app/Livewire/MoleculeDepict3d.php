@@ -20,7 +20,7 @@ class MoleculeDepict3d extends Component
     #[Computed]
     public function source()
     {
-        return env('CM_API').'depict/3D?smiles='.urlencode($this->smiles).'&height='.$this->height.'&width='.$this->width.'&CIP='.$this->CIP.'&toolkit=rdkit';
+        return env('CM_PUBLIC_API').'depict/3D?smiles='.urlencode($this->smiles).'&height='.$this->height.'&width='.$this->width.'&CIP='.$this->CIP.'&toolkit=rdkit';
     }
 
     public function downloadSDFFile()

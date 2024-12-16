@@ -19,8 +19,8 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Kenepa\Banner\BannerPlugin;
 use pxlrbt\FilamentSpotlight\SpotlightPlugin;
-use ShuvroRoy\FilamentSpatieLaravelBackup\FilamentSpatieLaravelBackupPlugin;
 use Stephenjude\FilamentDebugger\DebuggerPlugin;
 
 class AdminPanelProvider extends PanelProvider
@@ -46,9 +46,9 @@ class AdminPanelProvider extends PanelProvider
                 FilamentShieldPlugin::make(),
                 FilamentExceptionsPlugin::make(),
                 DebuggerPlugin::make(),
-                FilamentSpatieLaravelBackupPlugin::make(),
                 SpotlightPlugin::make(),
                 AdvancedTablesPlugin::make(),
+                BannerPlugin::make(),
             ])
             ->middleware([
                 EncryptCookies::class,
