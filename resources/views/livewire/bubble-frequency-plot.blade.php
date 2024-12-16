@@ -17,12 +17,23 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const data = @json($chartData);
+            const columnName = @json($columnName);
+            const searchNames = @json($search_names);
+
+            // Slugify function
+            function slugify(text) {
+                return text
+                    .toString()
+                    .toLowerCase()
+                    .trim()
+                    .replace(/\s+/g, '-') // Replace spaces with -
+            }
 
             // Get container dimensions
             const container = d3.select('#{{$chartId}} .svg-container');
             const containerWidth = container.node().getBoundingClientRect().width;
             const containerHeight = container.node().getBoundingClientRect().height;
-            
+
             // Set base dimensions for the visualization
             const baseWidth = Math.max(containerWidth, 1000);
             const baseHeight = Math.max(containerHeight, 1000);
@@ -44,7 +55,7 @@
                 .scaleExtent([0.5, 5])
                 .on('zoom', (event) => {
                     g.attr('transform', event.transform);
-                    
+
                     // Update SVG dimensions based on zoom
                     const scale = event.transform.k;
                     svg
@@ -56,7 +67,7 @@
 
             // Add zoom controls functionality
             const zoomButtons = d3.select('#{{$chartId}}').selectAll('button');
-            
+
             // Zoom in button
             zoomButtons.nodes()[0].addEventListener('click', () => {
                 svg.transition()
@@ -117,7 +128,13 @@
                 .data(data)
                 .enter()
                 .append('g')
-                .attr('class', 'bubble');
+                .attr('class', 'bubble')
+                .on('click', function(event, d) {
+                    // Construct the URL with the slugified column_values
+                    const url = `/search?q=${searchNames[columnName]}%3A${slugify(d.column_values)}&page=1&type=filters`;
+                    // Open in new tab
+                    window.open(url, '_blank');
+                });
 
             // Add split circles
             bubbles.each(function(d) {
