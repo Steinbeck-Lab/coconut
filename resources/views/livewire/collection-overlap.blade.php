@@ -9,7 +9,6 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const data = JSON.parse(@js($collectionsData));
-        const statsData = JSON.parse(@js($statsData ?? '{}')); // Get the stats data if available
 
         // Clear any existing chart
         d3.select("#heatmap").selectAll("*").remove();
@@ -104,7 +103,7 @@
                         tooltip
                             .style("visibility", "visible")
                             .html(`
-                        <div class="font-bold mb-1">${rowName} → ${colName}</div>
+                        <div class="font-bold mb-1">${rowName} vs. ${colName}</div>
                         <div>Overlap: ${data[rowKey][colKey].toFixed(1)}%</div>
                     `)
                             .style("left", (event.pageX + 10) + "px")

@@ -19,20 +19,23 @@ class GenerateHeatMapData extends Command
         // Store molecule identifiers
         foreach ($collections as $collection) {
             $molecule_identifiers = $collection->molecules()->pluck('identifier')->toArray();
-            $heat_map_data['identifier_data'][$collection->id.'|'.$collection->title] = $molecule_identifiers;
+            $molecule_identifiers = array_map(function ($item) {
+                return preg_replace('/^CNP/i', '', $item);
+            }, $molecule_identifiers);
+            $heat_map_data['ids'][$collection->id . '|' . $collection->title] = $molecule_identifiers;
         }
 
-        // Calculate percentage overlaps
-        $heat_map_data['overlap_data'] = [];
-        $collection_keys = array_keys($heat_map_data['identifier_data']);
+        // Calculate percentage overlaps -> ol_d = overlap data
+        $heat_map_data['ol_d'] = [];
+        $collection_keys = array_keys($heat_map_data['ids']);
 
         foreach ($collection_keys as $collection1_key) {
-            $heat_map_data['overlap_data'][$collection1_key] = [];
-            $set1 = array_unique($heat_map_data['identifier_data'][$collection1_key]);
+            $heat_map_data['ol_d'][$collection1_key] = [];
+            $set1 = array_unique($heat_map_data['ids'][$collection1_key]);
             $set1_count = count($set1);
 
             foreach ($collection_keys as $collection2_key) {
-                $set2 = array_unique($heat_map_data['identifier_data'][$collection2_key]);
+                $set2 = array_unique($heat_map_data['ids'][$collection2_key]);
                 $set2_count = count($set2);
 
                 // Calculate intersection
@@ -48,19 +51,21 @@ class GenerateHeatMapData extends Command
                     $overlap_percentage = 0;
                 }
 
-                $heat_map_data['overlap_data'][$collection1_key][$collection2_key] = round($overlap_percentage, 2);
+                $heat_map_data['ol_d'][$collection1_key][$collection2_key] = round($overlap_percentage, 2);
 
-                // Add additional overlap statistics
-                $heat_map_data['overlap_stats'][$collection1_key][$collection2_key] = [
-                    'intersection_count' => $intersection_count,
-                    'collection1_count' => $set1_count,
-                    'collection2_count' => $set2_count,
-                    'percentage' => round($overlap_percentage, 2),
+                // Add additional overlap statistics -> ol_s = overlap_stats
+                $heat_map_data['ol_s'][$collection1_key][$collection2_key] = [
+                    //  ol = overlap count
+                    'ol' => $intersection_count,
+                    'c1_count' => $set1_count,
+                    'c2_count' => $set2_count,
+                    'p' => round($overlap_percentage, 2),
                 ];
             }
         }
+        unset($heat_map_data['ids']);
 
-        $json = json_encode($heat_map_data, JSON_PRETTY_PRINT);
+        $json = json_encode($heat_map_data, JSON_UNESCAPED_SLASHES);
 
         // Save the JSON to a file
         $filePath = public_path('reports/heat_map_metadata.json');

@@ -24,25 +24,8 @@ class CollectionOverlap extends Component
         }
 
         // Store in the public property
-        $this->collections = $decodedData['overlap_data'];
-        // Example data structure - replace with your actual data fetching logic
-        // $this->collections = [
-        //     'Collection A' => [
-        //         'Collection A' => 100,
-        //         'Collection B' => 75,
-        //         'Collection C' => 45,
-        //     ],
-        //     'Collection B' => [
-        //         'Collection A' => 75,
-        //         'Collection B' => 100,
-        //         'Collection C' => 60,
-        //     ],
-        //     'Collection C' => [
-        //         'Collection A' => 45,
-        //         'Collection B' => 60,
-        //         'Collection C' => 100,
-        //     ],
-        // ];
+        $this->collections = $decodedData['ol_d'];
+       
     }
 
     public function render()
