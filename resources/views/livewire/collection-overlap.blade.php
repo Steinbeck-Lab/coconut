@@ -1,4 +1,7 @@
 <div>
+    <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-5 ">
+        Collection Overlap Heatmap
+    </h2>
     <div id="heatmap" class="w-full">
     </div>
 </div>
@@ -14,10 +17,10 @@
         // Dynamic sizing
         const containerWidth = document.getElementById('heatmap').offsetWidth;
         const margin = {
-            top: 60,
-            right: 160, // Increased right margin for vertical legend
+            top: 10,
+            right: 60, // Increased right margin for vertical legend
             bottom: 120,
-            left: 360
+            left: 120
         };
         const width = containerWidth - margin.left - margin.right;
         const height = Math.min(800, width);
@@ -116,13 +119,13 @@
             });
         });
         // Add title
-        svg.append("text")
-            .attr("x", width / 2)
-            .attr("y", -margin.top / 2)
-            .attr("text-anchor", "middle")
-            .style("font-size", "20px")
-            .style("font-weight", "bold")
-            .text("Collection Overlap Heatmap");
+        // svg.append("text")
+        //     .attr("x", width / 2)
+        //     .attr("y", -margin.top / 2)
+        //     .attr("text-anchor", "middle")
+        //     .style("font-size", "20px")
+        //     .style("font-weight", "bold")
+        //     .text("Collection Overlap Heatmap");
 
         // Vertical legend
         const legendWidth = 20;
