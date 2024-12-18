@@ -3,9 +3,9 @@
 namespace SocialiteProviders\NFDIAAI;
 
 use GuzzleHttp\RequestOptions;
+use InvalidArgumentException;
 use SocialiteProviders\Manager\OAuth2\AbstractProvider;
 use SocialiteProviders\Manager\OAuth2\User;
-use InvalidArgumentException;
 
 class Provider extends AbstractProvider
 {
@@ -51,10 +51,10 @@ class Provider extends AbstractProvider
      */
     protected function mapUserToObject(array $user)
     {
-        if (!isset($user['id']) || empty($user['id'])) {
+        if (! isset($user['id']) || empty($user['id'])) {
             throw new InvalidArgumentException('The user data is invalid: a unique "id" is required.');
         }
-        
+
         return (new User)->setRaw($user)->map([
             'id' => $user['id'],
             'nickname' => $user['username'],
