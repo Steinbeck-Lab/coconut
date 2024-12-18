@@ -8,7 +8,8 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const data = JSON.parse(@js($collectionsData));
+        const overall_data = JSON.parse(@js($collectionsData));
+        const data = overall_data['ol_d'];
 
         // Clear any existing chart
         d3.select("#heatmap").selectAll("*").remove();
@@ -33,8 +34,12 @@
             .attr("transform", `translate(${margin.left},${margin.top})`);
 
         // Get collection names
-        const collections = Object.keys(data).map(key => key.split('|')[1]);
-        console.log(collections)
+
+        const collections = Object.entries(overall_data.c_counts)
+            .sort((a, b) => b[1] - a[1])
+            .map(entry => entry[0].split('|')[1]);
+        // const collections = Object.keys(data).map(key => key.split('|')[1]);
+        // console.log(collections)
 
         // Create scales
         const x = d3.scaleBand()
