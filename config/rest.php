@@ -71,7 +71,7 @@ return [
             'contact' => [
                 'name' => config('app.name'),
                 'email' => 'info.coconut@uni-jena.de',
-                'url' => config('app.url'),
+                'url' => 'https://coconut.naturalproducts.net/',
             ],
             'license' => [
                 'url' => null,

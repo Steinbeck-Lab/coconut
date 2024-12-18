@@ -81,6 +81,14 @@
                                         <span class="whitespace-nowrap">Statistics</span>
                                     </a>
                                 </li>
+                                <li>
+                                    <a target="_blank" class="text-slate-800 hover:bg-slate-50 flex items-center p-2" href="https://kuma.nfdi4chem.de/status/coconut" target="_blank">
+                                        <div class="flex items-center justify-center bg-white rounded shadow-sm h-7 w-7 shrink-0 mr-3">
+                                        <x-heroicon-o-bars-arrow-up />
+                                        </div>
+                                        <span class="whitespace-nowrap">Service health</span>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         <li class="p-4 lg:px-8">
@@ -137,6 +145,10 @@
                                 us</a>
                             <a href="/download"
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Download</a>
+                            <a href="/stats"
+                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Statistics</a>
+                            <a target="_blank" href="https://kuma.nfdi4chem.de/status/coconut"
+                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Service health</a>
                         </div>
                         <div class="py-6">
                             @if (!auth()->user())
