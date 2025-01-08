@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
@@ -70,6 +71,28 @@ class MoleculeDetails extends Component
         }, $references, $urls);
 
         return $combined;
+    }
+
+    public function getOrganismSourceDetails($organism)
+    {
+        $identifer = $this->molecule->identifier;
+        $source_details = [];
+        $organism_source_details = DB::select("SELECT e.doi, e.collection_id
+                                            from entries e
+                                            join molecules m on e.molecule_id=m.id
+                                            where m.identifier='$identifer'
+                                            and e.organism ilike '%$organism%';");
+        foreach ($organism_source_details as $index => $value) {
+            if ($index == 0) {
+                $source_details['doi'] = $value->doi;
+                $source_details['collection_name'] = DB::select("SELECT title from collections where id=$value->collection_id")[0]->title;
+            } else {
+                $source_details['doi'] = $source_details['doi'].' | '.$value->doi;
+                $source_details['collection_name'] = $source_details['collection_name'].' | '.DB::select("SELECT title from collections where id=$value->collection_id")[0]->title;
+            }
+        }
+
+        return $source_details;
     }
 
     public function render(): View
