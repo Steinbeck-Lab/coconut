@@ -73,22 +73,84 @@ class MoleculeDetails extends Component
         return $combined;
     }
 
-    public function getOrganismSourceDetails($organism)
+    public function getOrganismSourceDetails()
     {
-        $identifer = $this->molecule->identifier;
+        $identifier = $this->molecule->identifier;
         $source_details = [];
-        $organism_source_details = DB::select("SELECT e.doi, e.collection_id
-                                            from entries e
-                                            join molecules m on e.molecule_id=m.id
-                                            where m.identifier='$identifer'
-                                            and e.organism ilike '%$organism%';");
-        foreach ($organism_source_details as $index => $value) {
-            if ($index == 0) {
-                $source_details['doi'] = $value->doi;
-                $source_details['collection_name'] = DB::select("SELECT title from collections where id=$value->collection_id")[0]->title;
-            } else {
-                $source_details['doi'] = $source_details['doi'].' | '.$value->doi;
-                $source_details['collection_name'] = $source_details['collection_name'].' | '.DB::select("SELECT title from collections where id=$value->collection_id")[0]->title;
+        $entries = DB::select(
+            'SELECT e.organism, e.doi, e.collection_id
+                                        from entries e
+                                        join molecules m on e.molecule_id=m.id
+                                        where m.identifier=?
+                                        ',
+            [$identifier]
+        );
+
+        foreach ($entries as $entry) {
+            $organisms = explode('|', $entry->organism);
+            $dois = explode('|', $entry->doi);
+            $collection_title = DB::select('SELECT title from collections where id=?', [$entry->collection_id])[0]->title;
+
+            foreach ($organisms as $index => $organism) {
+                $organism = trim($organism);
+                if ($organism != '') {
+                    $doi_link = '';
+                    if (isset($dois[$index])) {
+                        $doi_link = trim($dois[$index]) != '' ? 'https://doi.org/'.trim($dois[$index]) : '';
+                    }
+                    $collection_link = 'http://localhost/search?type=tags&q='.$collection_title.'&tagType=dataSource';
+
+                    if (! isset($source_details[$organism])) {
+                        $source_details[$organism]['formatted_display'] = sprintf('
+                                <span class="relative inline-flex items-center bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 capitalize">
+                                            <a href="%s" target="_blank" class="hover:underline">%s</a>
+                                            <span class="text-gray-600">:</span>
+                                            <a href="%s" target="_blank" class="hover:underline">%s</a>
+                                            <span>
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none" viewBox="0 0 24 24"
+                                                    stroke-width="1.5" stroke="currentColor"
+                                                    class="ml-2 size-4">
+                                                    <path stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                                </svg>
+                                            </span>
+                            ',
+                            $collection_link,
+                            $collection_title,
+                            $doi_link,
+                            $doi_link ? $dois[$index] : 'No DOI'
+                        );
+                    } else {
+                        $source_details[$organism]['formatted_display'] .= sprintf('
+                                <span class="relative inline-flex items-center bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 capitalize"> 
+                                        <a href="%s" target="_blank" class="hover:underline">%s</a>
+                                        <span class="text-gray-600">:</span>
+                                        <a href="%s" target="_blank" class="hover:underline">%s</a>
+                                        <span>
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor"
+                                                class="ml-2 size-4">
+                                                <path stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                            </svg>
+                                        </span>
+                                </span>
+                            ',
+                            $collection_link,
+                            $collection_title,
+                            $doi_link,
+                            $doi_link ? $dois[$index] : 'No DOI'
+                        );
+                    }
+
+                }
+            }
+            foreach ($source_details as $key => $value) {
+                $source_details[$key]['formatted_display'] .= sprintf('</span>');
             }
         }
 
