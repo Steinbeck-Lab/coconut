@@ -17,7 +17,7 @@ class MoleculeController extends Controller
             $id .= '.0';
         }
 
-        $molecule = Cache::remember('molecules.'.$id, 172800, function () use ($id) {
+        $molecule = Cache::flexible('molecules.'.$id, [172800, 259200], function () use ($id) {
             return Molecule::where('identifier', $id)->first();
         });
 

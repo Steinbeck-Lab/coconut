@@ -10,6 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class GeoLocationResource extends Resource
@@ -83,6 +84,8 @@ class GeoLocationResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return Cache::get('stats.geo_locations');
+        return Cache::flexible('stats.geo_locations', [172800, 259200], function () {
+            return DB::table('geo_locations')->selectRaw('count(*)')->get()[0]->count;
+        });
     }
 }

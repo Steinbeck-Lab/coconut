@@ -17,7 +17,7 @@ class CollectionController extends Controller
             abort(404);
         }
 
-        $collection = Cache::remember('collections.'.$id, 172800, function () use ($id) {
+        $collection = Cache::flexible('collections.'.$id, [172800, 259200], function () use ($id) {
             return Collection::where('identifier', $id)->first();
         });
 

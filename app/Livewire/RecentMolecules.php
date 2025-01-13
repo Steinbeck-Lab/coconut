@@ -16,7 +16,7 @@ class RecentMolecules extends Component
     public function render()
     {
         return view('livewire.recent-molecules', [
-            'molecules' => Cache::remember('molecules.recent', 172800, function () {
+            'molecules' => Cache::flexible('molecules.recent', [172800, 259200], function () {
                 return Molecule::where('is_parent', false)->where('active', true)->where('name', '!=', null)->where('annotation_level', '=', 5)->orderByDesc('updated_at')->paginate($this->size);
             }),
         ]);

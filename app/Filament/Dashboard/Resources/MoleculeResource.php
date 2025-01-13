@@ -14,7 +14,6 @@ use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\RelatedRe
 use App\Filament\Dashboard\Resources\MoleculeResource\Widgets\MoleculeStats;
 use App\Models\Molecule;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
-use DB;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -30,6 +29,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\HtmlString;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
@@ -249,7 +249,9 @@ class MoleculeResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return Cache::get('stats.molecules');
+        return Cache::flexible('stats.molecules', [172800, 259200], function () {
+            return DB::table('molecules')->selectRaw('count(*)')->whereRaw('active=true and NOT (is_parent=true AND has_variants=true)')->get()[0]->count;
+        });
     }
 
     public static function changeMoleculeStatus($record, $reason)

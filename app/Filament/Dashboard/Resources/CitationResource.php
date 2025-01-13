@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class CitationResource extends Resource
@@ -76,6 +77,8 @@ class CitationResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return Cache::get('stats.citations');
+        return Cache::flexible('stats.citations', [172800, 259200], function () {
+            return DB::table('citations')->selectRaw('count(*)')->get()[0]->count;
+        });
     }
 }
