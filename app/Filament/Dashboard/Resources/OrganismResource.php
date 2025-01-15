@@ -19,6 +19,7 @@ use Filament\Tables\Table;
 use GuzzleHttp\Client;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Log;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
@@ -130,7 +131,9 @@ class OrganismResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return Cache::get('stats.organisms');
+        return Cache::flexible('stats.organisms', [172800, 259200], function () {
+            return DB::table('organisms')->selectRaw('count(*)')->get()[0]->count;
+        });
     }
 
     protected static function getGNFMatches($name, $organism)

@@ -24,6 +24,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
@@ -161,6 +162,8 @@ class CollectionResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        return Cache::get('stats.collections');
+        return Cache::flexible('stats.collections', [172800, 259200], function () {
+            return DB::table('collections')->selectRaw('count(*)')->get()[0]->count;
+        });
     }
 }
