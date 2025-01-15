@@ -55,7 +55,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost'),
+    'url' => env('APP_URL', 'https://coconut.naturalproducts.net/'),
 
     'asset_url' => env('ASSET_URL'),
 
@@ -178,7 +178,7 @@ return [
         OwenIt\Auditing\AuditingServiceProvider::class,
         App\Providers\RestDocumentationServiceProvider::class,
         App\Providers\DOIServiceProvider::class,
-
+        SocialiteProviders\Generators\GeneratorsServiceProvider::class,
     ])->toArray(),
 
     /*

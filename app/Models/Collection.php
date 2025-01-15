@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Filament\Traits\MutatesCollectionFormData;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -19,6 +20,7 @@ class Collection extends Model implements Auditable, HasMedia
     use HasFactory;
     use HasTags;
     use InteractsWithMedia;
+    use MutatesCollectionFormData;
     use \OwenIt\Auditing\Auditable;
 
     protected static function booted()

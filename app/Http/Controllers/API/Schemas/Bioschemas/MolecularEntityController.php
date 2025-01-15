@@ -15,7 +15,7 @@ class MolecularEntityController extends Controller
 {
     public function moleculeSchema(Request $request, $identifier)
     {
-        $molecule = Cache::remember('molecules.'.$identifier, 172800, function () use ($identifier) {
+        $molecule = Cache::flexible('molecules.'.$identifier, [172800, 259200], function () use ($identifier) {
             return Molecule::where('identifier', $identifier)->first();
         });
 

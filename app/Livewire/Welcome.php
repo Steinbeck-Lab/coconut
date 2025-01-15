@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -51,10 +52,18 @@ class Welcome extends Component
 
     public function render()
     {
-        $this->totalMolecules = Cache::get('stats.molecules');
-        $this->totalCollections = Cache::get('stats.collections', 0);
-        $this->uniqueOrganisms = Cache::get('stats.organisms', 0);
-        $this->citationsMapped = Cache::get('stats.citations', 0);
+        $this->totalMolecules = Cache::flexible('stats.molecules', [172800, 259200], function () {
+            return DB::table('molecules')->selectRaw('count(*)')->whereRaw('active=true and NOT (is_parent=true AND has_variants=true)')->get()[0]->count;
+        });
+        $this->totalCollections = Cache::flexible('stats.collections', [172800, 259200], function () {
+            return DB::table('collections')->selectRaw('count(*)')->get()[0]->count;
+        });
+        $this->uniqueOrganisms = Cache::flexible('stats.organisms', [172800, 259200], function () {
+            return DB::table('organisms')->selectRaw('count(*)')->get()[0]->count;
+        });
+        $this->citationsMapped = Cache::flexible('stats.citations', [172800, 259200], function () {
+            return DB::table('citations')->selectRaw('count(*)')->get()[0]->count;
+        });
 
         return view('livewire.welcome', [
             'totalMolecules' => $this->totalMolecules,
