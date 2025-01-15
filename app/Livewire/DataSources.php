@@ -12,7 +12,7 @@ class DataSources extends Component
 
     public function mount()
     {
-        $this->collections = Cache::remember('collections', 172800, function () {
+        $this->collections = Cache::flexible('collections', [172800, 259200], function () {
             return Collection::where('promote', true)->orderBy('sort_order')->take(10)->get(['title', 'image'])->toArray();
         });
     }
