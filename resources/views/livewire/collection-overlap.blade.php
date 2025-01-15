@@ -1,5 +1,5 @@
 <div>
-    <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-5 ">
+    <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-5">
         Collection Overlap Heatmap
     </h2>
     <div id="heatmap" class="w-full">
@@ -13,10 +13,14 @@ function initHeatmap() {
     // Clear any existing chart
     d3.select("#heatmap").selectAll("*").remove();
 
-    // Sort collections based on c_counts
-    const sortedCollections = Object.entries(data.c_counts)
-        .sort((a, b) => b[1] - a[1]) // Sort in descending order
-        .map(entry => entry[0].split('|')[1]);
+    // Get unique collection names and sort by size
+    const collectionNames = [...new Set(
+        Object.keys(data.ol_d).map(key => key.split('|')[1])
+    )].sort((a, b) => {
+        const aKey = Object.keys(data.ol_d).find(k => k.endsWith(a));
+        const bKey = Object.keys(data.ol_d).find(k => k.endsWith(b));
+        return data.ol_s[bKey][bKey].c1_count - data.ol_s[aKey][aKey].c1_count;
+    });
 
     // Dynamic sizing
     const containerWidth = document.getElementById('heatmap').offsetWidth;
@@ -37,15 +41,15 @@ function initHeatmap() {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Create scales with sorted collections
+    // Create scales
     const x = d3.scaleBand()
         .range([0, width])
-        .domain(sortedCollections)
+        .domain(collectionNames)
         .padding(0.05);
 
     const y = d3.scaleBand()
         .range([0, height])
-        .domain(sortedCollections)
+        .domain(collectionNames)
         .padding(0.05);
 
     const color = d3.scaleSequential()
@@ -84,16 +88,22 @@ function initHeatmap() {
 
     // Add cells
     Object.keys(data.ol_d).forEach(rowKey => {
+        const rowName = rowKey.split('|')[1];
+        
         Object.keys(data.ol_d[rowKey]).forEach(colKey => {
-            const rowName = rowKey.split('|')[1];
             const colName = colKey.split('|')[1];
+            const stats = data.ol_s[rowKey][colKey];
+            
+            // The cell value represents how much of the x-axis dataset (colName) 
+            // is contained in the y-axis dataset (rowName)
+            const overlapPercentage = stats.c2_in_c1_p;
 
             svg.append("rect")
                 .attr("x", x(colName))
                 .attr("y", y(rowName))
                 .attr("width", x.bandwidth())
                 .attr("height", y.bandwidth())
-                .style("fill", color(data.ol_d[rowKey][colKey]))
+                .style("fill", color(overlapPercentage))
                 .style("stroke", "white")
                 .style("stroke-width", 1)
                 .on("mouseover", function(event) {
@@ -104,9 +114,8 @@ function initHeatmap() {
                     tooltip
                         .style("visibility", "visible")
                         .html(`
-                            <div class="font-bold mb-1">${rowName} vs. ${colName}</div>
-                            <div>Overlap: ${data.ol_d[rowKey][colKey].toFixed(1)}%</div>
-                            <div>Overlap Count: ${data.ol_s[rowKey][colKey]['ol'].toLocaleString()} molecules</div>
+                            <div class="font-bold mb-2">${rowName} ⟷ ${colName}</div>
+                            <div>${colName} in ${rowName}: ${overlapPercentage.toFixed(1)}%</div>
                         `)
                         .style("left", (event.pageX + 10) + "px")
                         .style("top", (event.pageY - 10) + "px");
@@ -174,5 +183,4 @@ document.addEventListener('DOMContentLoaded', initHeatmap);
 // Add resize handler
 window.addEventListener('resize', () => {
     initHeatmap();
-});
-</script>
+});</script>
