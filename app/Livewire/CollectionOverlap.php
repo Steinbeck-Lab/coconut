@@ -24,8 +24,8 @@ class CollectionOverlap extends Component
         }
 
         // Store in the public property
-        $this->collections = $decodedData['ol_d'];
-       
+        $this->collections = $decodedData;
+
     }
 
     public function render()
