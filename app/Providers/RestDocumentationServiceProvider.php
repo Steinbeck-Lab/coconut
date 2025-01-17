@@ -9,6 +9,7 @@ use Lomkit\Rest\Documentation\Schemas\Header;
 use Lomkit\Rest\Documentation\Schemas\MediaType;
 use Lomkit\Rest\Documentation\Schemas\OpenAPI;
 use Lomkit\Rest\Documentation\Schemas\Operation;
+use Lomkit\Rest\Documentation\Schemas\Parameter;
 use Lomkit\Rest\Documentation\Schemas\Path;
 use Lomkit\Rest\Documentation\Schemas\RequestBody;
 use Lomkit\Rest\Documentation\Schemas\Response;
@@ -156,6 +157,84 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                                         ],
                                                     ],
                                                 ])))),
+                        '/api/search' => (new Path)
+                            ->withGet(
+                                (new Operation)
+                                    ->withSummary('Search endpoints')
+                                    ->withTags(['Search'])
+                                    ->withResponses(
+                                        (new Responses)
+                                            ->withDefault((new Response)
+                                                ->withDescription('Search based on various query parameters')
+                                                ->withContent([
+                                                    'application/json' => [
+                                                        'schema' => [
+                                                            'type' => 'object',
+                                                            'properties' => [
+                                                                'data' => [
+                                                                ],
+                                                            ],
+                                                        ],
+                                                    ],
+                                                ])
+                                                ->generate())
+                                            ->withOthers([
+                                                json_encode('401') => (new Response)
+                                                    ->withDescription('Unauthenticated')
+                                                    ->generate(),
+
+                                            ])
+                                    )
+                            )->withParameters([
+                                (new Parameter)
+                                    ->withName('query')
+                                    ->withIn('query')
+                                    ->withDescription('Search query string')
+                                    ->withSchema((new SchemaConcrete)->withType('string'))
+                                    ->withRequired(false),
+
+                                (new Parameter)
+                                    ->withName('sort')
+                                    ->withIn('query')
+                                    ->withDescription('Sorting option')
+                                    ->withSchema((new SchemaConcrete)->withType('string'))
+                                    ->withRequired(false),
+
+                                (new Parameter)
+                                    ->withName('type')
+                                    ->withIn('query')
+                                    ->withDescription('Type filter')
+                                    ->withSchema((new SchemaConcrete)->withType('string'))
+                                    ->withRequired(false),
+
+                                (new Parameter)
+                                    ->withName('tagType')
+                                    ->withIn('query')
+                                    ->withDescription('Tag type filter')
+                                    ->withSchema((new SchemaConcrete)->withType('string'))
+                                    ->withRequired(false),
+
+                                (new Parameter)
+                                    ->withName('page')
+                                    ->withIn('query')
+                                    ->withDescription('Page number for pagination')
+                                    ->withSchema((new SchemaConcrete)->withType('integer'))
+                                    ->withRequired(false),
+
+                                (new Parameter)
+                                    ->withName('limit')
+                                    ->withIn('query')
+                                    ->withDescription('Number of results per page (default: 24)')
+                                    ->withSchema((new SchemaConcrete)->withType('integer'))
+                                    ->withRequired(false),
+
+                                (new Parameter)
+                                    ->withName('offset')
+                                    ->withIn('query')
+                                    ->withDescription('Offset for pagination')
+                                    ->withSchema((new SchemaConcrete)->withType('integer'))
+                                    ->withRequired(false),
+                            ]),
                     ] + (Features::enabled(Features::emailVerification()) ? [
                         '/api/auth/verify/{user_id}' => (new Path)
                             ->withGet(

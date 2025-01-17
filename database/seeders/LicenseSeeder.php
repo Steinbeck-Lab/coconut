@@ -15,7 +15,7 @@ class LicenseSeeder extends Seeder
     public function run()
     {
         $licenses = [
-            /*Creative Commons*/
+            /* Creative Commons */
             [
                 'title' => 'Creative Commons Zero v1.0 Universal (CC0 1.0)',
                 'slug' => 'cc0-1.0',
@@ -115,7 +115,7 @@ class LicenseSeeder extends Seeder
                 'body' => '<b>Creative Commons License Deed</b><br><b>You are free to:</b><li>Share — copy and redistribute the material in any medium or format.</li><li>The licensor cannot revoke these freedoms as long as you follow the license terms.</li><br>Under the following terms:<li><b>Attribution</b> — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.</li><li><b>NonCommercial</b> - You may not use the material for commercial purposes.</li><li><b>NoDerivatives</b> — If you remix, transform, or build upon the material, you may not distribute the modified material.</li><li><b>No additional restrictions</b> — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.</li><br><b>Notices:</b><li>You do not have to comply with the license for elements of the material in the public domain or where your use is permitted by an applicable exception or limitation.</li><li>No warranties are given. The license may not give you all of the permissions necessary for your intended use. For example, other rights such as publicity, privacy, or moral rights may limit how you use the material.</li><h3 style="color:#F5346C;">Note: </h3><b>This is a human-readable summary of (and not a substitute for) the </b><a href="https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode" style="color:#019DBB;" target="_blank">license</a>.',
                 'category' => 'Creative Commons',
             ],
-            /*GPL*/
+            /* GPL */
             [
                 'title' => 'GNU General Public License v2.0 only (GNU GPL)',
                 'slug' => 'gpl-2.0',
@@ -153,7 +153,7 @@ class LicenseSeeder extends Seeder
                 'category' => 'GPL',
             ],
 
-            /*Open Data Commons*/
+            /* Open Data Commons */
             [
                 'title' => 'Open Data Commons Database Contents License (DbCL)',
                 'slug' => '',
@@ -191,7 +191,7 @@ class LicenseSeeder extends Seeder
                 'category' => 'Open Data Commons',
             ],
 
-            /*Community Data License*/
+            /* Community Data License */
             [
                 'title' => 'Community Data License Agreement Permissive 1.0 (CDLA-Permissive-1.0)',
                 'slug' => 'cdla-permissive-1.0',
@@ -211,7 +211,7 @@ class LicenseSeeder extends Seeder
                 'category' => 'Community Data License',
             ],
 
-            /*Special*/
+            /* Special */
             [
                 'title' => 'The World Bank Dataset Terms of Use',
                 'slug' => '',
@@ -249,7 +249,7 @@ class LicenseSeeder extends Seeder
                 'category' => 'Special',
             ],
 
-            /*Other*/
+            /* Other */
             [
                 'title' => 'Data files © Original Authors',
                 'slug' => '',

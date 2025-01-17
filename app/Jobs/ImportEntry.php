@@ -271,7 +271,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
 
         foreach ($dois as $doi) {
             if ($doi) {
-                //check if citation already exists
+                // check if citation already exists
                 try {
                     $citation = Citation::firstOrCreate(['doi' => $doi]);
                 } catch (QueryException $e) {
