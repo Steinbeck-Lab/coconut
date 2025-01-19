@@ -146,11 +146,9 @@
                                         <span x-text="value.old_value ? `Detached from: ${value.old_value}` : 'N/A'"></span>
                                     </template>
                                     <template x-if="['synonyms', 'cas'].includes(column.split('.')[0])">
-                                        <span x-text="value.old_value && value.new_value ? 
-                                    `Removed: ${Array.from(new Set(value.old_value.filter(x => !value.new_value.includes(x)))).join(', ')}` : 'N/A'">
-                                        </span>
+                                        <span x-text="value.old_value ? value.old_value.join(', ') : 'N/A'"></span>
                                     </template>
-                                    <template x-if="!['comment', 'active', 'created', 'organisms', 'sampleLocations', 'citations', 'synonyms', 'cas']
+                                    <template x-if="!['comment', 'active', 'created', 'organisms', 'sampleLocations', 'citations', 'synonyms', 'cas', 'iupac_name]
                                 .includes(column.split('.')[0])">
                                         <span x-text="value.old_value || 'N/A'"></span>
                                     </template>
@@ -172,9 +170,20 @@
                                         <span x-text="value.new_value ? `Attached to: ${value.new_value}` : 'N/A'"></span>
                                     </template>
                                     <template x-if="['synonyms', 'cas'].includes(column.split('.')[0])">
-                                        <span x-text="value.old_value && value.new_value ? 
-                                    `Added: ${Array.from(new Set(value.new_value.filter(x => !value.old_value.includes(x)))).join(', ')}` : 'N/A'">
-                                        </span>
+                                        <div>
+                                            <template x-if="Array.from(new Set((value.old_value || []).filter(x => !(value.new_value || []).includes(x)))).length > 0">
+                                                <div>
+                                                    <span class="font-bold">Removed: </span><br />
+                                                    <span x-text="Array.from(new Set((value.old_value || []).filter(x => !(value.new_value || []).includes(x)))).join(', ')"></span><br />
+                                                </div>
+                                            </template>
+                                            <template x-if="Array.from(new Set((value.new_value || []).filter(x => !(value.old_value || []).includes(x)))).length > 0">
+                                                <div>
+                                                    <span class="font-bold">Added: </span><br />
+                                                    <span x-text="Array.from(new Set((value.new_value || []).filter(x => !(value.old_value || []).includes(x)))).join(', ')"></span><br />
+                                                </div>
+                                            </template>
+                                        </div>
                                     </template>
                                     <template x-if="!['comment', 'active', 'created', 'organisms', 'sampleLocations', 'citations', 'synonyms', 'cas', 'iupac_name']
                                 .includes(column.split('.')[0])">
