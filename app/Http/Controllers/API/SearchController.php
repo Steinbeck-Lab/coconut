@@ -13,12 +13,12 @@ class SearchController extends Controller
     {
         $query = $request->get('query');
 
-        $sort = $request->query('sort');
+        $sort = $request->get('sort');
         $type = $request->get('type') ? $request->get('type') : null;
         $tagType = $request->get('tagType') ? $request->get('tagType') : null;
-        $page = $request->query('page');
+        $page = $request->get('page');
 
-        $limit = $request->query('limit');
+        $limit = $request->get('limit');
         $limit = $limit ? $limit : 24;
 
         $results = [];
