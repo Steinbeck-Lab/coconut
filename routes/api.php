@@ -36,7 +36,7 @@ Route::prefix('auth')->group(function () {
     });
 });
 
-Route::get('search', [\App\Http\Controllers\API\SearchController::class, 'search'])->name('api.search');
+Route::post('search', [\App\Http\Controllers\API\SearchController::class, 'search'])->name('api.search');
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Rest::resource('molecules', \App\Rest\Controllers\MoleculesController::class);

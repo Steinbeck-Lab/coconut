@@ -82,7 +82,9 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                                             ],
                                                         ],
                                                     ])
-                                            ))),
+                                            )
+                                    )
+                            ),
                         '/api/auth/logout' => (new Path)
                             ->withGet(
                                 (new Operation)
@@ -156,33 +158,127 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                                             ],
                                                         ],
                                                     ],
-                                                ])))),
+                                                ]
+                                            ))
+                                    )
+                            ),
                         '/api/search' => (new Path)
-                            ->withGet(
+                            ->withPost(
                                 (new Operation)
-                                    ->withSummary('Search endpoints')
-                                    ->withTags(['Search'])
+                                    ->withSummary('Advanced Molecule Search')
+                                    ->withDescription("Advanced search using filters. Support the following filters:\n\n".
+                                        "Molecular Properties:\n".
+                                        "- tac: Total Atom Count (range: 1 to 1071)\n".
+                                        "- hac: Heavy Atom Count (range: 0 to 551)\n".
+                                        "- mw: Molecular Weight (range: 5.01 to 7860.71)\n".
+                                        "- emw: Exact Molecular Weight (range: 1.00728 to 7855.66038)\n".
+                                        "- mrc: Number of Minimal Rings (range: 0 to 51)\n".
+                                        "- vdwv: Van der Walls Volume (range: 10.14 to 5177.31)\n".
+                                        "- fc: Formal Charge (range: -8 to 7)\n".
+                                        "\nChemical Properties:\n".
+                                        "- alogp: ALogP (range: -82.67 to 67.03)\n".
+                                        "- topopsa: Topological Polar Surface Area (range: 0.00 to 3453.72)\n".
+                                        "- fcsp3: Fraction CSP3 (range: 0.00 to 1.00)\n".
+                                        "- np: NP Likeness (range: -3.53 to 4.12)\n".
+                                        "- qed: QED Drug Likeliness (range: 0.00 to 0.95)\n".
+                                        "\nStructural Features:\n".
+                                        "- rbc: Rotatable Bond Count (range: 0 to 224)\n".
+                                        "- arc: Aromatic Rings Count (range: 0 to 31)\n".
+                                        "- hba: Hydrogen Bond Acceptors (range: 0 to 191)\n".
+                                        "- hbd: Hydrogen Bond Donors (range: 0 to 116)\n".
+                                        "\nLipinski Parameters:\n".
+                                        "- lhba: Lipinski H-Bond Acceptors (range: 0 to 191)\n".
+                                        "- lhbd: Lipinski H-Bond Donors (range: 0 to 116)\n".
+                                        "- lro5v: Lipinski Rule of 5 Violations (range: 0 to 4)\n".
+                                        "\nSugar-Related Properties:\n".
+                                        "- cs: Contains Sugar (true/false)\n".
+                                        "- crs: Contains Ring Sugars (true/false)\n".
+                                        "- cls: Contains Linear Sugars (true/false)\n".
+                                        "\nClassifications:\n".
+                                        "- class: Chemical Class (e.g., 1,2-diaryl-2-propen-1-ols)\n".
+                                        "- subclass: Chemical Sub Class (e.g., 1,1'-azonaphthalenes)\n".
+                                        "- superclass: Chemical Super Class (e.g., Acetylides)\n".
+                                        "- parent: Direct Parent Classification (e.g., 1,1'-azonaphthalenes)\n".
+                                        "\nNatural Product Classifications:\n".
+                                        "- np_pathway: NP Classifier Pathway (e.g., Amino acids and Peptides)\n".
+                                        "- np_superclass: NP Classifier Superclass (e.g., Aminosugars and aminoglycosides)\n".
+                                        "- np_class: NP Classifier Class (e.g., 2-arylbenzofurans)\n".
+                                        "- np_glycoside: NP Classifier Is Glycoside (true/false)\n".
+                                        "\nUsage Examples:\n".
+                                        "1. Range query: type=filters&q=tac:4..6\n".
+                                        "2. Boolean query: type=filters&q=cs:true\n".
+                                        "3. Classification query: type=filters&q=class:1,2-diaryl-2-propen-1-ols\n".
+                                        "4. Multiple conditions: type=filters&q=tac:4..6 mw:100..200\n".
+                                        '5. Complex query: type=filters&q=tac:4..6 cs:true OR mw:100..200')
+                                    ->withTags(['Advanced Search'])
+                                    ->withRequestBody(
+                                        (new RequestBody)
+                                            ->withContent([
+                                                'application/json' => (new MediaType)
+                                                    ->withExample(
+                                                        (new Example)
+                                                            ->withValue([
+                                                                'type' => 'filters',
+                                                                'query' => 'tac:4..6',
+                                                                'limit' => 20,
+                                                                'sort' => 'desc',
+                                                                'page' => 1,
+                                                                'offset' => 0,
+                                                            ])
+                                                            ->generate()
+                                                    )
+                                                    ->generate(),
+                                            ])
+                                    )
                                     ->withResponses(
                                         (new Responses)
-                                            ->withDefault((new Response)
-                                                ->withDescription('Search based on various query parameters')
-                                                ->withContent([
-                                                    'application/json' => [
-                                                        'schema' => [
-                                                            'type' => 'object',
-                                                            'properties' => [
-                                                                'data' => [
-                                                                ],
-                                                            ],
-                                                        ],
-                                                    ],
-                                                ])
-                                                ->generate())
+                                            ->withDefault(
+                                                (new Response)
+                                                    ->withDescription('Successful operation')
+                                                    ->withContent([
+                                                        'application/json' => (new MediaType)
+                                                            ->withExample(
+                                                                (new Example)
+                                                                    ->withValue([
+                                                                        'data' => [
+                                                                            [
+                                                                                'identifier' => 'CNP0000001',
+                                                                                'name' => 'Example Molecule',
+                                                                                'molecular_formula' => 'C4H10',
+                                                                                'total_atom_count' => 5,
+                                                                                'annotation_level' => 3,
+                                                                            ],
+                                                                        ],
+                                                                        'current_page' => 1,
+                                                                        'total' => 100,
+                                                                        'per_page' => 24,
+                                                                    ])
+                                                                    ->generate()
+                                                            )
+                                                            ->generate(),
+                                                    ])
+                                                    ->withDescription('Example queries:\n'.
+                                                        '1. Range query: /search?type=filters&q=tac:4..6\n'.
+                                                        '2. Multiple conditions: /search?type=filters&q=tac:4..6 mw:100..200\n'.
+                                                        '3. Boolean query: /search?type=filters&q=cs:true\n'.
+                                                        '4. Database query: /search?type=filters&q=ds:pubchem|chembl\n'.
+                                                        '5. Complex query: /search?type=filters&q=tac:4..6 cs:true OR mw:100..200')
+                                            )
                                             ->withOthers([
-                                                json_encode('401') => (new Response)
-                                                    ->withDescription('Unauthenticated')
+                                                json_encode('500') => (new Response)
+                                                    ->withDescription('Server Error')
+                                                    ->withContent([
+                                                        'application/json' => (new MediaType)
+                                                            ->withExample(
+                                                                (new Example)
+                                                                    ->withValue([
+                                                                        'message' => 'An error occurred during the search operation.',
+                                                                    ])
+                                                                    ->generate()
+                                                            )
+                                                            ->generate(),
+                                                    ])
                                                     ->generate(),
-
                                             ])
                                     )
                             )->withParameters([
@@ -224,7 +320,7 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                 (new Parameter)
                                     ->withName('limit')
                                     ->withIn('query')
-                                    ->withDescription('Number of results per page (default: 24)')
+                                    ->withDescription('Number of results per page')
                                     ->withSchema((new SchemaConcrete)->withType('integer'))
                                     ->withRequired(false),
 
@@ -260,7 +356,8 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                                                 ])
                                                         ),
                                                 ]
-                                            ))
+                                            )
+                                    )
                                     ->withResponses(
                                         (new Responses)
                                             ->withDefault(
@@ -275,12 +372,15 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                                             ->withSchema((new SchemaConcrete)
                                                                 ->withType('integer')),
                                                     ])
-                                                    ->withDescription('Email verification successful and redirected'))
+                                                    ->withDescription('Email verification successful and redirected')
+                                            )
                                             ->withOthers([
                                                 json_encode('401') => (new Response)
                                                     ->withDescription('Invalid/Expired URL provided')
                                                     ->generate(),
-                                            ]))),
+                                            ])
+                                    )
+                            ),
 
                         '/api/auth/email/resend' => (new Path)
                             ->withGet(
@@ -292,13 +392,13 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                             ->withDefault((new Response)
                                                 ->withDescription('Email verification link sent to your email address')
                                                 ->generate())
-                                    )),
+                                    )
+                            ),
 
                     ] : [])
                 );
 
             return $openAPI;
         });
-
     }
 }
