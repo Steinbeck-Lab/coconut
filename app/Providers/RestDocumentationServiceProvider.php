@@ -166,50 +166,98 @@ class RestDocumentationServiceProvider extends ServiceProvider
                             ->withPost(
                                 (new Operation)
                                     ->withSummary('Advanced Molecule Search')
-                                    ->withDescription("Advanced search using filters. Support the following filters:\n\n".
-                                        "Molecular Properties:\n".
-                                        "- tac: Total Atom Count (range: 1 to 1071)\n".
-                                        "- hac: Heavy Atom Count (range: 0 to 551)\n".
-                                        "- mw: Molecular Weight (range: 5.01 to 7860.71)\n".
-                                        "- emw: Exact Molecular Weight (range: 1.00728 to 7855.66038)\n".
-                                        "- mrc: Number of Minimal Rings (range: 0 to 51)\n".
-                                        "- vdwv: Van der Walls Volume (range: 10.14 to 5177.31)\n".
-                                        "- fc: Formal Charge (range: -8 to 7)\n".
-                                        "\nChemical Properties:\n".
-                                        "- alogp: ALogP (range: -82.67 to 67.03)\n".
-                                        "- topopsa: Topological Polar Surface Area (range: 0.00 to 3453.72)\n".
-                                        "- fcsp3: Fraction CSP3 (range: 0.00 to 1.00)\n".
-                                        "- np: NP Likeness (range: -3.53 to 4.12)\n".
-                                        "- qed: QED Drug Likeliness (range: 0.00 to 0.95)\n".
-                                        "\nStructural Features:\n".
-                                        "- rbc: Rotatable Bond Count (range: 0 to 224)\n".
-                                        "- arc: Aromatic Rings Count (range: 0 to 31)\n".
-                                        "- hba: Hydrogen Bond Acceptors (range: 0 to 191)\n".
-                                        "- hbd: Hydrogen Bond Donors (range: 0 to 116)\n".
-                                        "\nLipinski Parameters:\n".
-                                        "- lhba: Lipinski H-Bond Acceptors (range: 0 to 191)\n".
-                                        "- lhbd: Lipinski H-Bond Donors (range: 0 to 116)\n".
-                                        "- lro5v: Lipinski Rule of 5 Violations (range: 0 to 4)\n".
-                                        "\nSugar-Related Properties:\n".
-                                        "- cs: Contains Sugar (true/false)\n".
-                                        "- crs: Contains Ring Sugars (true/false)\n".
-                                        "- cls: Contains Linear Sugars (true/false)\n".
-                                        "\nClassifications:\n".
-                                        "- class: Chemical Class (e.g., 1,2-diaryl-2-propen-1-ols)\n".
-                                        "- subclass: Chemical Sub Class (e.g., 1,1'-azonaphthalenes)\n".
-                                        "- superclass: Chemical Super Class (e.g., Acetylides)\n".
-                                        "- parent: Direct Parent Classification (e.g., 1,1'-azonaphthalenes)\n".
-                                        "\nNatural Product Classifications:\n".
-                                        "- np_pathway: NP Classifier Pathway (e.g., Amino acids and Peptides)\n".
-                                        "- np_superclass: NP Classifier Superclass (e.g., Aminosugars and aminoglycosides)\n".
-                                        "- np_class: NP Classifier Class (e.g., 2-arylbenzofurans)\n".
-                                        "- np_glycoside: NP Classifier Is Glycoside (true/false)\n".
-                                        "\nUsage Examples:\n".
-                                        "1. Range query: type=filters&q=tac:4..6\n".
-                                        "2. Boolean query: type=filters&q=cs:true\n".
-                                        "3. Classification query: type=filters&q=class:1,2-diaryl-2-propen-1-ols\n".
-                                        "4. Multiple conditions: type=filters&q=tac:4..6 mw:100..200\n".
-                                        '5. Complex query: type=filters&q=tac:4..6 cs:true OR mw:100..200')
+                                    ->withDescription(
+                                        "# Advanced Molecule Search\n\n".
+                                            "Advanced search supports searching for molecules based on complex criteria.\n\n".
+
+                                            "## 1. Tag-Based Search (type=tags)\n".
+                                            "Search molecules based on the following tag types:\n\n".
+                                            "* **dataSource**: Search by collection title\n".
+                                            "  - Example: `type=tags, tagType=dataSource, query=collection_name`\n\n".
+                                            "* **organisms**: Search by organism names (comma-separated)\n".
+                                            "  - Example: `type=tags, tagType=organisms, query=organism_name1,organism_name2`\n\n".
+                                            "* **citations**: Search by DOI or title (comma-separated)\n".
+                                            "  - Example: `type=tags, tagType=citations, query=doi1,doi2,title1,title2`\n\n".
+
+                                            "## 2. Filter-Based Search (type=filters)\n\n".
+                                            "### Molecular Properties\n".
+                                            "* `tac`: Total Atom Count (1-1071)\n".
+                                            "* `hac`: Heavy Atom Count (0-551)\n".
+                                            "* `mw`: Molecular Weight (5.01-7860.71)\n".
+                                            "* `emw`: Exact Molecular Weight (1.00728-7855.66038)\n".
+                                            "* `mrc`: Number of Minimal Rings (0-51)\n".
+                                            "* `vdwv`: Van der Walls Volume (10.14-5177.31)\n".
+                                            "* `fc`: Formal Charge (-8 to 7)\n\n".
+
+                                            "### Chemical Properties\n".
+                                            "* `alogp`: ALogP (-82.67 to 67.03)\n".
+                                            "* `topopsa`: Topological Polar Surface Area (0.00-3453.72)\n".
+                                            "* `fcsp3`: Fraction CSP3 (0.00-1.00)\n".
+                                            "* `np`: NP Likeness (-3.53 to 4.12)\n".
+                                            "* `qed`: QED Drug Likeliness (0.00-0.95)\n\n".
+
+                                            "### Structural Features\n".
+                                            "* `rbc`: Rotatable Bond Count (0-224)\n".
+                                            "* `arc`: Aromatic Rings Count (0-31)\n".
+                                            "* `hba`: Hydrogen Bond Acceptors (0-191)\n".
+                                            "* `hbd`: Hydrogen Bond Donors (0-116)\n\n".
+
+                                            "### Lipinski Parameters\n".
+                                            "* `lhba`: Lipinski H-Bond Acceptors (0-191)\n".
+                                            "* `lhbd`: Lipinski H-Bond Donors (0-116)\n".
+                                            "* `lro5v`: Lipinski Rule of 5 Violations (0-4)\n\n".
+
+                                            "### Sugar-Related Properties\n".
+                                            "* `cs`: Contains Sugar (true/false)\n".
+                                            "* `crs`: Contains Ring Sugars (true/false)\n".
+                                            "* `cls`: Contains Linear Sugars (true/false)\n\n".
+
+                                            "### Classyfire Classifications\n".
+                                            "* `class`: Chemical Class\n".
+                                            "  - Example: 1,2-diaryl-2-propen-1-ols\n".
+                                            "* `subclass`: Chemical Sub Class\n".
+                                            "  - Example: 1,1'-azonaphthalenes\n".
+                                            "* `superclass`: Chemical Super Class\n".
+                                            "  - Example: Acetylides\n".
+                                            "* `parent`: Direct Parent Classification\n".
+                                            "  - Example: 1,1'-azonaphthalenes\n\n".
+
+                                            "### Natural Product Classifications\n".
+                                            "* `np_pathway`: NP Classifier Pathway\n".
+                                            "  - Example: Amino acids and Peptides\n".
+                                            "* `np_superclass`: NP Classifier Superclass\n".
+                                            "  - Example: Aminosugars and aminoglycosides\n".
+                                            "* `np_class`: NP Classifier Class\n".
+                                            "  - Example: 2-arylbenzofurans\n".
+                                            "* `np_glycoside`: NP Classifier Is Glycoside (true/false)\n\n".
+
+                                            "### Filter Query Examples\n".
+                                            "* Range query:\n".
+                                            "  ```\n".
+                                            "  type=filters&q=tac:4..6\n".
+                                            "  ```\n".
+                                            "* Boolean query:\n".
+                                            "  ```\n".
+                                            "  type=filters&q=cs:true\n".
+                                            "  ```\n".
+                                            "* Classification query:\n".
+                                            "  ```\n".
+                                            "  type=filters&q=class:1,2-diaryl-2-propen-1-ols\n".
+                                            "  ```\n".
+                                            "* Multiple conditions:\n".
+                                            "  ```\n".
+                                            "  type=filters&q=tac:4..6 mw:100..200\n".
+                                            "  ```\n".
+                                            "* Complex query with OR:\n".
+                                            "  ```\n".
+                                            "  type=filters&q=tac:4..6 cs:true OR mw:100..200\n".
+                                            "  ```\n\n".
+
+                                            "## 3. Basic Search (type not specified)\n".
+                                            "Search molecules by name, SMILES, InChI, or InChI Key.\n\n".
+                                            "* Simply provide the search term in the query parameter\n".
+                                            "* Example: `query=caffeine`\n"
+                                    )
                                     ->withTags(['Advanced Search'])
                                     ->withRequestBody(
                                         (new RequestBody)
@@ -219,6 +267,7 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                                         (new Example)
                                                             ->withValue([
                                                                 'type' => 'filters',
+                                                                'tagType' => '',
                                                                 'query' => 'tac:4..6',
                                                                 'limit' => 20,
                                                                 'sort' => 'desc',
@@ -242,11 +291,15 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                                                     ->withValue([
                                                                         'data' => [
                                                                             [
-                                                                                'identifier' => 'CNP0000001',
-                                                                                'name' => 'Example Molecule',
-                                                                                'molecular_formula' => 'C4H10',
-                                                                                'total_atom_count' => 5,
-                                                                                'annotation_level' => 3,
+                                                                                'identifier' => 'CNP0228556.0',
+                                                                                'canonical_smiles' => 'CN1C(=O)C2=C(N=CN2C)N(C)C1=O',
+                                                                                'annotation_level' => 5,
+                                                                                'name' => 'caffeine',
+                                                                                'iupac_name' => '1,3,7-trimethylpurine-2,6-dione',
+                                                                                'organism_count' => 135,
+                                                                                'citation_count' => 12,
+                                                                                'geo_count' => 3,
+                                                                                'collection_count' => 31,
                                                                             ],
                                                                         ],
                                                                         'current_page' => 1,
@@ -257,12 +310,6 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                                             )
                                                             ->generate(),
                                                     ])
-                                                    ->withDescription('Example queries:\n'.
-                                                        '1. Range query: /search?type=filters&q=tac:4..6\n'.
-                                                        '2. Multiple conditions: /search?type=filters&q=tac:4..6 mw:100..200\n'.
-                                                        '3. Boolean query: /search?type=filters&q=cs:true\n'.
-                                                        '4. Database query: /search?type=filters&q=ds:pubchem|chembl\n'.
-                                                        '5. Complex query: /search?type=filters&q=tac:4..6 cs:true OR mw:100..200')
                                             )
                                             ->withOthers([
                                                 json_encode('500') => (new Response)
