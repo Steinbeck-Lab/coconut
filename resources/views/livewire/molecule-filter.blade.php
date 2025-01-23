@@ -2,7 +2,18 @@
     isOpen: true,
     type: 'substructure',
     smiles: '',
+    currentSmiles: '', // Added for SMILES input
     draggedFile: null,
+    loadSmilesIntoEditor() {
+        try {
+            window.editor.setSmiles(this.currentSmiles);
+        } catch(e) {
+            console.error('Invalid SMILES:', e);
+            // Revert to last valid SMILES if invalid
+            this.currentSmiles = window.editor.getSmiles();
+            alert('Invalid SMILES string');
+        }
+    },
     fetchClipboardText() {
         navigator.clipboard.readText().then(text => {
             window.editor.setSmiles(text);
@@ -57,8 +68,27 @@
     }, 100);">
         <div class="w-full bg-white rounded-lg shadow-md max-w-7xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="border rounded-md mb-3">
-                    <div id="structureSearchEditor" style="height: 400px; width: 100%"></div>
+                <div>
+                    <div class="border rounded-md mb-3">
+                        <div id="structureSearchEditor" style="height: 400px; width: 100%"></div>
+                    </div>
+                    <!-- Added SMILES input field -->
+                    <div class="mb-3">
+                        <label for="smiles-string" class="block text-sm font-medium text-gray-700">SMILES String</label>
+                        <div class="mt-1 flex rounded-md shadow-sm">
+                            <input type="text" 
+                                   id="smiles-string" 
+                                   x-model="currentSmiles" 
+                                   class="block w-full rounded-l-md border-r-0 border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" 
+                                   placeholder="Enter SMILES string to load into the Editor">
+                                                            <button 
+                                type="button"
+                                @click.stop="loadSmilesIntoEditor()"
+                                class="relative -ml-px inline-flex items-center space-x-2 rounded-r-md border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                Load
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div>
                     <div class="pb-3">
