@@ -7,6 +7,7 @@
 /storage/*.key
 /storage/molecules_2d*
 /storage/molecules_3d*
+storage/citations_fix_data/*.json
 /vendor
 .env
 .env.backup
