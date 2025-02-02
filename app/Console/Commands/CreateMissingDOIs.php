@@ -27,6 +27,10 @@ class CreateMissingDOIs extends Command
 
     private array $failedCitations = [];
 
+    private array $existingProblemDois = [];
+
+    private array $existingFailedCitations = [];
+
     public function handle()
     {
         $this->loadCorrectedDois();
@@ -54,6 +58,10 @@ class CreateMissingDOIs extends Command
                         $citationsCreatedCount = 0;
                         $failedCitationsCount = 0;
 
+                        // Reset problem and failed arrays for this batch
+                        $batchProblemDois = [];
+                        $batchFailedCitations = [];
+
                         $progressBar = $this->output->createProgressBar(count($entries));
                         $progressBar->setFormat('Batch %current%/%max% [%bar%] %percent:3s%%');
                         $progressBar->start();
@@ -69,7 +77,9 @@ class CreateMissingDOIs extends Command
                                     $newCitations,
                                     $newCitablePairs,
                                     $citationsCreatedCount,
-                                    $failedCitationsCount
+                                    $failedCitationsCount,
+                                    $batchProblemDois,
+                                    $batchFailedCitations
                                 );
                             }
                             $progressBar->advance();
@@ -198,6 +208,9 @@ class CreateMissingDOIs extends Command
 
                         $totalCitationsCreated += $citationsCreatedCount;
 
+                        // Write this batch's results
+                        $this->writeOutputFiles($batchProblemDois, $batchFailedCitations);
+
                         $progressBar->finish();
                         $this->line('');
                         $this->info('Citations created: '.$citationsCreatedCount);
@@ -207,7 +220,6 @@ class CreateMissingDOIs extends Command
                 $batchCount++;
             });
 
-        $this->writeOutputFiles($totalCitationsCreated);
     }
 
     private function loadCorrectedDois(): void
@@ -255,7 +267,9 @@ class CreateMissingDOIs extends Command
         array &$newCitations,
         array &$newCitablePairs,
         int &$citationsCreatedCount,
-        int &$failedCitationsCount
+        int &$failedCitationsCount,
+        array &$batchProblemDois,
+        array &$batchFailedCitations
     ): void {
         // Check if DOI exists in citations
         if (isset($this->existingCitationDois[$doi])) {
@@ -289,7 +303,7 @@ class CreateMissingDOIs extends Command
             try {
                 $citationDetails = fetchDOICitation($singleDoi);
                 if (! $citationDetails) {
-                    $this->problemDois[$singleDoi][] = $entry;
+                    $batchProblemDois[$singleDoi][] = $entry;
 
                     continue;
                 }
@@ -327,22 +341,70 @@ class CreateMissingDOIs extends Command
             } catch (\Exception $e) {
                 $entry = (array) $entry;
                 $entry['error'] = $e->getMessage();
-                $this->failedCitations[$singleDoi][] = $entry;
+                $batchFailedCitations[$singleDoi][] = $entry;
                 $failedCitationsCount++;
             }
         }
     }
 
-    private function writeOutputFiles(int $totalCitationsCreated): void
+    private function writeOutputFiles(array $problemDois, array $failedCitations): void
     {
-        File::put(storage_path('citations_fix_data/problem_dois.json'), json_encode($this->problemDois));
-        File::put(storage_path('citations_fix_data/failed_citations.json'), json_encode($this->failedCitations));
-        $this->info('Total citations created: '.$totalCitationsCreated);
+        $startBatch = (int) $this->argument('start_batch');
 
-        $keys = array_merge(
-            array_keys($this->problemDois),
-            array_keys($this->failedCitations)
-        );
+        // Initialize files if starting from batch 1
+        if ($startBatch === 1) {
+            File::put(storage_path('citations_fix_data/problem_dois.json'), json_encode($problemDois));
+            File::put(storage_path('citations_fix_data/failed_citations.json'), json_encode($failedCitations));
+
+            return;
+        }
+
+        // For subsequent batches, merge with existing data
+        $problemDoisPath = storage_path('citations_fix_data/problem_dois.json');
+        $failedCitationsPath = storage_path('citations_fix_data/failed_citations.json');
+
+        // Merge problem DOIs
+        $existingProblemDois = [];
+        if (File::exists($problemDoisPath)) {
+            $existingProblemDois = json_decode(File::get($problemDoisPath), true) ?? [];
+        }
+
+        foreach ($problemDois as $doi => $entries) {
+            if (! isset($existingProblemDois[$doi])) {
+                $existingProblemDois[$doi] = [];
+            }
+            $existingProblemDois[$doi] = array_merge(
+                $existingProblemDois[$doi],
+                $entries
+            );
+        }
+
+        // Merge failed citations
+        $existingFailedCitations = [];
+        if (File::exists($failedCitationsPath)) {
+            $existingFailedCitations = json_decode(File::get($failedCitationsPath), true) ?? [];
+        }
+
+        foreach ($failedCitations as $doi => $entries) {
+            if (! isset($existingFailedCitations[$doi])) {
+                $existingFailedCitations[$doi] = [];
+            }
+            $existingFailedCitations[$doi] = array_merge(
+                $existingFailedCitations[$doi],
+                $entries
+            );
+        }
+
+        // Write merged data back to files
+        File::put($problemDoisPath, json_encode($existingProblemDois));
+        File::put($failedCitationsPath, json_encode($existingFailedCitations));
+
+        // Update fixed DOIs file
+        $keys = array_unique(array_merge(
+            array_keys($existingProblemDois),
+            array_keys($existingFailedCitations)
+        ));
+
         File::put(
             storage_path('citations_fix_data/problem_dois_fixed.json'),
             json_encode($keys, JSON_UNESCAPED_SLASHES)
