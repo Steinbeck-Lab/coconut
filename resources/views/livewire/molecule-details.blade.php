@@ -398,6 +398,46 @@
                                                             </div>
                                                         </div>
                                                         @endif
+                                                        @if ($molecule->cas && count($molecule->cas) > 0)
+                                                        <div class="group -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                                            <dt
+                                                                class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
+                                                                CAS
+                                                            </dt>
+
+                                                            <div x-data="{ showAll: false }">
+                                                                <div class="no-scrollbar min-w-0">
+                                                                    <ul role="list" class="mt-2 leading-8">
+                                                                        @foreach ($molecule->cas as $index => $cas)
+                                                                        @if ($cas != '')
+                                                                        <li class="inline"
+                                                                            x-show="showAll || {{ $index }} < 10">
+                                                                            <span
+                                                                                class="border px-4 bg-white isolate inline-flex rounded-md shadow-sm mb-2">
+                                                                                {{ $cas }}
+                                                                            </span>
+                                                                        </li>
+                                                                        @endif
+                                                                        @endforeach
+                                                                    </ul>
+                                                                    @if (count($molecule->cas) > 10)
+                                                                    <div class="mt-4">
+                                                                        <button @click="showAll = true"
+                                                                            x-show="!showAll"
+                                                                            class="text-base font-semibold leading-7 text-secondary-dark text-sm">
+                                                                            View More ↓
+                                                                        </button>
+                                                                        <button @click="showAll = false"
+                                                                            x-show="showAll"
+                                                                            class="text-base font-semibold leading-7 text-secondary-dark  text-sm">
+                                                                            View Less ↑
+                                                                        </button>
+                                                                    </div>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        @endif
                                                     </section>
                                                 </div>
                                             </article>
