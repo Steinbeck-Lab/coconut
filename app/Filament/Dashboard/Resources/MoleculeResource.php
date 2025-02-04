@@ -15,6 +15,7 @@ use App\Filament\Dashboard\Resources\MoleculeResource\Widgets\MoleculeStats;
 use App\Models\Molecule;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -65,9 +66,19 @@ class MoleculeResource extends Resource
                     ->label('Standard InChI Key'),
                 TextInput::make('canonical_smiles')
                     ->label('Canonical SMILES'),
+                TagsInput::make('synonyms')
+                    ->placeholder('New Synonym')
+                    ->disabled(function ($operation) {
+                        return $operation == 'view';
+                    }),
+                TagsInput::make('cas')
+                    ->placeholder('New CAS')
+                    ->label('CAS')
+                    ->disabled(function ($operation) {
+                        return $operation == 'view';
+                    }),
                 TextInput::make('murcko_framework')
                     ->label('Murcko Framework'),
-                Textarea::make('synonyms'),
             ]);
     }
 

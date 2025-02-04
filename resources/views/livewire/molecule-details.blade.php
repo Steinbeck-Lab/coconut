@@ -36,22 +36,29 @@
                         </div>
                     </div>
                     @endif
-                    <div
-                        class="lg:py-10 py-5 mx-auto max-w-3xl px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-7xl lg:px-8">
+                    <div class="lg:py-10 py-5 mx-auto max-w-3xl px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-7xl lg:px-8">
                         <div class="flex items-center space-x-5">
                             <div>
                                 <p class="text-secondary-dark text-lg my-0">{{ $molecule->identifier }}</p>
-                                <h1
-                                    class="mb-2 text-2xl break-all font-bold leading-7 break-words text-gray-900 sm:text-3xl sm:tracking-tight">
+                                <h1 class="mb-2 text-2xl break-all font-bold leading-7 break-words text-gray-900 sm:text-3xl sm:tracking-tight">
                                     {!! convert_italics_notation($molecule->name ? $molecule->name : $molecule->iupac_name) !!}
                                 </h1>
-                                <p class="text-sm font-medium text-gray-500">Created on <time
-                                        datetime="{{ $molecule->created_at }}">{{ $molecule->created_at }}</time>
-                                    &middot; Last
-                                    update on <time
-                                        datetime="{{ $molecule->updated_at }}">{{ $molecule->updated_at }}</time>
+                                <p class="text-sm font-medium text-gray-500">Created on <time datetime="{{ $molecule->created_at }}">{{ $molecule->created_at }}</time>
+                                    &middot; Last update on <time datetime="{{ $molecule->updated_at }}">{{ $molecule->updated_at }}</time>
                                 </p>
                             </div>
+                        </div>
+                        <div class="mt-6 flex flex-shrink-0 md:mt-0">
+                            @auth
+                            @if(auth()->user()->roles->isNotEmpty())
+                            <a href="/dashboard/molecules/{{ $molecule->id }}/edit" target="_blank"  class="inline-flex items-center px-4 py-2 border border-secondary-dark rounded-md shadow-sm text-sm font-medium text-white bg-secondary-dark hover:bg-green-700">
+                                <svg class="-ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                </svg>
+                                Edit
+                            </a>
+                            @endif
+                            @endauth
                         </div>
                     </div>
                     @if ($molecule->properties)
@@ -381,6 +388,46 @@
                                                                         @endforeach
                                                                     </ul>
                                                                     @if ($molecule->synonym_count > 10)
+                                                                    <div class="mt-4">
+                                                                        <button @click="showAll = true"
+                                                                            x-show="!showAll"
+                                                                            class="text-base font-semibold leading-7 text-secondary-dark text-sm">
+                                                                            View More ↓
+                                                                        </button>
+                                                                        <button @click="showAll = false"
+                                                                            x-show="showAll"
+                                                                            class="text-base font-semibold leading-7 text-secondary-dark  text-sm">
+                                                                            View Less ↑
+                                                                        </button>
+                                                                    </div>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        @endif
+                                                        @if ($molecule->cas && count($molecule->cas) > 0)
+                                                        <div class="group -ml-4 rounded-xl p-4 hover:bg-slate-100">
+                                                            <dt
+                                                                class="text-sm font-medium text-gray-500 sm:flex sm:justify-between">
+                                                                CAS
+                                                            </dt>
+
+                                                            <div x-data="{ showAll: false }">
+                                                                <div class="no-scrollbar min-w-0">
+                                                                    <ul role="list" class="mt-2 leading-8">
+                                                                        @foreach ($molecule->cas as $index => $cas)
+                                                                        @if ($cas != '')
+                                                                        <li class="inline"
+                                                                            x-show="showAll || {{ $index }} < 10">
+                                                                            <span
+                                                                                class="border px-4 bg-white isolate inline-flex rounded-md shadow-sm mb-2">
+                                                                                {{ $cas }}
+                                                                            </span>
+                                                                        </li>
+                                                                        @endif
+                                                                        @endforeach
+                                                                    </ul>
+                                                                    @if (count($molecule->cas) > 10)
                                                                     <div class="mt-4">
                                                                         <button @click="showAll = true"
                                                                             x-show="!showAll"
