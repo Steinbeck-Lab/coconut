@@ -98,9 +98,6 @@ class Search extends Component
             $this->collection = $results[1];
             $this->organisms = $results[2];
 
-            $this->collection = $results[1];
-            $this->organisms = $results[2];
-
             return view('livewire.search', [
                 'molecules' => $results[0],
             ]);

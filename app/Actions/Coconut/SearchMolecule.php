@@ -78,7 +78,7 @@ class SearchMolecule
                 }
             }
 
-            return [$results,  $this->collection, $this->organisms];
+            return [$results,  $this->collection, $this->organisms, $this->citations];
         } catch (QueryException $exception) {
 
             return $this->handleException($exception);
@@ -202,7 +202,7 @@ class SearchMolecule
             $query_organisms = array_map('strtolower', array_map('trim', explode(',', $this->query)));
             $this->organisms = Organism::where(function ($query) use ($query_organisms) {
                 foreach ($query_organisms as $name) {
-                    $query->orWhereRaw('LOWER(name) LIKE ?', ['%'.strtolower($name).'%']);
+                    $query->orWhereRaw('name ILIKE ?', ['%'.$name.'%']);
                 }
             })->get();
             $organismIds = $this->organisms->pluck('id');
@@ -211,13 +211,14 @@ class SearchMolecule
                 $query->whereIn('organism_id', $organismIds);
             })->where('active', true)->where('is_parent', false)->orderBy('annotation_level', 'DESC')->paginate($this->size);
         } elseif ($this->tagType == 'citations') {
-            $this->citations = array_map('strtolower', array_map('trim', explode(',', $this->query)));
-            $citationIds = Citation::where(function ($query) {
-                foreach ($this->citations as $name) {
-                    $query->orWhereRaw('LOWER(doi) LIKE ?', ['%'.strtolower($name).'%'])
-                        ->orWhereRaw('LOWER(title) LIKE ?', ['%'.strtolower($name).'%']);
+            $query_citations = array_map('strtolower', array_map('trim', explode(',', $this->query)));
+            $this->citations = Citation::where(function ($query) use ($query_citations) {
+                foreach ($query_citations as $name) {
+                    $query->orWhereRaw('doi ILIKE ?', ['%'.$name.'%'])
+                        ->orWhereRaw('title ILIKE ?', ['%'.$name.'%']);
                 }
-            })->pluck('id');
+            })->get();
+            $citationIds = $this->citations->pluck('id');
 
             return Molecule::whereHas('citations', function ($query) use ($citationIds) {
                 $query->whereIn('citation_id', $citationIds);
