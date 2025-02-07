@@ -32,9 +32,18 @@ class MoleculeHistoryTimeline extends Component
                 $audit_data[$index]['affected_columns'][$affected_column]['new_value'] = $audit->new_values ? array_values($audit->new_values)[0] : null;
             } else {
                 foreach ($audit->getModified() as $affected_column => $value) {
-
-                    $audit_data[$index]['affected_columns'][$affected_column]['old_value'] = array_key_exists('old', $value) ? $value['old'] : null;
-                    $audit_data[$index]['affected_columns'][$affected_column]['new_value'] = array_key_exists('new', $value) ? $value['new'] : null;
+                    // Pre-process IUPAC names with italic conversion
+                    if ($affected_column === 'iupac_name') {
+                        $audit_data[$index]['affected_columns'][$affected_column]['old_value'] =
+                            array_key_exists('old', $value) ? convert_italics_notation($value['old']) : null;
+                        $audit_data[$index]['affected_columns'][$affected_column]['new_value'] =
+                            array_key_exists('new', $value) ? convert_italics_notation($value['new']) : null;
+                    } else {
+                        $audit_data[$index]['affected_columns'][$affected_column]['old_value'] =
+                            array_key_exists('old', $value) ? $value['old'] : null;
+                        $audit_data[$index]['affected_columns'][$affected_column]['new_value'] =
+                            array_key_exists('new', $value) ? $value['new'] : null;
+                    }
                 }
             }
         }
