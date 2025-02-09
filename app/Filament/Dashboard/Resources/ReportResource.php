@@ -246,8 +246,9 @@ class ReportResource extends Resource
                                             ->columnSpan(4),
                                         TagsInput::make('new_geo_locations')
                                             ->label('New')
-                                            ->separator(',')
-                                            ->splitKeys([','])
+                                            ->hint("Use '|' (pipe) to separate synonyms")
+                                            ->separator('|')
+                                            ->splitKeys(['|'])
                                             ->disabled(function (Get $get, string $operation) {
                                                 return ! $get('show_geo_location_new') && $operation == 'edit';
                                             })
@@ -338,8 +339,9 @@ class ReportResource extends Resource
                                             ->columnSpan(4),
                                         TagsInput::make('new_cas')
                                             ->label('New')
-                                            ->separator(',')
-                                            ->splitKeys([','])
+                                            ->hint("Use '|' (pipe) to separate synonyms")
+                                            ->separator('|')
+                                            ->splitKeys(['|'])
                                             ->disabled(function (Get $get, string $operation) {
                                                 return ! $get('show_cas_new') && $operation == 'edit';
                                             })
