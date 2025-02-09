@@ -286,9 +286,9 @@ function getOverallChanges($data)
     $synonym_changes = [];
     $db_synonyms = $molecule->synonyms;
     $deletable_synonyms = array_key_exists('existing_synonyms', $data) && ! empty($db_synonyms) ? array_diff($db_synonyms, $data['existing_synonyms']) : [];
-    $new_synonyms = array_key_exists('new_synonyms', $data) ? (is_string($data['new_synonyms']) ? $data['new_synonyms'] : implode(',', $data['new_synonyms'])) : null;
+    $new_synonyms = array_key_exists('new_synonyms', $data) ? (is_string($data['new_synonyms']) ? $data['new_synonyms'] : implode('|', $data['new_synonyms'])) : null;
     if (count($deletable_synonyms) > 0 || $new_synonyms) {
-        $key = implode(',', $deletable_synonyms) == '' ? ' ' : implode(',', $deletable_synonyms);
+        $key = implode('|', $deletable_synonyms) == '' ? ' ' : implode('|', $deletable_synonyms);
         $synonym_changes[$key] = $new_synonyms;
         $overall_changes['synonym_changes'] = [
             'key' => 'Delete',

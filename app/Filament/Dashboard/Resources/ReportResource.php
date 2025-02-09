@@ -821,7 +821,7 @@ class ReportResource extends Resource
                     $molecule->synonyms = $db_synonyms;
                 }
                 if (! empty(self::$overall_changes['synonym_changes']['add'])) {
-                    $synonyms = explode(',', self::$overall_changes['synonym_changes']['add']);
+                    $synonyms = explode('|', self::$overall_changes['synonym_changes']['add']);
                     $db_synonyms = array_merge($db_synonyms, $synonyms);
                     $molecule->synonyms = $db_synonyms;
                 }
