@@ -179,6 +179,7 @@ return [
         App\Providers\RestDocumentationServiceProvider::class,
         App\Providers\DOIServiceProvider::class,
         SocialiteProviders\Generators\GeneratorsServiceProvider::class,
+        Lomkit\Rest\RestServiceProvider::class,
     ])->toArray(),
 
     /*
