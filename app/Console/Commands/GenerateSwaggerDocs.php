@@ -66,6 +66,16 @@ class GenerateSwaggerDocs extends Command
             }
         }
 
+        $jsonData['components']['securitySchemes'] = [
+            'sanctum' => [
+                'type' => 'apiKey',
+                'scheme' => 'Bearer',
+                'description' => 'Enter token in format (Bearer \<token\>)',
+                'name' => 'Authorization',
+                'in' => 'header',
+            ],
+        ];
+
         $updatedJsonContents = json_encode($jsonData, JSON_PRETTY_PRINT);
 
         File::put($jsonFilePath, $updatedJsonContents);
