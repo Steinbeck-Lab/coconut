@@ -39,6 +39,8 @@ class CreateMissingDOIs extends Command
 
         $batchSize = 10000;
         $totalCitationsCreated = 0;
+        $totalFailedCitations = 0;
+        $totalDuplicateCitations = 0;
 
         $totalRecords = DB::table('entries')->where('status', 'PASSED')->count();
         $totalBatches = ceil($totalRecords / $batchSize);
@@ -50,13 +52,14 @@ class CreateMissingDOIs extends Command
             ->select('doi', 'molecule_id')
             ->where('status', '=', 'PASSED')
             ->orderBy('id')
-            ->chunk($batchSize, function (Collection $entries) use (&$totalCitationsCreated, &$batchCount, $totalBatches) {
+            ->chunk($batchSize, function (Collection $entries) use (&$totalCitationsCreated, &$totalFailedCitations, &$totalDuplicateCitations, &$batchCount, $totalBatches) {
                 $startBatch = (int) $this->argument('start_batch');
                 if ($batchCount >= $startBatch) {
-                    DB::transaction(function () use ($entries, &$totalCitationsCreated, $batchCount, $totalBatches) {
+                    DB::transaction(function () use ($entries, &$totalCitationsCreated, &$totalFailedCitations, &$totalDuplicateCitations, $batchCount, $totalBatches) {
                         $this->info("\nProcessing batch {$batchCount} of {$totalBatches}");
                         $citationsCreatedCount = 0;
                         $failedCitationsCount = 0;
+                        $duplicateCitationsCount = 0;
 
                         // Reset problem and failed arrays for this batch
                         $batchProblemDois = [];
@@ -87,6 +90,8 @@ class CreateMissingDOIs extends Command
 
                         // de-duplicate citations
                         $newCitations = array_unique($newCitations, SORT_REGULAR);
+                        $duplicateCitationsCount = $citationsCreatedCount - count($newCitations);
+                        $citationsCreatedCount = count($newCitations);
 
                         // Bulk insert new citations and their audits
                         if (! empty($newCitations)) {
@@ -136,6 +141,7 @@ class CreateMissingDOIs extends Command
                                     $citationAudits[$index]['auditable_id'] = $citationIdMap[$citationDoi];
                                 }
                             }
+                            // Insert citation audits
                             DB::table('audits')->insert($citationAudits);
 
                             // Prepare bulk insert for citables and audits
@@ -207,6 +213,8 @@ class CreateMissingDOIs extends Command
                         }
 
                         $totalCitationsCreated += $citationsCreatedCount;
+                        $totalFailedCitations += $failedCitationsCount;
+                        $totalDuplicateCitations += $duplicateCitationsCount;
 
                         // Write this batch's results
                         $this->writeOutputFiles($batchProblemDois, $batchFailedCitations);
@@ -215,11 +223,15 @@ class CreateMissingDOIs extends Command
                         $this->line('');
                         $this->info('Citations created: '.$citationsCreatedCount);
                         $this->info('Failed citations: '.$failedCitationsCount);
+                        $this->info('Duplicate citations: '.$duplicateCitationsCount);
                     });
                 }
                 $batchCount++;
             });
 
+        $this->info('Total citations created: '.$totalCitationsCreated);
+        $this->info('Total failed citations: '.$totalFailedCitations);
+        $this->info('Total duplicate citations: '.$totalDuplicateCitations);
     }
 
     private function loadCorrectedDois(): void
@@ -284,6 +296,7 @@ class CreateMissingDOIs extends Command
             return;
         }
 
+        // Get the corrected DOI if it exists
         $dois = $this->correctedDois[$doi] ?? $doi;
         foreach (explode('|', $dois) as $singleDoi) {
             $singleDoi = trim($singleDoi);
