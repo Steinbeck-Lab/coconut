@@ -270,9 +270,9 @@ function getOverallChanges($data)
 
     $db_geo_locations = $molecule->geo_locations->pluck('name')->toArray();
     $deletable_locations = array_key_exists('existing_geo_locations', $data) ? array_diff($db_geo_locations, $data['existing_geo_locations']) : [];
-    $new_locations = array_key_exists('new_geo_locations', $data) ? (is_string($data['new_geo_locations']) ? $data['new_geo_locations'] : implode(',', $data['new_geo_locations'])) : null;
+    $new_locations = array_key_exists('new_geo_locations', $data) ? (is_string($data['new_geo_locations']) ? $data['new_geo_locations'] : implode('|', $data['new_geo_locations'])) : null;
     if (count($deletable_locations) > 0 || $new_locations) {
-        $key = implode(',', $deletable_locations) == '' ? ' ' : implode(',', $deletable_locations);
+        $key = implode('|', $deletable_locations) == '' ? ' ' : implode('|', $deletable_locations);
         $geo_location_changes[$key] = $new_locations;
         $overall_changes['geo_location_changes'] = [
             'key' => 'Delete',
@@ -286,9 +286,9 @@ function getOverallChanges($data)
     $synonym_changes = [];
     $db_synonyms = $molecule->synonyms;
     $deletable_synonyms = array_key_exists('existing_synonyms', $data) && ! empty($db_synonyms) ? array_diff($db_synonyms, $data['existing_synonyms']) : [];
-    $new_synonyms = array_key_exists('new_synonyms', $data) ? (is_string($data['new_synonyms']) ? $data['new_synonyms'] : implode(',', $data['new_synonyms'])) : null;
+    $new_synonyms = array_key_exists('new_synonyms', $data) ? (is_string($data['new_synonyms']) ? $data['new_synonyms'] : implode('|', $data['new_synonyms'])) : null;
     if (count($deletable_synonyms) > 0 || $new_synonyms) {
-        $key = implode(',', $deletable_synonyms) == '' ? ' ' : implode(',', $deletable_synonyms);
+        $key = implode('|', $deletable_synonyms) == '' ? ' ' : implode('|', $deletable_synonyms);
         $synonym_changes[$key] = $new_synonyms;
         $overall_changes['synonym_changes'] = [
             'key' => 'Delete',
@@ -314,9 +314,9 @@ function getOverallChanges($data)
     $cas_changes = [];
     $db_cas = $molecule->cas;
     $deletable_cas = array_key_exists('existing_cas', $data) && ! empty($db_cas) ? array_diff($db_cas, $data['existing_cas']) : [];
-    $new_cas = array_key_exists('new_cas', $data) ? (is_string($data['new_cas']) ? $data['new_cas'] : implode(',', $data['new_cas'])) : null;
+    $new_cas = array_key_exists('new_cas', $data) ? (is_string($data['new_cas']) ? $data['new_cas'] : implode('|', $data['new_cas'])) : null;
     if (count($deletable_cas) > 0 || $new_cas) {
-        $key = implode(',', $deletable_cas) == '' ? ' ' : implode(',', $deletable_cas);
+        $key = implode('|', $deletable_cas) == '' ? ' ' : implode('|', $deletable_cas);
         $cas_changes[$key] = $new_cas;
         $overall_changes['cas_changes'] = [
             'key' => 'Delete',
