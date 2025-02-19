@@ -629,10 +629,10 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Eos et fugit consequatur rerum.",
-                                        "description": "Ipsum expedita enim totam. Nisi officia et hic eum. Explicabo quia cumque perferendis. Ab minus ut consequatur repellat.",
-                                        "url": "http:\/\/www.schaefer.biz\/accusantium-quo-ex-expedita-excepturi-reiciendis",
-                                        "identifier": "Et qui modi qui nihil quibusdam quam fugit earum."
+                                        "title": "Consequatur magni magni accusantium dolorem magni.",
+                                        "description": "In culpa qui aut quas enim aliquid. Qui aut velit reiciendis praesentium et et. Atque soluta aperiam praesentium dolores occaecati.",
+                                        "url": "http:\/\/www.ortiz.com\/est-minus-omnis-provident",
+                                        "identifier": null
                                     },
                                     "meta": []
                                 }
@@ -674,10 +674,10 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Officia eum voluptates non consequatur et.",
-                                        "description": "Fugit illo ut commodi rem modi neque pariatur. Mollitia amet est est velit nihil numquam. Nobis dicta voluptatem voluptate nihil soluta omnis odit. In sit et quibusdam sed mollitia. Voluptatibus magni totam quasi accusantium mollitia quo cum.",
-                                        "url": "http:\/\/herman.org\/animi-cum-culpa-hic-blanditiis-accusamus-laboriosam-in",
-                                        "identifier": null
+                                        "title": "Atque et fuga ea aut ad.",
+                                        "description": "Qui vitae eius aut dolores et totam. Nulla dolores et id sed. Amet nobis dolorum voluptatibus minus sunt. Minus et vitae nostrum provident sunt.",
+                                        "url": "http:\/\/kiehn.com\/",
+                                        "identifier": "Rem debitis harum culpa magnam iste."
                                     },
                                     "meta": []
                                 }
@@ -946,9 +946,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1093\/jpp\/rgae021~48",
-                                        "title": "Research progress on ethnobotany, phytochemistry, pharmacological action, and applications of Engelhardia roxburghiana Wall: a review.",
-                                        "authors": "Li Y, Xia W, Li T, Zhang Y, Zhang W, Yue J, Wang L, Zhu X, Fu X.",
+                                        "doi": "10.1007\/s13659-024-00493-5~48",
+                                        "title": "Marine natural products as a source of novel anticancer drugs: an updated review (2019-2023).",
+                                        "authors": "El-Seedi HR, Refaey MS, Elias N, El-Mallah MF, Albaqami FMK, Dergaa I, Du M, Salem MF, Tahir HE, Dagliaa M, Yosri N, Zhang H, El-Seedi AH, Guo Z, Khalifa SAM.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -991,9 +991,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1039\/d4np00067f~29",
-                                        "title": "Marine natural products.",
-                                        "authors": "Carroll AR, Copp BR, Grkovic T, Keyzers RA, Prinsep MR.",
+                                        "doi": "10.1016\/j.plaphy.2024.109421~8",
+                                        "title": "Secondary metabolites-mediated regulation of plant defense mechanism.",
+                                        "authors": "Javed T, Fahad S, Abdelsalam NR, Wu H.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -1568,8 +1568,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Dr. Lavern Murazik V",
-                                        "email": "ullrich.kattie@example.com"
+                                        "name": "Herbert Runolfsson",
+                                        "email": "laurine32@example.com"
                                     },
                                     "meta": []
                                 }
@@ -1611,8 +1611,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Mary Heidenreich",
-                                        "email": "morissette.lew@example.com"
+                                        "name": "Davonte Price",
+                                        "email": "nader.jo@example.com"
                                     },
                                     "meta": []
                                 }
