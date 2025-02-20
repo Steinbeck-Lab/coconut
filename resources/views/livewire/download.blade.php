@@ -85,9 +85,9 @@
                                     Complete (active/inactive) COCONUT dataset
                                 </div>
                                 <div class="mt-1 flex border-b border-gray-100 pb-2">
-                                    <a href="https://coconut.s3.uni-jena.de/prod/downloads/2024-10/coconut-dump-10-2024.sql"
+                                    <a href="https://coconut.s3.uni-jena.de/prod/downloads/2025-02/coconut-dump-02-2025.sql"
                                         class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
-                                        (coconut-dump-10-2024 / 1.84 GB)<span aria-hidden="true">→</span></a>
+                                        (coconut-dump-02-2025.sql / 31.91 GB)<span aria-hidden="true">→</span></a>
                                 </div>
                             </div>
                             <div class="mt-4">
