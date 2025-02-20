@@ -12,6 +12,7 @@
                 @php
                     $slug = Str::slug($collection->title);
                     $currentYearMonth = now()->format('Y-m');
+                    $currentMonthYear = now()->format('m-Y');
                 @endphp
 
                 @if ($collection->doi)
@@ -21,7 +22,7 @@
                 </a><br/>
                 @endif
                 
-                <a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/collections/{{ $slug }}.zip" 
+                <a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/collections/{{ $slug }}-{{ $currentMonthYear }}.zip" 
                 class="mt-4 inline-block text-sm text-blue-600 underline">
                     Download Collection (SDF) <span aria-hidden="true">→</span>
                 </a>
