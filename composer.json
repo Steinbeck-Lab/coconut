@@ -20,7 +20,7 @@
         "filament/spatie-laravel-tags-plugin": "^3.2.131",
         "guzzlehttp/guzzle": "^7.9.2",
         "kenepa/banner": "^0.0.9",
-        "laravel/framework": "^11.36.1",
+        "laravel/framework": "^12.0",
         "laravel/horizon": "*",
         "laravel/jetstream": "^5.3.4",
         "laravel/octane": "^2.6",
