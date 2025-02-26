@@ -58,11 +58,27 @@ class CurateCitations extends Command
         $totalFailedCitations = 0;
         $totalDuplicateCitations = 0;
 
-        $totalRecords = DB::table('entries')->where('status', 'PASSED')->count();
+        // Get collection ID if provided and validate
+        $collectionID = $this->ask('Enter the collection ID for which the citations to be imported: ', null);
+        $existingCollectionIDs = DB::table('collections')->pluck('id')->toArray();
+        if ($collectionID !== null && ! in_array($collectionID, $existingCollectionIDs)) {
+            $this->error('Collection ID does not exist.');
+
+            return;
+        }
+
+        // Get total records to process
+        $query = DB::table('entries')->where('status', 'PASSED');
+        if ($collectionID != 0) {
+            $query->where('collection_id', '=', $collectionID);
+        }
+        $totalRecords = $query->count();
+
         $totalBatches = ceil($totalRecords / $batchSize);
         $batchCount = 1;
 
         $this->info("Total batches to process: {$totalBatches}");
+
         $correctedDOIs = $this->ask('Enter the path of the corrected dois file (tsv file): ', 'doi_replaced.tsv');
         $startBatch = $this->ask('Starting batch: ', 1);
 
@@ -73,10 +89,15 @@ class CurateCitations extends Command
         $problemDois = [];
         $failedCitations = [];
 
-        DB::table('entries')
+        $query = DB::table('entries')
             ->select('id', 'doi', 'molecule_id')
-            ->where('status', '=', 'PASSED')
-            ->orderBy('id')
+            ->where('status', '=', 'PASSED');
+
+        if ($collectionID != null) {
+            $query->where('collection_id', '=', $collectionID);
+        }
+
+        $query->orderBy('id')
             ->chunkById($batchSize, function (Collection $entries) use (&$totalCitationsCreated, &$totalFailedCitations, &$totalDuplicateCitations, &$batchCount, $totalBatches, $startBatch, &$problemDois, &$failedCitations) {
                 if ($batchCount >= $startBatch) {
                     DB::transaction(function () use ($entries, &$totalCitationsCreated, &$totalFailedCitations, &$totalDuplicateCitations, $batchCount, $totalBatches, &$problemDois, &$failedCitations) {
