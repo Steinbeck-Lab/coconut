@@ -59,6 +59,8 @@ While using our Service, we may ask you to provide us with certain personally id
 
 We may also collect information on how the Service is accessed and used ("Usage Data"). This Usage Data may include information such as your computer's Internet Protocol address (e.g. IP address), browser type, browser version, the pages of our Service that you visit, the time and date of your visit, the time spent on those pages, unique device identifiers and other diagnostic data.
 
+For searches conducted on the Coconuts Search Page, we do not track individual search history on our servers; all structure based search history is stored locally on the user's device. Additionally, our system does not retain information related to search queries that return zero results. However, we may collect and analyze aggregated search keywords to improve performance and optimize the user experience. These keywords, along with related logs and reports, are automatically deleted after 365 days.
+
 #### Tracking & Cookies Data
 
 We use cookies and similar tracking technologies to track the activity on our Service and we hold certain information.
@@ -104,13 +106,13 @@ COCONUT will also retain Usage Data for internal analysis purposes. Usage Data i
 
 ## Transfer of Data
 
-Your information, including Personal Data, may be transferred to — and maintained on — computers located outside of your state, province, country or other governmental jurisdiction where the data protection laws may differ from those of your jurisdiction.
+Your information, including Personal Data, may be transferred to—and maintained on—computers located outside your state, province, country, or other governmental jurisdiction where data protection laws may differ from those of your jurisdiction.
 
-If you are located outside United Kingdom and choose to provide information to us, please note that we transfer the data, including Personal Data, to United Kingdom and process it there.
+If you are located in the European Economic Area (EEA) or Switzerland and choose to provide information to us, please note that we may transfer your data, including Personal Data, to the United Kingdom or other jurisdictions where we operate and process it there.
 
-Your consent to this Privacy Policy followed by your submission of such information represents your agreement to that transfer.
+Your consent to this Privacy Policy, followed by your submission of such information, represents your agreement to that transfer.
 
-COCONUT will take all the steps reasonably necessary to ensure that your data is treated securely and in accordance with this Privacy Policy and no transfer of your Personal Data will take place to an organisation or a country unless there are adequate controls in place including the security of your data and other personal information.
+COCONUT will take all reasonably necessary steps to ensure that your data is treated securely and in accordance with this Privacy Policy. No transfer of your Personal Data will take place to an organisation or a country unless adequate safeguards, such as Standard Contractual Clauses (SCCs) or equivalent mechanisms, are in place to ensure the security and protection of your data and other personal information in compliance with applicable data protection laws.
 
 ## Disclosure of Data
 
@@ -172,42 +174,25 @@ We use the following Service Providers to monitor and analyse the use of our Ser
 
     Matomo is processing the following personal data:
 
-    Pick up the one you are using:
-
-    - Cookies
-    - IP address
-    - User ID
-    - Custom Dimensions
-    - Custom Variables
-    - Order ID
-    - Location of the user
-
-    And also:
-
-    - Date and time
-    - Title of the page being viewed
-    - URL of the page being viewed
-    - URL of the page that was viewed prior to the current page
+    - IP address (anonymized)
+    - Custom Dimensions and Custom Variables
+    - Location data
+    - Date and time of visit
+    - Title and URL of the page being viewed
+    - URL of the referring page (previous page visited)
     - Screen resolution
     - Time in local timezone
     - Files that were clicked and downloaded
-    - Link clicks to an outside domain
-    - Pages generation time
-    - Country, region, city
-    - Main Language of the browser
-    - User Agent of the browser
-
-    This list can be completed with additional features such as:
-
-    - Session recording, mouse events (movements, content forms and clicks)
-    - Form interactions
-    - Media interactions
-    - A/B Tests
-    - Pick up one of the two:
+    - Link clicks to an external domain
+    - Page generation time (how long the page took to load)
+    - Browser information (main language, user agent)
+    - Mouse movements, clicks, and interactions
+    - Form interactions (e.g., which fields were interacted with)
+    - Media interactions (e.g., video plays, pauses)
 
     The processing of personal data with Matomo is based on legitimate interests:
 
-    Processing your personal data such as cookies is helping us identify what is working and what is not on our website. For example, it helps us identify if the way we are communicating is engaging or not and how we can organize the structure of the website better. Our team is benefiting from the processing of your personal data, and they are directly acting on the website. By processing your personal data, you can profit from a website which is getting better and better.
+    Processing your personal data such as anonymized IP address is helping us identify what is working and what is not on our website. For example, it helps us identify if the way we are communicating is engaging or not and how we can organize the structure of the website better. Our team is benefiting from the processing of your personal data, and they are directly acting on the website. By processing your personal data, you can profit from a website which is getting better and better.
 
     Without the data, we would not be able to provide you the service we are currently offering to you. Your data will be used only to improve the user experience on our website and help you find the information you are looking for.
 
