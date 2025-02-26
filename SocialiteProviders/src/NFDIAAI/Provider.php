@@ -52,7 +52,9 @@ class Provider extends AbstractProvider
     protected function mapUserToObject(array $user)
     {
         if (! isset($user['voperson_id']) || empty($user['voperson_id'])) {
-            throw new InvalidArgumentException('The user data is invalid: a unique "id" is required.');
+            throw new InvalidArgumentException(
+                'The user data is invalid: a unique "id" is required. User Data: '.json_encode($user)
+            );
         }
 
         return (new User)->setRaw($user)->map([
