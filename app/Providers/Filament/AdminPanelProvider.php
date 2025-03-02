@@ -47,7 +47,8 @@ class AdminPanelProvider extends PanelProvider
                 FilamentExceptionsPlugin::make(),
                 DebuggerPlugin::make(),
                 SpotlightPlugin::make(),
-                AdvancedTablesPlugin::make(),
+                AdvancedTablesPlugin::make()
+                ->resourceEnabled(false),
                 BannerPlugin::make(),
             ])
             ->middleware([

@@ -45,7 +45,8 @@ class DashboardPanelProvider extends PanelProvider
                     ->favoritesBarDivider()
                     ->favoritesBarSize(ActionSize::Small)
                     ->favoritesBarDefaultView(false)
-                    ->presetViewsManageable(false),
+                    ->presetViewsManageable(false)
+                    ->resourceEnabled(false),
                 SpotlightPlugin::make(),
                 BannerPlugin::make()
                     ->disableBannerManager(),

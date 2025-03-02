@@ -33,7 +33,7 @@ class DashWidgetsRefresh extends Command
 
         // Create the cache for all DashboardStats widgets
         Cache::flexible('stats.collections', [172800, 259200], function () {
-            return DB::table('collections')->selectRaw('count(*)')->get()[0]->count;
+            return DB::table('collections')->selectRaw("count(*) as count FROM collections WHERE status = 'PUBLISHED'")->get()[0]->count;
         });
         $this->info('Cache for collections refreshed.');
 
