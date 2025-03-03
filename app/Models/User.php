@@ -7,6 +7,8 @@ use Archilex\AdvancedTables\Concerns\HasViews;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -78,6 +80,14 @@ class User extends Authenticatable implements Auditable, FilamentUser
     public function reports(): HasMany
     {
         return $this->hasMany(Report::class);
+    }
+
+    public function curatedReports(): BelongsToMany
+    {
+        return $this->belongsToMany(Report::class, 'report_user', 'user_id', 'report_id')
+            ->using(ReportUser::class)
+            ->withPivot('curator_number', 'status', 'comment')
+            ->withTimestamps();
     }
 
     /**

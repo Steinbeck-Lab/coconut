@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\ModelStates\HasStates;
@@ -82,9 +83,12 @@ class Report extends Model implements Auditable
         return $this->belongsTo(User::class);
     }
 
-    public function curator(): BelongsTo
+    public function curators(): BelongsToMany
     {
-        return $this->belongsTo(User::class, 'assigned_to');
+        return $this->belongsToMany(User::class, 'report_user', 'report_id', 'user_id')
+            ->using(ReportUser::class)
+            ->withPivot('curator_number', 'status', 'comment')
+            ->withTimestamps();
     }
 
     public function transformAudit(array $data): array
