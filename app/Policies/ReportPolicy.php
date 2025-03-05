@@ -42,7 +42,18 @@ class ReportPolicy
      */
     public function update(User $user, Report $report): bool
     {
-        if (($user->can('update_report') && (($report->assigned_to == null || $report->assigned_to == $user->id) && ($report->status != 'approved') && ($report->status != 'rejected'))) || ($user->id == $report->user_id && $report->status == null)) {
+        if (($user->can('update_report')
+                && ((
+                    ($report->status == 'submitted' && $report->curators()->wherePivot('curator_number', 1)->first()?->id == $user->id)
+                    ||
+                    (($report->status == 'pending_approval' || $report->status == 'pending_rejection') && $report->curators()->wherePivot('curator_number', 2)->first()?->id == $user->id)
+                )
+                && ($report->status != 'approved')
+                && ($report->status != 'rejected')
+                )
+        )
+        || ($user->id == $report->user_id && $report->status == null)
+        ) {
             return true;
         } else {
             return false;

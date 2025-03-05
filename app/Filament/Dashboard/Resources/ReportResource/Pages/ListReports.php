@@ -37,6 +37,18 @@ class ListReports extends ListRecords
                 })
                 ->preserveAll()
                 ->default(),
+            'pending' => PresetView::make()
+                ->modifyQueryUsing(fn ($query) => $query->where('status', 'pending_approval')->orWhere('status', 'pending_rejection'))
+                ->favorite()
+                ->badge(function () {
+                    if (auth()->user()->roles()->exists()) {
+                        return Report::query()->where('status', 'pending_approval')->orWhere('status', 'pending_rejection')->count();
+                    }
+
+                    return Report::query()->where('user_id', auth()->id())->where('status', 'pending_approval')->orWhere('status', 'pending_rejection')->count();
+                })
+                ->preserveAll()
+                ->default(),
             'approved' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where('status', 'approved'))
                 ->favorite()

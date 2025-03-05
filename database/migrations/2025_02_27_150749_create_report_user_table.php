@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('report_id');
             $table->foreignId('user_id');
             $table->integer('curator_number');
-            $table->enum('status', ['pendingApproval', 'pendingRejection', 'approved', 'rejected'])->nullable();
+            $table->enum('status', ['pending_approval', 'pending_rejection', 'approved', 'rejected'])->nullable();
             $table->longText('comment')->nullable();
             $table->timestamps();
         });
