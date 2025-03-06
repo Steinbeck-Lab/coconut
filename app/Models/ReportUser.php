@@ -17,14 +17,23 @@ class ReportUser extends Pivot implements Auditable
 
     // Optional: Set auditable events
     protected $auditableEvents = [
-        'created', 'updated', 'deleted',
+        'created',
+        'updated',
+        'deleted',
     ];
 
-    public function transformAudit(array $data): array
-    {
-        $data['auditable_id'] = $data['new_values']['report_id'] ?? $data['old_values']['report_id'];
-        $data['auditable_type'] = Report::class;
+    /**
+     * Indicates if the IDs are auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = true;
 
-        return changeAudit($data);
-    }
+    // public function transformAudit(array $data): array
+    // {
+    //     $data['auditable_id'] = $this->report_id;
+    //     $data['auditable_type'] = Report::class;
+
+    //     return changeAudit($data);
+    // }
 }
