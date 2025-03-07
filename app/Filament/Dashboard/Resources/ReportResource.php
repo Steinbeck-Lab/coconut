@@ -233,8 +233,9 @@ class ReportResource extends Resource
                 Textarea::make('evidence')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Please provide Evidence/Comment to support your claims in this report. This will help our Curators in reviewing your report.')
                     ->label('Evidence/Comment')
-                    ->hidden(function (Get $get) {
-                        return $get('is_change');
+                    ->required()
+                    ->disabled(function (string $operation) {
+                        return $operation != 'create';
                     }),
                 TextInput::make('status')
                     ->hidden(function (string $operation) {
