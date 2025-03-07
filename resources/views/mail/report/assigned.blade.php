@@ -5,7 +5,7 @@ Hello {{ $curator->name }},
 
 As a COCONUT curator, you have been assigned a report titled "{{ $event->report->title }}".
 
-Please review the report and leave your comments1.
+Please review the report and leave your comments.
 
 <x-mail::button :url="$url">
 To the Report

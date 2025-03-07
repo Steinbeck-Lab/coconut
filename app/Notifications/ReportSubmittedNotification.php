@@ -42,12 +42,10 @@ class ReportSubmittedNotification extends Notification implements ShouldQueue
     {
         $url = url(env('APP_URL').'/dashboard/reports/'.$this->event->report->id);
 
-        $subject_prefix = '';
-        if ($this->mail_to == 'owner') {
-            $subject_prefix = 'Coconut: Your report "';
-        } else {
-            $subject_prefix = 'Coconut: A new report "';
-        }
+        $report_or_change = $this->event->report->is_change ? 'Change Request "' : 'Report "';
+
+        $subject_prefix = $this->mail_to == 'owner' ? 'Coconut: Your ' : 'Coconut: A new ';
+        $subject_prefix .= $report_or_change;
 
         return (new MailMessage)
             ->subject($subject_prefix.$this->event->report->title.'" has been submitted.')
