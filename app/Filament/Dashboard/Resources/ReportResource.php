@@ -840,35 +840,44 @@ class ReportResource extends Resource
                 $status = 'pending_approval';
                 $curator_number = 1;
             }
-            $pivot = ReportUser::where('report_id', $record->id)
-                ->where('user_id', auth()->id())
-                ->where('curator_number', $curator_number)
-                ->firstOrFail();
-
-            $pivot->status = $status;
-            $pivot->comment = $data['reason'];
-            $pivot->save();
-            $record['status'] = $status;
-            $record->save();
-            $record->refresh();
-            ReportStatusChanged::dispatch($record);
         } else {
+            // This has to be here so as to log the audit changes properly between the 1st and 2nd approvals.
+            self::$overall_changes = getOverallChanges(self::$approved_changes);
+
             // In case of Changes
-            // Run SQL queries for the approved changes
-            self::runSQLQueries($record);
+            if ($record['status'] == 'pending_approval' || $record['status'] == 'pending_rejection') {
+                // Run SQL queries for the approved changes
+                self::runSQLQueries($record);
+                $status = 'approved';
+                $curator_number = 2;
+            } else {
+                $status = 'pending_approval';
+                $curator_number = 1;
+            }
 
             $suggested_changes = $record['suggested_changes'];
 
             $suggested_changes['curator']['approved_changes'] = self::$overall_changes;
             $record['suggested_changes'] = $suggested_changes;
-            $record->comment = prepareComment($data['reason']);
-            $record['status'] = 'approved';
             $formData = copyChangesToCuratorJSON($record, $livewire->data);
             $suggested_changes['curator'] = $formData['suggested_changes']['curator'];
             $record['suggested_changes'] = $suggested_changes;
 
             $record->save();
+            $record->refresh();
         }
+        $pivot = ReportUser::where('report_id', $record->id)
+            ->where('user_id', auth()->id())
+            ->where('curator_number', $curator_number)
+            ->firstOrFail();
+
+        $pivot->status = $status;
+        $pivot->comment = $data['reason'];
+        $pivot->save();
+        $record['status'] = $status;
+        $record->save();
+        $record->refresh();
+        ReportStatusChanged::dispatch($record);
         $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
     }
 
@@ -894,13 +903,13 @@ class ReportResource extends Resource
         $record['status'] = $status;
         $record->save();
 
+        ReportStatusChanged::dispatch($record);
         $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
     }
 
     public static function runSQLQueries(Report $record): void
     {
         DB::transaction(function () use ($record) {
-            self::$overall_changes = getOverallChanges(self::$approved_changes);
 
             // Check if 'molecule_id' is provided or use a default molecule for association/dissociation
             $molecule = Molecule::where('identifier', $record['mol_id_csv'])->first();
