@@ -173,7 +173,7 @@ class ReportResource extends Resource
                                             return $curator?->id;
                                         })
                                         ->options(function () {
-                                            return $users = User::whereHas('roles')->pluck('name', 'id');
+                                            return User::whereHas('roles')->pluck('name', 'id');
                                         }),
                                 ])
                                 ->action(function (array $data, Report $record, $livewire): void {

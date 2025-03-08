@@ -78,9 +78,9 @@ class Report extends Model implements Auditable
     /**
      * Get all of the users that are assigned this report.
      */
-    public function users(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function curators(): BelongsToMany
