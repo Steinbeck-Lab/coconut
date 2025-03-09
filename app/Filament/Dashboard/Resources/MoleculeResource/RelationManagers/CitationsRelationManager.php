@@ -15,7 +15,7 @@ class CitationsRelationManager extends RelationManager
     public function form(Form $form): Form
     {
         return $form
-            ->schema([]);
+            ->schema(Citation::getForm());
     }
 
     public function table(Table $table): Table

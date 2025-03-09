@@ -48,7 +48,7 @@ class AdminPanelProvider extends PanelProvider
                 DebuggerPlugin::make(),
                 SpotlightPlugin::make(),
                 AdvancedTablesPlugin::make()
-                ->resourceEnabled(false),
+                    ->resourceEnabled(false),
                 BannerPlugin::make(),
             ])
             ->middleware([
