@@ -74,9 +74,20 @@ class ListReports extends ListRecords
         ];
         if (auth()->user()->roles()->exists()) {
             $presetViews['assigned'] = PresetView::make()
-                ->modifyQueryUsing(fn ($query) => $query->where('assigned_to', auth()->id())->where('status', 'submitted'))
+                ->modifyQueryUsing(function ($query) {
+                    return $query->whereHas('curators', function ($q) {
+                        $q->where('report_user.user_id', auth()->id());
+                    })->whereNotIn('status', ['approved', 'rejected']);
+                })
                 ->favorite()
-                ->badge(Report::query()->where('assigned_to', auth()->id())->where('status', 'submitted')->count())
+                ->badge(
+                    Report::query()
+                        ->whereHas('curators', function ($q) {
+                            $q->where('report_user.user_id', auth()->id());
+                        })
+                        ->whereNotIn('status', ['approved', 'rejected'])
+                        ->count()
+                )
                 ->preserveAll();
         }
 
