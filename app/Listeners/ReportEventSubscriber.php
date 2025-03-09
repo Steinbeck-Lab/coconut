@@ -47,13 +47,15 @@ class ReportEventSubscriber
         foreach ($Curators as $Curator) {
             $Curator->notify(new ReportSubmittedNotification($event, 'curator'));
         }
-
     }
 
     public function handleReportAssigned(ReportAssigned $event): void
     {
         $curator = User::find($event->curator_id);
-        $curator->notify(new ReportAssignedNotification($event));
+        // Only proceed if curator exists
+        if ($curator) {
+            $curator->notify(new ReportAssignedNotification($event));
+        }
     }
 
     public function subscribe(Dispatcher $events): array
