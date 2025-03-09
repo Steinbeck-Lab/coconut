@@ -646,7 +646,7 @@ class ReportResource extends Resource
                         // Find curator with curator_number = 1
                         $curator = $record->curators()->wherePivot('curator_number', 1)->first();
 
-                        return $curator?->name ?? '-';
+                        return $curator?->name ?? null;
                     })
                     ->action(
                         TableAction::make('select_curator_1')
@@ -678,15 +678,21 @@ class ReportResource extends Resource
                             ->modalSubmitActionLabel('Assign')
                             ->modalHidden(fn (Report $record): bool => ! auth()->user()->roles()->exists() || $record['status'] == 'approved' || $record['status'] == 'rejected'),
                     ),
-                Tables\Columns\TextColumn::make('curator_2')
+                Tables\Columns\TextColumn::make('select_curator_2')
                     ->label('Curator 2')
                     ->searchable()
-                    ->placeholder('Choose a curator')
+                    ->placeholder(function (Report $record) {
+                        if (! $record->curators()->wherePivot('curator_number', 1)->exists()) {
+                            return 'Choose "Curator 1" first';
+                        }
+
+                        return 'Choose a curator';
+                    })
                     ->state(function (Report $record) {
                         // Find curator with curator_number = 2
                         $curator = $record->curators()->wherePivot('curator_number', 2)->first();
 
-                        return $curator?->name ?? '-';
+                        return $curator?->name ?? null;
                     })
                     ->action(
                         TableAction::make('select_curator_2')
