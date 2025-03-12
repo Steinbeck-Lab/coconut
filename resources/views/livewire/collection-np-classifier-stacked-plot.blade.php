@@ -68,25 +68,64 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Wait a tiny bit for the DOM to be fully ready
-        // setTimeout(function() {
-        // const chartData = @json($classifierData);
-        // renderChart(chartData);
-        // }, 10);
-        renderChartFromHiddenInput();
-
-        // Add click listener to the Apply Filters button
+       // Initial render
+    renderChartFromHiddenInput();
+    
+    // Add click listener to the Apply Filters button
     document.querySelector('button[wire\\:click="updateFilters"]').addEventListener('click', function() {
-        // Check every 100ms for 2 seconds if the data has been updated
-        let checkCount = 0;
-        const checkInterval = setInterval(function() {
-            checkCount++;
-            if (checkCount > 20) { // Stop after 2 seconds (20 * 100ms)
-                clearInterval(checkInterval);
-            }
-            renderChartFromHiddenInput();
-        }, 100);
+        // Create a promise that resolves when the data is updated
+        waitForDataUpdate()
+            .then(chartData => {
+                console.log("Data update detected, rendering chart:", chartData);
+                renderChart(chartData);
+            })
+            .catch(error => {
+                console.error("Error waiting for data update:", error);
+            });
     });
+    
+    // Keep track of the current data for comparison
+    let currentDataString = document.getElementById('np-classifier-data')?.value || '';
+    
+    function waitForDataUpdate() {
+        return new Promise((resolve, reject) => {
+            const startTime = Date.now();
+            const maxWaitTime = 3000; // 3 seconds max wait
+            
+            function checkForUpdate() {
+                const dataElement = document.getElementById('np-classifier-data');
+                if (!dataElement) {
+                    return reject(new Error("Data element not found"));
+                }
+                
+                const newDataString = dataElement.value;
+                
+                // Check if data has changed
+                if (newDataString !== currentDataString) {
+                    currentDataString = newDataString;
+                    try {
+                        const chartData = JSON.parse(newDataString);
+                        resolve(chartData);
+                    } catch (e) {
+                        reject(e);
+                    }
+                    return;
+                }
+                
+                // Check if we've waited too long
+                if (Date.now() - startTime > maxWaitTime) {
+                    reject(new Error("Timeout waiting for data update"));
+                    return;
+                }
+                
+                // Check again in a short while
+                setTimeout(checkForUpdate, 100);
+            }
+            
+            // Start checking
+            setTimeout(checkForUpdate, 300); // Initial delay to let Livewire start processing
+        });
+    }
     
     function renderChartFromHiddenInput() {
         const dataElement = document.getElementById('np-classifier-data');
@@ -94,31 +133,12 @@
         
         try {
             const chartData = JSON.parse(dataElement.value);
-            console.log("Chart data from hidden input:", chartData);
+            console.log("Initial chart render:", chartData);
             renderChart(chartData);
         } catch (e) {
-            console.error("Error parsing chart data:", e);
+            console.error("Error parsing initial chart data:", e);
         }
     }
-
-        // document.getElementById('np-classifier-apply-filters').addEventListener('click', function() {
-        //     // Wait a bit for Livewire to process the update
-        //     // setTimeout(function() {
-        //     const updatedChartData = @json($classifierData);
-        //     console.log("Received updated data", updatedChartData);
-        //     renderChart(updatedChartData);
-        //     // }, 300); // Slightly longer delay to allow Livewire to update
-        // });
-
-        // Also listen for Livewire updates
-        // document.addEventListener('np-classifier-data-updated', function(event) {
-        //     console.log("Received updated data", event.detail.data);
-        //     renderChart(event.detail.data);
-        // });
-        // Livewire.on('chartDataUpdated', function(chartData) {
-        //     console.log("Received updated data", chartData);
-        //     renderChart(chartData);
-        // });
 
 
 
