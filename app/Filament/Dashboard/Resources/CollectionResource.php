@@ -18,14 +18,12 @@ use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
-use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class CollectionResource extends Resource
@@ -50,10 +48,7 @@ class CollectionResource extends Resource
                     Section::make('Database details')
                         ->description('Provide details of the database and link to the resource.')
                         ->schema([
-                            TextInput::make('title')->live()
-                                ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))
-                                ),
-                            TextInput::make('slug'),
+                            TextInput::make('title'),
                             Textarea::make('description'),
                             TextInput::make('url'),
                         ]),
