@@ -1,13 +1,13 @@
 <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
     <!-- Header -->
-    <div class="px-6 py-4 bg-gradient-to-r from-green-500 to-green-700 border-b">
+    <div class="px-6 py-4 bg-gradient-to-r from-sky-500 to-sky-700 border-b">
         <h2 class="text-xl font-bold text-white">NP Classifier Distribution by Collection</h2>
     </div>
     
     <!-- Filters Panel -->
     <div class="p-5 bg-gray-50 border-b">
         <h3 class="text-lg font-medium text-gray-700 mb-4 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
             </svg>
             Chart Filters
@@ -23,14 +23,14 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
-                    <input type="text" wire:model.debounce.300ms="searchTerm" id="searchTerm" class="focus:ring-green-500 focus:border-green-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md" placeholder="Search collections or classes">
+                    <input type="text" wire:model.debounce.300ms="searchTerm" id="searchTerm" class="focus:ring-sky-500 focus:border-sky-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md" placeholder="Search collections or classes">
                 </div>
             </div> -->
             
             <!-- Collections -->
             <div class="space-y-2">
                 <label for="selectedCollections" class="block text-sm font-medium text-gray-700">Collections</label>
-                <select wire:model="selectedCollections" id="selectedCollections" multiple class="focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md h-36">
+                <select wire:model="selectedCollections" id="selectedCollections" multiple class="focus:ring-sky-500 focus:border-sky-500 block w-full sm:text-sm border-gray-300 rounded-md h-36">
                     @foreach($collections as $collection)
                     <option value="{{ $collection->id }}">{{ $collection->title }}</option>
                     @endforeach
@@ -40,7 +40,7 @@
             <!-- Max Classes -->
             <div class="space-y-2">
                 <label for="limitClasses" class="block text-sm font-medium text-gray-700">Max Classes</label>
-                <select wire:model="limitClasses" id="limitClasses" class="focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                <select wire:model="limitClasses" id="limitClasses" class="focus:ring-sky-500 focus:border-sky-500 block w-full sm:text-sm border-gray-300 rounded-md">
                     <option value="10">10</option>
                     <option value="25">25</option>
                     <option value="50">50</option>
@@ -51,7 +51,7 @@
             <!-- Sort Classes By -->
             <div class="space-y-2">
                 <label for="sortBy" class="block text-sm font-medium text-gray-700">Sort Classes By</label>
-                <select wire:model="sortBy" id="sortBy" class="focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                <select wire:model="sortBy" id="sortBy" class="focus:ring-sky-500 focus:border-sky-500 block w-full sm:text-sm border-gray-300 rounded-md">
                     <option value="count">Count</option>
                     <option value="alphabetical">Alphabetical</option>
                 </select>
@@ -60,7 +60,7 @@
             <!-- Sort Scope -->
             <div class="space-y-2">
                 <label for="sortScope" class="block text-sm font-medium text-gray-700">Sort Scope</label>
-                <select wire:model="sortScope" id="sortScope" class="focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                <select wire:model="sortScope" id="sortScope" class="focus:ring-sky-500 focus:border-sky-500 block w-full sm:text-sm border-gray-300 rounded-md">
                     <option value="global">Across Collections</option>
                     <option value="local">Within Each Collection</option>
                 </select>
@@ -69,13 +69,13 @@
         
         <!-- Buttons -->
         <div class="mt-5 flex space-x-3">
-            <button id="np-classifier-apply-filters" wire:click="updateFilters" type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-150">
+            <button id="np-classifier-apply-filters" wire:click="updateFilters" type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors duration-150">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
                 Apply Filters
             </button>
-            <button onclick="resetFilters()" type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-150">
+            <button onclick="resetFilters()" type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors duration-150">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
@@ -90,15 +90,15 @@
         <div id="chart-loading-indicator" class="hidden absolute inset-0 flex justify-center items-center bg-white bg-opacity-90 z-20 rounded-lg">
             <div class="flex flex-col items-center">
                 <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-grey-600"></div>
-                <p class="mt-4 text-green-700 font-medium">Generating chart...</p>
+                <p class="mt-4 text-sky-700 font-medium">Generating chart...</p>
             </div>
         </div>
         
         <!-- Livewire loading indicator (for data processing) -->
         <!-- <div wire:loading wire:target="updateFilters" class="absolute inset-0 flex justify-center items-center bg-white bg-opacity-90 z-20 rounded-lg">
             <div class="flex flex-col items-center">
-                <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-green-600"></div>
-                <p class="mt-4 text-green-700 font-medium">Processing data...</p>
+                <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-sky-600"></div>
+                <p class="mt-4 text-sky-700 font-medium">Processing data...</p>
             </div>
         </div> -->
         
