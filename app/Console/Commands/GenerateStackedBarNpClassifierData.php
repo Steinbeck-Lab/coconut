@@ -132,7 +132,7 @@ class GenerateStackedBarNpClassifierData extends Command
 
         // Save to file
         $outputPath = public_path('reports/np_classifire-stacked-bar-data.json');
-        File::put($outputPath, json_encode($finalData, JSON_PRETTY_PRINT));
+        File::put($outputPath, json_encode($finalData));
 
         $this->info('Data generated successfully!');
         $this->info('Output saved to: '.$outputPath);
