@@ -88,10 +88,10 @@ class GenerateStackedBarNpClassifierData extends Command
             // Create two sorted versions of classes
             $classesByCount = $collection['classes'];
             arsort($classesByCount);
-            
+
             $classesByName = $collection['classes'];
             ksort($classesByName);
-            
+
             // Store both sorted lists
             $collection['classesByCount'] = array_keys($classesByCount);
             $collection['classesByName'] = array_keys($classesByName);

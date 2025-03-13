@@ -1,81 +1,170 @@
-<div class="collection-np-classifier-container">
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">NP Classifier Distribution by Collection</h3>
-        </div>
-        <div class="card-body">
-            <!-- Filters -->
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="searchTerm">Search</label>
-                        <input type="text" wire:model.debounce.300ms="searchTerm"
-                            class="form-control" placeholder="Search collections or classes">
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="selectedCollections">Collections</label>
-                        <select wire:model="selectedCollections" class="form-control" multiple>
-                            @foreach($collections as $collection)
-                            <option value="{{ $collection->id }}">{{ $collection->title }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="form-group">
-                        <label for="limitClasses">Max Classes</label>
-                        <select wire:model="limitClasses" class="form-control">
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                            <option value="200">200</option>
-                            <option value="500">500</option>
-                            <option value="1000">1000</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="form-group">
-                        <label for="sortBy">Sort Classes By</label>
-                        <select wire:model="sortBy" class="form-control">
-                            <option value="count">Count</option>
-                            <option value="alphabetical">Alphabetical</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="form-group">
-                        <label for="sortScope">Sort Scope</label>
-                        <select wire:model="sortScope" class="form-control">
-                            <option value="global">Across Collections</option>
-                            <option value="local">Within Each Collection</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="mb-3">
-                <button id="np-classifier-apply-filters" wire:click="updateFilters" class="btn btn-primary">Apply Filters</button>
-            </div>
-
-            <!-- Loading indicator -->
-            <div wire:loading class="text-center py-3">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="sr-only">Loading...</span>
-                </div>
-            </div>
-
-            <!-- Chart container -->
-            <div id="np-classifier-chart-container" wire:key="classifier-chart-{{ count($classifierData['classes'] ?? []) }}-{{ $sortScope }}-{{ $sortBy }}" style="width: 100%; min-height: 600px;"></div>
-            <div id="legend-container"></div>
-        </div>
-        <input type="hidden" id="np-classifier-data" value="{{ json_encode($classifierData) }}">
+<div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+    <!-- Header -->
+    <div class="px-6 py-4 bg-gradient-to-r from-green-500 to-green-700 border-b">
+        <h2 class="text-xl font-bold text-white">NP Classifier Distribution by Collection</h2>
     </div>
+    
+    <!-- Filters Panel -->
+    <div class="p-5 bg-gray-50 border-b">
+        <h3 class="text-lg font-medium text-gray-700 mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            Chart Filters
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <!-- Search Input -->
+            <!-- <div class="space-y-2">
+                <label for="searchTerm" class="block text-sm font-medium text-gray-700">Search</label>
+                <div class="relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input type="text" wire:model.debounce.300ms="searchTerm" id="searchTerm" class="focus:ring-green-500 focus:border-green-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md" placeholder="Search collections or classes">
+                </div>
+            </div> -->
+            
+            <!-- Collections -->
+            <div class="space-y-2">
+                <label for="selectedCollections" class="block text-sm font-medium text-gray-700">Collections</label>
+                <select wire:model="selectedCollections" id="selectedCollections" multiple class="focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md h-36">
+                    @foreach($collections as $collection)
+                    <option value="{{ $collection->id }}">{{ $collection->title }}</option>
+                    @endforeach
+                </select>
+            </div>
+            
+            <!-- Max Classes -->
+            <div class="space-y-2">
+                <label for="limitClasses" class="block text-sm font-medium text-gray-700">Max Classes</label>
+                <select wire:model="limitClasses" id="limitClasses" class="focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100 (recommended)</option>
+                </select>
+            </div>
+            
+            <!-- Sort Classes By -->
+            <div class="space-y-2">
+                <label for="sortBy" class="block text-sm font-medium text-gray-700">Sort Classes By</label>
+                <select wire:model="sortBy" id="sortBy" class="focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                    <option value="count">Count</option>
+                    <option value="alphabetical">Alphabetical</option>
+                </select>
+            </div>
+            
+            <!-- Sort Scope -->
+            <div class="space-y-2">
+                <label for="sortScope" class="block text-sm font-medium text-gray-700">Sort Scope</label>
+                <select wire:model="sortScope" id="sortScope" class="focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                    <option value="global">Across Collections</option>
+                    <option value="local">Within Each Collection</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Buttons -->
+        <div class="mt-5 flex space-x-3">
+            <button id="np-classifier-apply-filters" wire:click="updateFilters" type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-150">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Apply Filters
+            </button>
+            <button onclick="resetFilters()" type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-150">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Reset
+            </button>
+        </div>
+    </div>
+    
+    <!-- Chart section -->
+    <div class="p-6 relative">
+        <!-- Loading indicator -->
+        <div id="chart-loading-indicator" class="hidden absolute inset-0 flex justify-center items-center bg-white bg-opacity-90 z-20 rounded-lg">
+            <div class="flex flex-col items-center">
+                <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-grey-600"></div>
+                <p class="mt-4 text-green-700 font-medium">Generating chart...</p>
+            </div>
+        </div>
+        
+        <!-- Livewire loading indicator (for data processing) -->
+        <!-- <div wire:loading wire:target="updateFilters" class="absolute inset-0 flex justify-center items-center bg-white bg-opacity-90 z-20 rounded-lg">
+            <div class="flex flex-col items-center">
+                <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-green-600"></div>
+                <p class="mt-4 text-green-700 font-medium">Processing data...</p>
+            </div>
+        </div> -->
+        
+        <!-- Chart title -->
+        <!-- <h3 class="text-lg font-medium text-gray-800 mb-6 text-center" id="chart-title">
+            NP Classifier Distribution 
+            <span class="font-normal text-gray-600">({{ $sortScope == 'global' ? 'Sorted Across All Collections' : 'Sorted Within Each Collection' }}, by {{ $sortBy == 'count' ? 'Count' : 'Name' }})</span>
+        </h3> -->
+        
+        <!-- Chart container -->
+        <div id="np-classifier-chart-container" 
+             wire:key="classifier-chart-{{ count($classifierData['classes'] ?? []) }}-{{ $sortScope }}-{{ $sortBy }}" 
+             class="w-full rounded-lg border border-gray-200 bg-white"
+             style="min-height: 500px;">
+        </div>
+        
+        <!-- Legend container -->
+        <div id="legend-container" class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200 flex flex-wrap justify-center gap-3"></div>
+    </div>
+    
+    <input type="hidden" id="np-classifier-data" value="{{ json_encode($classifierData) }}">
 </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <script>
+    function resetFilters() {
+        // Show loading indicator
+        showChartLoading();
+        
+        // For Livewire, we need to reset each filter individually
+        @this.set('searchTerm', '');
+        @this.set('selectedCollections', []);
+        @this.set('limitClasses', 10);
+        @this.set('sortBy', 'count');
+        @this.set('sortScope', 'global');
+        @this.updateFilters();
+    }
+    
+    // Function to update chart title based on current filters
+    function updateChartTitle() {
+        const sortScope = @this.sortScope;
+        const sortBy = @this.sortBy;
+        const scopeText = sortScope === 'global' ? 'Sorted Across All Collections' : 'Sorted Within Each Collection';
+        const sortText = sortBy === 'count' ? 'Count' : 'Name';
+        
+        // document.getElementById('chart-title').innerHTML = `
+        //     NP Classifier Distribution 
+        //     <span class="font-normal text-gray-600">(${scopeText}, by ${sortText})</span>
+        // `;
+    }
+    
+    // Show chart loading indicator
+    function showChartLoading() {
+        const loadingIndicator = document.getElementById('chart-loading-indicator');
+        if (loadingIndicator) {
+            loadingIndicator.classList.remove('hidden');
+        }
+    }
+    
+    // Hide chart loading indicator
+    function hideChartLoading() {
+        const loadingIndicator = document.getElementById('chart-loading-indicator');
+        if (loadingIndicator) {
+            loadingIndicator.classList.add('hidden');
+        }
+    }
     document.addEventListener('DOMContentLoaded', function() {
         // Initial render
         renderChartFromHiddenInput();
@@ -92,6 +181,61 @@
                     console.error("Error waiting for data update:", error);
                 });
         });
+
+        const applyButton = document.getElementById('np-classifier-apply-filters');
+        if (applyButton) {
+            applyButton.addEventListener('click', function() {
+                showChartLoading();
+            });
+        }
+        
+        // Override the original renderChart function to handle loading state
+        const originalRenderChart = window.renderChart;
+        if (typeof originalRenderChart === 'function') {
+            window.renderChart = function(chartData) {
+                try {
+                    // Show loading indicator before chart rendering starts
+                    showChartLoading();
+                    
+                    // Call the original render function
+                    const result = originalRenderChart(chartData);
+                    
+                    // Hide loading indicator after chart is rendered
+                    setTimeout(hideChartLoading, 300); // Small delay to ensure DOM updates
+                    
+                    return result;
+                } catch (error) {
+                    console.error("Error rendering chart:", error);
+                    hideChartLoading();
+                    
+                    // Show error message in chart container
+                    const chartContainer = document.getElementById('np-classifier-chart-container');
+                    if (chartContainer) {
+                        chartContainer.innerHTML = `
+                            <div class="flex flex-col items-center justify-center h-full p-8 text-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <h4 class="text-lg font-medium text-gray-800 mb-2">Chart Rendering Error</h4>
+                                <p class="text-gray-600">There was a problem rendering the chart. Please try again or contact support if the issue persists.</p>
+                            </div>
+                        `;
+                    }
+                }
+            };
+        }
+
+        document.addEventListener('livewire:load', function() {
+        Livewire.on('filtersUpdated', updateChartTitle);
+        
+        // Handle Livewire rendering completed
+        Livewire.hook('message.processed', (message, component) => {
+            if (component.fingerprint.name === 'collection-np-classifier-stacked-plot') {
+                // Hide loading indicator after Livewire updates
+                setTimeout(hideChartLoading, 500);
+            }
+        });
+    });
 
         // Keep track of the current data for comparison
         let currentDataString = document.getElementById('np-classifier-data')?.value || '';
