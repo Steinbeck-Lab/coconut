@@ -13,8 +13,7 @@ class GenerateStackedBarNpClassifierData extends Command
      *
      * @var string
      */
-    protected $signature = 'COCONUT:generate-stackedbarcart-np-classifier-data
-    {--sort=global : Sorting method for classes (global: sort by counts across all collections, local: sort by counts within each collection)}';
+    protected $signature = 'COCONUT:generate-stackedbarcart-np-classifier-data';
 
     /**
      * The console command description.
@@ -74,41 +73,28 @@ class GenerateStackedBarNpClassifierData extends Command
         // Get all unique classes
         $allClasses = array_keys($classesSet);
 
-        // Get sorting method from options
-        $sortMethod = $this->option('sort');
-        $this->info('Using sorting method: '.$sortMethod);
-
-        if ($sortMethod === 'global') {
-            // Sort classes by total count across all collections
-            $this->info('Sorting classes by counts across all collections...');
-
-            $classCounts = [];
-            foreach ($allClasses as $class) {
-                $total = 0;
-                foreach ($processedData as $collection) {
-                    $total += $collection['classes'][$class] ?? 0;
-                }
-                $classCounts[$class] = $total;
+        // Calculate global class counts for sorting
+        $globalClassCounts = [];
+        foreach ($allClasses as $class) {
+            $total = 0;
+            foreach ($processedData as $collection) {
+                $total += $collection['classes'][$class] ?? 0;
             }
+            $globalClassCounts[$class] = $total;
+        }
 
-            arsort($classCounts);
-            $allClasses = array_keys($classCounts);
-        } elseif ($sortMethod === 'local') {
-            // Sort classes within each collection
-            $this->info('Sorting classes by counts within each collection...');
-
-            // For local sorting, we'll keep the class order but sort within each collection
-            foreach ($processedData as $title => $collection) {
-                // Sort classes by count within this collection
-                arsort($processedData[$title]['classes']);
-            }
-
-            // We still need a global ordering for the chart, so we'll use alphabetical
-            sort($allClasses);
-        } else {
-            // Default to alphabetical if invalid option
-            $this->info('Invalid sorting method specified, defaulting to alphabetical sorting...');
-            sort($allClasses);
+        // Store sorted classes for each collection for use in frontend
+        foreach ($processedData as $title => &$collection) {
+            // Create two sorted versions of classes
+            $classesByCount = $collection['classes'];
+            arsort($classesByCount);
+            
+            $classesByName = $collection['classes'];
+            ksort($classesByName);
+            
+            // Store both sorted lists
+            $collection['classesByCount'] = array_keys($classesByCount);
+            $collection['classesByName'] = array_keys($classesByName);
         }
 
         // Format for final output
@@ -116,6 +102,8 @@ class GenerateStackedBarNpClassifierData extends Command
         foreach ($processedData as $collection) {
             $entry = [
                 'title' => $collection['title'],
+                'classesByCount' => $collection['classesByCount'],
+                'classesByName' => $collection['classesByName'],
             ];
 
             // Add all classes (even if zero)
@@ -126,22 +114,25 @@ class GenerateStackedBarNpClassifierData extends Command
             $collections[] = $entry;
         }
 
+        // Sort global classes by total count
+        arsort($globalClassCounts);
+        $globalSortedClasses = array_keys($globalClassCounts);
+
         $finalData = [
             'data' => array_values($collections),
             'classes' => $allClasses,
+            'globalSortedClasses' => $globalSortedClasses,
+            'globalClassCounts' => $globalClassCounts,
             'metadata' => [
                 'totalCollections' => count($collections),
                 'totalClasses' => count($allClasses),
-                'sortMethod' => $sortMethod,
                 'generatedAt' => now()->toDateTimeString(),
             ],
         ];
 
         // Save to file
         $outputPath = public_path('reports/np_classifire-stacked-bar-data.json');
-        $dummyPath = public_path('reports/dummy.json');
         File::put($outputPath, json_encode($finalData, JSON_PRETTY_PRINT));
-        File::put($dummyPath, json_encode($processedData, JSON_PRETTY_PRINT));
 
         $this->info('Data generated successfully!');
         $this->info('Output saved to: '.$outputPath);
