@@ -51,7 +51,7 @@
                         <div class="mt-6 flex flex-shrink-0 md:mt-0">
                             @auth
                             @if(auth()->user()->roles->isNotEmpty())
-                            <a href="/dashboard/molecules/{{ $molecule->id }}/edit" target="_blank"  class="inline-flex items-center px-4 py-2 border border-secondary-dark rounded-md shadow-sm text-sm font-medium text-white bg-secondary-dark hover:bg-green-700">
+                            <a href="/dashboard/molecules/{{ $molecule->id }}/edit" target="_blank" class="inline-flex items-center px-4 py-2 border border-secondary-dark rounded-md shadow-sm text-sm font-medium text-white bg-secondary-dark hover:bg-green-700">
                                 <svg class="-ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                 </svg>
@@ -155,13 +155,13 @@
                     <div
                         class="mx-auto mt-8 grid max-w-3xl grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3 px-4">
                         <section class="space-y-6 lg:col-span-2 lg:col-start-1 order-2 lg:order-1">
-                            @if ($molecule->organisms && count($molecule->organisms) > 0)
+                            @if ($sortedOrganisms && count($sortedOrganisms) > 0)
                             <section>
                                 <div class="bg-white border shadow sm:rounded-lg" x-data="{ showAll: false, searchTerm: '' }">
                                     <div class="px-4 py-5 sm:px-6">
                                         <h2 id="applicant-information-title"
                                             class="text-lg font-medium leading-6 text-gray-900">
-                                            Organisms ({{ count($molecule->organisms) }})
+                                            Organisms ({{ count($sortedOrganisms) }})
                                         </h2>
                                     </div>
                                     <div class="border-t border-gray-200">
@@ -173,7 +173,7 @@
                                                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-secondary-dark focus:ring-secondary-dark sm:text-sm" />
                                             </div>
                                             <ul role="list" class="mt-2 leading-8">
-                                                @foreach ($molecule->organisms as $index => $organism)
+                                                @foreach ($sortedOrganisms as $index => $organism)
                                                 @if ($organism != '')
                                                 <li class="inline"
                                                     x-show="(showAll || {{ $index }} < 10) && (searchTerm === '' || '{{ strtolower($organism->name) }}'.includes(searchTerm.toLowerCase()))">
@@ -210,7 +210,7 @@
                                                 @endif
                                                 @endforeach
                                             </ul>
-                                            @if (count($molecule->organisms) > 10)
+                                            @if (count($sortedOrganisms) > 10)
                                             <div class="mt-4">
                                                 <button @click="showAll = true" x-show="!showAll"
                                                     class="text-base font-semibold leading-7 text-secondary-dark text-sm">
