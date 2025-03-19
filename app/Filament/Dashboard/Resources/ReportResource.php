@@ -30,6 +30,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\VerticalAlignment;
 use Filament\Tables;
@@ -172,8 +173,19 @@ class ReportResource extends Resource
 
                                             return $curator?->id;
                                         })
-                                        ->options(function () {
-                                            return User::whereHas('roles')->pluck('name', 'id');
+                                        ->options(function (Report $record) {
+                                            // Get all users with curator roles
+                                            $curators = User::whereHas('roles')->pluck('name', 'id')->toArray();
+
+                                            // For pending reports, filter out the first curator to enforce four-eyes principle
+                                            if ($record->status === 'pending_approval' || $record->status === 'pending_rejection') {
+                                                $curator1 = $record->curators()->wherePivot('curator_number', 1)->first();
+                                                if ($curator1) {
+                                                    unset($curators[$curator1->id]);
+                                                }
+                                            }
+
+                                            return $curators;
                                         }),
                                 ])
                                 ->action(function (array $data, Report $record, $livewire): void {
@@ -638,92 +650,219 @@ class ReportResource extends Resource
                     ->formatStateUsing(function (Report $record): string {
                         return $record->is_change ? 'change' : 'report';
                     }),
-                Tables\Columns\TextColumn::make('curator_1')
-                    ->label('Curator 1')
-                    ->searchable()
-                    ->placeholder('Choose a curator')
-                    ->state(function (Report $record) {
-                        // Find curator with curator_number = 1
-                        $curator = $record->curators()->wherePivot('curator_number', 1)->first();
-
-                        return $curator?->name ?? null;
-                    })
-                    ->action(
-                        TableAction::make('select_curator_1')
-                            ->label('')
-                            ->form([
-                                Radio::make('curator')
-                                    ->label('Choose a curator')
-                                    ->default(function (Report $record) {
-                                        // Get current curator_1 ID if exists
-                                        $curator = $record->curators()->wherePivot('curator_number', 1)->first();
-
-                                        return $curator?->id;
-                                    })
-                                    ->options(function () {
-                                        return User::whereHas('roles')->pluck('name', 'id');
-                                    }),
-                            ])
-                            ->action(function (array $data, Report $record): void {
-                                // Remove any existing curator_number = 1
-                                $record->curators()->wherePivot('curator_number', 1)->detach();
-
-                                // Attach new curator with curator_number = 1
-                                $record->curators()->attach($data['curator'], [
-                                    'curator_number' => 1,
-                                ]);
-                                $record->refresh();
-                                ReportAssigned::dispatch($record, $data['curator']);
-                            })
-                            ->modalSubmitActionLabel('Assign')
-                            ->modalHidden(fn (Report $record): bool => ! auth()->user()->roles()->exists() || $record['status'] == 'approved' || $record['status'] == 'rejected'),
-                    ),
-                Tables\Columns\TextColumn::make('select_curator_2')
-                    ->label('Curator 2')
-                    ->searchable()
-                    ->placeholder(function (Report $record) {
-                        if (! $record->curators()->wherePivot('curator_number', 1)->exists()) {
-                            return 'Choose "Curator 1" first';
+                // Action column with buttons
+                TextColumn::make('status')
+                    ->label('Action')
+                    ->formatStateUsing(function (Report $record): string {
+                        if ($record->status === 'submitted') {
+                            return 'Approve';
                         }
 
-                        return 'Choose a curator';
-                    })
-                    ->state(function (Report $record) {
-                        // Find curator with curator_number = 2
-                        $curator = $record->curators()->wherePivot('curator_number', 2)->first();
+                        if ($record->status === 'pending_approval' || $record->status === 'pending_rejection') {
+                            return 'Confirm';
+                        }
 
-                        return $curator?->name ?? null;
+                        return 'Resolved';
+                    })
+                    ->url(function (Report $record): ?string {
+                        // Check if curator is allowed to edit this report
+                        $canEdit = auth()->user()->roles()->exists() &&
+                            $record->status !== 'approved' &&
+                            $record->status !== 'rejected';
+
+                        // For submitted reports
+                        if ($record->status === 'submitted') {
+                            // Check if user is already assigned as curator 1
+                            $isAssignedAsCurator1 = $record->curators()
+                                ->wherePivot('curator_number', 1)
+                                ->wherePivot('user_id', auth()->id())
+                                ->exists();
+
+                            // If curator is already assigned or no curator is assigned yet, allow edit
+                            if ($canEdit && (! $record->curators()->wherePivot('curator_number', 1)->exists() || $isAssignedAsCurator1)) {
+                                return ReportResource::getUrl('edit', ['record' => $record->id]);
+                            }
+                        }
+
+                        // For pending reports
+                        if ($record->status === 'pending_approval' || $record->status === 'pending_rejection') {
+                            // Check if user was assigned as curator 1 (can't be curator 2 if already curator 1)
+                            $wasAssignedAsCurator1 = $record->curators()
+                                ->wherePivot('curator_number', 1)
+                                ->wherePivot('user_id', auth()->id())
+                                ->exists();
+
+                            // Check if user is already assigned as curator 2
+                            $isAssignedAsCurator2 = $record->curators()
+                                ->wherePivot('curator_number', 2)
+                                ->wherePivot('user_id', auth()->id())
+                                ->exists();
+
+                            // If user is not curator 1 and either is already curator 2 or no curator 2 is assigned yet, allow edit
+                            if (
+                                $canEdit && ! $wasAssignedAsCurator1 &&
+                                (! $record->curators()->wherePivot('curator_number', 2)->exists() || $isAssignedAsCurator2)
+                            ) {
+                                return ReportResource::getUrl('edit', ['record' => $record->id]);
+                            }
+                        }
+
+                        // Default to view page if not editable
+                        return ReportResource::getUrl('view', ['record' => $record->id]);
+                    })
+                    ->badge()
+                    ->color(function (Report $record): string {
+                        // Default color is gray (disabled)
+                        $color = 'gray';
+
+                        // Only check for active colors if user is a curator
+                        if (
+                            auth()->user()->roles()->exists() &&
+                            $record->status !== 'approved' &&
+                            $record->status !== 'rejected'
+                        ) {
+
+                            // For submitted reports
+                            if ($record->status === 'submitted') {
+                                // Check if user is already assigned as curator 1
+                                $isAssignedAsCurator1 = $record->curators()
+                                    ->wherePivot('curator_number', 1)
+                                    ->wherePivot('user_id', auth()->id())
+                                    ->exists();
+
+                                // If curator is already assigned or no curator is assigned yet, active color
+                                if (! $record->curators()->wherePivot('curator_number', 1)->exists() || $isAssignedAsCurator1) {
+                                    $color = 'primary';
+                                }
+                            }
+
+                            // For pending reports
+                            if ($record->status === 'pending_approval' || $record->status === 'pending_rejection') {
+                                // Check if user was assigned as curator 1 (can't be curator 2 if already curator 1)
+                                $wasAssignedAsCurator1 = $record->curators()
+                                    ->wherePivot('curator_number', 1)
+                                    ->wherePivot('user_id', auth()->id())
+                                    ->exists();
+
+                                // Check if user is already assigned as curator 2
+                                $isAssignedAsCurator2 = $record->curators()
+                                    ->wherePivot('curator_number', 2)
+                                    ->wherePivot('user_id', auth()->id())
+                                    ->exists();
+
+                                // If user is not curator 1 and either is already curator 2 or no curator 2 is assigned yet, active color
+                                if (
+                                    ! $wasAssignedAsCurator1 &&
+                                    (! $record->curators()->wherePivot('curator_number', 2)->exists() || $isAssignedAsCurator2)
+                                ) {
+                                    $color = 'warning';
+                                }
+                            }
+                        }
+
+                        return $color;
+                    }),
+                // Curator assignment column
+                Tables\Columns\TextColumn::make('assigned_curator')
+                    ->label('Assigned To')
+                    ->state(function (Report $record): string {
+                        if ($record->status === 'submitted') {
+                            $curator = $record->curators()->wherePivot('curator_number', 1)->first();
+
+                            return $curator ? $curator->name : 'Unassigned';
+                        } elseif ($record->status === 'pending_approval' || $record->status === 'pending_rejection') {
+                            $curator = $record->curators()->wherePivot('curator_number', 2)->first();
+
+                            return $curator ? $curator->name : 'Unassigned';
+                        } elseif ($record->status === 'approved' || $record->status === 'rejected') {
+                            $curator = $record->curators()->wherePivot('curator_number', 2)->first();
+
+                            return $curator ? $curator->name : 'Unknown';
+                        }
+
+                        return 'N/A';
                     })
                     ->action(
-                        TableAction::make('select_curator_2')
-                            ->label('')
+                        TableAction::make('assign_curator')
+                            ->label('Assign')
                             ->form([
                                 Radio::make('curator')
-                                    ->label('Choose a curator')
-                                    ->default(function (Report $record) {
-                                        // Get current curator_2 ID if exists
-                                        $curator = $record->curators()->wherePivot('curator_number', 2)->first();
+                                    ->label(function (Report $record) {
+                                        if ($record->status === 'submitted') {
+                                            return 'Assign Curator 1';
+                                        } elseif ($record->status === 'pending_approval' || $record->status === 'pending_rejection') {
+                                            return 'Assign Curator 2';
+                                        }
 
-                                        return $curator?->id;
+                                        return 'Assign Curator';
                                     })
-                                    ->options(function () {
-                                        return User::whereHas('roles')->pluck('name', 'id');
-                                    }),
+                                    ->options(function (Report $record) {
+                                        // Get all users with curator roles
+                                        $curators = User::whereHas('roles')->pluck('name', 'id')->toArray();
+
+                                        // For pending reports, filter out the first curator to enforce four-eyes principle
+                                        if ($record->status === 'pending_approval' || $record->status === 'pending_rejection') {
+                                            $curator1 = $record->curators()->wherePivot('curator_number', 1)->first();
+                                            if ($curator1) {
+                                                unset($curators[$curator1->id]);
+                                            }
+                                        }
+
+                                        return $curators;
+                                    })
+                                    ->default(function (Report $record) {
+                                        // Pre-select current curator if assigned
+                                        if ($record->status === 'submitted') {
+                                            $curator = $record->curators()->wherePivot('curator_number', 1)->first();
+
+                                            return $curator?->id;
+                                        } elseif ($record->status === 'pending_approval' || $record->status === 'pending_rejection') {
+                                            $curator = $record->curators()->wherePivot('curator_number', 2)->first();
+
+                                            return $curator?->id;
+                                        }
+
+                                        return null;
+                                    })
+                                    ->required(),
                             ])
                             ->action(function (array $data, Report $record): void {
-                                // Remove any existing curator_number = 2
-                                $record->curators()->wherePivot('curator_number', 2)->detach();
+                                $curatorNumber = 1; // Default
 
-                                // Attach new curator with curator_number = 2
+                                if ($record->status === 'pending_approval' || $record->status === 'pending_rejection') {
+                                    $curatorNumber = 2;
+                                }
+
+                                // Remove any existing curator for this position
+                                $record->curators()->wherePivot('curator_number', $curatorNumber)->detach();
+
+                                // Assign the new curator
                                 $record->curators()->attach($data['curator'], [
-                                    'curator_number' => 2,
+                                    'curator_number' => $curatorNumber,
                                 ]);
-                                $record->refresh();
+
+                                // Dispatch event
                                 ReportAssigned::dispatch($record, $data['curator']);
                             })
+                            ->modalHeading(function (Report $record) {
+                                if ($record->status === 'submitted') {
+                                    return 'Assign Curator 1';
+                                } elseif ($record->status === 'pending_approval' || $record->status === 'pending_rejection') {
+                                    return 'Assign Curator 2';
+                                }
+
+                                return 'Assign Curator';
+                            })
                             ->modalSubmitActionLabel('Assign')
-                            ->modalHidden(fn (Report $record): bool => ! auth()->user()->roles()->exists() || $record['status'] == 'approved' || $record['status'] == 'rejected' || ! $record->curators()->wherePivot('curator_number', 1)->exists()),
-                    ),
+                            ->hidden(function (Report $record): bool {
+                                // Hide for non-curators or approved/rejected reports
+                                return ! auth()->user()->roles()->exists() ||
+                                    $record->status === 'approved' ||
+                                    $record->status === 'rejected';
+                            })
+                    )
+                    ->searchable()
+                    ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -731,8 +870,8 @@ class ReportResource extends Resource
                     ->includeColumns(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\ViewAction::make(),
+                // Tables\Actions\EditAction::make(),
+                // Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -873,19 +1012,61 @@ class ReportResource extends Resource
             $record->save();
             $record->refresh();
         }
+        // Check if curator is already assigned
         $pivot = ReportUser::where('report_id', $record->id)
             ->where('user_id', auth()->id())
             ->where('curator_number', $curator_number)
-            ->firstOrFail();
+            ->first();
 
-        $pivot->status = $status;
-        $pivot->comment = $data['reason'];
-        $pivot->save();
+        // If not assigned yet, assign curator based on report status
+        if (! $pivot) {
+            if ($record['status'] == 'submitted') {
+                // For first approval, automatically assign current user as curator 1
+                $record->curators()->wherePivot('curator_number', 1)->detach();
+                $record->curators()->attach(auth()->id(), [
+                    'curator_number' => 1,
+                    'status' => $status,
+                    'comment' => $data['reason'],
+                ]);
+                // ReportAssigned::dispatch($record, auth()->id());
+            } elseif ($record['status'] == 'pending_approval' || $record['status'] == 'pending_rejection') {
+                // For second approval, automatically assign current user as curator 2
+                $record->curators()->wherePivot('curator_number', 2)->detach();
+                $record->curators()->attach(auth()->id(), [
+                    'curator_number' => 2,
+                    'status' => $status,
+                    'comment' => $data['reason'],
+                ]);
+                // ReportAssigned::dispatch($record, auth()->id());
+            }
+        } else {
+            // Update existing pivot record
+            $pivot->status = $status;
+            $pivot->comment = $data['reason'];
+            $pivot->save();
+        }
         $record['status'] = $status;
         $record->save();
         $record->refresh();
         ReportStatusChanged::dispatch($record);
-        $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
+
+        // Show appropriate notification based on action
+        if ($status == 'pending_approval') {
+            Notification::make()
+                ->title('Report approved for first review')
+                ->body('The report has been approved in first review and is now pending final approval.')
+                ->success()
+                ->send();
+        } elseif ($status == 'approved') {
+            Notification::make()
+                ->title('Report fully approved')
+                ->body('The report has been fully approved.')
+                ->success()
+                ->send();
+        }
+
+        $livewire->redirect(ReportResource::getUrl('index'));
+        // $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
     }
 
     public static function rejectReport(array $data, Report $record, $livewire): void
@@ -899,19 +1080,61 @@ class ReportResource extends Resource
             $status = 'pending_rejection';
             $curator_number = 1;
         }
+        // Check if curator is already assigned
         $pivot = ReportUser::where('report_id', $record->id)
             ->where('user_id', auth()->id())
             ->where('curator_number', $curator_number)
-            ->firstOrFail();
+            ->first();
 
-        $pivot->status = $status;
-        $pivot->comment = $data['reason'];
-        $pivot->save();
+        // If not assigned yet, assign curator based on report status
+        if (! $pivot) {
+            if ($record['status'] == 'submitted') {
+                // For first rejection, automatically assign current user as curator 1
+                $record->curators()->wherePivot('curator_number', 1)->detach();
+                $record->curators()->attach(auth()->id(), [
+                    'curator_number' => 1,
+                    'status' => $status,
+                    'comment' => $data['reason'],
+                ]);
+                // ReportAssigned::dispatch($record, auth()->id());
+            } elseif ($record['status'] == 'pending_approval' || $record['status'] == 'pending_rejection') {
+                // For second rejection, automatically assign current user as curator 2
+                $record->curators()->wherePivot('curator_number', 2)->detach();
+                $record->curators()->attach(auth()->id(), [
+                    'curator_number' => 2,
+                    'status' => $status,
+                    'comment' => $data['reason'],
+                ]);
+                // ReportAssigned::dispatch($record, auth()->id());
+            }
+        } else {
+            // Update existing pivot record
+            $pivot->status = $status;
+            $pivot->comment = $data['reason'];
+            $pivot->save();
+        }
         $record['status'] = $status;
         $record->save();
 
         ReportStatusChanged::dispatch($record);
-        $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
+
+        // Show appropriate notification based on action
+        if ($status == 'pending_rejection') {
+            Notification::make()
+                ->title('Report rejected in first review')
+                ->body('The report has been rejected in first review and is now pending final rejection.')
+                ->warning()
+                ->send();
+        } elseif ($status == 'rejected') {
+            Notification::make()
+                ->title('Report fully rejected')
+                ->body('The report has been rejected.')
+                ->danger()
+                ->send();
+        }
+
+        $livewire->redirect(ReportResource::getUrl('index'));
+        // $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
     }
 
     public static function runSQLQueries(Report $record): void
