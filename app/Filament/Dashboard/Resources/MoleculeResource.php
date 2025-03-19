@@ -102,7 +102,7 @@ class MoleculeResource extends Resource
                     ->formatStateUsing(
                         fn (Molecule $molecule): HtmlString => new HtmlString("<strong>ID:</strong> {$molecule->id}<br><strong>Identifier:</strong> {$molecule->identifier}<br><strong>Name:</strong> {$molecule->name}")
                     )
-                    ->description(fn (Molecule $molecule): string => $molecule->standard_inchi)
+                    ->description(fn (Molecule $molecule) => $molecule->standard_inchi)
                     ->wrap(),
                 Tables\Columns\TextColumn::make('synonyms')
                     ->searchable()
