@@ -75,19 +75,60 @@ class ListReports extends ListRecords
         if (auth()->user()->roles()->exists()) {
             $presetViews['assigned'] = PresetView::make()
                 ->modifyQueryUsing(function ($query) {
-                    return $query->whereHas('curators', function ($q) {
-                        $q->where('report_user.user_id', auth()->id());
-                    })->whereNotIn('status', ['approved', 'rejected']);
+                    // We want reports that are actionable by the current curator
+                    return $query->where(function ($subquery) {
+                        // Case 1: Reports where the user is assigned as curator 1 and status is 'submitted'
+                        $subquery->where(function ($q) {
+                            $q->whereHas('curators', function ($curatorQuery) {
+                                $curatorQuery->where('report_user.user_id', auth()->id())
+                                    ->where('report_user.curator_number', 1);
+                            })->where('status', 'submitted');
+                        });
+
+                        // Case 2: Reports waiting for second curator review and:
+                        // - current user is assigned as curator 2, OR
+                        // - current user is not the first curator and no curator 2 is assigned yet
+                        $subquery->orWhere(function ($q) {
+                            $q->whereIn('status', ['pending_approval', 'pending_rejection'])
+                                ->where(function ($innerQuery) {
+                                    // Current user is already assigned as curator 2
+                                    $innerQuery->whereHas('curators', function ($curatorQuery) {
+                                        $curatorQuery->where('report_user.user_id', auth()->id())
+                                            ->where('report_user.curator_number', 2);
+                                    });
+                                });
+                        });
+                    });
                 })
                 ->favorite()
-                ->badge(
-                    Report::query()
-                        ->whereHas('curators', function ($q) {
-                            $q->where('report_user.user_id', auth()->id());
+                ->badge(function () {
+                    // Count reports that need the curator's attention
+                    return Report::query()
+                        ->where(function ($subquery) {
+                            // Case 1: Reports where the user is assigned as curator 1 and status is 'submitted'
+                            $subquery->where(function ($q) {
+                                $q->whereHas('curators', function ($curatorQuery) {
+                                    $curatorQuery->where('report_user.user_id', auth()->id())
+                                        ->where('report_user.curator_number', 1);
+                                })->where('status', 'submitted');
+                            });
+
+                            // Case 2: Reports waiting for second curator review and:
+                            // - current user is assigned as curator 2, OR
+                            // - current user is not the first curator and no curator 2 is assigned yet
+                            $subquery->orWhere(function ($q) {
+                                $q->whereIn('status', ['pending_approval', 'pending_rejection'])
+                                    ->where(function ($innerQuery) {
+                                        // Current user is already assigned as curator 2
+                                        $innerQuery->whereHas('curators', function ($curatorQuery) {
+                                            $curatorQuery->where('report_user.user_id', auth()->id())
+                                                ->where('report_user.curator_number', 2);
+                                        });
+                                    });
+                            });
                         })
-                        ->whereNotIn('status', ['approved', 'rejected'])
-                        ->count()
-                )
+                        ->count();
+                })
                 ->preserveAll();
         }
 
