@@ -25,27 +25,15 @@ class ListReports extends ListRecords
     public function getPresetViews(): array
     {
         $presetViews = [
-            'submitted' => PresetView::make()
-                ->modifyQueryUsing(fn ($query) => $query->where('status', 'submitted'))
+            'on going' => PresetView::make()
+                ->modifyQueryUsing(fn ($query) => $query->whereIn('status', ['submitted', 'pending_approval', 'pending_rejection']))
                 ->favorite()
                 ->badge(function () {
                     if (auth()->user()->roles()->exists()) {
-                        return Report::query()->where('status', 'submitted')->count();
+                        return Report::query()->whereIn('status', ['submitted', 'pending_approval', 'pending_rejection'])->count();
                     }
 
-                    return Report::query()->where('user_id', auth()->id())->where('status', 'submitted')->count();
-                })
-                ->preserveAll()
-                ->default(),
-            'pending' => PresetView::make()
-                ->modifyQueryUsing(fn ($query) => $query->where('status', 'pending_approval')->orWhere('status', 'pending_rejection'))
-                ->favorite()
-                ->badge(function () {
-                    if (auth()->user()->roles()->exists()) {
-                        return Report::query()->where('status', 'pending_approval')->orWhere('status', 'pending_rejection')->count();
-                    }
-
-                    return Report::query()->where('user_id', auth()->id())->where('status', 'pending_approval')->orWhere('status', 'pending_rejection')->count();
+                    return Report::query()->where('user_id', auth()->id())->whereIn('status', ['submitted', 'pending_approval', 'pending_rejection'])->count();
                 })
                 ->preserveAll()
                 ->default(),
@@ -73,7 +61,7 @@ class ListReports extends ListRecords
                 ->preserveAll(),
         ];
         if (auth()->user()->roles()->exists()) {
-            $presetViews['assigned'] = PresetView::make()
+            $presetViews['assigned to me'] = PresetView::make()
                 ->modifyQueryUsing(function ($query) {
                     // We want reports that are actionable by the current curator
                     return $query->where(function ($subquery) {
