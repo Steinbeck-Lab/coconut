@@ -49,8 +49,8 @@
                                     <div
                                         @class([
                                             'h-4 w-4 rounded-full border-4  mr-1',
-                                            'bg-green-400 border-green-200 dark:border-green-800' => $banner->is_active,
-                                            'bg-gray-400 border-gray-200 dark:border-gray-700' => ! $banner->is_active
+                                            'bg-green-400 border-green-200' => $banner->is_active,
+                                            'bg-gray-400 border-gray-200' => ! $banner->is_active
                                         ])
                                     ></div>
                                     <div class="text-xs text-gray-400">
