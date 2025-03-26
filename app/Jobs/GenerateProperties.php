@@ -81,7 +81,7 @@ class GenerateProperties implements ShouldQueue
         $properties->van_der_walls_volume = $descriptors['van_der_waals_volume'] == 'None' ? 0 : $descriptors['van_der_waals_volume'];
         $properties->contains_ring_sugars = $descriptors['circular_sugars'];
         $properties->contains_linear_sugars = $descriptors['linear_sugars'];
-        $properties->murcko_framework = $descriptors['murcko_framework'];
+        $properties->murcko_framework = $descriptors['murko_framework'];
         $properties->np_likeness = $descriptors['nplikeness'];
         $properties->molecule_id = $id;
         $properties->save();

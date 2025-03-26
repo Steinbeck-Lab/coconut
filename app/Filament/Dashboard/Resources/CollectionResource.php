@@ -43,7 +43,7 @@ class CollectionResource extends Resource
         return $form
             ->schema(
                 [
-                    Livewire::make(ShowJobStatus::class),
+                    // Livewire::make(ShowJobStatus::class),
 
                     Section::make('Database details')
                         ->description('Provide details of the database and link to the resource.')
