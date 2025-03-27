@@ -14,7 +14,12 @@ class Terms extends Component
     public function mount()
     {
         $termsFile = Jetstream::localizedMarkdownPath('terms.md');
-        $this->terms = Str::markdown(file_get_contents($termsFile));
+        $content = file_get_contents($termsFile);
+
+        // Replace the hardcoded year with current year
+        $content = preg_replace('/Copyright \(c\) \d{4}/', 'Copyright (c) '.date('Y'), $content);
+
+        $this->terms = Str::markdown($content);
     }
 
     #[Layout('layouts.guest')]
