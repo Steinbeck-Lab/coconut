@@ -89,6 +89,8 @@ class Search extends Component
     public function render(SearchMolecule $search)
     {
         try {
+            $this->query = urldecode($this->query);
+
             $cacheKey = 'search.'.md5($this->query.$this->size.$this->type.$this->sort.$this->tagType.$this->page);
 
             $results = Cache::remember($cacheKey, now()->addDay(), function () use ($search) {
