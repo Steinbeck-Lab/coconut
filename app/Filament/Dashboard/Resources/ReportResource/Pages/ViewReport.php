@@ -39,6 +39,16 @@ class ViewReport extends ViewRecord
             $data['new_citations'] = $curators_copy_changes['new_citations'];
         }
 
+        $comment = '';
+        if ($this->record->status == 'pending_approval' || $this->record->status == 'pending_rejection') {
+            $curator = $this->record->curators()->wherePivot('curator_number', 1)->first();
+            $comment = $curator?->pivot->comment;
+        } else {
+            $curator = $this->record->curators()->wherePivot('curator_number', 2)->first();
+            $comment = $curator?->pivot->comment;
+        }
+        $data['curator_comment'] = $comment;
+
         return $data;
     }
 }

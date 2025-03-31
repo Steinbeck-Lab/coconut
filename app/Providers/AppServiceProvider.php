@@ -58,7 +58,7 @@ class AppServiceProvider extends ServiceProvider
                 ]));
         });
 
-        Event::subscribe(ReportEventSubscriber::class);
+        // Event::subscribe(ReportEventSubscriber::class);
 
         FilamentAsset::register([
             Js::make('coconut-js', Vite::asset('resources/js/app.js'))->module(),

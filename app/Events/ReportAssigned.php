@@ -8,7 +8,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ReportStatusChanged
+class ReportAssigned
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -17,9 +17,12 @@ class ReportStatusChanged
      */
     public $report;
 
-    public function __construct(Report $report)
+    public $curator_id;
+
+    public function __construct(Report $report, $curator_id)
     {
         $this->report = $report;
+        $this->curator_id = $curator_id;
     }
 
     /**
