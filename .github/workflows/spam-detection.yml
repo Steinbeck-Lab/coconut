@@ -1,0 +1,302 @@
+name: Spam Issue Detection
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  spam-detection:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install @octokit/rest natural
+
+      - name: Check if issue is spam
+        id: spam-check
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { Octokit } = require('@octokit/rest');
+            const natural = require('natural');
+            
+            const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+            
+            // Get issue data
+            const issue = context.payload.issue;
+            const issueNumber = issue.number;
+            const issueTitle = issue.title;
+            const issueBody = issue.body || '';
+            const issueAuthor = issue.user.login;
+            
+            // Log issue information for debugging
+            console.log(`Analyzing issue #${issueNumber} from ${issueAuthor}`);
+            console.log(`Title: ${issueTitle}`);
+            
+            // Helper function to determine if issue is likely spam
+            function isSpam(title, body) {
+              // Convert to lowercase for consistent matching
+              const lowerTitle = title.toLowerCase();
+              const lowerBody = body.toLowerCase();
+              const fullContent = `${lowerTitle} ${lowerBody}`;
+              
+              // Common spam indicators
+              const spamKeywords = [
+                'viagra', 'cialis', 'casino', 'lottery', 'winners', 
+                'bitcoin investment', 'crypto opportunity', 'earn money fast',
+                'free money', 'make money online', 'work from home opportunity',
+                'loan offer', 'dating site', 'hot singles', 'forex trading',
+                'weight loss', 'miracle cure', 'diet pills', 'enlarge',
+                'unsubscribe', 'click here', 'limited time offer', 'domain for sale',
+                'exclusive offer', 'act now', 'limited supply', 'premium domain',
+                'seo services', 'seo quote', 'boost ranking', 'improve google ranking',
+                'attendee list', 'conference attendees', 'event participants', 
+                'mailing list', 'contact details', 'lead generation', 'leads for sale'
+              ];
+              
+              // Phishing-specific keywords and phrases
+              const phishingKeywords = [
+                'verify your account', 'account verification', 'update your information',
+                'confirm your details', 'unusual activity', 'suspicious activity',
+                'security alert', 'password expired', 'account suspended', 'account on hold',
+                'payment failed', 'billing problem', 'invoice attached', 'document shared',
+                'dropbox link', 'google doc', 'login attempt', 'please login',
+                'confirm identity', 'reset password', 'unusual login', 'access limited'
+              ];
+              
+              // Check for common spam patterns
+              const hasSpamKeywords = spamKeywords.some(keyword => 
+                fullContent.includes(keyword)
+              );
+              
+              // Check for phishing indicators
+              const hasPhishingKeywords = phishingKeywords.some(keyword => 
+                fullContent.includes(keyword)
+              );
+              
+              // Extract all URLs for further analysis
+              const urlRegex = /(https?:\/\/[^\s]+)/g;
+              const urlMatches = fullContent.match(urlRegex) || [];
+              const hasExcessiveUrls = urlMatches.length > 5;
+              
+              // Check for suspicious URL patterns (common in phishing)
+              const suspiciousUrlPatterns = [
+                // Lookalike domains with typos
+                /paypa[l1]/i, /amaz[o0]n/i, /g[o0]{2}gle/i, /faceb[o0]{2}k/i, /[l1]inked[i1]n/i,
+                // URLs with unusual TLDs for business sites
+                /\.(xyz|top|club|online|site|fun|space|icu)\//i,
+                // IP address URLs
+                /https?:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/,
+                // URLs with encoded characters to hide destination
+                /%[0-9A-F]{2}/i
+              ];
+              
+              const hasSuspiciousUrls = urlMatches.some(url => {
+                return suspiciousUrlPatterns.some(pattern => pattern.test(url));
+              });
+              
+              // Check for domain mimicry - common financial/tech services with small variations
+              const knownDomains = ['paypal', 'amazon', 'apple', 'microsoft', 'google', 'facebook', 
+                                    'instagram', 'twitter', 'linkedin', 'github', 'dropbox', 'chase',
+                                    'wellsfargo', 'bankofamerica', 'capitalone', 'amex', 'gmail'];
+              
+              const hasMimicryDomains = urlMatches.some(url => {
+                const domain = url.toLowerCase();
+                return knownDomains.some(known => {
+                  // Check for domains that contain the name but aren't the official domain
+                  // e.g. "paypal-secure.com", "secure-paypal.net"
+                  return domain.includes(known) && 
+                         !domain.includes(`${known}.com`) && 
+                         !domain.includes(`www.${known}.com`);
+                });
+              });
+              
+              // Check for common email marketing patterns
+              const hasMarketingPatterns = 
+                fullContent.includes('unsubscribe') || 
+                fullContent.includes('view in browser') ||
+                fullContent.includes('view as webpage') ||
+                fullContent.includes('click here to unsubscribe');
+              
+              // Business scam detection - vague business outreach
+              const businessScamIndicators = [
+                // Vague business outreach patterns
+                /purchasing director|commercial director|procurement manager/i.test(fullContent),
+                /looking for (reliable|new) (partners|suppliers|vendors)/i.test(fullContent),
+                /your products interest us/i.test(fullContent),
+                /large (distribution network|market)/i.test(fullContent),
+                /bank transfer/i.test(fullContent) && /payment terms/i.test(fullContent),
+                // No specific product mention but asking for catalog
+                /provide (us with|me with|your) (catalog|price list|quotation)/i.test(fullContent) && 
+                  !/(specific|particular) product/i.test(fullContent),
+                // Generic introduction without specifics
+                /I am (Mr\.|Mrs\.|Dr\.)/.test(fullContent) && 
+                  /director|manager|CEO/.test(fullContent) && 
+                  !lowerBody.includes('regarding your specific')
+              ];
+              
+              const isLikelyBusinessScam = businessScamIndicators.filter(Boolean).length >= 2;
+              
+              // Marketing follow-up spam detection
+              const isMarketingFollowUp = (
+                /follow(ing)? up/i.test(fullContent) && 
+                /since (I|we) haven't (heard|received a reply)/i.test(fullContent) &&
+                (/quote|proposal|offer|service|package|deal|discount/i.test(fullContent) ||
+                 /^Hello|^Hi|^Greetings/i.test(fullContent))
+              );
+              
+              // Data selling spam detection
+              const isDataSellingSpam = (
+                /attendee|participant|visitor/.test(fullContent) &&
+                /list|database|contacts|leads/.test(fullContent) &&
+                /includes.*email|contains.*contact|with.*phone/i.test(fullContent)
+              );
+              
+              // Email specific checks for support emails that are NOT spam
+              const isLikelyRelevantEmail = (
+                (lowerBody.includes('support') || lowerBody.includes('help') || lowerBody.includes('issue')) &&
+                (lowerBody.includes('error') || lowerBody.includes('problem') || lowerBody.includes('question') || lowerBody.includes('how to'))
+              );
+              
+              // Check if the structure looks like a legitimate support request
+              const hasQuestionOrRequest = 
+                lowerBody.includes('?') || 
+                lowerBody.includes('please') || 
+                lowerBody.includes('thank you') ||
+                lowerBody.includes('help');
+              
+              // Naive Bayes classifier could be extended here for more advanced detection
+              
+              // Check for requests for sensitive information (common in phishing)
+              const requestsSensitiveInfo = (
+                fullContent.includes('credit card') ||
+                fullContent.includes('social security') ||
+                fullContent.includes('ssn') ||
+                fullContent.includes('password') ||
+                fullContent.includes('login credentials') ||
+                fullContent.includes('bank details') ||
+                fullContent.includes('personal information') ||
+                fullContent.includes('verify your identity') ||
+                fullContent.includes('login to view') ||
+                /please\s+(?:enter|provide|confirm|update|verify)\s+your/i.test(fullContent)
+              );
+              
+              // Check for urgent language (common in phishing)
+              const hasUrgentLanguage = (
+                fullContent.includes('urgent') ||
+                fullContent.includes('immediate action') ||
+                fullContent.includes('immediate attention') ||
+                fullContent.includes('act now') ||
+                fullContent.includes('expires soon') ||
+                fullContent.includes('within 24 hours') ||
+                fullContent.includes('account will be locked') ||
+                fullContent.includes('security breach') ||
+                /within\s+\d+\s+(?:hour|day|minute)/i.test(fullContent)
+              );
+              
+              // Decision logic - identify spam
+              const isLikelySpam = (
+                hasSpamKeywords || 
+                hasExcessiveUrls || 
+                hasMarketingPatterns ||
+                isLikelyBusinessScam ||
+                isMarketingFollowUp ||
+                isDataSellingSpam
+              );
+              
+              // Decision logic - identify phishing
+              const isLikelyPhishing = (
+                hasPhishingKeywords ||
+                hasSuspiciousUrls ||
+                hasMimicryDomains ||
+                requestsSensitiveInfo ||
+                (hasUrgentLanguage && (urlMatches.length > 0 || requestsSensitiveInfo))
+              );
+              
+              const isLikelyLegitimate = (
+                isLikelyRelevantEmail || 
+                hasQuestionOrRequest
+              );
+              
+              // If we have strong indicators of legitimacy, override spam detection
+              // But don't override phishing detection, as phishing often mimics legitimate emails
+              if (isLikelyLegitimate && !hasSpamKeywords && !isLikelyPhishing) {
+                return false;
+              }
+              
+              return isLikelySpam || isLikelyPhishing;
+            }
+            
+            // Determine if the issue is spam
+            const spamDetected = isSpam(issueTitle, issueBody);
+            console.log(`Spam detected: ${spamDetected}`);
+            
+            // If spam is detected, close the issue with a comment
+            if (spamDetected) {
+              console.log(`Closing issue #${issueNumber} as spam`);
+              
+              // Determine message based on spam classification
+              let closeReason = 'potential spam';
+              
+              if (isLikelyPhishing) {
+                closeReason = 'potential phishing content';
+              } else if (isLikelyBusinessScam) {
+                closeReason = 'potential business scam';
+              } else if (isDataSellingSpam) {
+                closeReason = 'unsolicited data selling';
+              } else if (isMarketingFollowUp) {
+                closeReason = 'unsolicited marketing';
+              }
+              
+              // Add comment explaining why the issue was closed
+              await octokit.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: `This issue has been automatically closed because it was detected as ${closeReason}. If this is a mistake, please contact the repository maintainers.`
+              });
+              
+              // Close the issue
+              await octokit.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                state: 'closed',
+                state_reason: 'not_planned'
+              });
+              
+              // Determine the specific type of spam for better labeling
+              let label = 'spam';
+              
+              if (isLikelyPhishing) {
+                label = 'phishing';
+              } else if (isLikelyBusinessScam) {
+                label = 'business-scam';
+              } else if (isDataSellingSpam) {
+                label = 'data-selling';
+              } else if (isMarketingFollowUp) {
+                label = 'marketing-spam';
+              }
+              
+              // Add appropriate label
+              await octokit.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                labels: [label]
+              });
+              
+              return true;
+            }
+            
+            return false;
