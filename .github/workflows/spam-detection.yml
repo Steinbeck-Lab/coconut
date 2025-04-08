@@ -50,19 +50,32 @@ jobs:
               const lowerBody = body.toLowerCase();
               const fullContent = `${lowerTitle} ${lowerBody}`;
               
-              // Common spam indicators
+              // Common spam indicators - general terms found across many spam types
               const spamKeywords = [
-                'viagra', 'cialis', 'casino', 'lottery', 'winners', 
-                'bitcoin investment', 'crypto opportunity', 'earn money fast',
-                'free money', 'make money online', 'work from home opportunity',
-                'loan offer', 'dating site', 'hot singles', 'forex trading',
-                'weight loss', 'miracle cure', 'diet pills', 'enlarge',
-                'unsubscribe', 'click here', 'limited time offer', 'domain for sale',
-                'exclusive offer', 'act now', 'limited supply', 'premium domain',
-                'seo services', 'seo quote', 'boost ranking', 'improve google ranking',
-                'attendee list', 'conference attendees', 'event participants', 
-                'mailing list', 'contact details', 'lead generation', 'leads for sale',
-                'email list', 'available to acquire', 'prompt reply', 'kindly let me know if'
+                // Medical/pharmaceutical spam
+                'viagra', 'cialis', 'pharmacy', 'prescription', 'medication',
+                // Gambling/lottery
+                'casino', 'lottery', 'jackpot', 'betting', 'gambling', 'winners',
+                // Financial scams
+                'bitcoin', 'crypto', 'investment opportunity', 'earn money', 'make money',
+                'forex', 'trading', 'passive income', 'quick cash', 'financial freedom',
+                // Work opportunities 
+                'work from home', 'remote job', 'side hustle', 'residual income',
+                // Loans/finance
+                'loan offer', 'quick loan', 'debt relief', 'credit score', 'refinance',
+                // Dating/adult
+                'dating site', 'hot singles', 'meet singles', 'adult content',
+                // Health products
+                'weight loss', 'diet', 'fat burn', 'miracle cure', 'natural remedy',
+                // Marketing/SEO
+                'seo services', 'boost ranking', 'website traffic', 'backlinks',
+                // Domain sales
+                'domain for sale', 'premium domain', 'web address',
+                // Email list/contact sales (general patterns)
+                'email list', 'contact database', 'leads', 'mailing list',
+                // Marketing language
+                'limited time', 'exclusive offer', 'act now', 'don\'t miss', 
+                'unsubscribe', 'one-time offer', 'best price', 'discount'
               ];
               
               // Phishing-specific keywords and phrases
@@ -129,47 +142,82 @@ jobs:
                 fullContent.includes('view as webpage') ||
                 fullContent.includes('click here to unsubscribe');
               
-              // Business scam detection - vague business outreach
+              // Business scam detection - general patterns for vague business outreach
               const businessScamIndicators = [
-                // Vague business outreach patterns
-                /purchasing director|commercial director|procurement manager/i.test(fullContent),
-                /looking for (reliable|new) (partners|suppliers|vendors)/i.test(fullContent),
-                /your products interest us/i.test(fullContent),
-                /large (distribution network|market)/i.test(fullContent),
-                /bank transfer/i.test(fullContent) && /payment terms/i.test(fullContent),
-                // No specific product mention but asking for catalog
-                /provide (us with|me with|your) (catalog|price list|quotation)/i.test(fullContent) && 
-                  !/(specific|particular) product/i.test(fullContent),
-                // Generic introduction without specifics
-                /I am (Mr\.|Mrs\.|Dr\.)/.test(fullContent) && 
-                  /director|manager|CEO/.test(fullContent) && 
-                  !lowerBody.includes('regarding your specific')
+                // General business outreach with vague titles
+                /director|manager|CEO|head of|officer|specialist/i.test(fullContent) && 
+                !/(specific|particular|regarding your|about your|existing)/i.test(fullContent),
+                
+                // Vague partnership/supplier requests
+                /(looking|searching|seeking)\s*(for|to find)\s*(partner|supplier|vendor|distributor)/i.test(fullContent) && 
+                !/(specific product|specific service|specific project)/i.test(fullContent),
+                
+                // Vague interest in products without specifics
+                /(interest|interested in)\s*(your|in your)\s*(product|service|business|company)/i.test(fullContent) && 
+                !/(specific|particular|model|item)/i.test(fullContent),
+                
+                // Mentions of payment terms or bank transfers in initial outreach
+                /(payment term|bank transfer|wire transfer|advance payment)/i.test(fullContent) && 
+                /(day|week|month|percent|%)/i.test(fullContent),
+                
+                // Requesting catalog without specific interest
+                /(catalog|catalogue|price list|quotation|quote)/i.test(fullContent) && 
+                !/(specific|particular|item|model)/i.test(fullContent),
+                
+                // Generic distribution network claims
+                /(distribution|market|customer|client)\s*(network|base|reach|access)/i.test(fullContent),
+                
+                // Formulaic introduction with generic company reference
+                /I am \w+\s+\w+\s+(from|of|at)\s+[A-Z]/i.test(fullContent) && 
+                /(company|corporation|enterprise|business|firm)/i.test(fullContent) &&
+                !/(about your|regarding your|your recent|your product)/i.test(fullContent)
               ];
               
               const isLikelyBusinessScam = businessScamIndicators.filter(Boolean).length >= 2;
               
-              // Marketing follow-up spam detection
+              // Marketing follow-up spam detection - general patterns
               const isMarketingFollowUp = (
-                /follow(ing)? up/i.test(fullContent) && 
-                /since (I|we) haven't (heard|received a reply)/i.test(fullContent) &&
-                (/quote|proposal|offer|service|package|deal|discount/i.test(fullContent) ||
-                 /^Hello|^Hi|^Greetings/i.test(fullContent))
+                // Follow-up language
+                /(follow|following)\s*(up|with you)/i.test(fullContent) &&
+                
+                // Generic marketing engagement patterns
+                (
+                  // Fake previous contact
+                  /(haven't heard|no response|not heard back|didn't receive|since our last|since my last)/i.test(fullContent) ||
+                  
+                  // Pushing for response
+                  /(checking in|touching base|reaching out|wanted to see)/i.test(fullContent)
+                ) && 
+                
+                // Marketing offering indicators
+                (
+                  /(quote|proposal|offer|service|package|solution|deal|discount|promotion)/i.test(fullContent) ||
+                  /(SEO|marketing|design|development|optimization|analysis|consultation|strategy)/i.test(fullContent) ||
+                  /^(Hello|Hi|Greetings|Good day|Dear)/i.test(fullContent)
+                )
               );
               
-              // Data selling spam detection
+              // Data selling spam detection - more general patterns to catch various approaches
               const isDataSellingSpam = (
-                // Check for mentions of email lists, contacts, or databases
-                (/email list|contact list|database|contacts|leads/i.test(fullContent) &&
-                 /available|acquire|purchase|buy|offer/i.test(fullContent)) ||
-                // Specific mention of number of contacts (e.g., "295647 Contacts")
-                /\d{4,}\s*(contacts|emails|leads|records|profiles)/i.test(fullContent) ||
-                // Mentions of event/conference data
-                (/(attendee|participant|visitor|trade show|expo|exhibition|conference|event)/i.test(fullContent) &&
-                 /(list|database|contacts|leads|emails)/i.test(fullContent)) ||
-                // Direct offer to sell data
-                /(selling|offering|providing)\s*(contacts|leads|emails|data)/i.test(fullContent) ||
-                // Mention of industry-specific contacts
-                /(industry|sector|niche|specific)\s*(contacts|leads|emails|database)/i.test(fullContent)
+                // Pattern 1: Mentions of contact lists with availability/offering language
+                (/(email|contact|attendee|lead|prospect|customer|client)\s*(list|database|data|information)/i.test(fullContent) &&
+                 /(available|acquire|purchase|buy|sell|offer|get|access|download)/i.test(fullContent)) ||
+                
+                // Pattern 2: Mentions of contact numbers (any 4+ digit number followed by contact-related term)
+                /\d{4,}\s*(contact|email|lead|record|profile|attendee|prospect)/i.test(fullContent) ||
+                
+                // Pattern 3: Industry or event-related data selling
+                (/(conference|expo|exhibition|event|industry|trade show|fair)/i.test(fullContent) &&
+                 /(list|database|contact|attendee|participant|visitor)/i.test(fullContent) &&
+                 /(available|interested|pricing|information|detail)/i.test(fullContent)) ||
+                
+                // Pattern 4: Direct marketing of contact data
+                /(marketing|business|contact|email)\s*(list|database|directory)/i.test(fullContent) ||
+                
+                // Pattern 5: Data selling with engagement request
+                (/(contact|email|data|list)/i.test(fullContent) &&
+                 /(interested|let me know|get back|reply|respond)/i.test(fullContent) &&
+                 /(price|cost|detail|information|more)/i.test(fullContent))
               );
               
               // Email specific checks for support emails that are NOT spam
