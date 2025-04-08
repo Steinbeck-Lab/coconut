@@ -61,7 +61,8 @@ jobs:
                 'exclusive offer', 'act now', 'limited supply', 'premium domain',
                 'seo services', 'seo quote', 'boost ranking', 'improve google ranking',
                 'attendee list', 'conference attendees', 'event participants', 
-                'mailing list', 'contact details', 'lead generation', 'leads for sale'
+                'mailing list', 'contact details', 'lead generation', 'leads for sale',
+                'email list', 'available to acquire', 'prompt reply', 'kindly let me know if'
               ];
               
               // Phishing-specific keywords and phrases
@@ -157,9 +158,18 @@ jobs:
               
               // Data selling spam detection
               const isDataSellingSpam = (
-                /attendee|participant|visitor/.test(fullContent) &&
-                /list|database|contacts|leads/.test(fullContent) &&
-                /includes.*email|contains.*contact|with.*phone/i.test(fullContent)
+                // Check for mentions of email lists, contacts, or databases
+                (/email list|contact list|database|contacts|leads/i.test(fullContent) &&
+                 /available|acquire|purchase|buy|offer/i.test(fullContent)) ||
+                // Specific mention of number of contacts (e.g., "295647 Contacts")
+                /\d{4,}\s*(contacts|emails|leads|records|profiles)/i.test(fullContent) ||
+                // Mentions of event/conference data
+                (/(attendee|participant|visitor|trade show|expo|exhibition|conference|event)/i.test(fullContent) &&
+                 /(list|database|contacts|leads|emails)/i.test(fullContent)) ||
+                // Direct offer to sell data
+                /(selling|offering|providing)\s*(contacts|leads|emails|data)/i.test(fullContent) ||
+                // Mention of industry-specific contacts
+                /(industry|sector|niche|specific)\s*(contacts|leads|emails|database)/i.test(fullContent)
               );
               
               // Email specific checks for support emails that are NOT spam
