@@ -131,4 +131,8 @@ return [
         ],
     ],
 
+    'export_notification_recipients' => [
+        'sri.ram.sagar.kanakam@uni-jena.de',
+    ],
+
 ];
