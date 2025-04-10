@@ -42,9 +42,10 @@ class UpdateSourceLinks extends Command
 
         // Generate a unique index name using timestamp to avoid conflicts
         $tempIndexName = 'temp_ref_id_idx_' . time();
+        $pivotTempIndexName = 'temp_pivot_ref_idx_' . time();
         
+        try {
             // Check if a similar index already exists to avoid errors
-            $this->info("Creating temporary index for faster processing...");
             $indexExists = DB::select("
                 SELECT 1 
                 FROM pg_indexes 
@@ -63,8 +64,26 @@ class UpdateSourceLinks extends Command
             } else {
                 $this->info("Using existing temporary index");
             }
+            
+            // Create a temporary index for the pivot table as well
+            $pivotIndexExists = DB::select("
+                SELECT 1 
+                FROM pg_indexes 
+                WHERE tablename = 'collection_molecule' 
+                AND indexname LIKE 'temp_pivot_ref_idx_%'
+            ");
+            
+            if (empty($pivotIndexExists)) {
+                DB::statement("
+                    CREATE INDEX {$pivotTempIndexName} 
+                    ON collection_molecule (collection_id) 
+                    WHERE collection_id = {$collectionId}
+                ");
+                $this->info("Temporary index created for pivot table: {$pivotTempIndexName}");
+            } else {
+                $this->info("Using existing temporary index for pivot table");
+            }
 
-        try {
             // Open the CSV file
             $handle = fopen($file, 'r');
             if ($handle === false) {
@@ -178,8 +197,66 @@ class UpdateSourceLinks extends Command
                 $this->info("Batch " . ($batchNumber + 1) . " completed. Progress: {$processedCount}/{$totalReferenceIds}");
             }
             
-            if ($updatedCount == 0) {
-                $this->warn("No matching entries found for any of the provided reference IDs in collection_id: {$collectionId}");
+            // Now update the pivot table's URL column based on the reference IDs
+            $this->info("Updating URLs in the collection_molecule pivot table...");
+            
+            // Get all pivot records for this collection
+            $pivotRecords = DB::table('collection_molecule')
+                ->where('collection_id', $collectionId)
+                ->whereNotNull('reference')
+                ->select('id', 'reference')
+                ->get();
+                
+            $pivotUpdatedCount = 0;
+            $pivotTotalCount = count($pivotRecords);
+            
+            $this->info("Found {$pivotTotalCount} pivot records with references to update");
+            
+            // Process pivot records in batches
+            foreach (array_chunk($pivotRecords->toArray(), $batchSize) as $batchNumber => $pivotBatch) {
+                $this->info("Processing pivot batch " . ($batchNumber + 1) . " (" . count($pivotBatch) . " items)...");
+                
+                DB::transaction(function() use ($pivotBatch, $updateMap, &$pivotUpdatedCount) {
+                    foreach ($pivotBatch as $pivot) {
+                        // Skip if reference is empty
+                        if (empty($pivot->reference)) {
+                            continue;
+                        }
+                        
+                        // Split reference IDs by pipe character
+                        $referenceIds = array_map('trim', explode('|', $pivot->reference));
+                        $urls = [];
+                        
+                        // Build the corresponding URL string with the same structure
+                        foreach ($referenceIds as $refId) {
+                            if (isset($updateMap[$refId])) {
+                                $urls[] = $updateMap[$refId];
+                            } else {
+                                // Keep the position even if we don't have a URL
+                                $urls[] = '';
+                            }
+                        }
+                        
+                        // Only update if we have at least one URL
+                        if (!empty(array_filter($urls))) {
+                            $urlString = implode('|', $urls);
+                            
+                            DB::table('collection_molecule')
+                                ->where('id', $pivot->id)
+                                ->update(['url' => $urlString]);
+                                
+                            $pivotUpdatedCount++;
+                        }
+                    }
+                });
+                
+                $this->info("Pivot batch " . ($batchNumber + 1) . " completed.");
+            }
+            
+            $this->info("Pivot table update completed! {$pivotUpdatedCount} pivot records updated");
+            
+            if ($updatedCount == 0 && $pivotUpdatedCount == 0) {
+                $this->warn("No matching entries or pivot records found for any of the provided reference IDs in collection_id: {$collectionId}");
             }
             
             // Calculate not found count
@@ -190,23 +267,34 @@ class UpdateSourceLinks extends Command
             $this->info("{$notFoundCount} reference IDs not found in the specified collection");
             $this->info("{$skippedCount} rows skipped due to invalid data");
             
-            // Drop the temporary index if we created one
+            // Drop the temporary indexes if we created them
             if (empty($indexExists)) {
-                $this->info("Dropping temporary index...");
+                $this->info("Dropping temporary index for entries table...");
                 DB::statement("DROP INDEX IF EXISTS {$tempIndexName}");
                 $this->info("Temporary index dropped");
             }
             
+            if (empty($pivotIndexExists)) {
+                $this->info("Dropping temporary index for pivot table...");
+                DB::statement("DROP INDEX IF EXISTS {$pivotTempIndexName}");
+                $this->info("Temporary pivot index dropped");
+            }
+            
             return 0;
         } catch (\Exception $e) {
-            // Make sure to drop the index even if there's an error
+            // Make sure to drop the indexes even if there's an error
             try {
                 if (isset($tempIndexName) && empty($indexExists ?? null)) {
-                    $this->warn("Dropping temporary index due to error...");
+                    $this->warn("Dropping temporary index for entries table due to error...");
                     DB::statement("DROP INDEX IF EXISTS {$tempIndexName}");
                 }
+                
+                if (isset($pivotTempIndexName) && empty($pivotIndexExists ?? null)) {
+                    $this->warn("Dropping temporary index for pivot table due to error...");
+                    DB::statement("DROP INDEX IF EXISTS {$pivotTempIndexName}");
+                }
             } catch (\Exception $indexException) {
-                $this->error("Error dropping index: " . $indexException->getMessage());
+                $this->error("Error dropping indexes: " . $indexException->getMessage());
             }
             
             $this->error("Error: " . $e->getMessage());
