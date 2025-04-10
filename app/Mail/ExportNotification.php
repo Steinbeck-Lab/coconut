@@ -11,10 +11,15 @@ class ExportNotification extends Mailable
     use Queueable, SerializesModels;
 
     public $subject;
+
     public $status;
+
     public $server;
+
     public $timestamp;
+
     public $error_message;
+
     public $error_details;
 
     public function __construct($subject, $status, $server, $timestamp, $error_message = null, $error_details = null)
@@ -30,6 +35,6 @@ class ExportNotification extends Mailable
     public function build()
     {
         return $this->subject($this->subject)
-                    ->view('emails.export-notification');
+            ->view('emails.export-notification');
     }
 }
