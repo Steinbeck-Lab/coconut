@@ -1,4 +1,4 @@
-name: Spam Issue Detection
+name: Enhanced Spam Issue Detection
 
 on:
   issues:
@@ -30,32 +30,222 @@ jobs:
             const { Octokit } = require('@octokit/rest');
             const natural = require('natural');
             
+            // Initialize Octokit client
             const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
             
-            // Get issue data
-            const issue = context.payload.issue;
-            const issueNumber = issue.number;
-            const issueTitle = issue.title;
-            const issueBody = issue.body || '';
-            const issueAuthor = issue.user.login;
+            // Constants and configuration - moving these out for easier updates
+            const CONFIG = {
+              // Minimum confidence score to mark as spam (0-1)
+              spamThreshold: 0.65,
+              // Minimum confidence score to mark as phishing (0-1)
+              phishingThreshold: 0.70,
+              // Maximum URLs allowed before considering suspicious
+              maxUrls: 4,
+              // Labels to apply
+              labels: {
+                spam: 'spam',
+                phishing: 'phishing',
+                dataSpam: 'data-selling',
+                businessScam: 'business-scam',
+                marketingSpam: 'marketing-spam'
+              }
+            };
             
-            // Log issue information for debugging
-            console.log(`Analyzing issue #${issueNumber} from ${issueAuthor}`);
-            console.log(`Title: ${issueTitle}`);
+            /**
+             * Main function to analyze and process an issue
+             */
+            async function processIssue(context, octokit) {
+              try {
+                // Get issue data
+                const issue = context.payload.issue;
+                const issueNumber = issue.number;
+                const issueTitle = issue.title;
+                const issueBody = issue.body || '';
+                const issueAuthor = issue.user.login;
+                
+                // Log issue information for debugging
+                console.log(`Analyzing issue #${issueNumber} from ${issueAuthor}`);
+                console.log(`Title: ${issueTitle}`);
+                
+                // Skip analysis for known collaborators or first-time contributors with PR
+                const isExempt = await checkExemptUser(octokit, context.repo.owner, context.repo.repo, issueAuthor);
+                if (isExempt) {
+                  console.log(`User ${issueAuthor} is exempt from spam checking`);
+                  return false;
+                }
+                
+                // Analyze the issue for spam
+                const spamAnalysis = analyzeContent(issueTitle, issueBody);
+                console.log(`Analysis results: ${JSON.stringify(spamAnalysis)}`);
+                
+                // If spam is detected, handle it
+                if (spamAnalysis.isSpam) {
+                  await handleSpamIssue(octokit, context, issueNumber, spamAnalysis);
+                  return true;
+                }
+                
+                return false;
+              } catch (error) {
+                console.error('Error processing issue:', error);
+                // Don't close the issue if there's an error in our detection
+                return false;
+              }
+            }
             
-            // Helper function to determine if issue is likely spam
-            function isSpam(title, body) {
+            /**
+             * Checks if a user should be exempt from spam filtering
+             */
+            async function checkExemptUser(octokit, owner, repo, username) {
+              try {
+                // Check if user is a collaborator
+                try {
+                  const { data: isCollaborator } = await octokit.repos.checkCollaborator({
+                    owner,
+                    repo,
+                    username
+                  });
+                  if (isCollaborator) return true;
+                } catch (e) {
+                  // Not a collaborator, continue with other checks
+                }
+                
+                // Check if user has any merged PRs
+                const { data: prs } = await octokit.search.issuesAndPullRequests({
+                  q: `repo:${owner}/${repo} author:${username} is:pr is:merged`
+                });
+                if (prs.total_count > 0) return true;
+                
+                return false;
+              } catch (error) {
+                console.error('Error checking user exemption status:', error);
+                // If we can't determine, don't exempt
+                return false;
+              }
+            }
+            
+            /**
+             * Handle closing an issue identified as spam
+             */
+            async function handleSpamIssue(octokit, context, issueNumber, spamAnalysis) {
+              console.log(`Closing issue #${issueNumber} as ${spamAnalysis.spamType}`);
+              
+              // Record metrics about the spam detection
+              try {
+                // We could store metrics in a separate file or database
+                // This is a placeholder for implementation
+                console.log(`Metrics: Spam type=${spamAnalysis.spamType}, confidence=${spamAnalysis.confidence}`);
+              } catch (e) {
+                console.error('Error recording metrics:', e);
+              }
+              
+              try {
+                // Add comment explaining why the issue was closed
+                await octokit.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  body: `This issue has been automatically closed because it was detected as ${spamAnalysis.closeReason} with ${Math.round(spamAnalysis.confidence * 100)}% confidence. If this is a mistake, please contact the repository maintainers.`
+                });
+                
+                // Close the issue
+                await octokit.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  state: 'closed',
+                  state_reason: 'not_planned'
+                });
+                
+                // Add appropriate label
+                await octokit.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  labels: [spamAnalysis.spamType]
+                });
+              } catch (error) {
+                console.error('Error handling spam issue:', error);
+              }
+            }
+            
+            /**
+             * Detects URLs in text and performs analysis on them
+             */
+            function analyzeUrls(text) {
+              // Extract all URLs
+              const urlRegex = /(https?:\/\/[^\s]+)/g;
+              const urlMatches = text.match(urlRegex) || [];
+              
+              // Check for excessive URLs
+              const hasExcessiveUrls = urlMatches.length > CONFIG.maxUrls;
+              
+              // Check for suspicious URL patterns (common in phishing)
+              const suspiciousUrlPatterns = [
+                // Lookalike domains with typos
+                /paypa[l1]/i, /amaz[o0]n/i, /g[o0]{2}gle/i, /faceb[o0]{2}k/i, /[l1]inked[i1]n/i,
+                // URLs with unusual TLDs for business sites
+                /\.(xyz|top|club|online|site|fun|space|icu)\//i,
+                // IP address URLs
+                /https?:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/,
+                // URLs with encoded characters to hide destination
+                /%[0-9A-F]{2}/i
+              ];
+              
+              const suspiciousUrls = urlMatches.filter(url => {
+                return suspiciousUrlPatterns.some(pattern => pattern.test(url));
+              });
+              
+              // Check for domain mimicry
+              const knownDomains = ['paypal', 'amazon', 'apple', 'microsoft', 'google', 'facebook', 
+                                    'instagram', 'twitter', 'linkedin', 'github', 'dropbox', 'chase',
+                                    'wellsfargo', 'bankofamerica', 'capitalone', 'amex', 'gmail'];
+              
+              const mimicryDomains = urlMatches.filter(url => {
+                const domain = url.toLowerCase();
+                return knownDomains.some(known => {
+                  return domain.includes(known) && 
+                         !domain.includes(`${known}.com`) && 
+                         !domain.includes(`www.${known}.com`);
+                });
+              });
+              
+              return {
+                urlCount: urlMatches.length,
+                hasExcessiveUrls,
+                suspiciousUrls,
+                hasSuspiciousUrls: suspiciousUrls.length > 0,
+                mimicryDomains,
+                hasMimicryDomains: mimicryDomains.length > 0
+              };
+            }
+            
+            /**
+             * Analyzes text for various spam indicators
+             */
+            function analyzeContent(title, body) {
               // Convert to lowercase for consistent matching
               const lowerTitle = title.toLowerCase();
               const lowerBody = body.toLowerCase();
               const fullContent = `${lowerTitle} ${lowerBody}`;
+              
+              // Initialize natural language classifier
+              const classifier = new natural.BayesClassifier();
+              
+              // Create a spam indicators object to track matches
+              const indicators = {
+                spam: [],
+                phishing: [],
+                legitimate: []
+              };
+              
+              // --- KEYWORD DETECTION ---
               
               // Common spam indicators - general terms found across many spam types
               const spamKeywords = [
                 // Medical/pharmaceutical spam
                 'viagra', 'cialis', 'pharmacy', 'prescription', 'medication',
                 // Gambling/lottery
-                'casino', 'lottery', 'jackpot', 'betting', 'gambling', 'winners',
+                'casino', 'lottery', 'jackpot', 'betting', 'gambling', 'winners', 
                 // Financial scams
                 'bitcoin', 'crypto', 'investment opportunity', 'earn money', 'make money',
                 'forex', 'trading', 'passive income', 'quick cash', 'financial freedom',
@@ -88,52 +278,34 @@ jobs:
                 'confirm identity', 'reset password', 'unusual login', 'access limited'
               ];
               
-              // Check for common spam patterns
-              const hasSpamKeywords = spamKeywords.some(keyword => 
-                fullContent.includes(keyword)
-              );
+              // Check for spam keywords
+              const matchedSpamKeywords = spamKeywords.filter(keyword => fullContent.includes(keyword));
+              if (matchedSpamKeywords.length > 0) {
+                indicators.spam.push(`Matched spam keywords: ${matchedSpamKeywords.join(', ')}`);
+              }
               
-              // Check for phishing indicators
-              const hasPhishingKeywords = phishingKeywords.some(keyword => 
-                fullContent.includes(keyword)
-              );
+              // Check for phishing keywords
+              const matchedPhishingKeywords = phishingKeywords.filter(keyword => fullContent.includes(keyword));
+              if (matchedPhishingKeywords.length > 0) {
+                indicators.phishing.push(`Matched phishing keywords: ${matchedPhishingKeywords.join(', ')}`);
+              }
               
-              // Extract all URLs for further analysis
-              const urlRegex = /(https?:\/\/[^\s]+)/g;
-              const urlMatches = fullContent.match(urlRegex) || [];
-              const hasExcessiveUrls = urlMatches.length > 5;
+              // --- URL ANALYSIS ---
+              const urlAnalysis = analyzeUrls(fullContent);
               
-              // Check for suspicious URL patterns (common in phishing)
-              const suspiciousUrlPatterns = [
-                // Lookalike domains with typos
-                /paypa[l1]/i, /amaz[o0]n/i, /g[o0]{2}gle/i, /faceb[o0]{2}k/i, /[l1]inked[i1]n/i,
-                // URLs with unusual TLDs for business sites
-                /\.(xyz|top|club|online|site|fun|space|icu)\//i,
-                // IP address URLs
-                /https?:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/,
-                // URLs with encoded characters to hide destination
-                /%[0-9A-F]{2}/i
-              ];
+              if (urlAnalysis.hasExcessiveUrls) {
+                indicators.spam.push(`Excessive URLs: ${urlAnalysis.urlCount}`);
+              }
               
-              const hasSuspiciousUrls = urlMatches.some(url => {
-                return suspiciousUrlPatterns.some(pattern => pattern.test(url));
-              });
+              if (urlAnalysis.hasSuspiciousUrls) {
+                indicators.phishing.push(`Suspicious URLs: ${urlAnalysis.suspiciousUrls.join(', ')}`);
+              }
               
-              // Check for domain mimicry - common financial/tech services with small variations
-              const knownDomains = ['paypal', 'amazon', 'apple', 'microsoft', 'google', 'facebook', 
-                                    'instagram', 'twitter', 'linkedin', 'github', 'dropbox', 'chase',
-                                    'wellsfargo', 'bankofamerica', 'capitalone', 'amex', 'gmail'];
+              if (urlAnalysis.hasMimicryDomains) {
+                indicators.phishing.push(`Domain mimicry: ${urlAnalysis.mimicryDomains.join(', ')}`);
+              }
               
-              const hasMimicryDomains = urlMatches.some(url => {
-                const domain = url.toLowerCase();
-                return knownDomains.some(known => {
-                  // Check for domains that contain the name but aren't the official domain
-                  // e.g. "paypal-secure.com", "secure-paypal.net"
-                  return domain.includes(known) && 
-                         !domain.includes(`${known}.com`) && 
-                         !domain.includes(`www.${known}.com`);
-                });
-              });
+              // --- PATTERN MATCHING ---
               
               // Check for common email marketing patterns
               const hasMarketingPatterns = 
@@ -142,8 +314,40 @@ jobs:
                 fullContent.includes('view as webpage') ||
                 fullContent.includes('click here to unsubscribe');
               
-              // Business scam detection - general patterns for vague business outreach
-              const businessScamIndicators = [
+              if (hasMarketingPatterns) {
+                indicators.spam.push('Email marketing patterns detected');
+              }
+              
+              // Data selling spam detection
+              const dataSellingPatterns = [
+                // Pattern 1: Mentions of contact lists with availability/offering language
+                /(email|contact|attendee|lead|prospect|customer|client)\s*(list|database|data|information)/i.test(fullContent) &&
+                /(available|acquire|purchase|buy|sell|offer|get|access|download)/i.test(fullContent),
+                
+                // Pattern 2: Mentions of contact numbers with contact-related term
+                /\d{4,}\s*(contact|email|lead|record|profile|attendee|prospect)/i.test(fullContent),
+                
+                // Pattern 3: Industry or event-related data selling
+                /(conference|expo|exhibition|event|industry|trade show|fair)/i.test(fullContent) &&
+                /(list|database|contact|attendee|participant|visitor)/i.test(fullContent) &&
+                /(available|interested|pricing|information|detail)/i.test(fullContent),
+                
+                // Pattern 4: Direct marketing of contact data
+                /(marketing|business|contact|email)\s*(list|database|directory)/i.test(fullContent),
+                
+                // Pattern 5: Data selling with engagement request
+                /(contact|email|data|list)/i.test(fullContent) &&
+                /(interested|let me know|get back|reply|respond)/i.test(fullContent) &&
+                /(price|cost|detail|information|more)/i.test(fullContent)
+              ];
+              
+              const isDataSellingSpam = dataSellingPatterns.some(pattern => pattern === true);
+              if (isDataSellingSpam) {
+                indicators.spam.push('Data selling patterns detected');
+              }
+              
+              // Business scam detection
+              const businessScamPatterns = [
                 // General business outreach with vague titles
                 /director|manager|CEO|head of|officer|specialist/i.test(fullContent) && 
                 !/(specific|particular|regarding your|about your|existing)/i.test(fullContent),
@@ -173,9 +377,12 @@ jobs:
                 !/(about your|regarding your|your recent|your product)/i.test(fullContent)
               ];
               
-              const isLikelyBusinessScam = businessScamIndicators.filter(Boolean).length >= 2;
+              const businessScamCount = businessScamPatterns.filter(Boolean).length;
+              if (businessScamCount >= 2) {
+                indicators.spam.push(`Business scam patterns detected (${businessScamCount} indicators)`);
+              }
               
-              // Marketing follow-up spam detection - general patterns
+              // Marketing follow-up spam detection
               const isMarketingFollowUp = (
                 // Follow-up language
                 /(follow|following)\s*(up|with you)/i.test(fullContent) &&
@@ -197,164 +404,123 @@ jobs:
                 )
               );
               
-              // Data selling spam detection - more general patterns to catch various approaches
-              const isDataSellingSpam = (
-                // Pattern 1: Mentions of contact lists with availability/offering language
-                (/(email|contact|attendee|lead|prospect|customer|client)\s*(list|database|data|information)/i.test(fullContent) &&
-                 /(available|acquire|purchase|buy|sell|offer|get|access|download)/i.test(fullContent)) ||
-                
-                // Pattern 2: Mentions of contact numbers (any 4+ digit number followed by contact-related term)
-                /\d{4,}\s*(contact|email|lead|record|profile|attendee|prospect)/i.test(fullContent) ||
-                
-                // Pattern 3: Industry or event-related data selling
-                (/(conference|expo|exhibition|event|industry|trade show|fair)/i.test(fullContent) &&
-                 /(list|database|contact|attendee|participant|visitor)/i.test(fullContent) &&
-                 /(available|interested|pricing|information|detail)/i.test(fullContent)) ||
-                
-                // Pattern 4: Direct marketing of contact data
-                /(marketing|business|contact|email)\s*(list|database|directory)/i.test(fullContent) ||
-                
-                // Pattern 5: Data selling with engagement request
-                (/(contact|email|data|list)/i.test(fullContent) &&
-                 /(interested|let me know|get back|reply|respond)/i.test(fullContent) &&
-                 /(price|cost|detail|information|more)/i.test(fullContent))
-              );
-              
-              // Email specific checks for support emails that are NOT spam
-              const isLikelyRelevantEmail = (
-                (lowerBody.includes('support') || lowerBody.includes('help') || lowerBody.includes('issue')) &&
-                (lowerBody.includes('error') || lowerBody.includes('problem') || lowerBody.includes('question') || lowerBody.includes('how to'))
-              );
-              
-              // Check if the structure looks like a legitimate support request
-              const hasQuestionOrRequest = 
-                lowerBody.includes('?') || 
-                lowerBody.includes('please') || 
-                lowerBody.includes('thank you') ||
-                lowerBody.includes('help');
-              
-              // Naive Bayes classifier could be extended here for more advanced detection
+              if (isMarketingFollowUp) {
+                indicators.spam.push('Marketing follow-up patterns detected');
+              }
               
               // Check for requests for sensitive information (common in phishing)
-              const requestsSensitiveInfo = (
-                fullContent.includes('credit card') ||
-                fullContent.includes('social security') ||
-                fullContent.includes('ssn') ||
-                fullContent.includes('password') ||
-                fullContent.includes('login credentials') ||
-                fullContent.includes('bank details') ||
-                fullContent.includes('personal information') ||
-                fullContent.includes('verify your identity') ||
-                fullContent.includes('login to view') ||
-                /please\s+(?:enter|provide|confirm|update|verify)\s+your/i.test(fullContent)
-              );
+              const sensitiveInfoRequests = [
+                'credit card', 'social security', 'ssn', 'password', 
+                'login credentials', 'bank details', 'personal information', 
+                'verify your identity', 'login to view'
+              ];
+              
+              const matchedSensitiveRequests = sensitiveInfoRequests.filter(term => fullContent.includes(term));
+              if (matchedSensitiveRequests.length > 0 || /please\s+(?:enter|provide|confirm|update|verify)\s+your/i.test(fullContent)) {
+                indicators.phishing.push('Requests for sensitive information detected');
+              }
               
               // Check for urgent language (common in phishing)
-              const hasUrgentLanguage = (
-                fullContent.includes('urgent') ||
-                fullContent.includes('immediate action') ||
-                fullContent.includes('immediate attention') ||
-                fullContent.includes('act now') ||
-                fullContent.includes('expires soon') ||
-                fullContent.includes('within 24 hours') ||
-                fullContent.includes('account will be locked') ||
-                fullContent.includes('security breach') ||
-                /within\s+\d+\s+(?:hour|day|minute)/i.test(fullContent)
-              );
+              const urgentLanguageTerms = [
+                'urgent', 'immediate action', 'immediate attention', 'act now', 
+                'expires soon', 'within 24 hours', 'account will be locked', 'security breach'
+              ];
               
-              // Decision logic - identify spam
-              const isLikelySpam = (
-                hasSpamKeywords || 
-                hasExcessiveUrls || 
-                hasMarketingPatterns ||
-                isLikelyBusinessScam ||
-                isMarketingFollowUp ||
-                isDataSellingSpam
-              );
+              const matchedUrgentTerms = urgentLanguageTerms.filter(term => fullContent.includes(term));
+              const hasUrgentTimePattern = /within\s+\d+\s+(?:hour|day|minute)/i.test(fullContent);
               
-              // Decision logic - identify phishing
-              const isLikelyPhishing = (
-                hasPhishingKeywords ||
-                hasSuspiciousUrls ||
-                hasMimicryDomains ||
-                requestsSensitiveInfo ||
-                (hasUrgentLanguage && (urlMatches.length > 0 || requestsSensitiveInfo))
-              );
-              
-              const isLikelyLegitimate = (
-                isLikelyRelevantEmail || 
-                hasQuestionOrRequest
-              );
-              
-              // If we have strong indicators of legitimacy, override spam detection
-              // But don't override phishing detection, as phishing often mimics legitimate emails
-              if (isLikelyLegitimate && !hasSpamKeywords && !isLikelyPhishing) {
-                return false;
+              if (matchedUrgentTerms.length > 0 || hasUrgentTimePattern) {
+                const urgentScore = (urlAnalysis.urlCount > 0 || matchedSensitiveRequests.length > 0) ? 2 : 1;
+                if (urgentScore > 1) {
+                  indicators.phishing.push('Urgent language with links/sensitive requests');
+                } else {
+                  indicators.spam.push('Urgent language detected');
+                }
               }
               
-              return isLikelySpam || isLikelyPhishing;
-            }
-            
-            // Determine if the issue is spam
-            const spamDetected = isSpam(issueTitle, issueBody);
-            console.log(`Spam detected: ${spamDetected}`);
-            
-            // If spam is detected, close the issue with a comment
-            if (spamDetected) {
-              console.log(`Closing issue #${issueNumber} as spam`);
+              // --- LEGITIMATE CONTENT INDICATORS ---
               
-              // Determine message based on spam classification
+              // Check for patterns that suggest legitimate issues
+              if ((lowerBody.includes('support') || lowerBody.includes('help') || lowerBody.includes('issue')) &&
+                  (lowerBody.includes('error') || lowerBody.includes('problem') || lowerBody.includes('question') || lowerBody.includes('how to'))) {
+                indicators.legitimate.push('Contains support-related terminology');
+              }
+              
+              // Check if the structure looks like a legitimate support request
+              if (lowerBody.includes('?') || 
+                  lowerBody.includes('please') || 
+                  lowerBody.includes('thank you') ||
+                  lowerBody.includes('help')) {
+                indicators.legitimate.push('Contains question or polite request format');
+              }
+              
+              // Code-related content is likely legitimate
+              if (lowerBody.includes('```') || lowerBody.includes('code') || /\b(function|class|var|const|let)\b/.test(lowerBody)) {
+                indicators.legitimate.push('Contains code elements');
+              }
+              
+              // Technical terms suggest legitimate technical issues
+              const technicalTerms = ['error', 'exception', 'traceback', 'log', 'debug', 'runtime', 'compile', 'crash'];
+              const matchedTechTerms = technicalTerms.filter(term => fullContent.includes(term));
+              if (matchedTechTerms.length > 0) {
+                indicators.legitimate.push('Contains technical terminology');
+              }
+              
+              // --- CALCULATE CONFIDENCE SCORES ---
+              
+              // Calculate weights for different indicators
+              const spamWeight = indicators.spam.length * 0.2;
+              const phishingWeight = indicators.phishing.length * 0.3;
+              const legitimateWeight = indicators.legitimate.length * 0.4;
+              
+              // Calculate overall confidence scores
+              let spamConfidence = Math.min(0.95, (spamWeight / (spamWeight + legitimateWeight + 0.1)));
+              let phishingConfidence = Math.min(0.95, (phishingWeight / (phishingWeight + legitimateWeight + 0.1)));
+              
+              // Strong legitimate indicators should reduce confidence more significantly
+              if (indicators.legitimate.length >= 2) {
+                spamConfidence *= 0.6;
+                phishingConfidence *= 0.5;
+              }
+              
+              // --- MAKE FINAL DECISION ---
+              
+              // Determine if this is spam, what type, and with what confidence
+              let isSpam = false;
+              let spamType = CONFIG.labels.spam;
               let closeReason = 'potential spam';
+              let confidence = spamConfidence;
               
-              if (isLikelyPhishing) {
+              if (phishingConfidence > CONFIG.phishingThreshold) {
+                isSpam = true;
+                spamType = CONFIG.labels.phishing;
                 closeReason = 'potential phishing content';
-              } else if (isLikelyBusinessScam) {
-                closeReason = 'potential business scam';
-              } else if (isDataSellingSpam) {
-                closeReason = 'unsolicited data selling';
-              } else if (isMarketingFollowUp) {
-                closeReason = 'unsolicited marketing';
+                confidence = phishingConfidence;
+              } else if (spamConfidence > CONFIG.spamThreshold) {
+                isSpam = true;
+                
+                // Determine specific spam type
+                if (isDataSellingSpam) {
+                  spamType = CONFIG.labels.dataSpam;
+                  closeReason = 'unsolicited data selling';
+                } else if (businessScamCount >= 2) {
+                  spamType = CONFIG.labels.businessScam;
+                  closeReason = 'potential business scam';
+                } else if (isMarketingFollowUp) {
+                  spamType = CONFIG.labels.marketingSpam;
+                  closeReason = 'unsolicited marketing';
+                }
               }
               
-              // Add comment explaining why the issue was closed
-              await octokit.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                body: `This issue has been automatically closed because it was detected as ${closeReason}. If this is a mistake, please contact the repository maintainers.`
-              });
-              
-              // Close the issue
-              await octokit.issues.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                state: 'closed',
-                state_reason: 'not_planned'
-              });
-              
-              // Determine the specific type of spam for better labeling
-              let label = 'spam';
-              
-              if (isLikelyPhishing) {
-                label = 'phishing';
-              } else if (isLikelyBusinessScam) {
-                label = 'business-scam';
-              } else if (isDataSellingSpam) {
-                label = 'data-selling';
-              } else if (isMarketingFollowUp) {
-                label = 'marketing-spam';
-              }
-              
-              // Add appropriate label
-              await octokit.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                labels: [label]
-              });
-              
-              return true;
+              return {
+                isSpam,
+                spamType,
+                closeReason,
+                isPhishing: spamType === CONFIG.labels.phishing,
+                confidence,
+                indicators
+              };
             }
             
-            return false;
+            // Process the issue
+            return await processIssue(context, octokit);
