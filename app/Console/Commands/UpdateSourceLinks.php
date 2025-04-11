@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Models\CollectionMolecule;
+use App\Models\Entry;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -250,45 +252,50 @@ class UpdateSourceLinks extends Command
     protected function updateEntriesTable($collectionId, $referenceIds, $updateMap, $batchSize)
     {
         $updatedCount = 0;
-        $processedCount = 0;
         $totalReferenceIds = count($referenceIds);
 
-        // Process in batches to avoid memory issues
-        foreach (array_chunk($referenceIds, $batchSize) as $batchNumber => $batch) {
-            $this->info('Processing entries batch '.($batchNumber + 1).' ('.count($batch).' items)...');
+        // Get the total entries count
+        $totalEntriesCount = Entry::where('collection_id', $collectionId)
+            ->whereIn('reference_id', $referenceIds)
+            ->count();
 
-            // Fetch this batch of entries
-            $entries = DB::table('entries')
-                ->where('collection_id', $collectionId)
-                ->whereIn('reference_id', $batch)
-                ->select('id', 'reference_id')
-                ->get();
+        $this->info("Found {$totalEntriesCount} matching entries out of {$totalReferenceIds} reference IDs");
 
-            $processedCount += count($batch);
-
-            if ($entries->isEmpty()) {
-                $this->warn('No matching entries found in this batch.');
-
-                continue;
-            }
-
-            // Use a transaction for each batch
-            DB::transaction(function () use ($entries, $updateMap, &$updatedCount) {
-                foreach ($entries as $entry) {
-                    if (isset($updateMap[$entry->reference_id])) {
-                        DB::table('entries')
-                            ->where('id', $entry->id)
-                            ->update(['link' => $updateMap[$entry->reference_id]]);
-                        $updatedCount++;
-                    }
-                }
-            });
-
-            // Free up memory
-            unset($entries);
-
-            $this->info('Entries batch '.($batchNumber + 1)." completed. Progress: {$processedCount}/{$totalReferenceIds}");
+        if ($totalEntriesCount === 0) {
+            return 0;
         }
+
+        $processedCount = 0;
+
+        // Use chunkById for efficient processing
+        Entry::where('collection_id', $collectionId)
+            ->whereIn('reference_id', $referenceIds)
+            ->select('id', 'reference_id', 'link')
+            ->chunkById($batchSize, function ($entries) use ($updateMap, &$updatedCount, &$processedCount, $totalEntriesCount, $batchSize) {
+                $batchNumber = floor($processedCount / $batchSize) + 1;
+                $this->info('Processing entries batch '.$batchNumber.' ('.count($entries).' items)...');
+
+                DB::transaction(function () use ($entries, $updateMap, &$updatedCount) {
+                    foreach ($entries as $entry) {
+                        if (isset($updateMap[$entry->reference_id])) {
+                            $oldLink = $entry->link;
+                            $newLink = $updateMap[$entry->reference_id];
+
+                            // Only update if the link has changed
+                            if ($oldLink !== $newLink) {
+                                // Update using Eloquent to trigger auditing
+                                $entry->link = $newLink;
+                                $entry->save();
+
+                                $updatedCount++;
+                            }
+                        }
+                    }
+                });
+
+                $processedCount += count($entries);
+                $this->info('Entries batch '.$batchNumber.' completed. Progress: '.$processedCount.'/'.$totalEntriesCount);
+            }, 'id', 'id');
 
         return $updatedCount;
     }
@@ -305,15 +312,10 @@ class UpdateSourceLinks extends Command
     {
         $this->info('Updating URLs in the collection_molecule pivot table...');
 
-        // Get all pivot records for this collection
-        $pivotRecords = DB::table('collection_molecule')
-            ->where('collection_id', $collectionId)
+        // Count total pivot records for this collection
+        $pivotTotalCount = CollectionMolecule::where('collection_id', $collectionId)
             ->whereNotNull('reference')
-            ->select('id', 'reference')
-            ->get();
-
-        $pivotUpdatedCount = 0;
-        $pivotTotalCount = count($pivotRecords);
+            ->count();
 
         $this->info("Found {$pivotTotalCount} pivot records with references to update");
 
@@ -321,46 +323,56 @@ class UpdateSourceLinks extends Command
             return 0;
         }
 
-        // Process pivot records in batches
-        foreach (array_chunk($pivotRecords->toArray(), $batchSize) as $batchNumber => $pivotBatch) {
-            $this->info('Processing pivot batch '.($batchNumber + 1).' ('.count($pivotBatch).' items)...');
+        $pivotUpdatedCount = 0;
+        $processedCount = 0;
 
-            DB::transaction(function () use ($pivotBatch, $updateMap, &$pivotUpdatedCount) {
-                foreach ($pivotBatch as $pivot) {
-                    // Skip if reference is empty
-                    if (empty($pivot->reference)) {
-                        continue;
-                    }
+        // Process pivot records using cursor for memory efficiency
+        CollectionMolecule::where('collection_id', $collectionId)
+            ->whereNotNull('reference')
+            ->select('id', 'reference', 'url')
+            ->chunkById($batchSize, function ($pivotBatch) use ($updateMap, &$pivotUpdatedCount, &$processedCount, $pivotTotalCount, $batchSize) {
+                $batchNumber = floor($processedCount / $batchSize) + 1;
+                $this->info('Processing pivot batch '.$batchNumber.' ('.count($pivotBatch).' items)...');
 
-                    // Split reference IDs by pipe character
-                    $referenceIds = array_map('trim', explode('|', $pivot->reference));
-                    $urls = [];
+                DB::transaction(function () use ($pivotBatch, $updateMap, &$pivotUpdatedCount) {
+                    foreach ($pivotBatch as $pivot) {
+                        // Skip if reference is empty
+                        if (empty($pivot->reference)) {
+                            continue;
+                        }
 
-                    // Build the corresponding URL string with the same structure
-                    foreach ($referenceIds as $refId) {
-                        if (isset($updateMap[$refId])) {
-                            $urls[] = $updateMap[$refId];
-                        } else {
-                            // Keep the position even if we don't have a URL
-                            $urls[] = '';
+                        // Split reference IDs by pipe character
+                        $referenceIds = array_map('trim', explode('|', $pivot->reference));
+                        $urls = [];
+
+                        // Build the corresponding URL string with the same structure
+                        foreach ($referenceIds as $refId) {
+                            if (isset($updateMap[$refId])) {
+                                $urls[] = $updateMap[$refId];
+                            } else {
+                                // Keep the position even if we don't have a URL
+                                $urls[] = '';
+                            }
+                        }
+
+                        // Only update if we have at least one URL
+                        if (! empty($urls)) {
+                            $urlString = implode('|', $urls);
+
+                            // Only update if the url has changed
+                            if ($pivot->url !== $urlString) {
+                                $pivot->url = $urlString;
+                                $pivot->save();
+
+                                $pivotUpdatedCount++;
+                            }
                         }
                     }
+                });
 
-                    // Only update if we have at least one URL
-                    if (! empty(array_filter($urls))) {
-                        $urlString = implode('|', $urls);
-
-                        DB::table('collection_molecule')
-                            ->where('id', $pivot->id)
-                            ->update(['url' => $urlString]);
-
-                        $pivotUpdatedCount++;
-                    }
-                }
-            });
-
-            $this->info('Pivot batch '.($batchNumber + 1).' completed.');
-        }
+                $processedCount += count($pivotBatch);
+                $this->info('Pivot batch '.$batchNumber.' completed. Progress: '.$processedCount.'/'.$pivotTotalCount);
+            }, 'id', 'id');
 
         $this->info("Pivot table update completed! {$pivotUpdatedCount} pivot records updated");
 
