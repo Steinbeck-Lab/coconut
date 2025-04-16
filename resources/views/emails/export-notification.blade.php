@@ -134,8 +134,18 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="{{ asset('imag/logo.svg') }}" alt="COCONUT Database" class="logo">
-            <h1>COCONUT Export {{ $status === 'success' ? 'Complete' : 'Failed' }}</h1>
+            <img src="{{ asset('img/logo.png') }}" alt="COCONUT Database" class="logo">
+            <h1>
+                @if($status === 'success')
+                    @if(isset($backup_stats['backup_type']) && $backup_stats['backup_type'] === 'Private Daily Backup')
+                        COCONUT Daily Backup Complete
+                    @else
+                        COCONUT Monthly Export Complete
+                    @endif
+                @else
+                    COCONUT Process Failed
+                @endif
+            </h1>
         </div>
         
         <div class="content">
@@ -143,9 +153,13 @@
             
             <div class="message">
                 @if($status === 'success')
-                    <p>Great news, a new backup of COCONUT database was successfully created.</p>
+                    @if(isset($backup_stats['backup_type']) && $backup_stats['backup_type'] === 'Private Daily Backup')
+                        <p>A new daily backup of the COCONUT database was successfully created.</p>
+                    @else
+                        <p>The monthly COCONUT database export has been completed successfully. This includes both a private backup and public download files.</p>
+                    @endif
                 @else
-                    <p>The COCONUT database export process has encountered an error.</p>
+                    <p>The COCONUT database process has encountered an error.</p>
                 @endif
             </div>
             
@@ -164,7 +178,12 @@
                 </div>
                 
                 <div class="info-row">
-                    <div class="info-label">Backup timestamp:</div>
+                    <div class="info-label">Operation type:</div>
+                    <div class="info-value">{{ $backup_stats['backup_type'] ?? 'Unknown' }}</div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="info-label">Timestamp:</div>
                     <div class="info-value">{{ $timestamp }}</div>
                 </div>
                 
@@ -176,19 +195,12 @@
                         </span>
                     </div>
                 </div>
-                
-                @if($backup_stats)
-                <div class="info-row">
-                    <div class="info-label">Backup type:</div>
-                    <div class="info-value">{{ $backup_stats['backup_type'] ?? 'Full Export' }}</div>
-                </div>
-                @endif
             </div>
             
             @if($status === 'success' && isset($backup_stats))
             <!-- Statistics Section -->
             <div class="section">
-                <div class="section-title">Backup Statistics</div>
+                <div class="section-title">Operation Statistics</div>
                 
                 @if(isset($backup_stats['total_molecules']))
                 <div class="info-row">
@@ -246,7 +258,14 @@
             <div class="section">
                 <div class="section-title">Storage Locations</div>
                 
-                <div>Files have been uploaded to the following locations:</div>
+                @if(isset($backup_stats['backup_type']) && $backup_stats['backup_type'] === 'Private Daily Backup')
+                    <div>Files have been backed up to:</div>
+                @else
+                    <div>Files have been uploaded to the following locations:</div>
+                    <div style="margin-top: 5px; margin-bottom: 10px;">
+                        <strong>Note:</strong> Public download files are available at paths starting with "prod/downloads/"
+                    </div>
+                @endif
                 <div style="margin-top: 10px;">
                     @foreach($backup_stats['s3_paths'] as $path)
                     <div class="s3-path">{{ $path }}</div>
