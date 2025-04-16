@@ -169,7 +169,7 @@
                 
                 <div class="info-row">
                     <div class="info-label">Application name:</div>
-                    <div class="info-value">COCONUT Database</div>
+                    <div class="info-value">COCONUT</div>
                 </div>
                 
                 <div class="info-row">
@@ -223,7 +223,7 @@
                 
                 <div class="info-row">
                     <div class="info-label">Total size:</div>
-                    <div class="info-value">{{ $backup_stats['total_size_mb'] ?? 0 }} MB</div>
+                    <div class="info-value">{{ $backup_stats['total_size_gb'] ?? 0 }} GB</div>
                 </div>
             </div>
             
@@ -245,7 +245,7 @@
                         <tr>
                             <td>{{ $file['name'] }}</td>
                             <td>{{ $file['type'] }}</td>
-                            <td>{{ $file['size_mb'] }} MB</td>
+                            <td>{{ $file['size_gb'] }} GB</td>
                         </tr>
                         @endforeach
                     </tbody>
