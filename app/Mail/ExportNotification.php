@@ -22,14 +22,24 @@ class ExportNotification extends Mailable
 
     public $error_details;
 
-    public function __construct($subject, $status, $server, $timestamp, $error_message = null, $error_details = null)
-    {
+    public $backup_stats;
+
+    public function __construct(
+        $subject,
+        $status,
+        $server,
+        $timestamp,
+        $error_message = null,
+        $error_details = null,
+        $backup_stats = null
+    ) {
         $this->subject = $subject;
         $this->status = $status;
         $this->server = $server;
         $this->timestamp = $timestamp;
         $this->error_message = $error_message;
         $this->error_details = $error_details;
+        $this->backup_stats = $backup_stats;
     }
 
     public function build()
