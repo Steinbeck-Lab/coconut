@@ -43,6 +43,11 @@ class ListMolecules extends ListRecords
                 ->favorite()
                 ->badge(Molecule::query()->where('active', false)->count())
                 ->preserveAll(),
+            'drafts' => PresetView::make()
+                ->modifyQueryUsing(fn ($query) => $query->where([['active', false], ['status', 'DRAFT']]))
+                ->favorite()
+                ->badge(Molecule::query()->where([['active', false], ['status', 'DRAFT']])->count())
+                ->preserveAll(),
         ];
     }
 }

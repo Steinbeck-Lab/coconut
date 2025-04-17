@@ -113,9 +113,12 @@
                 'chartData' => $chartData,
                 ])
             @endforeach
-        </div class="mx-auto max-w-6xl pb-32 px-8 w-full">
-        <div>
+        </div>
+        <div class="mx-auto max-w-6xl pb-32 px-8 w-full">
             @livewire('collection-overlap')
+        </div>
+        <div class="mx-auto max-w-6xl pb-32 px-8 w-full">
+            @livewire('collection-np-classifier-stacked-plot')
         </div>
     </div>
 </div>

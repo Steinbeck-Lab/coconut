@@ -31,95 +31,101 @@ class AssignIdentifiers extends Command
     {
         $batchSize = 10000;
         $currentIndex = $this->fetchLastIndex() + 1;
+
+        // Step: 1
+        $parents = DB::table('molecules')
+            ->select('id', 'identifier')
+            ->where('has_stereo', false)
+            ->whereNull('identifier')
+            ->get();
+
         $data = [];
+        $parents->chunk($batchSize)->each(function ($moleculesChunk) use (&$currentIndex, &$data) {
+            $header = ['id', 'identifier'];
+            foreach ($moleculesChunk as $molecule) {
+                echo $molecule->id.' - '.$currentIndex;
+                echo "\r\n";
+                if (! $molecule->identifier) {
+                    $data[] = array_combine($header, [$molecule->id, $this->generateIdentifier($currentIndex, 'parent')]);
+                    $currentIndex++;
+                }
+            }
+            $this->insertBatch($data);
+        });
 
-        // // Step: 1
-        // $parents = DB::table('molecules')
-        // ->select('id', 'identifier')
-        // ->where('has_stereo', false)
-        // ->whereNull('identifier')
-        // ->get();
-
-        // $parents->chunk($batchSize)->each(function ($moleculesChunk) use (&$currentIndex) {
-        //     $data = [];
-        //     $header = ['id', 'identifier'];
-        //     foreach ($moleculesChunk as $molecule) {
-        //         echo($molecule->id . ' - ' . $currentIndex);
-        //         echo("\r\n");
-        //         if (! $molecule->identifier) {
-        //             $data[] = array_combine($header, [$molecule->id, $this->generateIdentifier($currentIndex, 'parent')]);
-        //             $currentIndex++;
-        //         }
-        //     }
-        //     $this->insertBatch($data);
-        // });
-
-        // $this->info('Mapping parents: Done');
+        $this->info('Mapping parents: Done');
 
         // // Step: 2
-        // $mappings = DB::table('molecules')
-        //     ->select('parent_id', 'id')
-        //     ->whereNotNull('parent_id')
-        //     ->where('has_stereo', true)
-        //     ->get()
-        //     ->groupBy('parent_id')
-        //     ->map(function ($items) {
-        //         return $items->pluck('id')->sort()->values()->toArray();
-        //     });
+        $mappings = DB::table('molecules')
+            ->select('parent_id', 'id', 'identifier')
+            ->whereNotNull('parent_id')
+            ->where('has_stereo', true)
+            ->get()
+            ->groupBy('parent_id')
+            ->map(function ($items) {
+                return $items->sortBy('id')->pluck('identifier', 'id')->toArray();
+            });
 
-        // $identifier_mappings = DB::table('molecules')
-        //     ->where('has_stereo', false)
-        //     ->where('is_parent', true)
-        //     ->pluck('identifier', 'id')
-        //     ->toArray();
+        $identifier_mappings = DB::table('molecules')
+            ->where('has_stereo', false)
+            ->where('is_parent', true)
+            ->pluck('identifier', 'id')
+            ->toArray();
 
-        // $identifier_mappings = array_map(function($identifier) {
-        //     return str_replace('.0', '', $identifier);
-        // }, $identifier_mappings);
+        $identifier_mappings = array_map(function ($identifier) {
+            return str_replace('.0', '', $identifier);
+        }, $identifier_mappings);
 
-        // $jsonData = json_encode($mappings, JSON_PRETTY_PRINT);
-        // $filePath = storage_path('parent_id_mappings.json');
-        // file_put_contents($filePath, $jsonData);
+        $jsonData = json_encode($mappings, JSON_PRETTY_PRINT);
+        $filePath = storage_path('parent_id_mappings.json');
+        file_put_contents($filePath, $jsonData);
 
-        // $jsonData = json_encode($identifier_mappings, JSON_PRETTY_PRINT);
-        // $filePath = storage_path('identifier_mappings.json');
-        // file_put_contents($filePath, $jsonData);
+        $jsonData = json_encode($identifier_mappings, JSON_PRETTY_PRINT);
+        $filePath = storage_path('identifier_mappings.json');
+        file_put_contents($filePath, $jsonData);
 
-        // // Step: 3
-        // $mappings = json_decode(file_get_contents(storage_path('parent_id_mappings.json')), true);
-        // $identifier_mappings = json_decode(file_get_contents(storage_path('identifier_mappings.json')), true);
+        // Step: 3
+        $mappings = json_decode(file_get_contents(storage_path('parent_id_mappings.json')), true);
+        $identifier_mappings = json_decode(file_get_contents(storage_path('identifier_mappings.json')), true);
 
-        // $bulkUpdateData = [];
+        $bulkUpdateData = [];
 
-        // foreach ($mappings as $parentId => $rowIds) {
-        //     if (isset($identifier_mappings[$parentId])) {
-        //         $baseIdentifier = $identifier_mappings[$parentId];
+        foreach ($mappings as $parentId => $group) {
+            if (isset($identifier_mappings[$parentId])) {
+                $baseIdentifier = $identifier_mappings[$parentId];
+                $nonNullCount = count(array_filter($group, function ($value) {
+                    return ! is_null($value);
+                }));
 
-        //         foreach ($rowIds as $index => $rowId) {
-        //             $newIdentifier = $baseIdentifier . '.' . ($index + 1);
+                foreach ($group as $rowId => $existingIdentifier) {
+                    if (is_null($existingIdentifier)) {
+                        $nonNullCount++;
+                        $newIdentifier = $baseIdentifier.'.'.$nonNullCount;
 
-        //             $bulkUpdateData[] = [
-        //                 'row_id' => $rowId,
-        //                 'identifier' => $newIdentifier
-        //             ];
-        //         }
-        //     }
-        // }
+                        $bulkUpdateData[] = [
+                            'row_id' => $rowId,
+                            'identifier' => $newIdentifier,
+                        ];
+                    }
 
-        // $batchSize = 10000;
-        // $i = 0;
-        // Collection::make($bulkUpdateData)->chunk($batchSize)->each(function ($chunk) use (&$i) {
-        //     echo($i);
-        //     echo("\r\n");
-        //     DB::transaction(function () use ($chunk) {
-        //         foreach ($chunk as $data) {
-        //             DB::table('molecules')
-        //                 ->where('id', $data['row_id'])
-        //                 ->update(['identifier' => $data['identifier']]);
-        //         }
-        //     });
-        //     $i++;
-        // });
+                }
+            }
+        }
+
+        $batchSize = 10000;
+        $i = 0;
+        Collection::make($bulkUpdateData)->chunk($batchSize)->each(function ($chunk) use (&$i) {
+            echo $i;
+            echo "\r\n";
+            DB::transaction(function () use ($chunk) {
+                foreach ($chunk as $data) {
+                    DB::table('molecules')
+                        ->where('id', $data['row_id'])
+                        ->update(['identifier' => $data['identifier']]);
+                }
+            });
+            $i++;
+        });
 
         // Mapping miss-matched parent_ids
         // $nullIdentifiers = DB::table('molecules')
@@ -175,20 +181,20 @@ class AssignIdentifiers extends Command
         //     $i++;
         // });
 
-        $mapped_data = array_map('str_getcsv', file(storage_path('collection_molecule_no_duplicates.csv')));
+        // $mapped_data = array_map('str_getcsv', file(storage_path('collection_molecule_no_duplicates.csv')));
 
-        Collection::make($mapped_data)->chunk($batchSize)->each(function ($chunk) use (&$i) {
-            echo $i;
-            echo "\r\n";
-            DB::transaction(function () use ($chunk) {
-                foreach ($chunk as $data) {
-                    DB::table('molecules')
-                        ->where('id', $data)
-                        ->update(['is_placeholder' => false]);
-                }
-            });
-            $i++;
-        });
+        // Collection::make($mapped_data)->chunk($batchSize)->each(function ($chunk) use (&$i) {
+        //     echo $i;
+        //     echo "\r\n";
+        //     DB::transaction(function () use ($chunk) {
+        //         foreach ($chunk as $data) {
+        //             DB::table('molecules')
+        //                 ->where('id', $data)
+        //                 ->update(['is_placeholder' => false]);
+        //         }
+        //     });
+        //     $i++;
+        // });
     }
 
     public function generateIdentifier($index, $type)
@@ -202,7 +208,23 @@ class AssignIdentifiers extends Command
 
     public function fetchLastIndex()
     {
+        $maxValue = DB::table('molecules')
+            ->selectRaw("MAX((regexp_replace(identifier, '^CNP(\\d+)\\..*$', '\\1'))::int) as max_value")
+            ->value('max_value');
+
         $ticker = Ticker::where('type', 'molecule')->first();
+
+        if ((int) $ticker->index !== (int) $maxValue) {
+            $this->info("Ticker index ({$ticker->index}) does not match the maximum molecule identifier value ({$maxValue}).");
+
+            if ($this->confirm("Do you want to update the ticker to {$maxValue}?")) {
+                $ticker->index = $maxValue;
+                $ticker->save();
+                $this->info("Ticker updated to {$maxValue}.");
+            } else {
+                throw new \Exception('Ticker index mismatch and update not confirmed.');
+            }
+        }
 
         return (int) $ticker->index;
     }
