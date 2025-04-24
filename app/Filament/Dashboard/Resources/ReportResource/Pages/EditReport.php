@@ -12,7 +12,7 @@ class EditReport extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        if ($this->record['is_change'] == true) {
+        if ($this->record['report_category'] === 'change') {
             // initiate the flags to show only the fields that need to be shown - overall changes are always from the initial suggestions
             if (array_key_exists('geo_location_changes', $this->record['suggested_changes']['overall_changes'])) {
                 $data['show_geo_location_existing'] = $this->record['suggested_changes']['overall_changes']['geo_location_changes']['delete'] ? true : false;
@@ -70,7 +70,7 @@ class EditReport extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        if ($this->record->is_change) {
+        if ($this->record['report_category'] === 'change') {
             $data = copyChangesToCuratorJSON($this->record, $data);
         }
 

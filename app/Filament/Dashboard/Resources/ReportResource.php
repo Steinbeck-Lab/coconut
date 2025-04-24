@@ -24,7 +24,6 @@ use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
@@ -66,17 +65,18 @@ class ReportResource extends Resource
             ->schema([
                 Grid::make()
                     ->schema([
-                        ToggleButtons::make('is_change')
+                        Select::make('report_category')
                             ->label('')
                             ->live()
-                            ->default(false)
+                            ->default('report')
                             ->options([
-                                false => 'Report',
-                                true => 'Request Changes',
+                                'report' => 'Report',
+                                // 'change' => 'Request Changes',
+                                'new_molecule' => 'New Molecule',
                             ])
-                            ->inline()
                             ->hidden(function (string $operation) {
-                                return $operation == 'create';
+                                return false;
+                                // return $operation == 'create';
                             })
                             ->disabled(function (string $operation) {
                                 return $operation == 'edit';
@@ -86,7 +86,7 @@ class ReportResource extends Resource
                         Actions::make([
                             Action::make('approve')
                                 ->form(function ($record, $livewire, $get) {
-                                    if ($record['is_change']) {
+                                    if ($record['report_category'] === 'change') {
                                         self::$approved_changes = self::prepareApprovedChanges($record, $livewire);
                                         $key_value_fields = getChangesToDisplayModal(self::$approved_changes);
                                         array_unshift(
@@ -212,7 +212,7 @@ class ReportResource extends Resource
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Please provide Evidence/Comment to support your claims in this report. This will help our Curators in reviewing your report.')
                     ->label('Evidence/Comment')
                     ->hidden(function (Get $get) {
-                        return $get('is_change');
+                        return $get('report_category') === 'change';
                     }),
                 Tabs::make('suggested_changes')
                     ->tabs([
@@ -449,7 +449,7 @@ class ReportResource extends Resource
                             ]),
                     ])
                     ->hidden(function (Get $get) {
-                        return ! $get('is_change');
+                        return $get('report_category') !== 'change';
                     }),
                 TextInput::make('doi')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide the DOI link to the resource you are reporting so as to help curators verify.')
@@ -584,12 +584,16 @@ class ReportResource extends Resource
                 TextColumn::make('title')
                     ->wrap()
                     ->description(fn (Report $record): string => Str::of($record->evidence)->words(10)),
-                TextColumn::make('is_change')
+                TextColumn::make('report_category')
                     ->label('Type')
                     ->badge()
-                    ->color(fn (Report $record): string => $record->is_change ? 'warning' : 'gray')
+                    ->color(fn (Report $record): string => match ($record->report_category) {
+                        'change' => 'warning',
+                        'new_molecule' => 'success',
+                        default => 'gray'
+                    })
                     ->formatStateUsing(function (Report $record): string {
-                        return $record->is_change ? 'change' : 'report';
+                        return str_replace('_', ' ', ucfirst($record->report_category));
                     }),
                 Tables\Columns\TextColumn::make('curator.name')
                     ->searchable()
@@ -697,7 +701,7 @@ class ReportResource extends Resource
         $approved_changes = [];
 
         $approved_changes['mol_id_csv'] = $record['mol_id_csv'];
-        if ($record['is_change']) {
+        if ($record['report_category'] === 'change') {
 
             if ($livewire->data['approve_geo_locations']) {
                 $approved_changes['existing_geo_locations'] = $livewire->data['existing_geo_locations'];
@@ -747,7 +751,7 @@ class ReportResource extends Resource
     public static function approveReport(array $data, Report $record, Molecule $molecule, $livewire): void
     {
         // In case of reporting a synthetic molecule, Deactivate Molecules
-        if (! $record['is_change']) {
+        if ($record['report_category'] !== 'change') {
             if ($record['report_type'] == 'molecule') {
                 $molecule_ids = explode(',', $record['mol_id_csv']);
                 $molecule = Molecule::whereIn('identifier', $molecule_ids)->get();
