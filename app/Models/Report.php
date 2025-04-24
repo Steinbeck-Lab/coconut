@@ -32,12 +32,13 @@ class Report extends Model implements Auditable
         'comment',
         'user_id',
         'suggested_changes',
-        'is_change',
+        'report_category',
         'doi',
     ];
 
     protected $casts = [
         'suggested_changes' => 'array',
+        'report_category' => 'string',
     ];
 
     /**
