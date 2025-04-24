@@ -13,15 +13,27 @@ class InhouseCollectionSeeder extends Seeder
      */
     public function run(): void
     {
+        $title = 'COCONUT Community NPs';
+
+        // Check if the collection already exists
+        $existingCollection = Collection::where('title', $title)->first();
+        if ($existingCollection) {
+            // If it exists, you can choose to update it or skip
+            // $existingCollection->update([...]);
+            $this->command->info("Collection '{$title}' already exists. Skipping creation.");
+
+            return; // Skip creating a new collection
+        }
+
         Collection::create([
-            'title' => 'COCONUT Curated Compounds',
-            'slug' => Str::slug('COCONUT Curated Compounds', '-'),
-            'description' => 'A curated collection of natural products by the COCONUT curators.',
+            'title' => $title,
+            'slug' => Str::slug($title, '-'),
+            'description' => 'Collection of natural products (NPs) submitted by the community to the COCONUT database.',
             'status' => 'PUBLISHED',
             'is_public' => true,
             'uuid' => Str::uuid(),
             'jobs_status' => 'COMPLETE',
-            'identifier' => 'coconut-curated-compounds',
+            'identifier' => Str::slug($title, '-'),
         ]);
     }
 }
