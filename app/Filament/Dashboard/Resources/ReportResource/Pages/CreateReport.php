@@ -127,7 +127,25 @@ class CreateReport extends CreateRecord
         $data['report_type'] = $this->report_type;
         $data['evidence'] = $this->evidence;
 
-        if ($data['report_category'] === 'change') {
+        if ($data['report_category'] === 'new_molecule') {
+            $suggested_changes = [
+                'new_molecule_data' => [
+                    'canonical_smiles' => $data['canonical_smiles'],
+                    'reference_id' => $data['reference_id'],
+                    'name' => $data['name'],
+                    'doi' => $data['doi'] ?? null,
+                    'link' => $data['link'] ?? null,
+                    'organism' => $data['organism'] ?? null,
+                    'organism_part' => $data['organism_part'] ?? null,
+                    'mol_filename' => $data['mol_filename'] ?? null,
+                    'structural_comments' => $data['structural_comments'] ?? null,
+                    'geo_location' => $data['geo_location'] ?? null,
+                    'location' => $data['location'] ?? null,
+                ],
+            ];
+            $data['suggested_changes'] = $suggested_changes;
+            $data['report_type'] = 'molecule';
+        } elseif ($data['report_category'] === 'change') {
             $suggested_changes = [];
             $suggested_changes['existing_geo_locations'] = $data['existing_geo_locations'];
             $suggested_changes['new_geo_locations'] = $data['new_geo_locations'];

@@ -5,6 +5,7 @@ namespace App\Filament\Dashboard\Resources;
 use App\Filament\Dashboard\Resources\ReportResource\Pages;
 use App\Filament\Dashboard\Resources\ReportResource\RelationManagers;
 use App\Models\Citation;
+use App\Models\Entry;
 use App\Models\GeoLocation;
 use App\Models\Molecule;
 use App\Models\Organism;
@@ -19,7 +20,6 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
@@ -68,19 +68,33 @@ class ReportResource extends Resource
                         Select::make('report_category')
                             ->label('')
                             ->live()
-                            ->default('report')
-                            ->options([
-                                'report' => 'Report',
-                                // 'change' => 'Request Changes',
-                                'new_molecule' => 'New Molecule',
-                            ])
-                            ->hidden(function (string $operation) {
-                                return false;
-                                // return $operation == 'create';
+                            ->default(function () {
+                                $request = request();
+                                if ($request->has('compound_id') && $request->type === 'change') {
+                                    return 'change';
+                                }
+
+                                return 'new_molecule';
                             })
+                            ->options(function () {
+                                $hasParams = count(request()->all()) > 0;
+                                $options = [
+                                    'report' => 'Report',
+                                    'new_molecule' => 'New Molecule',
+                                ];
+                                if ($hasParams) {
+                                    $options['change'] = 'Request Changes';
+                                }
+
+                                return $options;
+                            })
+                            // ->hidden(function (string $operation) {
+                            //     return $operation == 'create';
+                            // })
                             ->disabled(function (string $operation) {
-                                return $operation == 'edit';
+                                return $operation == 'edit' || count(request()->all()) > 0;
                             })
+                            ->dehydrated()
                             ->columnSpan(2),
 
                         Actions::make([
@@ -182,9 +196,6 @@ class ReportResource extends Resource
                                 ])
                                 ->size('xl'),
                         ])
-                            // ->hidden(function (Get $get) {
-                            //     return $get('report_type') != 'molecule';
-                            // })
                             ->verticalAlignment(VerticalAlignment::End)
                             ->columnStart(4),
                     ])
@@ -198,21 +209,26 @@ class ReportResource extends Resource
                         return getReportTypes();
                     })
                     ->hidden(function (string $operation, $get) {
-                        return $operation != 'create' || $get('type');
+                        return $operation != 'create' || $get('type') || $get('report_category') == 'new_molecule';
                     }),
                 TextInput::make('title')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Title of the report. This is required.')
                     ->default(function ($get) {
-                        if ($get('type') == 'change' && request()->has('compound_id')) {
+                        if ($get('report_category') == 'change' && request()->has('compound_id')) {
                             return 'Request changes to '.request()->compound_id;
                         }
+                        if ($get('report_category') == 'new_molecule') {
+                            return 'New Molecule Report for:';
+                        }
                     })
-                    ->required(),
+                    ->required(function ($get) {
+                        return $get('report_category') !== 'new_molecule';
+                    }),
                 Textarea::make('evidence')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Please provide Evidence/Comment to support your claims in this report. This will help our Curators in reviewing your report.')
                     ->label('Evidence/Comment')
                     ->hidden(function (Get $get) {
-                        return $get('report_category') === 'change';
+                        return $get('report_category') === 'change' || $get('report_category') === 'new_molecule';
                     }),
                 Tabs::make('suggested_changes')
                     ->tabs([
@@ -451,6 +467,114 @@ class ReportResource extends Resource
                     ->hidden(function (Get $get) {
                         return $get('report_category') !== 'change';
                     }),
+                Tabs::make('new_molecule_form')
+                    ->tabs([
+                        Tabs\Tab::make('molecule_info')
+                            ->label('Molecule Information')
+                            ->icon('heroicon-o-beaker')
+                            ->schema([
+                                Grid::make()
+                                    ->schema([
+                                        TextInput::make('canonical_smiles')
+                                            ->label('Canonical SMILES')
+                                            ->live(onBlur: true)
+                                            ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                                if ($get('report_category') == 'new_molecule' && $state) {
+                                                    $currentTitle = $get('title');
+                                                    $set('title', $currentTitle.' '.$state);
+                                                }
+                                            })
+                                            ->required()
+                                            ->maxLength(1000)
+                                            ->placeholder('Enter the canonical SMILES representation of the molecule')
+                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'The canonical SMILES string that uniquely identifies the molecular structure')
+                                            ->columnSpan(2),
+
+                                        TextInput::make('reference_id')
+                                            ->label('Reference ID')
+                                            ->maxLength(255)
+                                            ->placeholder('Enter a unique reference ID for this molecule')
+                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'A unique identifier for referencing this molecule'),
+
+                                        TextInput::make('name')
+                                            ->label('Molecule Name')
+                                            ->maxLength(255)
+                                            ->placeholder('Enter the name of the molecule')
+                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'The primary name or systematic name of the molecule'),
+                                    ])->columns(2),
+
+                                Grid::make()
+                                    ->schema([
+                                        TextInput::make('doi')
+                                            ->label('DOI')
+                                            ->required()
+                                            ->maxLength(255)
+                                            ->placeholder('Enter the DOI reference if available')
+                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Digital Object Identifier (DOI) for the publication or source'),
+
+                                        TextInput::make('link')
+                                            ->label('Link')
+                                            ->url()
+                                            ->maxLength(1000)
+                                            ->placeholder('Enter any relevant URL')
+                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Any additional URL reference for this molecule'),
+                                    ])->columns(2),
+
+                                TextInput::make('mol_filename')
+                                    ->label('Molecule Filename')
+                                    ->maxLength(255)
+                                    ->placeholder('Enter the filename for the molecule structure')
+                                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Name of the structure file if available'),
+                            ]),
+
+                        Tabs\Tab::make('source_info')
+                            ->label('Source Information')
+                            ->icon('heroicon-s-cube-transparent')
+                            ->schema([
+                                Grid::make()
+                                    ->schema([
+                                        TextInput::make('organism')
+                                            ->label('Organism')
+                                            ->maxLength(255)
+                                            ->placeholder('Enter the source organism')
+                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'The biological source organism of the molecule'),
+
+                                        TextInput::make('organism_part')
+                                            ->label('Organism Part')
+                                            ->maxLength(255)
+                                            ->placeholder('Enter the specific part of the organism')
+                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'The specific part or tissue of the source organism'),
+                                    ])->columns(2),
+
+                                Textarea::make('structural_comments')
+                                    ->label('Structural Comments')
+                                    ->maxLength(1000)
+                                    ->placeholder('Enter any comments about the molecular structure')
+                                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Additional notes or comments about the molecular structure')
+                                    ->columnSpan('full'),
+                            ]),
+
+                        Tabs\Tab::make('location_info')
+                            ->label('Location Information')
+                            ->icon('heroicon-o-map-pin')
+                            ->schema([
+                                Grid::make()
+                                    ->schema([
+                                        TextInput::make('geo_location')
+                                            ->label('Geographic Location')
+                                            ->maxLength(255)
+                                            ->placeholder('Enter the geographic location')
+                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'The geographical location where the molecule was found or isolated'),
+
+                                        TextInput::make('location')
+                                            ->label('Specific Location')
+                                            ->maxLength(255)
+                                            ->placeholder('Enter more specific location details')
+                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'More specific details about the location, e.g. coordinates or local area'),
+                                    ])->columns(2),
+                            ]),
+                    ])
+                    ->hidden(fn (Get $get) => $get('report_category') !== 'new_molecule'),
                 TextInput::make('doi')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide the DOI link to the resource you are reporting so as to help curators verify.')
                     ->label('DOI')
@@ -464,7 +588,6 @@ class ReportResource extends Resource
                     )
                     ->hidden(function (string $operation, $get, ?Report $record) {
                         return true;
-                        // return $operation == 'create' && $get('type') && $get('type') == 'change' ? true : false;
                     }),
                 Select::make('collections')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select the Collections you want to report. This will help our Curators in reviewing your report.')
@@ -565,10 +688,6 @@ class ReportResource extends Resource
                             return true;
                         }
                     }),
-                // SpatieTagsInput::make('tags')
-                //     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide comma separated search terms that would help in finding your report when searched.')
-                //     ->splitKeys(['Tab', ','])
-                //     ->type('reports'),
                 Textarea::make('comment')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide your comments/observations on anything noteworthy in the Curation process.')
                     ->hidden(function () {
@@ -583,7 +702,13 @@ class ReportResource extends Resource
             ->columns([
                 TextColumn::make('title')
                     ->wrap()
-                    ->description(fn (Report $record): string => Str::of($record->evidence)->words(10)),
+                    ->searchable()
+                    ->description(
+                        fn (Report $record): string => $record->report_category === 'new_molecule'
+                            ? 'SMILES: '.Str::limit($record->suggested_changes['new_molecule_data']['canonical_smiles'], 50)
+                            : Str::of($record->evidence)->words(10)
+                    ),
+
                 TextColumn::make('report_category')
                     ->label('Type')
                     ->badge()
@@ -592,10 +717,8 @@ class ReportResource extends Resource
                         'new_molecule' => 'success',
                         default => 'gray'
                     })
-                    ->formatStateUsing(function (Report $record): string {
-                        return str_replace('_', ' ', ucfirst($record->report_category));
-                    }),
-                Tables\Columns\TextColumn::make('curator.name')
+                    ->formatStateUsing(fn (string $state): string => str_replace('_', ' ', ucfirst($state))),
+                TextColumn::make('curator.name')
                     ->searchable()
                     ->placeholder('Choose a curator')
                     ->action(
@@ -612,13 +735,18 @@ class ReportResource extends Resource
                                     }),
                             ])
                             ->action(function (array $data, Report $record): void {
-                                $record['assigned_to'] = $data['curator'];
+                                $record->assigned_to = $data['curator'];
                                 $record->save();
                                 $record->refresh();
                             })
                             ->modalSubmitActionLabel('Assign')
                             ->modalHidden(fn (Report $record): bool => ! auth()->user()->roles()->exists() || $record['status'] == 'approved' || $record['status'] == 'rejected'),
                     ),
+
+                TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
@@ -627,35 +755,7 @@ class ReportResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->visible(function ($record) {
-                        //     return auth()->user()->roles()->exists() && $record['status'] == 'submitted';
-                        // }),
-                        // Tables\Actions\Action::make('approve')
-                        //     // ->button()
-                        //     ->hidden(function (Report $record) {
-                        //         return ! auth()->user()->roles()->exists() || $record['status'] == 'draft' || $record['status'] == 'rejected' || $record['status'] == 'approved';
-                        //     })
-                        //     ->form([
-                        //         Textarea::make('reason'),
-                        //     ])
-                        //     ->action(function (array $data, Report $record, Molecule $molecule, $livewire): void {
-                        //         self::approveReport($data, $record, $molecule, $livewire);
-                        //     }),
-                        // Tables\Actions\Action::make('reject')
-                        //     // ->button()
-                        //     ->color('danger')
-                        //     ->hidden(function (Report $record) {
-                        //         return ! auth()->user()->roles()->exists() || $record['status'] == 'draft' || $record['status'] == 'rejected' || $record['status'] == 'approved';
-                        //     })
-                        //     ->form([
-                        //         Textarea::make('reason'),
-
-                        //     ])
-                        //     ->action(function (array $data, Report $record): void {
-                        //         self::rejectReport($data, $record, $livewire);
-                        //     }),
-                        return auth()->user()->roles()->exists() && $record['status'] == 'submitted' && ($record['assigned_to'] == null || $record['assigned_to'] == auth()->id());
-                    }),
+                    ->visible(fn ($record) => $record['status'] == 'submitted'),
                 Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
@@ -750,8 +850,68 @@ class ReportResource extends Resource
 
     public static function approveReport(array $data, Report $record, Molecule $molecule, $livewire): void
     {
-        // In case of reporting a synthetic molecule, Deactivate Molecules
-        if ($record['report_category'] !== 'change') {
+        if ($record['report_category'] === 'new_molecule') {
+            $molecule_data = $record['suggested_changes']['new_molecule_data'];
+
+            // Create new entry
+            $new_entry = new Entry;
+            $new_entry->canonical_smiles = $molecule_data['canonical_smiles'];
+            $new_entry->reference_id = $molecule_data['reference_id'];
+            $new_entry->name = $molecule_data['name'];
+            $new_entry->status = 'SUBMITTED';
+
+            // Add optional fields if provided
+            if (! empty($molecule_data['doi'])) {
+                $new_entry->doi = $molecule_data['doi'];
+            }
+            if (! empty($molecule_data['link'])) {
+                $new_entry->link = $molecule_data['link'];
+            }
+            if (! empty($molecule_data['mol_filename'])) {
+                $new_entry->mol_filename = $molecule_data['mol_filename'];
+            }
+            if (! empty($molecule_data['structural_comments'])) {
+                $new_entry->structural_comments = $molecule_data['structural_comments'];
+            }
+            if (! empty($molecule_data['organism'])) {
+                $new_entry->organism = $molecule_data['organism'];
+                $new_entry->organism_part = $molecule_data['organism_part'] ?? null;
+            }
+            if (! empty($molecule_data['geo_location'])) {
+                $new_entry->geo_location = $molecule_data['geo_location'];
+                $new_entry->location = $molecule_data['location'] ?? null;
+            }
+
+            $new_entry->save();
+
+            // Update report status
+            $record['status'] = 'approved';
+            $record['comment'] = prepareComment($data['reason']);
+            $record['assigned_to'] = auth()->id();
+            $record->save();
+
+            // Redirect to view page
+            $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
+        }
+        // ...rest of existing code for other report types...
+        elseif ($record['report_category'] === 'change') {
+            // In case of Changes
+            // Run SQL queries for the approved changes
+            self::runSQLQueries($record);
+
+            $suggested_changes = $record['suggested_changes'];
+
+            $suggested_changes['curator']['approved_changes'] = self::$overall_changes;
+            $record['suggested_changes'] = $suggested_changes;
+            $record['comment'] = prepareComment($data['reason']);
+            $record['status'] = 'approved';
+            $formData = copyChangesToCuratorJSON($record, $livewire->data);
+            $suggested_changes['curator'] = $formData['suggested_changes']['curator'];
+            $record['suggested_changes'] = $suggested_changes;
+
+            $record->save();
+        } else {
+            // In case of reporting a synthetic molecule, Deactivate Molecules
             if ($record['report_type'] == 'molecule') {
                 $molecule_ids = explode(',', $record['mol_id_csv']);
                 $molecule = Molecule::whereIn('identifier', $molecule_ids)->get();
@@ -766,23 +926,8 @@ class ReportResource extends Resource
             $record['comment'] = prepareComment($data['reason']);
             $record['assigned_to'] = auth()->id();
             $record->save();
-        } else {
-            // In case of Changes
-            // Run SQL queries for the approved changes
-            self::runSQLQueries($record);
-
-            $suggested_changes = $record['suggested_changes'];
-
-            $suggested_changes['curator']['approved_changes'] = self::$overall_changes;
-            $record['suggested_changes'] = $suggested_changes;
-            $record->comment = prepareComment($data['reason']);
-            $record['status'] = 'approved';
-            $formData = copyChangesToCuratorJSON($record, $livewire->data);
-            $suggested_changes['curator'] = $formData['suggested_changes']['curator'];
-            $record['suggested_changes'] = $suggested_changes;
-
-            $record->save();
         }
+
         $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
     }
 

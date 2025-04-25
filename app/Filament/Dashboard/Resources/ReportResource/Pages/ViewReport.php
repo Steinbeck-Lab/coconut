@@ -11,7 +11,9 @@ class ViewReport extends ViewRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        if ($data['report_category'] === 'change') {
+        if ($data['report_category'] === 'new_molecule') {
+            $data = array_merge($data, $data['suggested_changes']['new_molecule_data']);
+        } elseif ($data['report_category'] === 'change') {
             $curators_copy_changes = $data['suggested_changes']['curator'];
             $data['existing_geo_locations'] = $curators_copy_changes['existing_geo_locations'];
             $data['new_geo_locations'] = $curators_copy_changes['new_geo_locations'];
