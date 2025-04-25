@@ -133,14 +133,10 @@ class CreateReport extends CreateRecord
                     'canonical_smiles' => $data['canonical_smiles'],
                     'reference_id' => $data['reference_id'],
                     'name' => $data['name'],
-                    'doi' => $data['doi'] ?? null,
                     'link' => $data['link'] ?? null,
-                    'organism' => $data['organism'] ?? null,
-                    'organism_part' => $data['organism_part'] ?? null,
                     'mol_filename' => $data['mol_filename'] ?? null,
                     'structural_comments' => $data['structural_comments'] ?? null,
-                    'geo_location' => $data['geo_location'] ?? null,
-                    'location' => $data['location'] ?? null,
+                    'references' => $data['references'] ?? [],
                 ],
             ];
             $data['suggested_changes'] = $suggested_changes;

@@ -501,16 +501,12 @@ class ReportResource extends Resource
                                             ->maxLength(255)
                                             ->placeholder('Enter the name of the molecule')
                                             ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'The primary name or systematic name of the molecule'),
-                                    ])->columns(2),
 
-                                Grid::make()
-                                    ->schema([
-                                        TextInput::make('doi')
-                                            ->label('DOI')
-                                            ->required()
+                                        TextInput::make('mol_filename')
+                                            ->label('Molecule Filename')
                                             ->maxLength(255)
-                                            ->placeholder('Enter the DOI reference if available')
-                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Digital Object Identifier (DOI) for the publication or source'),
+                                            ->placeholder('Enter the filename for the molecule structure')
+                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Name of the structure file if available'),
 
                                         TextInput::make('link')
                                             ->label('Link')
@@ -518,60 +514,77 @@ class ReportResource extends Resource
                                             ->maxLength(1000)
                                             ->placeholder('Enter any relevant URL')
                                             ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Any additional URL reference for this molecule'),
-                                    ])->columns(2),
 
-                                TextInput::make('mol_filename')
-                                    ->label('Molecule Filename')
-                                    ->maxLength(255)
-                                    ->placeholder('Enter the filename for the molecule structure')
-                                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Name of the structure file if available'),
+                                        Textarea::make('structural_comments')
+                                            ->label('Structural Comments')
+                                            ->maxLength(1000)
+                                            ->placeholder('Enter any comments about the molecular structure')
+                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Additional notes or comments about the molecular structure'),
+                                    ])->columns(2),
                             ]),
 
-                        Tabs\Tab::make('source_info')
-                            ->label('Source Information')
-                            ->icon('heroicon-s-cube-transparent')
+                        Tabs\Tab::make('source_relationships')
+                            ->label('Source Relationships')
+                            ->icon('heroicon-o-document-text')
                             ->schema([
-                                Grid::make()
+                                Repeater::make('references')
+                                    ->label('References')
                                     ->schema([
-                                        TextInput::make('organism')
-                                            ->label('Organism')
+                                        TextInput::make('doi')
+                                            ->label('DOI')
+                                            ->required()
                                             ->maxLength(255)
-                                            ->placeholder('Enter the source organism')
-                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'The biological source organism of the molecule'),
+                                            ->placeholder('Enter the DOI reference')
+                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Digital Object Identifier (DOI) for the publication'),
 
-                                        TextInput::make('organism_part')
-                                            ->label('Organism Part')
-                                            ->maxLength(255)
-                                            ->placeholder('Enter the specific part of the organism')
-                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'The specific part or tissue of the source organism'),
-                                    ])->columns(2),
+                                        Repeater::make('organisms')
+                                            ->label('Organisms')
+                                            ->schema([
+                                                TextInput::make('name')
+                                                    ->label('Organism Name')
+                                                    ->required()
+                                                    ->maxLength(255)
+                                                    ->placeholder('Enter organism name')
+                                                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Scientific name of the organism'),
 
-                                Textarea::make('structural_comments')
-                                    ->label('Structural Comments')
-                                    ->maxLength(1000)
-                                    ->placeholder('Enter any comments about the molecular structure')
-                                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Additional notes or comments about the molecular structure')
-                                    ->columnSpan('full'),
-                            ]),
+                                                TagsInput::make('parts')
+                                                    ->label('Organism Parts')
+                                                    ->placeholder('Add organism part')
+                                                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Parts of the organism where the molecule was found')
+                                                    ->required(),
 
-                        Tabs\Tab::make('location_info')
-                            ->label('Location Information')
-                            ->icon('heroicon-o-map-pin')
-                            ->schema([
-                                Grid::make()
-                                    ->schema([
-                                        TextInput::make('geo_location')
-                                            ->label('Geographic Location')
-                                            ->maxLength(255)
-                                            ->placeholder('Enter the geographic location')
-                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'The geographical location where the molecule was found or isolated'),
+                                                Repeater::make('locations')
+                                                    ->label('Geographic Locations')
+                                                    ->schema([
+                                                        TextInput::make('name')
+                                                            ->label('Location Name')
+                                                            ->required()
+                                                            ->maxLength(255)
+                                                            ->placeholder('Enter location name')
+                                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Name of the geographic location'),
 
-                                        TextInput::make('location')
-                                            ->label('Specific Location')
-                                            ->maxLength(255)
-                                            ->placeholder('Enter more specific location details')
-                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'More specific details about the location, e.g. coordinates or local area'),
-                                    ])->columns(2),
+                                                        TagsInput::make('ecosystems')
+                                                            ->label('Ecosystems/Sublocations')
+                                                            ->placeholder('Add ecosystem')
+                                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Specific ecosystems or sublocations where the organism was found')
+                                                            ->required(),
+                                                    ])
+                                                    ->required()
+                                                    ->addActionLabel('Add Location')
+                                                    ->minItems(1)
+                                                    ->collapsible()
+                                                    ->columns(2),
+                                            ])
+                                            ->required()
+                                            ->addActionLabel('Add Organism')
+                                            ->minItems(1)
+                                            ->collapsible()
+                                            ->columns(1),
+                                    ])
+                                    ->addActionLabel('Add Reference')
+                                    ->minItems(1)
+                                    ->collapsible()
+                                    ->columns(1),
                             ]),
                     ])
                     ->hidden(fn (Get $get) => $get('report_category') !== 'new_molecule'),
@@ -856,31 +869,94 @@ class ReportResource extends Resource
             // Create new entry
             $new_entry = new Entry;
             $new_entry->canonical_smiles = $molecule_data['canonical_smiles'];
-            $new_entry->reference_id = $molecule_data['reference_id'];
-            $new_entry->name = $molecule_data['name'];
+            $new_entry->reference_id = $molecule_data['reference_id'] ?? '';
+            $new_entry->name = $molecule_data['name'] ?? '';
             $new_entry->status = 'SUBMITTED';
+            $new_entry->submission_type = 'json';
 
-            // Add optional fields if provided
-            if (! empty($molecule_data['doi'])) {
-                $new_entry->doi = $molecule_data['doi'];
+            // Add optional fields if provided (with blank defaults)
+            $new_entry->link = $molecule_data['link'] ?? '';
+            $new_entry->mol_filename = $molecule_data['mol_filename'] ?? '';
+            $new_entry->structural_comments = $molecule_data['structural_comments'] ?? '';
+
+            // Initialize relationship fields with empty strings by default
+            $new_entry->doi = '';
+            $new_entry->organism = '';
+            $new_entry->organism_part = '';
+            $new_entry->geo_location = '';
+            $new_entry->location = '';
+
+            // Process relationships data
+            $allDois = [];
+            $allOrganisms = [];
+            $allParts = [];
+            $allGeoLocations = [];
+            $allEcosystems = [];
+
+            if (! empty($molecule_data['references'])) {
+                // Process each reference
+                foreach ($molecule_data['references'] as $reference) {
+                    $doi = $reference['doi'] ?? '';
+
+                    // If no organisms, still create an entry with blank values to maintain structure
+                    if (empty($reference['organisms'])) {
+                        $allDois[] = $doi;
+                        $allOrganisms[] = '';
+                        $allParts[] = '';
+                        $allGeoLocations[] = '';
+                        $allEcosystems[] = '';
+
+                        continue;
+                    }
+
+                    // Process each organism in the reference
+                    foreach ($reference['organisms'] as $organism) {
+                        // Add DOI and organism name (one-to-one relation)
+                        $allDois[] = $doi;
+                        $allOrganisms[] = $organism['name'] ?? '';
+
+                        // Process parts for this organism
+                        $orgParts = ! empty($organism['parts']) ? implode('|', $organism['parts']) : '';
+                        $allParts[] = $orgParts;
+
+                        // Process locations and ecosystems for this organism
+                        $orgLocations = [];
+                        $orgEcosystems = [];
+
+                        if (empty($organism['locations'])) {
+                            // No locations, add blanks but maintain structure
+                            $allGeoLocations[] = '';
+                            $allEcosystems[] = '';
+                        } else {
+                            // Process each location in the organism
+                            foreach ($organism['locations'] as $location) {
+                                $orgLocations[] = $location['name'] ?? '';
+
+                                // Process ecosystems for this location
+                                $locEcosystems = ! empty($location['ecosystems']) ? implode(';', $location['ecosystems']) : '';
+                                $orgEcosystems[] = $locEcosystems;
+                            }
+
+                            // Format the geo locations and ecosystems with appropriate delimiters
+                            $allGeoLocations[] = implode('|', $orgLocations);
+                            $allEcosystems[] = implode('|', $orgEcosystems);
+                        }
+                        // dd($molecule_data, $allDois, $allOrganisms, $allParts, $allGeoLocations, $allEcosystems);
+                    }
+                }
+
+                // Only set relationship fields if there's actual data
+                if (! empty($allDois)) {
+                    $new_entry->doi = implode('||', $allDois);
+                    $new_entry->organism = implode('||', $allOrganisms);
+                    $new_entry->organism_part = implode('||', $allParts);
+                    $new_entry->geo_location = implode('||', $allGeoLocations);
+                    $new_entry->location = implode('||', $allEcosystems);
+                }
             }
-            if (! empty($molecule_data['link'])) {
-                $new_entry->link = $molecule_data['link'];
-            }
-            if (! empty($molecule_data['mol_filename'])) {
-                $new_entry->mol_filename = $molecule_data['mol_filename'];
-            }
-            if (! empty($molecule_data['structural_comments'])) {
-                $new_entry->structural_comments = $molecule_data['structural_comments'];
-            }
-            if (! empty($molecule_data['organism'])) {
-                $new_entry->organism = $molecule_data['organism'];
-                $new_entry->organism_part = $molecule_data['organism_part'] ?? null;
-            }
-            if (! empty($molecule_data['geo_location'])) {
-                $new_entry->geo_location = $molecule_data['geo_location'];
-                $new_entry->location = $molecule_data['location'] ?? null;
-            }
+
+            // Store the original JSON data in meta_data
+            $new_entry->meta_data = $record['suggested_changes'];
 
             $new_entry->save();
 
@@ -892,9 +968,7 @@ class ReportResource extends Resource
 
             // Redirect to view page
             $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
-        }
-        // ...rest of existing code for other report types...
-        elseif ($record['report_category'] === 'change') {
+        } elseif ($record['report_category'] === 'change') {
             // In case of Changes
             // Run SQL queries for the approved changes
             self::runSQLQueries($record);

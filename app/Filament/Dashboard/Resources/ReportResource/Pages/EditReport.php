@@ -14,7 +14,16 @@ class EditReport extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         if ($this->record['report_category'] === 'new_molecule') {
-            $data = array_merge($data, $data['suggested_changes']['new_molecule_data']);
+            $molecule_data = $data['suggested_changes']['new_molecule_data'];
+            $data = array_merge($data, [
+                'canonical_smiles' => $molecule_data['canonical_smiles'],
+                'reference_id' => $molecule_data['reference_id'],
+                'name' => $molecule_data['name'],
+                'link' => $molecule_data['link'] ?? null,
+                'mol_filename' => $molecule_data['mol_filename'] ?? null,
+                'structural_comments' => $molecule_data['structural_comments'] ?? null,
+                'references' => $molecule_data['references'] ?? [],
+            ]);
         } elseif ($this->record['report_category'] === 'change') {
             // initiate the flags to show only the fields that need to be shown - overall changes are always from the initial suggestions
             if (array_key_exists('geo_location_changes', $this->record['suggested_changes']['overall_changes'])) {
@@ -78,14 +87,10 @@ class EditReport extends EditRecord
                 'canonical_smiles' => $data['canonical_smiles'],
                 'reference_id' => $data['reference_id'],
                 'name' => $data['name'],
-                'doi' => $data['doi'] ?? null,
                 'link' => $data['link'] ?? null,
-                'organism' => $data['organism'] ?? null,
-                'organism_part' => $data['organism_part'] ?? null,
                 'mol_filename' => $data['mol_filename'] ?? null,
                 'structural_comments' => $data['structural_comments'] ?? null,
-                'geo_location' => $data['geo_location'] ?? null,
-                'location' => $data['location'] ?? null,
+                'references' => $data['references'] ?? [],
             ];
         } elseif ($this->record['report_category'] === 'change') {
             $data = copyChangesToCuratorJSON($this->record, $data);
@@ -104,7 +109,6 @@ class EditReport extends EditRecord
     protected function getFormActions(): array
     {
         return [
-            // ...existing actions...
             Action::make('save')
                 ->action(function (array $data) {
                     if ($data['report_category'] === 'new_molecule') {
@@ -112,14 +116,17 @@ class EditReport extends EditRecord
                             'canonical_smiles' => ['required', 'string'],
                             'reference_id' => ['required', 'string'],
                             'name' => ['required', 'string'],
-                            'doi' => ['nullable', 'string'],
                             'link' => ['nullable', 'url'],
-                            'organism' => ['nullable', 'string'],
-                            'organism_part' => ['nullable', 'string'],
                             'mol_filename' => ['nullable', 'string'],
                             'structural_comments' => ['nullable', 'string'],
-                            'geo_location' => ['nullable', 'string'],
-                            'location' => ['nullable', 'string'],
+                            'references' => ['nullable', 'array'],
+                            'references.*.doi' => ['required', 'string'],
+                            'references.*.organisms' => ['required', 'array'],
+                            'references.*.organisms.*.name' => ['required', 'string'],
+                            'references.*.organisms.*.parts' => ['required', 'array'],
+                            'references.*.organisms.*.locations' => ['required', 'array'],
+                            'references.*.organisms.*.locations.*.name' => ['required', 'string'],
+                            'references.*.organisms.*.locations.*.ecosystems' => ['required', 'array'],
                         ]);
                     }
                     $this->save();
