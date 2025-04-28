@@ -79,4 +79,18 @@ class ReportResource extends RestResource
             'title' => 'required',
         ];
     }
+
+    /**
+     * Set default values before mutating the model
+     */
+    public function mutating(\Lomkit\Rest\Http\Requests\MutateRequest $request, array $requestBody, \Illuminate\Database\Eloquent\Model $model): void
+    {
+        // Set default values for new records
+        if ($requestBody['operation'] === 'create') {
+            $model->user_id = auth()->user()->id;
+            $model->report_type = 'molecule';
+            $model->report_category = 'new_molecule';
+            $model->status = 'submitted';
+        }
+    }
 }

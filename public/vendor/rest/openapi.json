@@ -629,10 +629,10 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Vitae distinctio exercitationem exercitationem.",
-                                        "description": "Aut ut dolorem officiis totam. Quo facere sed maiores quia.",
-                                        "url": "https:\/\/balistreri.net\/quo-et-at-odio-blanditiis-voluptas.html",
-                                        "identifier": "Molestias occaecati incidunt quo quod minima tenetur."
+                                        "title": "Ipsum dolor sapiente.",
+                                        "description": "Quis voluptates possimus harum ea eos vero. Minima aut dignissimos expedita sunt voluptatem porro mollitia. Pariatur nemo exercitationem blanditiis aut commodi voluptatem eligendi.",
+                                        "url": "http:\/\/vandervort.net\/id-id-assumenda-voluptates-sed-velit-sequi",
+                                        "identifier": "Est voluptatem rerum sint id."
                                     },
                                     "meta": []
                                 }
@@ -674,10 +674,10 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Consectetur vel aut.",
-                                        "description": "Quae ducimus quas eos qui architecto. Non debitis consequatur esse. Harum laudantium debitis et placeat illo repellendus. Quis voluptas autem distinctio dolorem aliquam aspernatur quasi.",
-                                        "url": "https:\/\/www.fisher.com\/id-architecto-dolor-dolor-dolor",
-                                        "identifier": "Maxime nemo est illum deleniti suscipit similique consequatur reprehenderit."
+                                        "title": "Consectetur quia voluptas.",
+                                        "description": "Rerum est libero ex non qui. Corporis praesentium quo consequatur eos modi sequi itaque.",
+                                        "url": "https:\/\/maggio.com\/aut-molestiae-corporis-sed-ut.html",
+                                        "identifier": "Officiis eius ut rem non."
                                     },
                                     "meta": []
                                 }
@@ -946,9 +946,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1371\/journal.pone.0313830~51",
-                                        "title": "Identification of novel cyclin-dependent kinase 4\/6 inhibitors from marine natural products.",
-                                        "authors": "Debnath A, Mazumder R, Singh AK, Singh RK.",
+                                        "doi": "10.1002\/ps.6073~34",
+                                        "title": "The spinosyns, spinosad, spinetoram, and synthetic spinosyn mimics - discovery, exploration, and evolution of a natural product chemistry and the impact of computational tools.",
+                                        "authors": "Sparks TC, Crouse GD, Benko Z, Demeter D, Giampietro NC, Lambert W, Brown AV.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -991,9 +991,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.3390\/ph18040551~96",
-                                        "title": "The In Vitro Pharmacokinetics of Medicinal Plants: A Review. ",
-                                        "authors": "Chaves de Jesus P, Rego Rodrigues Silva DM, Macedo Moura PH, Gopalsamy RG, Dias Silva EE, Dos Santos Barreto M, Santana Santos R, Santos Martins AY, de Freitas Almeida AG, Santana Corr\u00eaa AK, Alves da Mota Santana L, Hariharan G, Gibara Guimar\u00e3es A, Pinto Borges L.",
+                                        "doi": "10.2174\/0125899775372804250402051832~79",
+                                        "title": "Plant Endophytes and their Secondary Metabolites: A Source of Bioactive Compounds.",
+                                        "authors": "Narwal S, Singh G, Yadav N, Garg P, Grewal N, Dhingra AK.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -1568,8 +1568,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Alexzander VonRueden Sr.",
-                                        "email": "clement.sanford@example.org"
+                                        "name": "Prof. Ellsworth Towne",
+                                        "email": "lew71@example.org"
                                     },
                                     "meta": []
                                 }
@@ -1611,8 +1611,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Jazmyne Robel",
-                                        "email": "aheidenreich@example.com"
+                                        "name": "Dr. Megane Stroman Sr.",
+                                        "email": "shields.estelle@example.com"
                                     },
                                     "meta": []
                                 }
