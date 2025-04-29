@@ -25,7 +25,6 @@ class ReportResource extends RestResource
             'doi',
             'comment',
             'suggested_changes',
-            'mol_id_csv',
         ];
     }
 

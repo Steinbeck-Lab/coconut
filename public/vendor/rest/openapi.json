@@ -629,10 +629,10 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Ipsum dolor sapiente.",
-                                        "description": "Quis voluptates possimus harum ea eos vero. Minima aut dignissimos expedita sunt voluptatem porro mollitia. Pariatur nemo exercitationem blanditiis aut commodi voluptatem eligendi.",
-                                        "url": "http:\/\/vandervort.net\/id-id-assumenda-voluptates-sed-velit-sequi",
-                                        "identifier": "Est voluptatem rerum sint id."
+                                        "title": "Perspiciatis sed in corrupti error.",
+                                        "description": "Consectetur soluta rem quis excepturi. Reprehenderit vel modi est omnis aliquam. Sed aliquam dolores sequi non non est. Nam non quidem molestiae aspernatur molestias quo autem.",
+                                        "url": "http:\/\/www.sporer.com\/debitis-ipsam-nobis-labore",
+                                        "identifier": "Quia officiis culpa et est dolorem rerum quod vel."
                                     },
                                     "meta": []
                                 }
@@ -674,10 +674,10 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Consectetur quia voluptas.",
-                                        "description": "Rerum est libero ex non qui. Corporis praesentium quo consequatur eos modi sequi itaque.",
-                                        "url": "https:\/\/maggio.com\/aut-molestiae-corporis-sed-ut.html",
-                                        "identifier": "Officiis eius ut rem non."
+                                        "title": "Quis libero et deleniti.",
+                                        "description": "Et delectus soluta dolores aut rerum facere. Beatae eaque qui qui quisquam sint odit error. Laudantium est ut qui accusantium provident non.",
+                                        "url": "https:\/\/kilback.com\/labore-ex-dolorem-sint-suscipit-doloremque-ad-nam.html",
+                                        "identifier": "Esse perspiciatis sapiente dolores ipsam officia."
                                     },
                                     "meta": []
                                 }
@@ -946,9 +946,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1002\/ps.6073~34",
-                                        "title": "The spinosyns, spinosad, spinetoram, and synthetic spinosyn mimics - discovery, exploration, and evolution of a natural product chemistry and the impact of computational tools.",
-                                        "authors": "Sparks TC, Crouse GD, Benko Z, Demeter D, Giampietro NC, Lambert W, Brown AV.",
+                                        "doi": "10.1080\/14786419.2025.2498076~29",
+                                        "title": "Neuroprotective activities of coixol: <i>in vitro<\/i> and <i>in silico<\/i> studies. ",
+                                        "authors": "Amen Y, Othman A, Sayed AM, El-Damasy AK, Mira A.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -991,9 +991,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.2174\/0125899775372804250402051832~79",
-                                        "title": "Plant Endophytes and their Secondary Metabolites: A Source of Bioactive Compounds.",
-                                        "authors": "Narwal S, Singh G, Yadav N, Garg P, Grewal N, Dhingra AK.",
+                                        "doi": "10.1101\/2025.03.21.644653~62",
+                                        "title": "AI-assisted isolation of bioactive Dipyrimicins from<i>Amycolatopsis azurea<\/i>and identification of its corresponding<i>dip<\/i>biosynthetic gene cluster",
+                                        "authors": "Ancajas CMF, Shuster IE, Walker AS.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -1568,8 +1568,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Prof. Ellsworth Towne",
-                                        "email": "lew71@example.org"
+                                        "name": "Vella Ortiz",
+                                        "email": "fchamplin@example.com"
                                     },
                                     "meta": []
                                 }
@@ -1611,8 +1611,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Dr. Megane Stroman Sr.",
-                                        "email": "shields.estelle@example.com"
+                                        "name": "Abigayle O'Kon",
+                                        "email": "nannie49@example.com"
                                     },
                                     "meta": []
                                 }
@@ -2536,8 +2536,7 @@
                                             "evidence",
                                             "doi",
                                             "comment",
-                                            "suggested_changes",
-                                            "mol_id_csv"
+                                            "suggested_changes"
                                         ],
                                         "scout_fields": [],
                                         "limits": [
@@ -2657,11 +2656,6 @@
                                             "field": "suggested_changes",
                                             "operator": "=",
                                             "value": ""
-                                        },
-                                        {
-                                            "field": "mol_id_csv",
-                                            "operator": "=",
-                                            "value": ""
                                         }
                                     ],
                                     "sorts": [
@@ -2684,10 +2678,6 @@
                                         {
                                             "field": "suggested_changes",
                                             "direction": "desc"
-                                        },
-                                        {
-                                            "field": "mol_id_csv",
-                                            "direction": "desc"
                                         }
                                     ],
                                     "selects": [
@@ -2705,9 +2695,6 @@
                                         },
                                         {
                                             "field": "suggested_changes"
-                                        },
-                                        {
-                                            "field": "mol_id_csv"
                                         }
                                     ],
                                     "includes": [],
@@ -2769,8 +2756,7 @@
                                             "evidence": "",
                                             "doi": "",
                                             "comment": "",
-                                            "suggested_changes": "",
-                                            "mol_id_csv": ""
+                                            "suggested_changes": ""
                                         },
                                         "relations": []
                                     }
