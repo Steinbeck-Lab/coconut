@@ -629,10 +629,10 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Perspiciatis sed in corrupti error.",
-                                        "description": "Consectetur soluta rem quis excepturi. Reprehenderit vel modi est omnis aliquam. Sed aliquam dolores sequi non non est. Nam non quidem molestiae aspernatur molestias quo autem.",
-                                        "url": "http:\/\/www.sporer.com\/debitis-ipsam-nobis-labore",
-                                        "identifier": "Quia officiis culpa et est dolorem rerum quod vel."
+                                        "title": "Nisi voluptas molestiae quo.",
+                                        "description": "Accusamus ut iste eum consequuntur aut fugiat vero. Vel dolores reprehenderit et vitae recusandae enim. Assumenda tenetur quia laudantium pariatur itaque. Enim amet voluptatem ex ea ad aut.",
+                                        "url": "http:\/\/www.dickens.net\/aut-excepturi-veniam-qui-ipsa-et-tenetur-eligendi",
+                                        "identifier": null
                                     },
                                     "meta": []
                                 }
@@ -674,10 +674,10 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Quis libero et deleniti.",
-                                        "description": "Et delectus soluta dolores aut rerum facere. Beatae eaque qui qui quisquam sint odit error. Laudantium est ut qui accusantium provident non.",
-                                        "url": "https:\/\/kilback.com\/labore-ex-dolorem-sint-suscipit-doloremque-ad-nam.html",
-                                        "identifier": "Esse perspiciatis sapiente dolores ipsam officia."
+                                        "title": "Et et sapiente magni.",
+                                        "description": "Qui sint voluptate sit consectetur sit rerum. Tenetur repudiandae enim optio fugiat blanditiis libero dolorem. Et quasi enim vitae. Sed commodi rerum voluptatum aut voluptatum nulla.",
+                                        "url": "http:\/\/www.gislason.net\/",
+                                        "identifier": "Et dolores nulla fugiat."
                                     },
                                     "meta": []
                                 }
@@ -946,9 +946,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1080\/14786419.2025.2498076~29",
-                                        "title": "Neuroprotective activities of coixol: <i>in vitro<\/i> and <i>in silico<\/i> studies. ",
-                                        "authors": "Amen Y, Othman A, Sayed AM, El-Damasy AK, Mira A.",
+                                        "doi": "10.1101\/2025.03.13.642868~51",
+                                        "title": "Machine learning inference of natural product chemistry across biosynthetic gene cluster types",
+                                        "authors": "Larralde M, Zeller G.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -991,9 +991,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1101\/2025.03.21.644653~62",
-                                        "title": "AI-assisted isolation of bioactive Dipyrimicins from<i>Amycolatopsis azurea<\/i>and identification of its corresponding<i>dip<\/i>biosynthetic gene cluster",
-                                        "authors": "Ancajas CMF, Shuster IE, Walker AS.",
+                                        "doi": "10.1007\/s12011-025-04627-9~38",
+                                        "title": "Antioxidant Potential of Selected Apiaceae Plant Extracts: A Study Focused on the Chemical Composition and Neuroprotective Effect of Coriandrum sativum L. Extract Against Lead (Pb)-Induced Neurotoxicity in Rats.",
+                                        "authors": "Salem MA, Khalil HMA, Manaa EG, Bass AKA, Osama N, Samaka RM, Ibrahim MT, Hamdan DI.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -1568,8 +1568,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Vella Ortiz",
-                                        "email": "fchamplin@example.com"
+                                        "name": "Dr. Miller Schmitt",
+                                        "email": "wilburn97@example.net"
                                     },
                                     "meta": []
                                 }
@@ -1611,8 +1611,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Abigayle O'Kon",
-                                        "email": "nannie49@example.com"
+                                        "name": "Lola Legros",
+                                        "email": "lwolff@example.org"
                                     },
                                     "meta": []
                                 }
@@ -2673,10 +2673,6 @@
                                         },
                                         {
                                             "field": "comment",
-                                            "direction": "desc"
-                                        },
-                                        {
-                                            "field": "suggested_changes",
                                             "direction": "desc"
                                         }
                                     ],
