@@ -22,7 +22,6 @@ class ReportResource extends RestResource
         return [
             'title',
             'evidence',
-            'doi',
             'comment',
             'suggested_changes',
         ];
@@ -76,6 +75,18 @@ class ReportResource extends RestResource
     {
         return [
             'title' => 'required',
+        ];
+    }
+
+    /**
+     * Add create-specific validation rules
+     */
+    public function createRules(\Lomkit\Rest\Http\Requests\RestRequest $request)
+    {
+        return [
+            'suggested_changes.new_molecule_data.canonical_smiles' => 'required',
+            'suggested_changes.new_molecule_data.references' => 'required|array',
+            'suggested_changes.new_molecule_data.references.*.doi' => 'required',
         ];
     }
 
