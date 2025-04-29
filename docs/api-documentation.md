@@ -340,7 +340,7 @@ Search for reports with various filtering, sorting, and pagination options.
     ],
     "sorts": [
       {
-        "field": "created_at",
+        "field": "title",
         "direction": "desc"
       }
     ],
@@ -350,134 +350,6 @@ Search for reports with various filtering, sorting, and pagination options.
 }
 ```
 
-#### Response
-
-```json
-{
-  "current_page": 1,
-  "data": [
-    {
-      "id": 1,
-      "title": "New molecule discovery",
-      "evidence": "Evidence content here",
-      "doi": "10.1234/5678",
-      "status": "submitted",
-      "comment": "Initial submission",
-      "user_id": 42,
-      "created_at": "2025-04-20T10:30:00",
-      "updated_at": "2025-04-20T10:30:00",
-      "gates": {
-        "authorized_to_view": true,
-        "authorized_to_update": true,
-        "authorized_to_delete": true,
-        "authorized_to_restore": false,
-        "authorized_to_force_delete": false
-      }
-    }
-    // Additional reports...
-  ],
-  "from": 1,
-  "last_page": 3,
-  "per_page": 10,
-  "to": 10,
-  "total": 25,
-  "meta": {
-    "gates": {
-      "authorized_to_create": true
-    }
-  }
-}
-```
-
-#### Available Filter Operators
-
-- `=` (equal)
-- `!=` (not equal)
-- `>` (greater than)
-- `>=` (greater than or equal)
-- `<` (less than)
-- `<=` (less than or equal)
-- `like` (SQL LIKE pattern)
-- `not like` (SQL NOT LIKE pattern)
-- `in` (in array)
-- `not in` (not in array)
-
-#### Supported Filter Types
-
-- `and` (default) - All conditions must be met
-- `or` - Any condition can be met
-
-#### Searching JSON Fields
-
-For the `suggested_changes` JSON field, use dot notation to access nested properties:
-
-```json
-{
-  "search": {
-    "filters": [
-      {
-        "field": "suggested_changes.new_molecule_data.name",
-        "operator": "=",
-        "value": "Nareline"
-      }
-    ]
-  }
-}
-```
-
-#### Full Text Search
-
-If enabled, you can use full text search:
-
-```json
-{
-  "search": {
-    "text": {
-      "value": "molecule discovery"
-    }
-  }
-}
-```
-
-### Details
-
-Get a single report by its ID.
-
-**URL:** `/api/reports/{id}`  
-**Method:** `GET`
-
-#### Response
-
-```json
-{
-  "id": 1,
-  "title": "New molecule discovery",
-  "evidence": "Evidence content here",
-  "doi": "10.1234/5678",
-  "status": "submitted",
-  "comment": "Initial submission",
-  "user_id": 42,
-  "created_at": "2025-04-20T10:30:00",
-  "updated_at": "2025-04-20T10:30:00",
-  "suggested_changes": {
-    "new_molecule_data": {
-      "canonical_smiles": "CC=C1C2CC3C4=NC5=CC=CC=C5C4(C2C(=O)OC)C2C(O)ON3C12",
-      "name": "Nareline"
-    }
-  },
-  "report_type": "molecule",
-  "report_category": "new_molecule",
-  "query": null,
-  "assigned_to": null,
-  "gates": {
-    "authorized_to_view": true,
-    "authorized_to_update": true,
-    "authorized_to_delete": true,
-    "authorized_to_restore": false,
-    "authorized_to_force_delete": false
-  }
-}
-```
 
 ### Create
 
@@ -491,56 +363,80 @@ Create a new report.
 
 ```json
 {
-  "mutate": {
-    "operation": "create",
-    "attributes": {
-      "title": "New molecule discovery",
-      "evidence": "Evidence content here",
-      "doi": "10.1234/5678",
-      "comment": "Initial submission",
-      "user_id": 42,
-      "suggested_changes": {
-        "new_molecule_data": {
-          "canonical_smiles": "CC=C1C2CC3C4=NC5=CC=CC=C5C4(C2C(=O)OC)C2C(O)ON3C12",
-          "name": "Nareline"
+  "mutate": [
+    {
+      "operation": "create",
+      "attributes": {
+        "title": "Isolation of Berberine from Berberis vulgaris",
+        "evidence": "The compound was isolated from the root bark extract using column chromatography and structure confirmed by NMR and MS analysis.",
+        "comment": "This alkaloid has shown significant antimicrobial activity against gram-positive bacteria.",
+        "suggested_changes": {
+          "new_molecule_data": {
+            "canonical_smiles": "COc1ccc2cc3[n+](cc2c1OC)CCc1cc2c(cc1-3)OCO2",
+            "reference_id": "ID if it has one",
+            "name": "Berberine",
+            "link": "https://pubchem.ncbi.nlm.nih.gov/compound/2353",
+            "mol_filename": "berberine.mol",
+            "structural_comments": "Quaternary isoquinoline alkaloid with a tetracyclic skeleton",
+            "references": [
+              {
+                "doi": "10.1021/np50123a002",
+                "organisms": [
+                  {
+                    "name": "Berberis vulgaris",
+                    "parts": ["root", "bark", "rhizome"],
+                    "locations": [
+                      { "name": "Eastern Europe", "ecosystems": ["temperate forest", "woodland"] },
+                      { "name": "Western Asia", "ecosystems": ["mountain slopes", "rocky terrain"] }
+                    ]
+                  },
+                  {
+                    "name": "Hydrastis canadensis",
+                    "parts": ["rhizome", "roots"],
+                    "locations": [
+                      { "name": "Eastern North America", "ecosystems": ["deciduous forest", "shaded woodland"] }
+                    ]
+                  }
+                ]
+              },
+              {
+                "doi": "10.1016/j.jep.2019.112124",
+                "organisms": [
+                  {
+                    "name": "Coptis chinensis",
+                    "parts": ["rhizome", "roots"],
+                    "locations": [
+                      { "name": "Southern China", "ecosystems": ["mountain forests", "hillsides"] },
+                      { "name": "Eastern Asia", "ecosystems": ["humid forest", "river valleys"] }
+                    ]
+                  },
+                  {
+                    "name": "Phellodendron amurense",
+                    "parts": ["bark", "stem"],
+                    "locations": [{ "name": "Northeast Asia", "ecosystems": ["deciduous forest", "mixed forest"] }]
+                  }
+                ]
+              }
+            ]
+          }
         }
-      }
+      },
+      "relations": []
     }
-  }
+  ]
 }
 ```
+::: info Note: *Only one molecule per submission.*
+Required fileds: 
+  - **Title** 
+  - **canonical_smiles** (inside new_molecule_data)
+  - **doi** (inside references array)
+:::
 
-Note: The fields `report_type`, `report_category`, and `status` will be automatically set to their default values ("molecule", "new_molecule", and "submitted" respectively) and do not need to be included in the request.
-
-#### Response
-
-```json
-{
-  "id": 1,
-  "title": "New molecule discovery",
-  "evidence": "Evidence content here",
-  "doi": "10.1234/5678",
-  "status": "submitted",
-  "comment": "Initial submission",
-  "user_id": 42,
-  "created_at": "2025-04-28T16:45:00",
-  "updated_at": "2025-04-28T16:45:00",
-  "suggested_changes": {
-    "new_molecule_data": {
-      "canonical_smiles": "CC=C1C2CC3C4=NC5=CC=CC=C5C4(C2C(=O)OC)C2C(O)ON3C12",
-      "name": "Nareline"
-    }
-  },
-  "report_type": "molecule",
-  "report_category": "new_molecule",
-  "query": null,
-  "assigned_to": null
-}
-```
 
 ### Update
-:::info
-Updates are only allowed for authorised users.
+::: warning Note
+General users cannot perform this. Special access privileges and vetting are done by the Scientific Advisory Board before anyone can be granted permission to perform this operation. For any queries, please contact: info.COCONUT@uni-jena.de 
 :::
 Update an existing report.
 
@@ -552,105 +448,35 @@ Update an existing report.
 
 ```json
 {
-  "mutate": {
-    "operation": "update",
-    "attributes": {
-      "title": "Updated molecule discovery",
-      "evidence": "Updated evidence content",
-      "status": "in_review"
-    }
-  }
+    "mutate": [
+        {
+            "operation": "update",
+            "key": 43,
+            "attributes": {"title": "new name"}
+        }
+    ]
 }
 ```
 
-#### Response
-
-```json
-{
-  "id": 1,
-  "title": "Updated molecule discovery",
-  "evidence": "Updated evidence content",
-  "doi": "10.1234/5678",
-  "status": "in_review",
-  "comment": "Initial submission",
-  "user_id": 42,
-  "created_at": "2025-04-20T10:30:00",
-  "updated_at": "2025-04-28T16:50:00",
-  "suggested_changes": {
-    "new_molecule_data": {
-      "canonical_smiles": "CC=C1C2CC3C4=NC5=CC=CC=C5C4(C2C(=O)OC)C2C(O)ON3C12",
-      "name": "Nareline"
-    }
-  },
-  "report_type": "molecule",
-  "report_category": "new_molecule",
-  "query": null,
-  "assigned_to": null
-}
-```
 
 ### Delete
-::: info
-Deletes are only allowed for authorised users.
+
+::: warning Note
+General users cannot perform this. Special access privileges and vetting are done by the Scientific Advisory Board before anyone can be granted permission to perform this operation. For any queries, please contact: info.COCONUT@uni-jena.de 
 :::
-### Force Delete
 
 Permanently delete a report.
 
-**URL:** `/api/reports/{id}/force`  
+**URL:** `/api/reports`  
 **Method:** `DELETE`
 
-
-### Advanced Usage
-
-#### JSON Field Searching
-
-The `suggested_changes` field is a JSON type field that can contain complex nested structures. You can search through this field using dot notation:
-
-##### Basic Property
+#### Request
 
 ```json
 {
-  "search": {
-    "filters": [
-      {
-        "field": "suggested_changes.new_molecule_data.name",
-        "operator": "=",
-        "value": "Nareline"
-      }
-    ]
-  }
-}
-```
-
-##### Searching Arrays in JSON
-
-```json
-{
-  "search": {
-    "filters": [
-      {
-        "field": "suggested_changes.new_molecule_data.references.0.doi",
-        "operator": "=",
-        "value": "10.1145/2783446.2783605"
-      }
-    ]
-  }
-}
-```
-
-##### Searching Deeply Nested Structures
-
-```json
-{
-  "search": {
-    "filters": [
-      {
-        "field": "suggested_changes.new_molecule_data.references.0.organisms.0.name",
-        "operator": "=",
-        "value": "o1"
-      }
-    ]
-  }
+  "resources": [
+    42,
+    43
+  ]
 }
 ```

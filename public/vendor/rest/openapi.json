@@ -629,9 +629,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Nisi voluptas molestiae quo.",
-                                        "description": "Accusamus ut iste eum consequuntur aut fugiat vero. Vel dolores reprehenderit et vitae recusandae enim. Assumenda tenetur quia laudantium pariatur itaque. Enim amet voluptatem ex ea ad aut.",
-                                        "url": "http:\/\/www.dickens.net\/aut-excepturi-veniam-qui-ipsa-et-tenetur-eligendi",
+                                        "title": "Aliquam eligendi sunt.",
+                                        "description": "In earum rerum et ut. Architecto consequuntur asperiores autem. Repellat et deleniti et unde aperiam quidem odio occaecati. Explicabo et iusto minus perferendis.",
+                                        "url": "http:\/\/www.rohan.com\/sunt-aut-id-ratione-voluptatem-distinctio-ut-omnis",
                                         "identifier": null
                                     },
                                     "meta": []
@@ -674,10 +674,10 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Et et sapiente magni.",
-                                        "description": "Qui sint voluptate sit consectetur sit rerum. Tenetur repudiandae enim optio fugiat blanditiis libero dolorem. Et quasi enim vitae. Sed commodi rerum voluptatum aut voluptatum nulla.",
-                                        "url": "http:\/\/www.gislason.net\/",
-                                        "identifier": "Et dolores nulla fugiat."
+                                        "title": "Voluptas nobis et excepturi id.",
+                                        "description": "Reiciendis labore ut soluta blanditiis expedita velit perspiciatis rerum. Facilis incidunt velit facilis enim quaerat inventore. Vitae soluta sed adipisci nihil.",
+                                        "url": "https:\/\/kuhic.com\/aspernatur-aut-ut-non-est-hic-qui-eos.html",
+                                        "identifier": "Culpa quia enim et molestiae autem."
                                     },
                                     "meta": []
                                 }
@@ -946,9 +946,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1101\/2025.03.13.642868~51",
-                                        "title": "Machine learning inference of natural product chemistry across biosynthetic gene cluster types",
-                                        "authors": "Larralde M, Zeller G.",
+                                        "doi": "10.1002\/chem.202303989~88",
+                                        "title": "Strategies for the Construction of Benzobicyclo[3.2.1]octane in Natural Product Synthesis.",
+                                        "authors": "Liu JX, Li H, Zhang SP, Lu SC, Gong YL, Xu S.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -991,9 +991,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1007\/s12011-025-04627-9~38",
-                                        "title": "Antioxidant Potential of Selected Apiaceae Plant Extracts: A Study Focused on the Chemical Composition and Neuroprotective Effect of Coriandrum sativum L. Extract Against Lead (Pb)-Induced Neurotoxicity in Rats.",
-                                        "authors": "Salem MA, Khalil HMA, Manaa EG, Bass AKA, Osama N, Samaka RM, Ibrahim MT, Hamdan DI.",
+                                        "doi": "10.2174\/0125899775372804250402051832~53",
+                                        "title": "Plant Endophytes and their Secondary Metabolites: A Source of Bioactive Compounds.",
+                                        "authors": "Narwal S, Singh G, Yadav N, Garg P, Grewal N, Dhingra AK.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -1568,8 +1568,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Dr. Miller Schmitt",
-                                        "email": "wilburn97@example.net"
+                                        "name": "Emanuel Crona",
+                                        "email": "xbogisich@example.com"
                                     },
                                     "meta": []
                                 }
@@ -1611,8 +1611,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Lola Legros",
-                                        "email": "lwolff@example.org"
+                                        "name": "Sean West III",
+                                        "email": "bschneider@example.com"
                                     },
                                     "meta": []
                                 }
@@ -2534,7 +2534,6 @@
                                         "fields": [
                                             "title",
                                             "evidence",
-                                            "doi",
                                             "comment",
                                             "suggested_changes"
                                         ],
@@ -2550,7 +2549,11 @@
                                             "all": {
                                                 "title": "required"
                                             },
-                                            "create": [],
+                                            "create": {
+                                                "suggested_changes.new_molecule_data.canonical_smiles": "required",
+                                                "suggested_changes.new_molecule_data.references": "required|array",
+                                                "suggested_changes.new_molecule_data.references.*.doi": "required"
+                                            },
                                             "update": []
                                         }
                                     }
@@ -2643,11 +2646,6 @@
                                             "value": ""
                                         },
                                         {
-                                            "field": "doi",
-                                            "operator": "=",
-                                            "value": ""
-                                        },
-                                        {
                                             "field": "comment",
                                             "operator": "=",
                                             "value": ""
@@ -2668,10 +2666,6 @@
                                             "direction": "desc"
                                         },
                                         {
-                                            "field": "doi",
-                                            "direction": "desc"
-                                        },
-                                        {
                                             "field": "comment",
                                             "direction": "desc"
                                         }
@@ -2682,9 +2676,6 @@
                                         },
                                         {
                                             "field": "evidence"
-                                        },
-                                        {
-                                            "field": "doi"
                                         },
                                         {
                                             "field": "comment"
@@ -2750,7 +2741,6 @@
                                         "attributes": {
                                             "title": "",
                                             "evidence": "",
-                                            "doi": "",
                                             "comment": "",
                                             "suggested_changes": ""
                                         },
