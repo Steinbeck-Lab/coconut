@@ -873,6 +873,7 @@ class ReportResource extends Resource
             $new_entry->name = $molecule_data['name'] ?? '';
             $new_entry->status = 'SUBMITTED';
             $new_entry->submission_type = 'json';
+            $new_entry->collection_id = 64; // Default collection ID
 
             // Add optional fields if provided (with blank defaults)
             $new_entry->link = $molecule_data['link'] ?? '';
