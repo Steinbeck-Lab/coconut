@@ -14,6 +14,10 @@ class Entry extends Model implements Auditable
     use HasUUID;
     use \OwenIt\Auditing\Auditable;
 
+    protected $casts = [
+        'meta_data' => 'array',
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -36,6 +40,8 @@ class Entry extends Model implements Auditable
         'has_stereocenters',
         'is_invalid',
         'cm_data',
+        'submission_type',
+        'meta_data',
     ];
 
     /**

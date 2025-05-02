@@ -1,11 +1,11 @@
 {
     "openapi": "3.1.0",
     "info": {
-        "title": "coconut",
+        "title": "COCONUT",
         "summary": "COlleCtion of Open NatUral producTs",
         "description": "A comprehensive platform facilitating natural product research by providing data, tools, and services for deposition, curation, and reuse.",
         "contact": {
-            "name": "coconut",
+            "name": "COCONUT",
             "url": "https:\/\/coconut.naturalproducts.net\/",
             "email": "info.coconut@uni-jena.de"
         },
@@ -629,9 +629,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Consequatur magni magni accusantium dolorem magni.",
-                                        "description": "In culpa qui aut quas enim aliquid. Qui aut velit reiciendis praesentium et et. Atque soluta aperiam praesentium dolores occaecati.",
-                                        "url": "http:\/\/www.ortiz.com\/est-minus-omnis-provident",
+                                        "title": "Aliquam eligendi sunt.",
+                                        "description": "In earum rerum et ut. Architecto consequuntur asperiores autem. Repellat et deleniti et unde aperiam quidem odio occaecati. Explicabo et iusto minus perferendis.",
+                                        "url": "http:\/\/www.rohan.com\/sunt-aut-id-ratione-voluptatem-distinctio-ut-omnis",
                                         "identifier": null
                                     },
                                     "meta": []
@@ -674,10 +674,10 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Atque et fuga ea aut ad.",
-                                        "description": "Qui vitae eius aut dolores et totam. Nulla dolores et id sed. Amet nobis dolorum voluptatibus minus sunt. Minus et vitae nostrum provident sunt.",
-                                        "url": "http:\/\/kiehn.com\/",
-                                        "identifier": "Rem debitis harum culpa magnam iste."
+                                        "title": "Voluptas nobis et excepturi id.",
+                                        "description": "Reiciendis labore ut soluta blanditiis expedita velit perspiciatis rerum. Facilis incidunt velit facilis enim quaerat inventore. Vitae soluta sed adipisci nihil.",
+                                        "url": "https:\/\/kuhic.com\/aspernatur-aut-ut-non-est-hic-qui-eos.html",
+                                        "identifier": "Culpa quia enim et molestiae autem."
                                     },
                                     "meta": []
                                 }
@@ -946,9 +946,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1007\/s13659-024-00493-5~48",
-                                        "title": "Marine natural products as a source of novel anticancer drugs: an updated review (2019-2023).",
-                                        "authors": "El-Seedi HR, Refaey MS, Elias N, El-Mallah MF, Albaqami FMK, Dergaa I, Du M, Salem MF, Tahir HE, Dagliaa M, Yosri N, Zhang H, El-Seedi AH, Guo Z, Khalifa SAM.",
+                                        "doi": "10.1002\/chem.202303989~88",
+                                        "title": "Strategies for the Construction of Benzobicyclo[3.2.1]octane in Natural Product Synthesis.",
+                                        "authors": "Liu JX, Li H, Zhang SP, Lu SC, Gong YL, Xu S.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -991,9 +991,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1016\/j.plaphy.2024.109421~8",
-                                        "title": "Secondary metabolites-mediated regulation of plant defense mechanism.",
-                                        "authors": "Javed T, Fahad S, Abdelsalam NR, Wu H.",
+                                        "doi": "10.2174\/0125899775372804250402051832~53",
+                                        "title": "Plant Endophytes and their Secondary Metabolites: A Source of Bioactive Compounds.",
+                                        "authors": "Narwal S, Singh G, Yadav N, Garg P, Grewal N, Dhingra AK.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -1568,8 +1568,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Herbert Runolfsson",
-                                        "email": "laurine32@example.com"
+                                        "name": "Emanuel Crona",
+                                        "email": "xbogisich@example.com"
                                     },
                                     "meta": []
                                 }
@@ -1611,8 +1611,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Davonte Price",
-                                        "email": "nader.jo@example.com"
+                                        "name": "Sean West III",
+                                        "email": "bschneider@example.com"
                                     },
                                     "meta": []
                                 }
@@ -2469,6 +2469,315 @@
             "post": {
                 "tags": [
                     "Properties"
+                ],
+                "summary": "Perform an action request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": {
+                                        "impacted": 2
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Launch actions",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "search": {
+                                    "filters": [
+                                        {
+                                            "field": "has_received_welcome_notification",
+                                            "value": false
+                                        }
+                                    ]
+                                },
+                                "fields": [
+                                    {
+                                        "name": "expires_at",
+                                        "value": "2023-04-29"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/reports": {
+            "get": {
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Get the resource detail",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": {
+                                        "actions": [],
+                                        "instructions": [],
+                                        "scout_instructions": [],
+                                        "fields": [
+                                            "title",
+                                            "evidence",
+                                            "comment",
+                                            "suggested_changes"
+                                        ],
+                                        "scout_fields": [],
+                                        "limits": [
+                                            10,
+                                            25,
+                                            50
+                                        ],
+                                        "scopes": [],
+                                        "relations": [],
+                                        "rules": {
+                                            "all": {
+                                                "title": "required"
+                                            },
+                                            "create": {
+                                                "suggested_changes.new_molecule_data.canonical_smiles": "required",
+                                                "suggested_changes.new_molecule_data.references": "required|array",
+                                                "suggested_changes.new_molecule_data.references.*.doi": "required"
+                                            },
+                                            "update": []
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Get every detail about the resource according to the current user connected",
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Perform a destroy request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": [],
+                                    "meta": []
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Delete database records using primary key",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "resources": [
+                                    1,
+                                    5,
+                                    6
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/reports\/search": {
+            "post": {
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Perform a search request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "data": [],
+                                    "meta": []
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Crunch the Api's data with multiple attributes",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "search": {
+                                    "scopes": [],
+                                    "filters": [
+                                        {
+                                            "field": "title",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "evidence",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "comment",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
+                                            "field": "suggested_changes",
+                                            "operator": "=",
+                                            "value": ""
+                                        }
+                                    ],
+                                    "sorts": [
+                                        {
+                                            "field": "title",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "evidence",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "comment",
+                                            "direction": "desc"
+                                        }
+                                    ],
+                                    "selects": [
+                                        {
+                                            "field": "title"
+                                        },
+                                        {
+                                            "field": "evidence"
+                                        },
+                                        {
+                                            "field": "comment"
+                                        },
+                                        {
+                                            "field": "suggested_changes"
+                                        }
+                                    ],
+                                    "includes": [],
+                                    "aggregates": [],
+                                    "instructions": [],
+                                    "gates": [
+                                        "create",
+                                        "update",
+                                        "delete"
+                                    ],
+                                    "page": 1,
+                                    "limit": 10
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/reports\/mutate": {
+            "post": {
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Perform a mutate request",
+                "responses": {
+                    "default": {
+                        "description": "",
+                        "content": {
+                            "application\/json": {
+                                "example": {
+                                    "created": [
+                                        1
+                                    ],
+                                    "updated": [
+                                        2,
+                                        3
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "description": "Create \/ Modify the database data with multiple options",
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "mutate": [
+                                    {
+                                        "operation": "create",
+                                        "attributes": {
+                                            "title": "",
+                                            "evidence": "",
+                                            "comment": "",
+                                            "suggested_changes": ""
+                                        },
+                                        "relations": []
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/reports\/actions\/{action}": {
+            "parameters": {
+                "0": {
+                    "name": "action",
+                    "in": "path",
+                    "description": "The action uriKey",
+                    "required": true,
+                    "schema": {
+                        "type": "string"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Reports"
                 ],
                 "summary": "Perform an action request",
                 "responses": {
