@@ -32,7 +32,14 @@ class Organism extends Model implements Auditable
 
     public function molecules(): BelongsToMany
     {
-        return $this->belongsToMany(Molecule::class)->withTimestamps();
+        return $this->belongsToMany(Molecule::class)->distinct()->withTimestamps();
+    }
+
+    public function moleculeRelations(): BelongsToMany
+    {
+        return $this->belongsToMany(Molecule::class)
+            ->withPivot('sample_location_id', 'citation_ids', 'collection_ids')
+            ->withTimestamps();
     }
 
     public function reports(): MorphToMany

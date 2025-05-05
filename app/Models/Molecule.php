@@ -122,7 +122,25 @@ class Molecule extends Model implements Auditable
      */
     public function organisms(): BelongsToMany
     {
-        return $this->belongsToMany(Organism::class)->withTimestamps();
+        return $this->belongsToMany(Organism::class)->distinct()->withTimestamps();
+    }
+
+    /**
+     * Get all organism relationships including sample location data.
+     */
+    public function organismRelations(): BelongsToMany
+    {
+        return $this->belongsToMany(Organism::class)
+            ->withPivot('sample_location_id', 'citation_ids', 'collection_ids')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get all of the sample locations for the molecule.
+     */
+    public function sampleLocations(): BelongsToMany
+    {
+        return $this->belongsToMany(SampleLocation::class)->withTimestamps();
     }
 
     /**
@@ -131,11 +149,6 @@ class Molecule extends Model implements Auditable
     public function geo_locations(): BelongsToMany
     {
         return $this->belongsToMany(GeoLocation::class)->withPivot('locations')->withTimestamps();
-    }
-
-    public function sampleLocations(): BelongsToMany
-    {
-        return $this->belongsToMany(SampleLocation::class)->withTimestamps();
     }
 
     /**
