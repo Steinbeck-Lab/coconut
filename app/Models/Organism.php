@@ -32,7 +32,16 @@ class Organism extends Model implements Auditable
 
     public function molecules(): BelongsToMany
     {
-        return $this->belongsToMany(Molecule::class)->distinct()->withTimestamps();
+        return $this->belongsToMany(Molecule::class)
+            ->withPivot([
+                'sample_location_id',
+                'geo_location_id',
+                'ecosystem_id',
+                'collection_ids',
+                'citation_ids',
+                'notes',
+            ])
+            ->withTimestamps();
     }
 
     public function moleculeRelations(): BelongsToMany
@@ -45,6 +54,20 @@ class Organism extends Model implements Auditable
     public function reports(): MorphToMany
     {
         return $this->morphToMany(Report::class, 'reportable');
+    }
+
+    public function geoLocations(): BelongsToMany
+    {
+        return $this->belongsToMany(GeoLocation::class, 'geo_location_organism')
+            ->using(GeoLocationOrganism::class)
+            ->withTimestamps();
+    }
+
+    public function ecosystems(): BelongsToMany
+    {
+        return $this->belongsToMany(Ecosystem::class, 'molecule_organism', 'organism_id', 'ecosystem_id')
+            ->withTimestamps()
+            ->distinct();
     }
 
     public function sampleLocations(): HasMany

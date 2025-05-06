@@ -13,19 +13,24 @@ return new class extends Migration
     {
         Schema::table('molecule_organism', function (Blueprint $table) {
             // Drop existing organism_parts column
-            $table->dropColumn('organism_parts');
+            // $table->dropColumn('organism_parts');
 
             // Add sample_location_id foreign key
             $table->foreignId('sample_location_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('geo_location_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('ecosystem_id')->nullable()->constrained()->onDelete('cascade');
 
             // add citation_ids column
             $table->string('citation_ids')->nullable()->after('sample_location_id');
 
             // Drop old unique index if it exists
-            $table->dropPrimary('molecule_organism_pkey');
+            // $table->dropPrimary('molecule_organism_pkey');
 
-            // Add new unique constraint including sample_location_id
-            $table->unique(['molecule_id', 'organism_id', 'sample_location_id'], 'molecule_organism_unique');
+            // Add new unique constraint that includes all identifying fields
+            $table->unique(
+                ['molecule_id', 'organism_id', 'sample_location_id', 'geo_location_id', 'ecosystem_id'],
+                'unique_molecule_organism_complete'
+            );
         });
     }
 
@@ -46,7 +51,7 @@ return new class extends Migration
             $table->longText('organism_parts')->nullable();
 
             // Restore original unique constraint
-            $table->primary(['molecule_id', 'organism_id'], 'molecule_organism_pkey');
+            // $table->primary(['molecule_id', 'organism_id'], 'molecule_organism_pkey');
         });
     }
 };
