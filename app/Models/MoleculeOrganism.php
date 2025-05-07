@@ -11,6 +11,13 @@ class MoleculeOrganism extends Model implements Auditable
     use \OwenIt\Auditing\Auditable;
 
     /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'molecule_organism';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array
@@ -19,6 +26,8 @@ class MoleculeOrganism extends Model implements Auditable
         'organism_id',
         'molecule_id',
         'sample_location_id',
+        'geo_location_id',
+        'ecosystem_id',
         'collection_ids',
         'citation_ids',
     ];
