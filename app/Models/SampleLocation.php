@@ -22,7 +22,6 @@ class SampleLocation extends Model implements Auditable
         'name',
         'iri',
         'slug',
-        'organism_id',
         'collection_ids',
         'molecule_count',
     ];
@@ -30,11 +29,6 @@ class SampleLocation extends Model implements Auditable
     protected $casts = [
         'collection_ids' => 'array',
     ];
-
-    public function organisms(): HasOne
-    {
-        return $this->hasOne(Organism::class);
-    }
 
     public function molecules(): BelongsToMany
     {
