@@ -72,9 +72,11 @@ class ReportResource extends Resource
                                 $request = request();
                                 if ($request->has('compound_id') && $request->type === 'change') {
                                     return 'change';
+                                } elseif ($request->has('compound_id') && $request->type === 'report') {
+                                    return 'report';
+                                } else {
+                                    return 'new_molecule';
                                 }
-
-                                return 'new_molecule';
                             })
                             ->options(function () {
                                 $hasParams = count(request()->all()) > 0;
