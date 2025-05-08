@@ -1135,31 +1135,42 @@
                             @endif
                         </section>
                         <section class="space-y-6 lg:col-span-1 lg:col-start-3 order-1 lg:order-2">
-                            <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg bg-white mb-2 mx-2">
-                                <livewire:molecule-depict2d :height="300" :molecule="$molecule" :smiles="$molecule->canonical_smiles"
-                                    :name="$molecule->name" :identifier="$molecule->identifier" :options="true" lazy="on-load">
-                            </div>
-                            <div class="mx-2">
-                                <livewire:molecule-depict3d :height="300" :molecule="$molecule" :smiles="$molecule->canonical_smiles"
-                                    lazy="on-load">
-                            </div>
-                            <dl class="mt-5 flex w-full mx-2">
-                                <div class="md:text-left">
-                                    <dd class="mt-1"><a
-                                            class="text-base font-semibold text-text-dark hover:text-slate-600"
-                                            href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=report"
-                                            target="_blank">Report
-                                            this compound <span aria-hidden="true">→</span></a></dd>
-                                    <dd class="mt-1"><a
-                                            class="text-base font-semibold text-text-dark hover:text-slate-600"
-                                            href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=change"
-                                            target="_blank">Request
-                                            changes to this page <span aria-hidden="true">→</span></a></dd>
+                            @if ($molecule->structure)
+                                <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg bg-white mb-2 mx-2">
+                                    <livewire:molecule-depict2d :height="300" :molecule="$molecule" :smiles="$molecule->canonical_smiles"
+                                        :name="$molecule->name" :identifier="$molecule->identifier" :options="true" lazy="on-load">
                                 </div>
-                            </dl>
-                            <div class="mx-2">
-                                <livewire:molecule-history-timeline :mol="$molecule" lazy="on-load" />
-                            </div>
+                                <div class="mx-2">
+                                    <livewire:molecule-depict3d :height="300" :molecule="$molecule" :smiles="$molecule->canonical_smiles"
+                                        lazy="on-load">
+                                </div>
+                                <dl class="mt-5 flex w-full mx-2">
+                                    <div class="md:text-left">
+                                        <dd class="mt-1"><a
+                                                class="text-base font-semibold text-text-dark hover:text-slate-600"
+                                                href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=report"
+                                                target="_blank">Report
+                                                this compound <span aria-hidden="true">→</span></a></dd>
+                                        <dd class="mt-1"><a
+                                                class="text-base font-semibold text-text-dark hover:text-slate-600"
+                                                href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=change"
+                                                target="_blank">Request
+                                                changes to this page <span aria-hidden="true">→</span></a></dd>
+                                    </div>
+                                </dl>
+                                <div class="mx-2">
+                                    <livewire:molecule-history-timeline :mol="$molecule" lazy="on-load" />
+                                </div>
+                            @else
+                                <div class="border rounded-lg bg-white p-6 mb-2 mx-2 text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                                    <h3 class="mt-2 text-sm font-medium text-gray-900">Under process</h3>
+                                    <p class="mt-1 text-sm text-gray-500">The structural information for this molecule will be available soon.</p>
+                                </div>
+                            @endif
+                            
                         </section>
                     </div>
                 </div>
