@@ -4,7 +4,6 @@ namespace App\Filament\Dashboard\Resources\ReportResource\Pages;
 
 use App\Filament\Dashboard\Resources\ReportResource;
 use Filament\Actions;
-use Filament\Actions\Action;
 use Filament\Resources\Pages\EditRecord;
 
 class EditReport extends EditRecord
@@ -103,34 +102,6 @@ class EditReport extends EditRecord
     {
         return [
             // Actions\DeleteAction::make(),
-        ];
-    }
-
-    protected function getFormActions(): array
-    {
-        return [
-            Action::make('save')
-                ->action(function (array $data) {
-                    if ($data['report_category'] === 'new_molecule') {
-                        $this->validate([
-                            'canonical_smiles' => ['required', 'string'],
-                            'reference_id' => ['required', 'string'],
-                            'name' => ['required', 'string'],
-                            'link' => ['nullable', 'url'],
-                            'mol_filename' => ['nullable', 'string'],
-                            'structural_comments' => ['nullable', 'string'],
-                            'references' => ['nullable', 'array'],
-                            'references.*.doi' => ['required', 'string'],
-                            'references.*.organisms' => ['required', 'array'],
-                            'references.*.organisms.*.name' => ['required', 'string'],
-                            'references.*.organisms.*.parts' => ['required', 'array'],
-                            'references.*.organisms.*.locations' => ['required', 'array'],
-                            'references.*.organisms.*.locations.*.name' => ['required', 'string'],
-                            'references.*.organisms.*.locations.*.ecosystems' => ['required', 'array'],
-                        ]);
-                    }
-                    $this->save();
-                }),
         ];
     }
 }
