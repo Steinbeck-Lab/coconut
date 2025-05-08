@@ -16,12 +16,15 @@ class ImportEntriesBatch implements ShouldQueue
 
     protected $ids;
 
+    protected $batch_type;
+
     /**
      * Create a new job instance.
      */
-    public function __construct($ids)
+    public function __construct($ids, ?string $batch_type)
     {
         $this->ids = $ids;
+        $this->batch_type = $batch_type;
     }
 
     /**
@@ -37,7 +40,11 @@ class ImportEntriesBatch implements ShouldQueue
 
         $batchJobs = [];
         foreach ($entries as $entry) {
-            array_push($batchJobs, new ImportEntry($entry));
+            if ($this->batch_type == 'auto') {
+                array_push($batchJobs, new ImportEntryAuto($entry));
+            } else {
+                array_push($batchJobs, new ImportEntry($entry));
+            }
         }
         $this->batch()->add($batchJobs);
     }
