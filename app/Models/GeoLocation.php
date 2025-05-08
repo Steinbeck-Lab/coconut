@@ -25,11 +25,17 @@ class GeoLocation extends Model implements Auditable
     /**
      * Get the organisms associated with this geo location.
      */
+    // public function organisms(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(Organism::class, 'geo_location_organism')
+    //         ->using(GeoLocationOrganism::class)
+    //         ->withTimestamps();
+    // }
     public function organisms(): BelongsToMany
     {
-        return $this->belongsToMany(Organism::class, 'geo_location_organism')
-            ->using(GeoLocationOrganism::class)
-            ->withTimestamps();
+        return $this->belongsToMany(Organism::class, 'molecule_organism', 'geo_location_id', 'organism_id')
+            ->withTimestamps()
+            ->distinct('organism_id');
     }
 
     /**
@@ -38,7 +44,8 @@ class GeoLocation extends Model implements Auditable
     public function molecules(): BelongsToMany
     {
         return $this->belongsToMany(Molecule::class, 'molecule_organism', 'geo_location_id', 'molecule_id')
-            ->withTimestamps();
+            ->withTimestamps()
+            ->distinct('molecule_id');
     }
 
     /**
@@ -47,7 +54,8 @@ class GeoLocation extends Model implements Auditable
     public function ecosystems(): BelongsToMany
     {
         return $this->belongsToMany(Ecosystem::class, 'molecule_organism', 'geo_location_id', 'ecosystem_id')
-            ->withTimestamps();
+            ->withTimestamps()
+            ->distinct('ecosystem_id');
     }
 
     public function transformAudit(array $data): array

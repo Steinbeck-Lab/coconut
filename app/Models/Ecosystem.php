@@ -28,7 +28,8 @@ class Ecosystem extends Model implements Auditable
     public function organisms(): BelongsToMany
     {
         return $this->belongsToMany(Organism::class, 'molecule_organism', 'ecosystem_id', 'organism_id')
-            ->withTimestamps();
+            ->withTimestamps()
+            ->distinct('organism_id');
     }
 
     /**
@@ -37,7 +38,8 @@ class Ecosystem extends Model implements Auditable
     public function geoLocations(): BelongsToMany
     {
         return $this->belongsToMany(GeoLocation::class, 'molecule_organism', 'ecosystem_id', 'geo_location_id')
-            ->withTimestamps();
+            ->withTimestamps()
+            ->distinct('geo_location_id');
     }
 
     /**
@@ -46,7 +48,8 @@ class Ecosystem extends Model implements Auditable
     public function molecules(): BelongsToMany
     {
         return $this->belongsToMany(Molecule::class, 'molecule_organism', 'ecosystem_id', 'molecule_id')
-            ->withTimestamps();
+            ->withTimestamps()
+            ->distinct('molecule_id');
     }
 
     public function transformAudit(array $data): array
