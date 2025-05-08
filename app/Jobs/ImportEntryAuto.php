@@ -17,10 +17,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Helper\Sample;
 use Str;
 
@@ -248,7 +246,7 @@ class ImportEntryAuto implements ShouldBeUnique, ShouldQueue
                     ]);
 
                     // Connect organism to geo location directly
-                    $organismModel->geoLocations()->syncWithoutDetaching([$geoLocationModel->id]);
+                    // $organismModel->geoLocations()->syncWithoutDetaching([$geoLocationModel->id]);
 
                     foreach ($parts_ids as $part) {
                         $geo_location_ids[] = [$part[0], $part[1], $geoLocationModel->id];
@@ -280,8 +278,6 @@ class ImportEntryAuto implements ShouldBeUnique, ShouldQueue
                     $ecosystem_ids[] = [$geo_location[0], $geo_location[1], $geo_location[2], null];
                 }
             }
-
-            Log::info('Ecosystem IDs: '.json_encode($ecosystem_ids));
 
             // Insert or update each relationship with collection and citation IDs using the model
             foreach ($ecosystem_ids as $pivot) {
@@ -551,12 +547,5 @@ class ImportEntryAuto implements ShouldBeUnique, ShouldQueue
         } catch (Exception $e) {
             return null; // Handle exception here
         }
-    }
-
-    public function middleware(): array
-    {
-        return [
-            (new WithoutOverlapping($this->entry->molecule_id ?? '9999999'))->expireAfter(180),
-        ];
     }
 }

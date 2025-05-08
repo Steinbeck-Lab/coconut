@@ -4,6 +4,7 @@ namespace App\Console\Commands\SubmissionsAutoProcess;
 
 use App\Jobs\ImportEntriesBatch;
 use App\Models\Entry;
+use Artisan;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
@@ -41,12 +42,17 @@ class ImportEntriesAuto extends Command
             array_push($batchJobs, new ImportEntriesBatch($ids->pluck('id')->toArray(), 'auto'));
         });
         $this->info('Dispatching import batch...');
-        $batch = Bus::batch($batchJobs)->then(function (Batch $batch) {})->catch(function (Batch $batch, Throwable $e) {})->finally(function (Batch $batch) use ($collection_ids) {
-            foreach ($collection_ids as $collection_id) {
-                Cache::forget('stats.collections'.$collection_id.'entries.count');
-                Cache::forget('stats.collections'.$collection_id.'molecules.count');
-            }
-        })->name('Import Entries Auto')
+        $batch = Bus::batch($batchJobs)
+            ->then(function (Batch $batch) use ($collection_ids) {
+                foreach ($collection_ids as $collection_id) {
+                    Cache::forget('stats.collections'.$collection_id.'entries.count');
+                    Cache::forget('stats.collections'.$collection_id.'molecules.count');
+                }
+                Artisan::call('coconut:molecules-assign-identifiers-auto');
+            })
+            ->catch(function (Batch $batch, Throwable $e) {})
+            ->finally(function (Batch $batch) {})
+            ->name('Import Entries Auto')
             ->allowFailures(false)
             ->onConnection('redis')
             ->onQueue('default')

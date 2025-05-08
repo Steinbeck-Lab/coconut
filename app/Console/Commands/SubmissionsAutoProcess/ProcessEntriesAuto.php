@@ -33,12 +33,15 @@ class ProcessEntriesAuto extends Command
 
         $batchJobs = [];
 
-        Entry::select('id')->where('status', 'SUBMITTED')->chunk(10000, function ($ids) use (&$batchJobs, &$i) {
+        Entry::select('id')->where('status', 'SUBMITTED')->where('molecule_id', null)->chunk(10000, function ($ids) use (&$batchJobs, &$i) {
             array_push($batchJobs, new LoadEntriesBatch($ids->pluck('id')->toArray()));
         });
-        $batch = Bus::batch($batchJobs)->then(function (Batch $batch) {})->catch(function (Batch $batch, Throwable $e) {})->finally(function (Batch $batch) {
-            Artisan::call('coconut:entries-import-auto');
-        })->name('Process Entries Auto')
+        $batch = Bus::batch($batchJobs)
+            ->then(function (Batch $batch) {
+                Artisan::call('coconut:entries-import-auto');
+            })->catch(function (Batch $batch, Throwable $e) {})
+            ->finally(function (Batch $batch) {})
+            ->name('Process Entries Auto')
             ->allowFailures(false)
             ->onConnection('redis')
             ->onQueue('default')
