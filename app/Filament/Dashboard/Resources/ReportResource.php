@@ -119,6 +119,9 @@ class ReportResource extends Resource
                                         );
 
                                         return $key_value_fields;
+                                    } elseif ($record['report_category'] === 'new_molecule') {
+                                        // Return null for new_molecule to use default confirmation modal
+                                        return null;
                                     } else {
                                         if ($get('report_type') == 'molecule') {
                                             return [
@@ -133,6 +136,10 @@ class ReportResource extends Resource
                                             ];
                                         }
                                     }
+                                })
+                                ->requiresConfirmation(function ($record) {
+                                    // Only use the default confirmation modal when report_category is 'new_molecule'
+                                    return $record['report_category'] === 'new_molecule';
                                 })
                                 ->hidden(function (Get $get, string $operation) {
                                     return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation != 'edit';
@@ -960,7 +967,7 @@ class ReportResource extends Resource
 
             // Update report status
             $record['status'] = 'approved';
-            $record['comment'] = prepareComment($data['reason']);
+            $record['comment'] = prepareComment($data['reason'] ?? '');
             $record['assigned_to'] = auth()->id();
             $record->save();
 
@@ -975,7 +982,7 @@ class ReportResource extends Resource
 
             $suggested_changes['curator']['approved_changes'] = self::$overall_changes;
             $record['suggested_changes'] = $suggested_changes;
-            $record['comment'] = prepareComment($data['reason']);
+            $record['comment'] = prepareComment($data['reason'] ?? '');
             $record['status'] = 'approved';
             $formData = copyChangesToCuratorJSON($record, $livewire->data);
             $suggested_changes['curator'] = $formData['suggested_changes']['curator'];
@@ -990,12 +997,12 @@ class ReportResource extends Resource
                 foreach ($molecule as $mol) {
                     $mol->active = false;
                     $mol->status = 'REVOKED';
-                    $mol->comment = prepareComment($data['reason']);
+                    $mol->comment = prepareComment($data['reason'] ?? '');
                     $mol->save();
                 }
             }
             $record['status'] = 'approved';
-            $record['comment'] = prepareComment($data['reason']);
+            $record['comment'] = prepareComment($data['reason'] ?? '');
             $record['assigned_to'] = auth()->id();
             $record->save();
         }
