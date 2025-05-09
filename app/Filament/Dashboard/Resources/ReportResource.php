@@ -264,7 +264,7 @@ class ReportResource extends Resource
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Please provide Evidence/Comment to support your claims in this report. This will help our Curators in reviewing your report.')
                     ->label('Evidence/Comment')
                     ->hidden(function (Get $get) {
-                        return $get('report_category') === 'change' || $get('report_category') === 'new_molecule';
+                        return $get('report_category') === 'change';
                     }),
                 Tabs::make('suggested_changes')
                     ->tabs([
@@ -742,10 +742,7 @@ class ReportResource extends Resource
                         }
                     }),
                 Textarea::make('comment')
-                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide your comments/observations on anything noteworthy in the Curation process.')
-                    ->hidden(function () {
-                        return ! auth()->user()->hasRole('curator');
-                    }),
+                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide your comments/observations on anything noteworthy in the Curation process.'),
             ])->columns(1);
     }
 
@@ -904,6 +901,7 @@ class ReportResource extends Resource
     public static function approveReport(array $data, Report $record, Molecule $molecule, $livewire): void
     {
         if ($record['report_category'] === 'new_molecule') {
+            self::saveChangesToReport($record, $livewire->data);
             $molecule_data = $record['suggested_changes']['new_molecule_data'];
 
             // Create new entry
@@ -1002,7 +1000,6 @@ class ReportResource extends Resource
 
             // Update report status
             $record['status'] = 'approved';
-            $record['comment'] = prepareComment($data['reason'] ?? '');
             $record['assigned_to'] = auth()->id();
             $record->save();
 
@@ -1043,6 +1040,27 @@ class ReportResource extends Resource
         }
 
         $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
+    }
+
+    public static function saveChangesToReport(Report $record, array $data): void
+    {
+        $temp = [];
+        $temp['title'] = $data['title'];
+        $temp['evidence'] = $data['evidence'];
+        $temp['doi'] = $data['doi'];
+        $temp['mol_id_csv'] = $data['mol_id_csv'];
+        $temp['comment'] = $data['comment'];
+        $temp['suggested_changes']['new_molecule_data']['canonical_smiles'] = $data['canonical_smiles'];
+        $temp['suggested_changes']['new_molecule_data']['reference_id'] = $data['reference_id'];
+        $temp['suggested_changes']['new_molecule_data']['name'] = $data['name'];
+        $temp['suggested_changes']['new_molecule_data']['link'] = $data['link'] ?? null;
+        $temp['suggested_changes']['new_molecule_data']['mol_filename'] = $data['mol_filename'] ?? null;
+        $temp['suggested_changes']['new_molecule_data']['structural_comments'] = $data['structural_comments'] ?? null;
+        $temp['suggested_changes']['new_molecule_data']['references'] = $data['references'] ?? [];
+
+        $record->save();
+        $record->update($temp);
+        $record->refresh();
     }
 
     public static function rejectReport(array $data, Report $record, $livewire): void
