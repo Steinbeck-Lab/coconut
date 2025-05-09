@@ -11,6 +11,7 @@ use App\Filament\Dashboard\Resources\CollectionResource\Widgets\EntriesOverview;
 use App\Livewire\ShowJobStatus;
 use App\Models\Collection;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Livewire;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -44,7 +45,18 @@ class CollectionResource extends Resource
             ->schema(
                 [
                     // Livewire::make(ShowJobStatus::class),
-
+                    Grid::make()
+                        ->schema([
+                            Select::make('status')
+                                ->options(getCollectionStatuses())
+                                ->default(function (Model $record) {
+                                    return $record->status ?? 'DRAFT';
+                                })
+                                ->required()
+                                ->hidden(function (Model $record) {
+                                    return auth()->user()->cannot('update', $record);
+                                }),
+                        ])->columns(4),
                     Section::make('Database details')
                         ->description('Provide details of the database and link to the resource.')
                         ->schema([

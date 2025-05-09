@@ -127,7 +127,7 @@ class AssignIdentifiersAuto extends Command
             $i++;
         });
 
-        Artisan::call('coconut:publish-molecules-auto');
+        // Artisan::call('coconut:publish-molecules-auto');
     }
 
     public function generateIdentifier($index, $type)

@@ -26,6 +26,17 @@ function getReportTypes()
     ];
 }
 
+function getCollectionStatuses()
+{
+    return [
+        'DRAFT' => 'Draft',
+        'REVIEW' => 'Review',
+        'EMBARGO' => 'Embargo',
+        'PUBLISHED' => 'Published',
+        'REJECTED' => 'Rejected',
+    ];
+}
+
 function doiRegxMatch($doi)
 {
     $doiRegex = '/\b(10[.][0-9]{4,}(?:[.][0-9]+)*)\b/';
