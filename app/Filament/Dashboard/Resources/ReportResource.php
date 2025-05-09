@@ -119,6 +119,9 @@ class ReportResource extends Resource
                                         );
 
                                         return $key_value_fields;
+                                    } elseif ($record['report_category'] === 'new_molecule') {
+                                        // Return null for new_molecule to use default confirmation modal
+                                        return null;
                                     } else {
                                         if ($get('report_type') == 'molecule') {
                                             return [
@@ -133,6 +136,10 @@ class ReportResource extends Resource
                                             ];
                                         }
                                     }
+                                })
+                                ->requiresConfirmation(function ($record) {
+                                    // Only use the default confirmation modal when report_category is 'new_molecule'
+                                    return $record['report_category'] === 'new_molecule';
                                 })
                                 ->hidden(function (Get $get, string $operation) {
                                     return ! auth()->user()->roles()->exists() || $get('status') == 'rejected' || $get('status') == 'approved' || $operation != 'edit';
@@ -552,15 +559,13 @@ class ReportResource extends Resource
                                                 TagsInput::make('parts')
                                                     ->label('Organism Parts')
                                                     ->placeholder('Add organism part')
-                                                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Parts of the organism where the molecule was found')
-                                                    ->required(),
+                                                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Parts of the organism where the molecule was found'),
 
                                                 Repeater::make('locations')
                                                     ->label('Geographic Locations')
                                                     ->schema([
                                                         TextInput::make('name')
                                                             ->label('Location Name')
-                                                            ->required()
                                                             ->maxLength(255)
                                                             ->placeholder('Enter location name')
                                                             ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Name of the geographic location'),
@@ -568,16 +573,13 @@ class ReportResource extends Resource
                                                         TagsInput::make('ecosystems')
                                                             ->label('Ecosystems/Sublocations')
                                                             ->placeholder('Add ecosystem')
-                                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Specific ecosystems or sublocations where the organism was found')
-                                                            ->required(),
+                                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Specific ecosystems or sublocations where the organism was found'),
                                                     ])
-                                                    ->required()
                                                     ->addActionLabel('Add Location')
                                                     ->minItems(1)
                                                     ->collapsible()
                                                     ->columns(2),
                                             ])
-                                            ->required()
                                             ->addActionLabel('Add Organism')
                                             ->minItems(1)
                                             ->collapsible()
@@ -875,7 +877,7 @@ class ReportResource extends Resource
             $new_entry->name = $molecule_data['name'] ?? '';
             $new_entry->status = 'SUBMITTED';
             $new_entry->submission_type = 'json';
-            $new_entry->collection_id = 64; // Default collection ID
+            $new_entry->collection_id = 65; // Default collection ID
 
             // Add optional fields if provided (with blank defaults)
             $new_entry->link = $molecule_data['link'] ?? '';
@@ -965,7 +967,7 @@ class ReportResource extends Resource
 
             // Update report status
             $record['status'] = 'approved';
-            $record['comment'] = prepareComment($data['reason']);
+            $record['comment'] = prepareComment($data['reason'] ?? '');
             $record['assigned_to'] = auth()->id();
             $record->save();
 
@@ -980,7 +982,7 @@ class ReportResource extends Resource
 
             $suggested_changes['curator']['approved_changes'] = self::$overall_changes;
             $record['suggested_changes'] = $suggested_changes;
-            $record['comment'] = prepareComment($data['reason']);
+            $record['comment'] = prepareComment($data['reason'] ?? '');
             $record['status'] = 'approved';
             $formData = copyChangesToCuratorJSON($record, $livewire->data);
             $suggested_changes['curator'] = $formData['suggested_changes']['curator'];
@@ -995,12 +997,12 @@ class ReportResource extends Resource
                 foreach ($molecule as $mol) {
                     $mol->active = false;
                     $mol->status = 'REVOKED';
-                    $mol->comment = prepareComment($data['reason']);
+                    $mol->comment = prepareComment($data['reason'] ?? '');
                     $mol->save();
                 }
             }
             $record['status'] = 'approved';
-            $record['comment'] = prepareComment($data['reason']);
+            $record['comment'] = prepareComment($data['reason'] ?? '');
             $record['assigned_to'] = auth()->id();
             $record->save();
         }
