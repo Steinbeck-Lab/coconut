@@ -552,15 +552,13 @@ class ReportResource extends Resource
                                                 TagsInput::make('parts')
                                                     ->label('Organism Parts')
                                                     ->placeholder('Add organism part')
-                                                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Parts of the organism where the molecule was found')
-                                                    ->required(),
+                                                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Parts of the organism where the molecule was found'),
 
                                                 Repeater::make('locations')
                                                     ->label('Geographic Locations')
                                                     ->schema([
                                                         TextInput::make('name')
                                                             ->label('Location Name')
-                                                            ->required()
                                                             ->maxLength(255)
                                                             ->placeholder('Enter location name')
                                                             ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Name of the geographic location'),
@@ -568,16 +566,13 @@ class ReportResource extends Resource
                                                         TagsInput::make('ecosystems')
                                                             ->label('Ecosystems/Sublocations')
                                                             ->placeholder('Add ecosystem')
-                                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Specific ecosystems or sublocations where the organism was found')
-                                                            ->required(),
+                                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Specific ecosystems or sublocations where the organism was found'),
                                                     ])
-                                                    ->required()
                                                     ->addActionLabel('Add Location')
                                                     ->minItems(1)
                                                     ->collapsible()
                                                     ->columns(2),
                                             ])
-                                            ->required()
                                             ->addActionLabel('Add Organism')
                                             ->minItems(1)
                                             ->collapsible()
