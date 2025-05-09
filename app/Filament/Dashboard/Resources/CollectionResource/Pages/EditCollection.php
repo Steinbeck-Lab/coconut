@@ -35,33 +35,24 @@ class EditCollection extends EditRecord
                 ->icon('heroicon-o-sparkles')
                 ->color('primary')
                 ->requiresConfirmation()
+                ->modalDescription('This will activate all DRAFT molecules in this collection. Are you sure you\'d like to proceed? This cannot be undone.')
                 ->action(function () {
-                    Artisan::call('coconut::publish-molecules-auto', [
-                        'collection_id' => $this->record->id,
+                    Artisan::call('coconut:publish-molecules-auto', [
+                        '--collection_id' => $this->record->id,
                     ]);
                 })
-                ->hidden(function () {
-                    if (auth()->user()->cannot('update', $this->record)) {
-                        return true;
-                    }
+                ->visible(function () {
+                    $submittedCount = $this->record->entries()->where('status', 'SUBMITTED')->count();
+                    $importedCount = $this->record->entries()->where('status', 'PASSED')->whereNull('molecule_id')->count();
+                    $hasInvalidEntries = $submittedCount > 0 || $importedCount > 0;
 
-                    $hasUnsubmittedEntries = $this->record->entries()
-                        ->where(function ($query) {
-                            $query->whereNull('molecule_id')
-                                ->orWhere('status', 'SUBMITTED');
-                        })
-                        ->count() > 0;
+                    // Condition 2: Check if there are any molecules with status 'DRAFT' but null identifier
+                    $moleculesStillUnderProcess = $this->record->molecules()->where('status', 'DRAFT')->whereNull('identifier')->exists();
 
-                    $hasDraftMoleculesWithoutIdentifier = $this->record->molecules()
-                        ->where('status', 'DRAFT')
-                        ->whereNull('identifier')
-                        ->count() > 0;
+                    $moleculesToPublish = $this->record->molecules()->where('status', 'DRAFT')->whereNotNull('identifier')->exists();
 
-                    if ($hasUnsubmittedEntries || $hasDraftMoleculesWithoutIdentifier) {
-                        return true;
-                    }
-
-                    return true;
+                    // Action is visible only if both conditions are false
+                    return ! $hasInvalidEntries && ! $moleculesStillUnderProcess && $moleculesToPublish && auth()->user()->can('update', $this->record);
                 }),
             Actions\DeleteAction::make(),
         ];
