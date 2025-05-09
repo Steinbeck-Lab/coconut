@@ -114,7 +114,7 @@ class Molecule extends Model implements Auditable
      */
     public function collections(): BelongsToMany
     {
-        return $this->belongsToMany(Collection::class)->withPivot('url', 'reference', 'mol_filename', 'structural_comments')->withTimestamps();
+        return $this->belongsToMany(Collection::class)->using(CollectionMolecule::class)->withPivot('url', 'reference', 'mol_filename', 'structural_comments')->withTimestamps();
     }
 
     /**
