@@ -43,7 +43,7 @@ export default defineConfig({
         text: 'Downloads',
         items: [
           { text: 'Versions', link: '/versions' },
-          { text: 'Data', link: '/data-base' },
+          { text: 'Data', link: '/data' },
           { text: 'Use Cases', link: '/use-cases' },
           { text: '2D/3D SDFs', link: '/2d-3d-sdfs' },
         ]

@@ -12,9 +12,64 @@ class MoleculeDetails extends Component
 {
     public $molecule;
 
+    public $sortedOrganisms;
+
     public function mount($molecule)
     {
         $this->molecule = $molecule;
+        $this->sortOrganisms();
+    }
+
+    /**
+     * Sort organisms by name and then by taxonomic rank
+     */
+    private function sortOrganisms()
+    {
+        if (! $this->molecule->organisms || count($this->molecule->organisms) === 0) {
+            $this->sortedOrganisms = collect();
+
+            return;
+        }
+
+        // Define the taxonomic rank hierarchy (from highest to lowest)
+        $rankHierarchy = [
+            'kingdom' => 1,
+            'phylum' => 2,
+            'class' => 3,
+            'subclass' => 4,
+            'order' => 5,
+            'family' => 6,
+            'subfamily' => 7,
+            'tribe' => 8,
+            'genus' => 9,
+            'subgenus' => 10,
+            'species' => 11,
+            'subspecies' => 12,
+            'variety' => 13,
+            'sp.' => 14,
+            'spec.' => 15,
+            'no rank' => 16,
+        ];
+
+        // Sort organisms by name first, then by rank
+        $this->sortedOrganisms = $this->molecule->organisms->sort(function ($a, $b) use ($rankHierarchy) {
+            // First sort by name
+            $nameComparison = strcmp(strtolower($a->name), strtolower($b->name));
+            if ($nameComparison !== 0) {
+                return $nameComparison;
+            }
+
+            // If names are equal, sort by rank
+            // Remove "(fuzzy)" suffix and convert to lowercase for comparison
+            $rankA = strtolower(preg_replace('/\s*\(fuzzy\)$/', '', $a->rank));
+            $rankB = strtolower(preg_replace('/\s*\(fuzzy\)$/', '', $b->rank));
+
+            // Get hierarchy values (default to highest value if not found)
+            $valueA = $rankHierarchy[$rankA] ?? 999;
+            $valueB = $rankHierarchy[$rankB] ?? 999;
+
+            return $valueA - $valueB;
+        })->values(); // This resets the array keys to sequential integers starting from 0
     }
 
     public function rendered()

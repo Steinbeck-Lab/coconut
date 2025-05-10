@@ -2,9 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\ImportPubChem;
+use App\Models\Collection;
 use App\Models\Molecule;
 use DB;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Bus;
 use Log;
 
 class ImportPubChemNames extends Command
@@ -14,7 +17,7 @@ class ImportPubChemNames extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:import-pubchem-data {file}';
+    protected $signature = 'coconut:import-pubchem-data {collection_id} {file?}';
 
     /**
      * The console command description.
@@ -28,47 +31,69 @@ class ImportPubChemNames extends Command
      */
     public function handle()
     {
-        $file = storage_path($this->argument('file'));
+        $file = $this->argument('file');
 
-        if (! file_exists($file) || ! is_readable($file)) {
-            $this->error('File not found or not readable.');
+        if (! $file || ! file_exists($file) || ! is_readable($file)) {
+            $collection_id = $this->argument('collection_id');
 
-            return 1;
-        }
+            if (! is_null($collection_id)) {
+                $collections = Collection::where('id', $collection_id)->get();
+            } else {
+                $collections = Collection::where('status', 'DRAFT')->get();
+            }
 
-        $batchSize = 1000;
-        $header = null;
-        $data = [];
-        $rowCount = 0;
+            foreach ($collections as $collection) {
+                $batchJobs = [];
+                $i = 0;
+                $collection->molecules()->chunk(1000, function ($mols) use (&$batchJobs, &$i) {
+                    foreach ($mols as $mol) {
+                        array_push($batchJobs, new ImportPubChem($mol));
+                    }
+                    $i = $i + 1;
+                });
+                $batch = Bus::batch($batchJobs)->then(function (Batch $batch) {})->catch(function (Batch $batch, Throwable $e) {})->finally(function (Batch $batch) {})->name('Import PubChem '.$collection->id)
+                    ->allowFailures(false)
+                    ->onConnection('redis')
+                    ->onQueue('default')
+                    ->dispatch();
+            }
+        } else {
+            $file = storage_path($file);
 
-        if (($handle = fopen($file, 'r')) !== false) {
-            while (($row = fgetcsv($handle, 0, ',', '"')) !== false) {
-                if (! $header) {
-                    $header = $row;
-                } else {
-                    try {
-                        $data[] = array_combine($header, $row);
-                        $rowCount++;
-                        if ($rowCount % $batchSize == 0) {
-                            $this->insertBatch($data);
-                            $data = [];
+            $batchSize = 1000;
+            $header = null;
+            $data = [];
+            $rowCount = 0;
+
+            if (($handle = fopen($file, 'r')) !== false) {
+                while (($row = fgetcsv($handle, 0, ',', '"')) !== false) {
+                    if (! $header) {
+                        $header = $row;
+                    } else {
+                        try {
+                            $data[] = array_combine($header, $row);
+                            $rowCount++;
+                            if ($rowCount % $batchSize == 0) {
+                                $this->insertBatch($data);
+                                $data = [];
+                            }
+                        } catch (\ValueError $e) {
+                            Log::info('An error occurred: '.$e->getMessage());
+                            Log::info($rowCount++);
                         }
-                    } catch (\ValueError $e) {
-                        Log::info('An error occurred: '.$e->getMessage());
-                        Log::info($rowCount++);
                     }
                 }
-            }
-            fclose($handle);
+                fclose($handle);
 
-            if (! empty($data)) {
-                $this->insertBatch($data);
+                if (! empty($data)) {
+                    $this->insertBatch($data);
+                }
             }
+
+            $this->info('PubChem data imported successfully!');
+
+            return 0;
         }
-
-        $this->info('PubChem data imported successfully!');
-
-        return 0;
     }
 
     /**

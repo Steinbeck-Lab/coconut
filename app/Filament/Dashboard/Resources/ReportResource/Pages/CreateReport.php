@@ -39,6 +39,11 @@ class CreateReport extends CreateRecord
     protected function beforeFill(): void
     {
         $this->data['type'] = request()->type;
+        $this->data['report_category'] = 'report';
+
+        if (request()->type == 'change') {
+            $this->data['report_category'] = 'change';
+        }
 
         if (request()->has('compound_id')) {
             $this->molecule = Molecule::where('identifier', request()->compound_id)->first();
@@ -119,11 +124,24 @@ class CreateReport extends CreateRecord
         $data['user_id'] = auth()->id();
         $data['status'] = 'submitted';
         $data['mol_id_csv'] = $this->mol_id_csv;
-        $data['is_change'] = $this->is_change;
         $data['report_type'] = $this->report_type;
         $data['evidence'] = $this->evidence;
 
-        if ($data['is_change']) {
+        if ($data['report_category'] === 'new_molecule') {
+            $suggested_changes = [
+                'new_molecule_data' => [
+                    'canonical_smiles' => $data['canonical_smiles'],
+                    'reference_id' => $data['reference_id'],
+                    'name' => $data['name'],
+                    'link' => $data['link'] ?? null,
+                    'mol_filename' => $data['mol_filename'] ?? null,
+                    'structural_comments' => $data['structural_comments'] ?? null,
+                    'references' => $data['references'] ?? [],
+                ],
+            ];
+            $data['suggested_changes'] = $suggested_changes;
+            $data['report_type'] = 'molecule';
+        } elseif ($data['report_category'] === 'change') {
             $suggested_changes = [];
             $suggested_changes['existing_geo_locations'] = $data['existing_geo_locations'];
             $suggested_changes['new_geo_locations'] = $data['new_geo_locations'];
@@ -178,7 +196,7 @@ class CreateReport extends CreateRecord
 
     protected function getCreateFormAction(): Action
     {
-        if (! $this->data['is_change']) {
+        if ($this->data['report_category'] !== 'change') {
             return parent::getCreateFormAction();
         }
 
@@ -188,7 +206,7 @@ class CreateReport extends CreateRecord
                 return getChangesToDisplayModal($this->data);
             })
             ->modalHidden(function () {
-                return ! $this->data['is_change'];
+                return $this->data['report_category'] !== 'change';
             })
             ->action(function () {
                 $this->closeActionModal();
