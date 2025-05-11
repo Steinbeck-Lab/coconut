@@ -234,7 +234,6 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
             if ($IUPACName) {
                 $this->molecule->iupac_name = $IUPACName;
             }
-            Log::info('PubChem IUPAC name: '.$IUPACName);
             $this->molecule->save();
         } else {
             Log::error('Invalid CID from PubChem for molecule ID: '.$this->molecule->id);

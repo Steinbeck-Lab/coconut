@@ -78,6 +78,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                     $molecule->save();
                 }
                 $molecule->is_placeholder = false;
+                $molecule->name = $this->entry->name ?? null;
                 $molecule->save();
                 $this->entry->molecule_id = $molecule->id;
                 $this->entry->save();

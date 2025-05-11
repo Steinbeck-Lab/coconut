@@ -6,6 +6,7 @@ use App\Jobs\ClassifyMoleculeBatch;
 use App\Models\Molecule;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -52,6 +53,8 @@ class ClassifyAuto extends Command
             Bus::batch($batchJobs)
                 ->then(function (Batch $batch) {
                     Log::info('NPClassifier batch completed: '.$batch->id);
+                    Log::info('Calling GenerateCoordinatesAuto after NPClassifier batch');
+                    Artisan::call('coconut:generate-coordinates-auto');
                 })
                 ->catch(function (Batch $batch, Throwable $e) {
                     Log::error('NPClassifier batch failed: '.$e->getMessage());
@@ -60,7 +63,7 @@ class ClassifyAuto extends Command
                     // Cleanup or logging can happen here
                 })
                 ->name('NPClassifier Batch Auto')
-                ->allowFailures(false)
+                ->allowFailures(true)
                 ->onConnection('redis')
                 ->onQueue('default')
                 ->dispatch();

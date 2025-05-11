@@ -6,7 +6,9 @@ use App\Jobs\GeneratePropertiesBatch;
 use App\Models\Molecule;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class GeneratePropertiesAuto extends Command
@@ -30,6 +32,7 @@ class GeneratePropertiesAuto extends Command
      */
     public function handle()
     {
+        Log::info('Starting property generation for molecules missing properties...');
         // Use chunk to process large sets of molecules
         Molecule::doesntHave('properties')->select('id')
             ->chunk(30000, function ($mols) {
@@ -40,16 +43,17 @@ class GeneratePropertiesAuto extends Command
                 // Dispatch as a batch
                 Bus::batch($batchJobs)
                     ->then(function (Batch $batch) {
-                        // Handle success...
+                        Log::info('Calling NPClassifier batch after GenerateProperties batch');
+                        Artisan::call('coconut:npclassify-auto');
                     })
                     ->catch(function (Batch $batch, Throwable $e) {
-                        // Handle failure...
+                        Log::error('GenerateProperties batch failed: '.$e->getMessage());
                     })
                     ->finally(function (Batch $batch) {
                         // Handle final...
                     })
                     ->name('Generate Properties Auto')
-                    ->allowFailures(false)
+                    ->allowFailures(true)
                     ->onConnection('redis')
                     ->onQueue('default')
                     ->dispatch();

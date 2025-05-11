@@ -40,7 +40,7 @@ class GenerateProperties implements ShouldQueue
     public function handle(): void
     {
         $canonical_smiles = $this->molecule->canonical_smiles;
-        $API_URL = env('CM_PUBLIC_API', 'https://api.cheminf.studio/latest/');
+        $API_URL = env('API_URL', 'https://api.cheminf.studio/latest/');
         $ENDPOINT = $API_URL.'chem/descriptors?smiles='.urlencode($canonical_smiles).'&format=json&toolkit=rdkit';
         try {
             $response = Http::timeout(600)->get($ENDPOINT);

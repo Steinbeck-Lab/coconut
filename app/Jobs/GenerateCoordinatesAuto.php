@@ -48,7 +48,7 @@ class GenerateCoordinatesAuto implements ShouldQueue
         $canonical_smiles = $this->molecule->canonical_smiles;
 
         // Build endpoints
-        $apiUrl = env('CM_PUBLIC_API', 'https://api.cheminf.studio/latest/');
+        $apiUrl = env('API_URL', 'https://api.cheminf.studio/latest/');
         $d2Endpoint = $apiUrl.'convert/mol2D?smiles='.urlencode($canonical_smiles).'&toolkit=rdkit';
         $d3Endpoint = $apiUrl.'convert/mol3D?smiles='.urlencode($canonical_smiles).'&toolkit=rdkit';
 

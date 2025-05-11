@@ -61,6 +61,14 @@ class ImportPubChemNamesAuto extends Command
             $query->whereNotIn('id', $failedIds);
         }
 
+        $count = $query->count();
+        if ($count === 0) {
+            Log::info('No molecules found that require PubChem data import.');
+            Artisan::call('coconut:generate-properties-auto');
+
+            return 0;
+        }
+
         // Use chunk to process large sets of molecules
         $query->select('id')
             ->chunkById(10000, function ($mols) {
@@ -74,16 +82,18 @@ class ImportPubChemNamesAuto extends Command
                 // Dispatch as a batch
                 Bus::batch($batchJobs)
                     ->then(function (Batch $batch) {
-                        // Artisan::call('coconut:generate-properties-auto');
+                        Log::info('PubChem import batch completed successfully: '.$batch->id);
+                        Log::info('Calling GeneratePropertiesAuto after PubChem import batch');
+                        Artisan::call('coconut:generate-properties-auto');
                     })
                     ->catch(function (Batch $batch, Throwable $e) {
                         Log::error('PubChem import batch failed: '.$e->getMessage());
                     })
                     ->finally(function (Batch $batch) {
-                        // Cleanup or logging can happen here
+                        // Handle final cleanup or logging
                     })
                     ->name('Import PubChem Auto Batch')
-                    ->allowFailures(false)
+                    ->allowFailures(true)
                     ->onConnection('redis')
                     ->onQueue('default')
                     ->dispatch();

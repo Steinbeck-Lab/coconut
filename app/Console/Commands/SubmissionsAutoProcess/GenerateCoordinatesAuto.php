@@ -60,7 +60,7 @@ class GenerateCoordinatesAuto extends Command
                     // Cleanup or final logging
                 })
                 ->name('Generate Coordinates Auto')
-                ->allowFailures(false)
+                ->allowFailures(true)
                 ->onConnection('redis')
                 ->onQueue('default')
                 ->dispatch();

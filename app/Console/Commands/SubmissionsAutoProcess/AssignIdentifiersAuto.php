@@ -122,6 +122,9 @@ class AssignIdentifiersAuto extends Command
                     DB::table('molecules')
                         ->where('id', $data['row_id'])
                         ->update(['identifier' => $data['identifier']]);
+                    DB::table('entries')
+                        ->where('molecule_id', $data['row_id'])
+                        ->update(['identifier' => $data['identifier']]);
                 }
             });
             $i++;

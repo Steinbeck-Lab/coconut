@@ -5,6 +5,7 @@ namespace App\Console\Commands\SubmissionsAutoProcess;
 use App\Models\Collection;
 use App\Models\Molecule;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 
 class PublishMoleculesAuto extends Command
 {
@@ -64,6 +65,9 @@ class PublishMoleculesAuto extends Command
         } else {
             $this->info('No molecules to process.');
         }
+
+        // Call artisan command to carry on the metadata fetching process
+        Artisan::call('coconut:import-pubchem-data-auto');
 
         return 0;
     }
