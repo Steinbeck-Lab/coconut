@@ -67,12 +67,7 @@ jobs:
                 console.log(`Analyzing issue #${issueNumber} from ${issueAuthor}`);
                 console.log(`Title: ${issueTitle}`);
                 
-                // Skip analysis for known collaborators or first-time contributors with PR
-                const isExempt = await checkExemptUser(octokit, context.repo.owner, context.repo.repo, issueAuthor);
-                if (isExempt) {
-                  console.log(`User ${issueAuthor} is exempt from spam checking`);
-                  return false;
-                }
+                
                 
                 // Analyze the issue for spam
                 const spamAnalysis = analyzeContent(issueTitle, issueBody);
