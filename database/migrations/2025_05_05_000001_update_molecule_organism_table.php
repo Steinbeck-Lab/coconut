@@ -41,14 +41,16 @@ return new class extends Migration
     {
         Schema::table('molecule_organism', function (Blueprint $table) {
             // Remove the new unique constraint
-            $table->dropUnique('molecule_organism_unique');
+            $table->dropUnique('unique_molecule_organism_complete');
 
             // Remove sample_location_id foreign key
             $table->dropForeign(['sample_location_id']);
-            $table->dropColumn(['sample_location_id', 'citation_ids']);
+            $table->dropForeign(['geo_location_id']);
+            $table->dropForeign(['ecosystem_id']);
+            $table->dropColumn(['sample_location_id', 'geo_location_id', 'ecosystem_id', 'citation_ids']);
 
             // Restore organism_parts column
-            $table->longText('organism_parts')->nullable();
+            // $table->longText('organism_parts')->nullable();
 
             // Restore original unique constraint
             // $table->primary(['molecule_id', 'organism_id'], 'molecule_organism_pkey');

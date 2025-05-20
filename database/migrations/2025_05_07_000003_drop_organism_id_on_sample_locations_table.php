@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('sample_locations', function (Blueprint $table) {
-            $table->foreignId('organism_id');
+            $table->foreignId('organism_id')->nullable();
             $table->text('collection_ids')->nullable();
             $table->integer('molecule_count')->nullable();
         });
