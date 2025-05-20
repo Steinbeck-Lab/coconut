@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\ModelStates\HasStates;
 use Spatie\Tags\HasTags;
+use App\Enums\ReportStatus;
+use App\Enums\ReportCategory;
 
 class Report extends Model implements Auditable
 {
@@ -38,8 +40,8 @@ class Report extends Model implements Auditable
 
     protected $casts = [
         'suggested_changes' => 'array',
-        'report_category' => 'string',
-        'status' => 'string',
+        'status' => ReportStatus::class,
+        'report_category' => ReportCategory::class,
     ];
 
     /**
