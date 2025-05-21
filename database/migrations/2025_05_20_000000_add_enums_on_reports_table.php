@@ -38,6 +38,7 @@ return new class extends Migration
             // $table->json('mol_ids')->change();
             DB::statement('ALTER TABLE reports ALTER COLUMN mol_id_csv TYPE json USING mol_id_csv::json');
             $table->renameColumn('mol_id_csv', 'mol_ids');
+            $table->json('mol_ids')->nullable()->change();
         });
     }
 

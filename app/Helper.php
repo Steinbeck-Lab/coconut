@@ -277,7 +277,21 @@ function getOverallChanges($data)
 {
     $overall_changes = [];
     $geo_location_changes = [];
-    $molecule = Molecule::where('identifier', $data['mol_id_csv'])->first();
+
+    // Handle mol_ids properly whether it's a string, an array, or enum value
+    $molecule_identifier = $data['mol_ids'];
+    // If mol_ids is an array (from JSON column), get the first item
+    if (is_array($molecule_identifier)) {
+        $molecule_identifier = $molecule_identifier[0] ?? null;
+    } elseif (is_string($molecule_identifier)) {
+        // If it's a string, check if it's a JSON string
+        $decoded = json_decode($molecule_identifier, true);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $molecule_identifier = $decoded[0] ?? null;
+        }
+    }
+
+    $molecule = Molecule::where('identifier', $molecule_identifier)->first();
 
     $db_geo_locations = $molecule->geo_locations->pluck('name')->toArray();
     $deletable_locations = array_key_exists('existing_geo_locations', $data) ? array_diff($db_geo_locations, $data['existing_geo_locations']) : [];
@@ -369,10 +383,10 @@ function getOverallChanges($data)
     $new_citations = [];
     $new_citations_form_data = [];
     if (array_key_exists('new_citations', $data)) {
-        foreach ($data['new_citations'] as $ciation) {
-            if ($ciation['title']) {
-                $new_citations[] = $ciation['title'];
-                $new_citations_form_data[] = $ciation;
+        foreach ($data['new_citations'] as $citation) {
+            if ($citation['title']) {
+                $new_citations[] = $citation['title'];
+                $new_citations_form_data[] = $citation;
             }
         }
     }

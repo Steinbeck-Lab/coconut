@@ -2,6 +2,8 @@
 
 namespace App\Rest\Resources;
 
+use App\Enums\ReportCategory;
+use App\Enums\ReportStatus;
 use App\Rest\Resource as RestResource;
 use Illuminate\Database\Eloquent\Model;
 
@@ -24,6 +26,7 @@ class ReportResource extends RestResource
             'evidence',
             'comment',
             'suggested_changes',
+            'mol_ids', // Added this field since we're now using it instead of mol_id_csv
         ];
     }
 
@@ -99,8 +102,8 @@ class ReportResource extends RestResource
         if ($requestBody['operation'] === 'create') {
             $model->user_id = auth()->user()->id;
             $model->report_type = 'molecule';
-            $model->report_category = 'new_molecule';
-            $model->status = 'submitted';
+            $model->report_category = ReportCategory::SUBMISSION;
+            $model->status = ReportStatus::SUBMITTED;
         }
     }
 }

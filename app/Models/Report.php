@@ -29,7 +29,7 @@ class Report extends Model implements Auditable
         'title',
         'evidence',
         'doi',
-        'mol_id_csv',
+        'mol_ids',
         'status',
         'comment',
         'user_id',
@@ -42,6 +42,7 @@ class Report extends Model implements Auditable
         'suggested_changes' => 'array',
         'status' => ReportStatus::class,
         'report_category' => ReportCategory::class,
+        'mol_ids' => 'array',
     ];
 
     /**

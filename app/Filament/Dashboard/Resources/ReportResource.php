@@ -82,7 +82,6 @@ class ReportResource extends Resource
                                 } else {
                                     return ReportCategory::SUBMISSION->value;
                                 }
-
                             })
                             ->options(function ($operation) {
                                 $hasParams = count(request()->all()) > 0;
@@ -90,7 +89,7 @@ class ReportResource extends Resource
                                     ReportCategory::REVOKE->value => 'Report',
                                     ReportCategory::SUBMISSION->value => 'New Molecule',
                                 ];
-                                if ($hasParams || $operation == 'edit') {
+                                if ($hasParams || $operation == 'edit' || $operation == 'view') {
                                     $options[ReportCategory::UPDATE->value] = 'Request Changes';
                                 }
 
@@ -105,7 +104,7 @@ class ReportResource extends Resource
                         Actions::make([
                             Action::make('approve')
                                 ->form(function ($record, $livewire, $get) {
-                                    if ($record['report_category'] === ReportCategory::UPDATE->value) {
+                                    if ($record['report_category'] === ReportCategory::UPDATE) {
                                         self::$approved_changes = self::prepareApprovedChanges($record, $livewire);
                                         $key_value_fields = getChangesToDisplayModal(self::$approved_changes);
                                         array_unshift(
@@ -122,7 +121,7 @@ class ReportResource extends Resource
                                         );
 
                                         return $key_value_fields;
-                                    } elseif ($record['report_category'] === ReportCategory::SUBMISSION->value) {
+                                    } elseif ($record['report_category'] === ReportCategory::SUBMISSION) {
                                         // Return null for SUBMISSION to use default confirmation modal
                                         return null;
                                     } else {
@@ -142,7 +141,7 @@ class ReportResource extends Resource
                                 })
                                 ->requiresConfirmation(function ($record) {
                                     // Only use the default confirmation modal when report_category is SUBMISSION
-                                    return $record['report_category'] === ReportCategory::SUBMISSION->value;
+                                    return $record['report_category'] === ReportCategory::SUBMISSION;
                                 })
                                 ->hidden(function (Get $get, string $operation) {
                                     return ! auth()->user()->roles()->exists() ||
@@ -185,8 +184,8 @@ class ReportResource extends Resource
                                 ->hidden(function (Get $get, string $operation, ?Report $record) {
                                     return ! (auth()->user()->roles()->exists() &&
                                         ($operation == 'view' || $operation == 'edit') &&
-                                        ($record->status != ReportStatus::APPROVED->value) &&
-                                        ($record->status != ReportStatus::REJECTED->value));
+                                        ($record->status != ReportStatus::APPROVED) &&
+                                        ($record->status != ReportStatus::REJECTED));
                                 })
                                 ->form([
                                     Radio::make('curator')
@@ -240,6 +239,9 @@ class ReportResource extends Resource
                         }
                         if ($get('report_category') == ReportCategory::SUBMISSION->value) {
                             return 'New Molecule Report for:';
+                        }
+                        if ($get('report_category') == ReportCategory::REVOKE->value && request()->has('compound_id')) {
+                            return 'Revoke '.request()->compound_id;
                         }
                     })
                     ->required(function ($get) {
@@ -603,7 +605,7 @@ class ReportResource extends Resource
                                     ->columns(1),
                             ]),
                     ])
-                    ->hidden(fn (Get $get) => $get('report_category') !== 'new_molecule'),
+                    ->hidden(fn (Get $get) => $get('report_category') !== ReportCategory::SUBMISSION->value),
                 TextInput::make('doi')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide the DOI link to the resource you are reporting so as to help curators verify.')
                     ->label('DOI')
@@ -615,9 +617,7 @@ class ReportResource extends Resource
                                 shouldOpenInNewTab: true,
                             ),
                     )
-                    ->hidden(function (string $operation, $get, ?Report $record) {
-                        return true;
-                    }),
+                    ->hidden(fn (Get $get) => $get('report_category') == ReportCategory::SUBMISSION->value),
                 Select::make('collections')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select the Collections you want to report. This will help our Curators in reviewing your report.')
                     ->relationship('collections', 'title')
@@ -733,7 +733,7 @@ class ReportResource extends Resource
                     ->wrap()
                     ->searchable()
                     ->description(
-                        fn (Report $record): string => $record->report_category === ReportCategory::SUBMISSION->value
+                        fn (Report $record): string => $record->report_category === ReportCategory::SUBMISSION
                             ? 'SMILES: '.Str::limit($record->suggested_changes['new_molecule_data']['canonical_smiles'], 50)
                             : Str::of($record->evidence)->words(10)
                     ),
@@ -776,8 +776,8 @@ class ReportResource extends Resource
                             })
                             ->modalSubmitActionLabel('Assign')
                             ->modalHidden(fn (Report $record): bool => ! auth()->user()->roles()->exists() ||
-                                $record['status'] == ReportStatus::APPROVED->value ||
-                                $record['status'] == ReportStatus::REJECTED->value),
+                                $record['status'] == ReportStatus::APPROVED ||
+                                $record['status'] == ReportStatus::REJECTED),
                     ),
 
                 TextColumn::make('created_at')
@@ -836,8 +836,8 @@ class ReportResource extends Resource
     {
         $approved_changes = [];
 
-        $approved_changes['mol_id_csv'] = $record['mol_ids'];
-        if ($record['report_category'] === 'change') {
+        $approved_changes['mol_ids'] = $record['mol_ids'];
+        if ($record['report_category'] === ReportCategory::UPDATE) {
 
             if ($livewire->data['approve_geo_locations']) {
                 $approved_changes['existing_geo_locations'] = $livewire->data['existing_geo_locations'];
@@ -886,7 +886,7 @@ class ReportResource extends Resource
 
     public static function approveReport(array $data, Report $record, Molecule $molecule, $livewire): void
     {
-        if ($record['report_category'] === ReportCategory::SUBMISSION->value) {
+        if ($record['report_category'] === ReportCategory::SUBMISSION) {
             $molecule_data = $record['suggested_changes']['new_molecule_data'];
 
             // Create new entry
@@ -992,7 +992,7 @@ class ReportResource extends Resource
 
             // Redirect to view page
             $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
-        } elseif ($record['report_category'] === ReportCategory::UPDATE->value) {
+        } elseif ($record['report_category'] === ReportCategory::UPDATE) {
             // In case of Changes
             // Run SQL queries for the approved changes
             self::runSQLQueries($record);
@@ -1006,12 +1006,13 @@ class ReportResource extends Resource
             $formData = copyChangesToCuratorJSON($record, $livewire->data);
             $suggested_changes['curator'] = $formData['suggested_changes']['curator'];
             $record['suggested_changes'] = $suggested_changes;
+            $record['assigned_to'] = auth()->id();
 
             $record->save();
         } else {
             // In case of reporting a synthetic molecule, Deactivate Molecules
             if ($record['report_type'] == 'molecule') {
-                $molecule_ids = json_decode($record['mol_ids'], true); // Changed from mol_id_csv and handle JSON
+                $molecule_ids = json_decode($record['mol_ids'], true);
                 if (! is_array($molecule_ids)) {
                     $molecule_ids = explode(',', $record['mol_ids']); // Fallback for compatibility
                 }
@@ -1047,8 +1048,21 @@ class ReportResource extends Resource
         DB::transaction(function () use ($record) {
             self::$overall_changes = getOverallChanges(self::$approved_changes);
 
+            // Handle mol_ids properly whether it's a string, an array, or enum value
+            $molecule_identifier = $record['mol_ids'];
+            // If mol_ids is an array (from JSON column), get the first item
+            if (is_array($molecule_identifier)) {
+                $molecule_identifier = $molecule_identifier[0] ?? null;
+            } elseif (is_string($molecule_identifier)) {
+                // If it's a string, check if it's a JSON string
+                $decoded = json_decode($molecule_identifier, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $molecule_identifier = $decoded[0] ?? null;
+                }
+            }
+
             // Check if 'molecule_id' is provided or use a default molecule for association/dissociation
-            $molecule = Molecule::where('identifier', $record['mol_ids'])->first();
+            $molecule = Molecule::where('identifier', $molecule_identifier)->first();
 
             // Apply Geo Location Changes
             if (array_key_exists('geo_location_changes', self::$overall_changes)) {
