@@ -1,12 +1,12 @@
 <?php
 
-use App\Enums\ReportStatus;
 use App\Enums\ReportCategory;
+use App\Enums\ReportStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -33,8 +33,8 @@ return new class extends Migration
         Schema::table('reports', function (Blueprint $table) {
             // $table->enum('status', ReportStatus::values())->change();
             // $table->enum('report_category', ReportCategory::values())->change();
-            DB::statement('ALTER TABLE reports ADD CONSTRAINT check_status CHECK (status IN (\'' . implode('\',\'', ReportStatus::values()) . '\'))');
-            DB::statement('ALTER TABLE reports ADD CONSTRAINT check_report_category CHECK (report_category IN (\'' . implode('\',\'', ReportCategory::values()) . '\'))');
+            DB::statement('ALTER TABLE reports ADD CONSTRAINT check_status CHECK (status IN (\''.implode('\',\'', ReportStatus::values()).'\'))');
+            DB::statement('ALTER TABLE reports ADD CONSTRAINT check_report_category CHECK (report_category IN (\''.implode('\',\'', ReportCategory::values()).'\'))');
             // $table->json('mol_ids')->change();
             DB::statement('ALTER TABLE reports ALTER COLUMN mol_id_csv TYPE json USING mol_id_csv::json');
             $table->renameColumn('mol_id_csv', 'mol_ids');
@@ -160,13 +160,13 @@ return new class extends Migration
                 }
             } catch (\Exception $e) {
                 // Log error but continue with other records
-                Log::error("Failed to convert mol_ids JSON to CSV for report ID {$report->id}: " . $e->getMessage());
+                Log::error("Failed to convert mol_ids JSON to CSV for report ID {$report->id}: ".$e->getMessage());
             }
         }
 
         Log::info('Converted mol_ids JSON values back to CSV format');
     }
-    
+
     private function revertCategoryTransformation(): void
     {
         // Reverse mapping from new enum values back to original values

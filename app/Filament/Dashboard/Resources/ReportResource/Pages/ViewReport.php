@@ -2,6 +2,7 @@
 
 namespace App\Filament\Dashboard\Resources\ReportResource\Pages;
 
+use App\Enums\ReportCategory;
 use App\Filament\Dashboard\Resources\ReportResource;
 use Filament\Resources\Pages\ViewRecord;
 
@@ -11,7 +12,7 @@ class ViewReport extends ViewRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        if ($data['report_category'] === 'new_molecule') {
+        if ($data['report_category'] === ReportCategory::SUBMISSION->value) {
             $molecule_data = $data['suggested_changes']['new_molecule_data'];
             $data = array_merge($data, [
                 'canonical_smiles' => $molecule_data['canonical_smiles'],
@@ -22,7 +23,7 @@ class ViewReport extends ViewRecord
                 'structural_comments' => $molecule_data['structural_comments'] ?? null,
                 'references' => $molecule_data['references'] ?? [],
             ]);
-        } elseif ($data['report_category'] === 'change') {
+        } elseif ($data['report_category'] === ReportCategory::UPDATE->value) {
             $curators_copy_changes = $data['suggested_changes']['curator'];
             $data['existing_geo_locations'] = $curators_copy_changes['existing_geo_locations'];
             $data['new_geo_locations'] = $curators_copy_changes['new_geo_locations'];

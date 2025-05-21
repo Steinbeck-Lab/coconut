@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\ReportCategory;
+use App\Enums\ReportStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,8 +11,6 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\ModelStates\HasStates;
 use Spatie\Tags\HasTags;
-use App\Enums\ReportStatus;
-use App\Enums\ReportCategory;
 
 class Report extends Model implements Auditable
 {
