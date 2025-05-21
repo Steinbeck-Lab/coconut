@@ -808,6 +808,7 @@ class ReportResource extends Resource
             RelationManagers\CollectionsRelationManager::class,
             RelationManagers\CitationsRelationManager::class,
             RelationManagers\OrganismsRelationManager::class,
+            RelationManagers\EntriesRelationManager::class,
             AuditsRelationManager::class,
         ];
     }
@@ -989,6 +990,9 @@ class ReportResource extends Resource
             $record['comment'] = prepareComment($data['reason'] ?? '');
             $record['assigned_to'] = auth()->id();
             $record->save();
+
+            // Associate the entry with the report
+            $record->entries()->attach($new_entry->id);
 
             // Redirect to view page
             $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
