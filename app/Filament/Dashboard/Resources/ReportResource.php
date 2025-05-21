@@ -14,6 +14,7 @@ use App\Models\Organism;
 use App\Models\Report;
 use App\Models\User;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
+use Closure;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Checkbox;
@@ -695,9 +696,9 @@ class ReportResource extends Resource
                         }
                     })
                     ->searchable(),
-                Textarea::make('mol_ids')
+                TagsInput::make('mol_ids')
                     ->label('Molecules')
-                    ->placeholder('Enter the Identifiers separated by commas')
+                    ->placeholder('Enter the Identifiers')
                     ->required(function (Get $get) {
                         if ($get('report_type') == 'molecule') {
                             return true;
@@ -716,7 +717,17 @@ class ReportResource extends Resource
                         if ($operation == 'edit') {
                             return true;
                         }
-                    }),
+                    })
+                    ->rules([
+                        'array',
+                        fn ($state): Closure => function (Closure $fail) use ($state) {
+                            foreach ($state as $tag) {
+                                if (! DB::table('molecules')->where('identifier', $tag)->exists()) {
+                                    $fail("The molecule identifier '{$tag}' is invalid.");
+                                }
+                            }
+                        },
+                    ]),
                 Textarea::make('comment')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide your comments/observations on anything noteworthy in the Curation process.')
                     ->hidden(function () {
