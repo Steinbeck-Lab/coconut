@@ -3,6 +3,7 @@
 namespace App\Console\Commands\SubmissionsAutoProcess;
 
 use App\Jobs\ClassifyMoleculeBatch;
+use App\Models\Collection;
 use App\Models\Molecule;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
@@ -16,59 +17,85 @@ class ClassifyAuto extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'coconut:npclassify-auto';
+    protected $signature = 'coconut:npclassify-auto {collection_id=65 : The ID of the collection to process}';
 
     /**
      * The console command description.
      */
-    protected $description = 'Classifies molecules using NPClassifier for all molecules';
+    protected $description = 'Classifies molecules using NPClassifier for molecules in a specific collection';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $query = Molecule::select('molecules.id', 'molecules.canonical_smiles')->whereHas('properties', function ($q) {
-            $q->whereNull('np_classifier_pathway')->whereNull('np_classifier_superclass')->whereNull('np_classifier_class')->whereNull('np_classifier_is_glycoside');
-        });
-        $this->info('Processing all molecules that need classification.');
+        $collection_id = $this->argument('collection_id');
+
+        $collection = Collection::find($collection_id);
+
+        if (! $collection) {
+            Log::error("Collection with ID {$collection_id} not found.");
+
+            return 1;
+        }
+
+        Log::info("Classifying molecules using NPClassifier for collection ID: {$collection_id}");
+
+        $query = Molecule::select('molecules.id', 'molecules.canonical_smiles')
+            ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
+            ->where('entries.collection_id', $collection_id)
+            ->whereHas('properties', function ($q) {
+                $q->whereNull('np_classifier_pathway')
+                    ->whereNull('np_classifier_superclass')
+                    ->whereNull('np_classifier_class')
+                    ->whereNull('np_classifier_is_glycoside');
+            })
+            ->distinct();
+
+        Log::info("Processing molecules in collection {$collection_id} that need classification.");
 
         // Count the total number of molecules
         $totalCount = $query->count();
         if ($totalCount === 0) {
-            Log::info('No molecules found to classify.');
+            Log::info("No molecules found to classify in collection {$collection_id}.");
+            Artisan::call('coconut:generate-coordinates-auto', ['collection_id' => $collection_id]);
 
             return 0;
         }
 
-        $this->info("Total molecules to process: {$totalCount}");
+        Log::info("Total molecules to process in collection {$collection_id}: {$totalCount}");
+        Log::info("Starting NPClassifier for {$totalCount} molecules in collection {$collection_id}");
 
         // Process molecules in chunks and create batch jobs
-        $query->chunkById(1000, function ($molecules) {
+        $query->chunkById(1000, function ($molecules) use ($collection_id) {
+            $moleculeCount = count($molecules);
+            Log::info("Processing batch of {$moleculeCount} molecules for classification in collection {$collection_id}");
+
             $batchJobs = [];
             $moleculeIds = $molecules->pluck('id')->toArray();
             $batchJobs[] = new ClassifyMoleculeBatch($moleculeIds);
 
             // Dispatch the batch
             Bus::batch($batchJobs)
-                ->then(function (Batch $batch) {
-                    Log::info('NPClassifier batch completed: '.$batch->id);
-                    Log::info('Calling GenerateCoordinatesAuto after NPClassifier batch');
-                    Artisan::call('coconut:generate-coordinates-auto');
+                ->then(function (Batch $batch) use ($collection_id) {
+                    Log::info("NPClassifier batch completed for collection {$collection_id}: ".$batch->id);
+                    Log::info("Calling GenerateCoordinatesAuto after NPClassifier batch for collection {$collection_id}");
+                    Artisan::call('coconut:generate-coordinates-auto', ['collection_id' => $collection_id]);
                 })
-                ->catch(function (Batch $batch, Throwable $e) {
-                    Log::error('NPClassifier batch failed: '.$e->getMessage());
+                ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
+                    Log::error("NPClassifier batch failed for collection {$collection_id}: ".$e->getMessage());
                 })
                 ->finally(function (Batch $batch) {
                     // Cleanup or logging can happen here
                 })
-                ->name('NPClassifier Batch Auto')
+                ->name("NPClassifier Batch Auto Collection {$collection_id}")
                 ->allowFailures(true)
                 ->onConnection('redis')
                 ->onQueue('default')
                 ->dispatch();
         });
-        $this->info('All classification jobs have been dispatched!');
+
+        Log::info("All classification jobs have been dispatched for collection {$collection_id}!");
 
         return 0;
     }

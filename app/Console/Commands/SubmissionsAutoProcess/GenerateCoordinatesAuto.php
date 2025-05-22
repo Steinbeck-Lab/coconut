@@ -3,6 +3,7 @@
 namespace App\Console\Commands\SubmissionsAutoProcess;
 
 use App\Jobs\GenerateCoordinatesBatch;
+use App\Models\Collection;
 use App\Models\Molecule;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
@@ -15,34 +16,53 @@ class GenerateCoordinatesAuto extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'coconut:generate-coordinates-auto';
+    protected $signature = 'coconut:generate-coordinates-auto {collection_id=65 : The ID of the collection to process}';
 
     /**
      * The console command description.
      */
-    protected $description = 'Generates coordinates (2D/3D) for molecules missing structure data';
+    protected $description = 'Generates coordinates (2D/3D) for molecules missing structure data in a specific collection';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $this->info('Starting coordinate generation for molecules missing structures...');
+        $collection_id = $this->argument('collection_id');
 
-        // Retrieve all molecules missing structures
-        $query = Molecule::doesntHave('structures')->select('id');
+        $collection = Collection::find($collection_id);
+
+        if (! $collection) {
+            Log::error("Collection with ID {$collection_id} not found.");
+
+            return 1;
+        }
+
+        Log::info("Starting coordinate generation for molecules missing structures in collection ID: {$collection_id}");
+
+        // Retrieve molecules missing structures filtered by collection
+        $query = Molecule::select('molecules.id')
+            ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
+            ->where('entries.collection_id', $collection_id)
+            ->doesntHave('structures')
+            ->distinct();
+
         $totalCount = $query->count();
 
         if ($totalCount === 0) {
-            $this->info('No molecules found that require coordinate generation.');
+            Log::info("No molecules found that require coordinate generation in collection {$collection_id}.");
 
             return 0;
         }
 
+        Log::info("Total molecules to process in collection {$collection_id}: {$totalCount}");
+
         // Process molecules in chunks of 1000
-        $query->chunkById(1000, function ($molecules) {
+        $query->chunkById(1000, function ($molecules) use ($collection_id) {
             $moleculeIds = $molecules->pluck('id')->toArray();
             $batchSize = count($moleculeIds);
+
+            Log::info("Processing batch of {$batchSize} molecules for coordinate generation in collection {$collection_id}");
 
             // Create and dispatch batch job
             $batchJobs = [];
@@ -50,23 +70,23 @@ class GenerateCoordinatesAuto extends Command
 
             // Dispatch as a batch
             Bus::batch($batchJobs)
-                ->then(function (Batch $batch) {
-                    Log::info('Coordinate generation batch completed successfully: '.$batch->id);
+                ->then(function (Batch $batch) use ($collection_id) {
+                    Log::info("Coordinate generation batch completed successfully for collection {$collection_id}: ".$batch->id);
                 })
-                ->catch(function (Batch $batch, Throwable $e) {
-                    Log::error('Coordinate generation batch failed: '.$e->getMessage());
+                ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
+                    Log::error("Coordinate generation batch failed for collection {$collection_id}: ".$e->getMessage());
                 })
                 ->finally(function (Batch $batch) {
                     // Cleanup or final logging
                 })
-                ->name('Generate Coordinates Auto')
+                ->name("Generate Coordinates Auto Collection {$collection_id}")
                 ->allowFailures(true)
                 ->onConnection('redis')
                 ->onQueue('default')
                 ->dispatch();
         });
 
-        $this->info('All coordinate generation jobs have been dispatched successfully!');
+        Log::info("All coordinate generation jobs dispatched for collection {$collection_id}");
 
         return 0;
     }

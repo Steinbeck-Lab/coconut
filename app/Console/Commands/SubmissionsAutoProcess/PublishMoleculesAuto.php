@@ -3,9 +3,9 @@
 namespace App\Console\Commands\SubmissionsAutoProcess;
 
 use App\Models\Collection;
-use App\Models\Molecule;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 
 class PublishMoleculesAuto extends Command
 {
@@ -14,7 +14,7 @@ class PublishMoleculesAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:publish-molecules-auto {--collection_id= : Optional collection ID to process molecules from a specific collection}';
+    protected $signature = 'coconut:publish-molecules-auto {collection_id=65 : The ID of the collection to import}';
 
     /**
      * The console command description.
@@ -28,30 +28,25 @@ class PublishMoleculesAuto extends Command
      */
     public function handle()
     {
-        $collectionId = $this->option('collection_id');
+        $collection_id = $this->argument('collection_id');
 
-        // If collection_id is provided, filter molecules by the collection
-        if ($collectionId) {
-            $collection = Collection::find($collectionId);
+        $collection = Collection::find($collection_id);
 
-            if (! $collection) {
-                $this->error("Collection with ID {$collectionId} not found.");
+        if (! $collection) {
+            Log::error("Collection with ID {$collection_id} not found.");
 
-                return 1;
-            }
-
-            $this->info("Processing molecules for collection: {$collection->name} (ID: {$collectionId})");
-            $query = $collection->molecules()->where('status', 'DRAFT')->whereNotNull('identifier');
-        } else {
-            $this->info('Processing all draft molecules with identifiers.');
-            $query = Molecule::where('status', 'DRAFT')->whereNotNull('identifier');
+            return 1;
         }
+
+        Log::info("Processing molecules for collection: {$collection->name} (ID: {$collection_id})");
+
+        $query = $collection->molecules()->where('status', 'DRAFT')->whereNotNull('identifier');
 
         // Get the count of molecules to be processed
         $count = $query->count();
 
         if ($count > 0) {
-            $this->info("Total molecules to be published: {$count}");
+            Log::info("Total molecules to be published: {$count}");
 
             // Process molecules in batches of 30,000
             $query->lazyById(30000)
@@ -61,13 +56,15 @@ class PublishMoleculesAuto extends Command
                     $molecule->save();
                 });
 
-            $this->info("Successfully processed {$count} molecules.");
+            Log::info("Successfully processed {$count} molecules.");
         } else {
-            $this->info('No molecules to process.');
+            Log::info('No molecules to process.');
         }
 
         // Call artisan command to carry on the metadata fetching process
-        Artisan::call('coconut:import-pubchem-data-auto');
+        Artisan::call('coconut:entries-import-references', [
+            'collection_id' => $collection_id,
+        ]);
 
         return 0;
     }

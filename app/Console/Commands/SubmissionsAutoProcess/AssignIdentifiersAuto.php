@@ -8,6 +8,7 @@ use DB;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 
 class AssignIdentifiersAuto extends Command
 {
@@ -16,28 +17,43 @@ class AssignIdentifiersAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:molecules-assign-identifiers-auto';
+    protected $signature = 'coconut:molecules-assign-identifiers-auto {collection_id=65 : The ID of the collection to process}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Auto-assign identifiers to molecules for a specific collection';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
+        $collection_id = $this->argument('collection_id');
+
+        $collection = Collection::find($collection_id);
+
+        if (! $collection) {
+            Log::error("Collection with ID {$collection_id} not found.");
+
+            return 1;
+        }
+
+        $this->info("Assigning identifiers for collection ID: {$collection_id}");
+
         $batchSize = 10000;
         $currentIndex = $this->fetchLastIndex() + 1;
 
         // Step: 1
         $parents = DB::table('molecules')
-            ->select('id', 'identifier')
-            ->where('has_stereo', false)
-            ->whereNull('identifier')
+            ->select('molecules.id', 'molecules.identifier')
+            ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
+            ->where('molecules.has_stereo', false)
+            ->whereNull('molecules.identifier')
+            ->where('entries.collection_id', $collection_id)
+            ->distinct()
             ->get();
 
         $data = [];
@@ -56,11 +72,14 @@ class AssignIdentifiersAuto extends Command
 
         $this->info('Mapping parents: Done');
 
-        // // Step: 2
+        // Step: 2
         $mappings = DB::table('molecules')
-            ->select('parent_id', 'id', 'identifier')
-            ->whereNotNull('parent_id')
-            ->where('has_stereo', true)
+            ->select('molecules.parent_id', 'molecules.id', 'molecules.identifier')
+            ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
+            ->whereNotNull('molecules.parent_id')
+            ->where('molecules.has_stereo', true)
+            ->where('entries.collection_id', $collection_id)
+            ->distinct()
             ->get()
             ->groupBy('parent_id')
             ->map(function ($items) {
@@ -68,9 +87,12 @@ class AssignIdentifiersAuto extends Command
             });
 
         $identifier_mappings = DB::table('molecules')
-            ->where('has_stereo', false)
-            ->where('is_parent', true)
-            ->pluck('identifier', 'id')
+            ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
+            ->where('molecules.has_stereo', false)
+            ->where('molecules.is_parent', true)
+            ->where('entries.collection_id', $collection_id)
+            ->distinct()
+            ->pluck('molecules.identifier', 'molecules.id')
             ->toArray();
 
         $identifier_mappings = array_map(function ($identifier) {
@@ -78,16 +100,16 @@ class AssignIdentifiersAuto extends Command
         }, $identifier_mappings);
 
         $jsonData = json_encode($mappings, JSON_PRETTY_PRINT);
-        $filePath = storage_path('parent_id_mappings.json');
+        $filePath = storage_path("parent_id_mappings_{$collection_id}.json");
         file_put_contents($filePath, $jsonData);
 
         $jsonData = json_encode($identifier_mappings, JSON_PRETTY_PRINT);
-        $filePath = storage_path('identifier_mappings.json');
+        $filePath = storage_path("identifier_mappings_{$collection_id}.json");
         file_put_contents($filePath, $jsonData);
 
         // Step: 3
-        $mappings = json_decode(file_get_contents(storage_path('parent_id_mappings.json')), true);
-        $identifier_mappings = json_decode(file_get_contents(storage_path('identifier_mappings.json')), true);
+        $mappings = json_decode(file_get_contents(storage_path("parent_id_mappings_{$collection_id}.json")), true);
+        $identifier_mappings = json_decode(file_get_contents(storage_path("identifier_mappings_{$collection_id}.json")), true);
 
         $bulkUpdateData = [];
 
@@ -114,23 +136,41 @@ class AssignIdentifiersAuto extends Command
 
         $batchSize = 10000;
         $i = 0;
-        Collection::make($bulkUpdateData)->chunk($batchSize)->each(function ($chunk) use (&$i) {
+        Collection::make($bulkUpdateData)->chunk($batchSize)->each(function ($chunk) use (&$i, $collection_id) {
             echo $i;
             echo "\r\n";
-            DB::transaction(function () use ($chunk) {
+            DB::transaction(function () use ($chunk, $collection_id) {
                 foreach ($chunk as $data) {
                     DB::table('molecules')
                         ->where('id', $data['row_id'])
                         ->update(['identifier' => $data['identifier']]);
                     DB::table('entries')
                         ->where('molecule_id', $data['row_id'])
+                        ->where('collection_id', $collection_id)
                         ->update(['identifier' => $data['identifier']]);
                 }
             });
             $i++;
         });
 
-        // Artisan::call('coconut:publish-molecules-auto');
+        Log::info("Identifier assignment completed for collection ID: {$collection_id}");
+
+        // Clean up temporary files
+        $parentMappingsFile = storage_path("parent_id_mappings_{$collection_id}.json");
+        $identifierMappingsFile = storage_path("identifier_mappings_{$collection_id}.json");
+
+        if (file_exists($parentMappingsFile)) {
+            unlink($parentMappingsFile);
+        }
+
+        if (file_exists($identifierMappingsFile)) {
+            unlink($identifierMappingsFile);
+        }
+
+        Log::info('Temporary files cleaned up.');
+        Log::info("Identifier assignment completed for collection ID: {$collection_id}");
+
+        // Artisan::call('coconut:publish-molecules-auto', ['collection_id' => $collection_id]);
     }
 
     public function generateIdentifier($index, $type)

@@ -3,13 +3,14 @@
 namespace App\Console\Commands\SubmissionsAutoProcess;
 
 use App\Jobs\ImportPubChemBatch;
+use App\Models\Collection;
 use App\Models\Molecule;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Log;
 use Throwable;
 
 class ImportPubChemNamesAuto extends Command
@@ -19,14 +20,14 @@ class ImportPubChemNamesAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:import-pubchem-data-auto {--retry-failed : Include previously failed molecules}';
+    protected $signature = 'coconut:import-pubchem-data-auto {collection_id=65 : The ID of the collection to process} {--retry-failed : Include previously failed molecules}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Import PubChem data for molecules without names, excluding previously failed ones unless retry is specified';
+    protected $description = 'Import PubChem data for molecules without names for a specific collection, excluding previously failed ones unless retry is specified';
 
     /**
      * The file where failed molecule IDs are stored
@@ -40,66 +41,79 @@ class ImportPubChemNamesAuto extends Command
      */
     public function handle()
     {
-        $this->info('Importing PubChem data...');
+        $collection_id = $this->argument('collection_id');
+
+        $collection = Collection::find($collection_id);
+
+        if (! $collection) {
+            Log::error("Collection with ID {$collection_id} not found.");
+
+            return 1;
+        }
+        Log::info("Importing PubChem data for collection ID: {$collection_id}");
 
         // Load the list of failed molecule IDs
         $failedIds = $this->getFailedMoleculeIds();
         $retryFailed = $this->option('retry-failed');
 
-        // Base query to find molecules needing PubChem data
-        $query = Molecule::where(function ($query) {
-            $query->whereNull('name')
-                ->orWhere('name', '=', '');
-        })
-            ->whereNull('iupac_name')
-            ->whereNull('synonyms');
-        // $query = Molecule::where('id', 1080882);
+        // Base query to find molecules needing PubChem data for specific collection
+        $query = Molecule::select('molecules.id')
+            ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
+            ->where('entries.collection_id', $collection_id)
+            ->where(function ($query) {
+                $query->whereNull('molecules.name')
+                    ->orWhere('molecules.name', '=', '');
+            })
+            ->whereNull('molecules.iupac_name')
+            ->whereNull('molecules.synonyms')
+            ->distinct();
 
         // Exclude failed molecules unless retry is specified
         if (! $retryFailed && count($failedIds) > 0) {
             Log::info('Excluding '.count($failedIds).' previously failed molecules. Use --retry-failed to include them.');
-            $query->whereNotIn('id', $failedIds);
+            $query->whereNotIn('molecules.id', $failedIds);
         }
 
         $count = $query->count();
         if ($count === 0) {
-            Log::info('No molecules found that require PubChem data import.');
-            Artisan::call('coconut:generate-properties-auto');
+            Log::info("No molecules found that require PubChem data import for collection {$collection_id}.");
+            Artisan::call('coconut:generate-properties-auto', ['collection_id' => $collection_id]);
 
             return 0;
         }
 
+        Log::info("Found {$count} molecules requiring PubChem data import for collection {$collection_id}");
+
         // Use chunk to process large sets of molecules
-        $query->select('id')
-            ->chunkById(10000, function ($mols) {
-                $moleculeCount = count($mols);
-                $this->info("Processing batch of {$moleculeCount} molecules");
+        $query->chunkById(10000, function ($mols) use ($collection_id) {
+            $moleculeCount = count($mols);
+            Log::info("Processing batch of {$moleculeCount} molecules for collection {$collection_id}");
 
-                // Prepare batch jobs
-                $batchJobs = [];
-                $batchJobs[] = new ImportPubChemBatch($mols->pluck('id')->toArray());
+            // Prepare batch jobs
+            $batchJobs = [];
+            $batchJobs[] = new ImportPubChemBatch($mols->pluck('id')->toArray());
 
-                // Dispatch as a batch
-                Bus::batch($batchJobs)
-                    ->then(function (Batch $batch) {
-                        Log::info('PubChem import batch completed successfully: '.$batch->id);
-                        Log::info('Calling GeneratePropertiesAuto after PubChem import batch');
-                        Artisan::call('coconut:generate-properties-auto');
-                    })
-                    ->catch(function (Batch $batch, Throwable $e) {
-                        Log::error('PubChem import batch failed: '.$e->getMessage());
-                    })
-                    ->finally(function (Batch $batch) {
-                        // Handle final cleanup or logging
-                    })
-                    ->name('Import PubChem Auto Batch')
-                    ->allowFailures(true)
-                    ->onConnection('redis')
-                    ->onQueue('default')
-                    ->dispatch();
-            });
+            // Dispatch as a batch
+            Bus::batch($batchJobs)
+                ->then(function (Batch $batch) use ($collection_id) {
+                    Log::info("PubChem import batch completed successfully for collection {$collection_id}: ".$batch->id);
+                    Log::info("Calling GeneratePropertiesAuto after PubChem import batch for collection {$collection_id}");
+                    Artisan::call('coconut:generate-properties-auto', ['collection_id' => $collection_id]);
+                })
+                ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
+                    Log::error("PubChem import batch failed for collection {$collection_id}: ".$e->getMessage());
+                })
+                ->finally(function (Batch $batch) {
+                    // Handle final cleanup or logging
+                })
+                ->name("Import PubChem Auto Batch Collection {$collection_id}")
+                ->allowFailures(true)
+                ->onConnection('redis')
+                ->onQueue('default')
+                ->dispatch();
+        });
 
-        $this->info('All PubChem import jobs dispatched!');
+        Log::info("All PubChem import jobs dispatched for collection {$collection_id}!");
     }
 
     /**
