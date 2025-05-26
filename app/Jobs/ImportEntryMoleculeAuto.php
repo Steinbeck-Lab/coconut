@@ -81,6 +81,16 @@ class ImportEntryMoleculeAuto implements ShouldBeUnique, ShouldQueue
                 $this->attachCollection($molecule);
             }
 
+            // Fetch attached reports and attach the created molecule to those reports
+            $attachedReports = $this->entry->reports;
+            foreach ($attachedReports as $report) {
+                // Get the actual molecule associated with this entry
+                if ($this->entry->molecule_id) {
+                    // Use auditSyncWithoutDetaching to avoid duplicates automatically
+                    $report->auditSyncWithoutDetaching('molecules', [$this->entry->molecule_id]);
+                }
+            }
+
             $this->entry->status = 'AUTOCURATION';
             $this->entry->save();
         }

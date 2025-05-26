@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Enums\ReportStatus;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -31,6 +32,13 @@ class ProcessEntry implements ShouldQueue
      */
     public function handle(): void
     {
+        // Fetch attached reports and update their status to INPROGRESS
+        $attachedReports = $this->entry->reports;
+        foreach ($attachedReports as $report) {
+            $report->status = ReportStatus::INPROGRESS->value;
+            $report->save();
+        }
+
         $errors = null;
         $canonical_smiles = $this->entry->canonical_smiles;
         $status = 'SUBMITTED';

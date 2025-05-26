@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Enums\ReportStatus;
 use App\Models\Structure;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -60,6 +61,12 @@ class GenerateCoordinatesAuto implements ShouldQueue
             // Save the structure
             $this->saveStructure($id, $d2, $d3);
             updateCurationStatus($id, 'generate-coordinates', 'completed');
+
+            // Update attached reports status to COMPLETED
+            foreach ($this->molecule->reports as $report) {
+                $report->status =  ReportStatus::COMPLETED->value;
+                $report->save();
+            }
         } catch (\Exception $e) {
             $error = "Error processing molecule {$this->molecule->id}: ".$e->getMessage();
             Log::error($error);
