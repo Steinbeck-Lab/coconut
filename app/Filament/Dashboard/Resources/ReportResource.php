@@ -105,7 +105,7 @@ class ReportResource extends Resource
                         Actions::make([
                             Action::make('approve')
                                 ->form(function ($record, $livewire, $get) {
-                                    if ($record['report_category'] === ReportCategory::UPDATE) {
+                                    if ($record['report_category'] === ReportCategory::UPDATE->value) {
                                         self::$approved_changes = self::prepareApprovedChanges($record, $livewire);
                                         $key_value_fields = getChangesToDisplayModal(self::$approved_changes);
                                         array_unshift(
@@ -122,7 +122,7 @@ class ReportResource extends Resource
                                         );
 
                                         return $key_value_fields;
-                                    } elseif ($record['report_category'] === ReportCategory::SUBMISSION) {
+                                    } elseif ($record['report_category'] === ReportCategory::SUBMISSION->value) {
                                         // Return null for SUBMISSION to use default confirmation modal
                                         return null;
                                     } else {
@@ -142,7 +142,7 @@ class ReportResource extends Resource
                                 })
                                 ->requiresConfirmation(function ($record) {
                                     // Only use the default confirmation modal when report_category is SUBMISSION
-                                    return $record['report_category'] === ReportCategory::SUBMISSION;
+                                    return $record['report_category'] === ReportCategory::SUBMISSION->value;
                                 })
                                 ->hidden(function (Get $get, string $operation) {
                                     return ! auth()->user()->roles()->exists() ||
@@ -185,8 +185,8 @@ class ReportResource extends Resource
                                 ->hidden(function (Get $get, string $operation, ?Report $record) {
                                     return ! (auth()->user()->roles()->exists() &&
                                         ($operation == 'view' || $operation == 'edit') &&
-                                        ($record->status != ReportStatus::APPROVED) &&
-                                        ($record->status != ReportStatus::REJECTED));
+                                        ($record->status != ReportStatus::APPROVED->value) &&
+                                        ($record->status != ReportStatus::REJECTED->value));
                                 })
                                 ->form([
                                     Radio::make('curator')
@@ -744,7 +744,7 @@ class ReportResource extends Resource
                     ->wrap()
                     ->searchable()
                     ->description(
-                        fn (Report $record): string => $record->report_category === ReportCategory::SUBMISSION
+                        fn (Report $record): string => $record->report_category === ReportCategory::SUBMISSION->value
                             ? 'SMILES: '.Str::limit($record->suggested_changes['new_molecule_data']['canonical_smiles'], 50)
                             : Str::of($record->evidence)->words(10)
                     ),
@@ -753,15 +753,15 @@ class ReportResource extends Resource
                     ->label('Type')
                     ->badge()
                     ->color(fn (Report $record): string => match ($record->report_category) {
-                        ReportCategory::UPDATE => 'warning',
-                        ReportCategory::SUBMISSION => 'success',
+                        ReportCategory::UPDATE->value => 'warning',
+                        ReportCategory::SUBMISSION->value => 'success',
                         default => 'gray'
                     })
-                    ->formatStateUsing(fn (ReportCategory $state): string => match ($state) {
-                        ReportCategory::SUBMISSION => 'Submission',
-                        ReportCategory::REVOKE => 'Revoke',
-                        ReportCategory::UPDATE => 'Update',
-                        default => str_replace('_', ' ', ucfirst($state->value))
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        ReportCategory::SUBMISSION->value => 'Submission',
+                        ReportCategory::REVOKE->value => 'Revoke',
+                        ReportCategory::UPDATE->value => 'Update',
+                        default => str_replace('_', ' ', ucfirst($state))
                     }),
 
                 TextColumn::make('curator.name')
@@ -787,8 +787,8 @@ class ReportResource extends Resource
                             })
                             ->modalSubmitActionLabel('Assign')
                             ->modalHidden(fn (Report $record): bool => ! auth()->user()->roles()->exists() ||
-                                $record['status'] == ReportStatus::APPROVED ||
-                                $record['status'] == ReportStatus::REJECTED),
+                                $record['status'] == ReportStatus::APPROVED->value ||
+                                $record['status'] == ReportStatus::REJECTED->value),
                     ),
 
                 TextColumn::make('created_at')
@@ -849,7 +849,7 @@ class ReportResource extends Resource
         $approved_changes = [];
 
         $approved_changes['mol_ids'] = $record['mol_ids'];
-        if ($record['report_category'] === ReportCategory::UPDATE) {
+        if ($record['report_category'] === ReportCategory::UPDATE->value) {
 
             if ($livewire->data['approve_geo_locations']) {
                 $approved_changes['existing_geo_locations'] = $livewire->data['existing_geo_locations'];
@@ -898,7 +898,7 @@ class ReportResource extends Resource
 
     public static function approveReport(array $data, Report $record, Molecule $molecule, $livewire): void
     {
-        if ($record['report_category'] === ReportCategory::SUBMISSION) {
+        if ($record['report_category'] === ReportCategory::SUBMISSION->value) {
             $molecule_data = $record['suggested_changes']['new_molecule_data'];
 
             // Create new entry
@@ -1007,7 +1007,7 @@ class ReportResource extends Resource
 
             // Redirect to view page
             $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
-        } elseif ($record['report_category'] === ReportCategory::UPDATE) {
+        } elseif ($record['report_category'] === ReportCategory::UPDATE->value) {
             // In case of Changes
             // Run SQL queries for the approved changes
             self::runSQLQueries($record);

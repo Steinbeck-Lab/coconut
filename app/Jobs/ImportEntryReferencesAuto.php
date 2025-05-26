@@ -67,6 +67,10 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
             // Mark as completed
             updateCurationStatus($molecule->id, 'import_references', 'completed');
 
+            // Update the entry status to IMPORTED
+            $this->entry->status = 'IMPORTED';
+            $this->entry->save();
+
         } catch (Exception $e) {
             // Update status to failed with error message
             updateCurationStatus($molecule->id, 'import_references', 'failed', $e->getMessage());

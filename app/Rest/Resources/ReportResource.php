@@ -102,8 +102,8 @@ class ReportResource extends RestResource
         if ($requestBody['operation'] === 'create') {
             $model->user_id = auth()->user()->id;
             $model->report_type = 'molecule';
-            $model->report_category = ReportCategory::SUBMISSION;
-            $model->status = ReportStatus::SUBMITTED;
+            $model->report_category = ReportCategory::SUBMISSION->value;
+            $model->status = ReportStatus::SUBMITTED->value;
         }
     }
 }

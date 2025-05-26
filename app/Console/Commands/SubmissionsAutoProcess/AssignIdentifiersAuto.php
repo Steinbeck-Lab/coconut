@@ -7,7 +7,6 @@ use App\Models\Molecule;
 use App\Models\Ticker;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection as SupportCollection;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
