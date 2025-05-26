@@ -2,12 +2,13 @@
 
 namespace App\Console\Commands\SubmissionsAutoProcess;
 
+use App\Models\Collection;
 use App\Models\Molecule;
 use App\Models\Ticker;
-use DB;
 use Illuminate\Console\Command;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class AssignIdentifiersAuto extends Command
@@ -17,7 +18,7 @@ class AssignIdentifiersAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:molecules-assign-identifiers-auto {collection_id=65 : The ID of the collection to process}';
+    protected $signature = 'coconut:molecules-assign-identifiers-auto {collection_id=65 : The ID of the collection to process} {--trigger : Trigger subsequent commands in the processing chain}';
 
     /**
      * The console command description.
@@ -32,6 +33,7 @@ class AssignIdentifiersAuto extends Command
     public function handle()
     {
         $collection_id = $this->argument('collection_id');
+        $triggerNext = $this->option('trigger');
 
         $collection = Collection::find($collection_id);
 
@@ -136,7 +138,7 @@ class AssignIdentifiersAuto extends Command
 
         $batchSize = 10000;
         $i = 0;
-        Collection::make($bulkUpdateData)->chunk($batchSize)->each(function ($chunk) use (&$i, $collection_id) {
+        SupportCollection::make($bulkUpdateData)->chunk($batchSize)->each(function ($chunk) use (&$i, $collection_id) {
             echo $i;
             echo "\r\n";
             DB::transaction(function () use ($chunk, $collection_id) {
@@ -170,7 +172,9 @@ class AssignIdentifiersAuto extends Command
         Log::info('Temporary files cleaned up.');
         Log::info("Identifier assignment completed for collection ID: {$collection_id}");
 
-        // Artisan::call('coconut:publish-molecules-auto', ['collection_id' => $collection_id]);
+        if ($triggerNext) {
+            Artisan::call('coconut:publish-molecules-auto', ['collection_id' => $collection_id, '--trigger' => true]);
+        }
     }
 
     public function generateIdentifier($index, $type)

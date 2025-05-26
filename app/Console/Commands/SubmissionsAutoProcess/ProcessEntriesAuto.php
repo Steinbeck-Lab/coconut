@@ -5,9 +5,9 @@ namespace App\Console\Commands\SubmissionsAutoProcess;
 use App\Jobs\LoadEntriesBatch;
 use App\Models\Collection;
 use App\Models\Entry;
-use Artisan;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -19,7 +19,7 @@ class ProcessEntriesAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:entries-process-auto {collection_id=65 : The ID of the collection to process}';
+    protected $signature = 'coconut:entries-process-auto {collection_id=65 : The ID of the collection to process} {--trigger : Trigger subsequent commands in the processing chain}';
 
     /**
      * The console command description.
@@ -34,6 +34,7 @@ class ProcessEntriesAuto extends Command
     public function handle()
     {
         $collection_id = $this->argument('collection_id');
+        $triggerNext = $this->option('trigger');
 
         $collection = Collection::find($collection_id);
 
@@ -67,10 +68,13 @@ class ProcessEntriesAuto extends Command
         }
 
         $batch = Bus::batch($batchJobs)
-            ->then(function (Batch $batch) use ($collection_id) {
-                Artisan::call('coconut:entries-import-auto', [
-                    'collection_id' => $collection_id,
-                ]);
+            ->then(function (Batch $batch) use ($collection_id, $triggerNext) {
+                if ($triggerNext) {
+                    Artisan::call('coconut:entries-import-auto', [
+                        'collection_id' => $collection_id,
+                        '--trigger' => true,
+                    ]);
+                }
             })
             ->catch(function (Batch $batch, Throwable $e) {})
             ->finally(function (Batch $batch) use ($collection) {

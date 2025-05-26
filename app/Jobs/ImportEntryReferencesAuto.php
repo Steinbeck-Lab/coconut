@@ -54,30 +54,24 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
             return;
         }
 
-        // Process references if they exist
-        if (isset($this->entry->meta_data['new_molecule_data']['references'])) {
-            // Save organism details - sample location and geo location
-            foreach ($this->entry->meta_data['new_molecule_data']['references'] as $reference) {
-                $doi = $reference['doi'];
+        // Update status to processing
+        updateCurationStatus($molecule->id, 'import_references', 'processing');
 
-                $doiRegex = '/\b(10[.][0-9]{4,}(?:[.][0-9]+)*)\b/';
-                if ($doi && $doi != '') {
-                    if (preg_match($doiRegex, $doi)) {
-                        $this->fetchDOICitation($doi, $molecule);
-                    } else {
-                        $this->fetchCitation($doi, $molecule);
-                    }
-                }
-
-                if ($reference['organisms']) {
-                    $this->saveOrganismDetails($reference['organisms'], $molecule);
-                }
+        try {
+            // Process references if they exist
+            if (isset($this->entry->meta_data['new_molecule_data']['references'])) {
+                // Process each reference
+                $this->processReferences($this->entry->meta_data['new_molecule_data']['references'], $molecule);
             }
-        }
 
-        // Update entry status to indicate references processing is complete
-        $this->entry->status = 'IMPORTED';
-        $this->entry->save();
+            // Mark as completed
+            updateCurationStatus($molecule->id, 'import_references', 'completed');
+
+        } catch (Exception $e) {
+            // Update status to failed with error message
+            updateCurationStatus($molecule->id, 'import_references', 'failed', $e->getMessage());
+            throw $e;
+        }
     }
 
     /**
@@ -409,6 +403,34 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
             }
         } catch (Exception $e) {
             return null; // Handle exception here
+        }
+    }
+
+    /**
+     * Process references for the molecule.
+     *
+     * @param  array  $references
+     * @param  mixed  $molecule
+     * @return void
+     */
+    public function processReferences($references, $molecule)
+    {
+        // Save organism details - sample location and geo location
+        foreach ($references as $reference) {
+            $doi = $reference['doi'];
+
+            $doiRegex = '/\b(10[.][0-9]{4,}(?:[.][0-9]+)*)\b/';
+            if ($doi && $doi != '') {
+                if (preg_match($doiRegex, $doi)) {
+                    $this->fetchDOICitation($doi, $molecule);
+                } else {
+                    $this->fetchCitation($doi, $molecule);
+                }
+            }
+
+            if ($reference['organisms']) {
+                $this->saveOrganismDetails($reference['organisms'], $molecule);
+            }
         }
     }
 }

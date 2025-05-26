@@ -39,27 +39,34 @@ class GenerateProperties implements ShouldQueue
      */
     public function handle(): void
     {
-        $canonical_smiles = $this->molecule->canonical_smiles;
-        $API_URL = env('API_URL', 'https://api.cheminf.studio/latest/');
-        $ENDPOINT = $API_URL.'chem/descriptors?smiles='.urlencode($canonical_smiles).'&format=json&toolkit=rdkit';
         try {
+            $canonical_smiles = $this->molecule->canonical_smiles;
+            $API_URL = env('API_URL', 'https://api.cheminf.studio/latest/');
+            $ENDPOINT = $API_URL.'chem/descriptors?smiles='.urlencode($canonical_smiles).'&format=json&toolkit=rdkit';
+
             $response = Http::timeout(600)->get($ENDPOINT);
             if ($response->successful()) {
                 $descriptors = $response->json();
                 $descriptors['standard_inchi'] = $this->molecule->standard_inchi;
                 $this->attachProperties($descriptors, $this->molecule->id);
+                updateCurationStatus($this->molecule->id, 'generate-properties', 'completed');
+            } else {
+                $error = 'Failed to get properties from API: '.$response->status();
+                Log::error($error.' - '.$canonical_smiles);
+                updateCurationStatus($this->molecule->id, 'generate-properties', 'failed', $error);
             }
         } catch (\Exception $e) {
-            Log::error('An unexpected exception occurred: '.$e->getMessage().' - '.$canonical_smiles);
-            $errors = [
-                'An unexpected exception occurred' => $e->getMessage().' - '.$canonical_smiles,
-            ];
+            $error = 'An unexpected exception occurred: '.$e->getMessage();
+            Log::error($error.' - '.$canonical_smiles);
+            updateCurationStatus($this->molecule->id, 'generate-properties', 'failed', $error);
+            throw $e;
         }
     }
 
     public function attachProperties($descriptors, $id)
     {
         $properties = Properties::firstOrCreate(['molecule_id' => $id]);
+
         $properties->total_atom_count = $descriptors['atom_count'] ?? 0;
         $properties->heavy_atom_count = $descriptors['heavy_atom_count'] ?? 0;
         $properties->molecular_weight = $descriptors['molecular_weight'] ?? 0;

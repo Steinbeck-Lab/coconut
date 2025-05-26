@@ -503,3 +503,48 @@ function getFilterMap()
         'cite' => 'ciatation',
     ];
 }
+
+function updateCurationStatus($moleculeId, $command, $status, $errorMessage = null)
+{
+    $molecule = Molecule::find($moleculeId);
+    if (! $molecule) {
+        return false;
+    }
+
+    $curationStatus = $molecule->curation_status ?? [];
+    $curationStatus[$command] = [
+        'status' => $status,
+        'error_message' => $errorMessage,
+        'processed_at' => now()->toISOString(),
+    ];
+
+    $molecule->curation_status = $curationStatus;
+
+    return $molecule->save();
+}
+
+function isAlreadyProcessed($moleculeId, $command)
+{
+    $molecule = Molecule::find($moleculeId);
+    if (! $molecule || ! $molecule->curation_status) {
+        return false;
+    }
+
+    $commandStatus = $molecule->curation_status[$command] ?? null;
+
+    return $commandStatus && ($commandStatus['status'] === 'completed' || $commandStatus['status'] === 'failed');
+}
+
+function getCurationStatus($moleculeId, $command = null)
+{
+    $molecule = Molecule::find($moleculeId);
+    if (! $molecule) {
+        return null;
+    }
+
+    if ($command) {
+        return $molecule->curation_status[$command] ?? null;
+    }
+
+    return $molecule->curation_status;
+}

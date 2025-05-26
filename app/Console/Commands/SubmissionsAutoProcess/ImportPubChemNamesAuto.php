@@ -20,7 +20,7 @@ class ImportPubChemNamesAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:import-pubchem-data-auto {collection_id=65 : The ID of the collection to process} {--retry-failed : Include previously failed molecules}';
+    protected $signature = 'coconut:import-pubchem-data-auto {collection_id=65 : The ID of the collection to process} {--retry-failed : Include previously failed molecules} {--force : Retry processing of molecules with failed status only} {--trigger : Trigger subsequent commands in the processing chain}';
 
     /**
      * The console command description.
@@ -42,6 +42,9 @@ class ImportPubChemNamesAuto extends Command
     public function handle()
     {
         $collection_id = $this->argument('collection_id');
+        $retryFailed = $this->option('retry-failed');
+        $forceProcess = $this->option('force');
+        $triggerNext = $this->option('trigger');
 
         $collection = Collection::find($collection_id);
 
@@ -54,7 +57,6 @@ class ImportPubChemNamesAuto extends Command
 
         // Load the list of failed molecule IDs
         $failedIds = $this->getFailedMoleculeIds();
-        $retryFailed = $this->option('retry-failed');
 
         // Base query to find molecules needing PubChem data for specific collection
         $query = Molecule::select('molecules.id')
@@ -68,6 +70,18 @@ class ImportPubChemNamesAuto extends Command
             ->whereNull('molecules.synonyms')
             ->distinct();
 
+        // If not forcing, exclude already processed molecules (completed OR failed)
+        if (! $forceProcess) {
+            $query->where(function ($q) {
+                $q->whereNull('curation_status')
+                    ->orWhereRaw('JSON_EXTRACT(curation_status, "$.import-pubchem-names.status") IS NULL')
+                    ->orWhereRaw('JSON_EXTRACT(curation_status, "$.import-pubchem-names.status") NOT IN ("completed", "failed")');
+            });
+        } else {
+            // If forcing, only process molecules with failed status
+            $query->whereRaw('JSON_EXTRACT(curation_status, "$.import-pubchem-names.status") = "failed"');
+        }
+
         // Exclude failed molecules unless retry is specified
         if (! $retryFailed && count($failedIds) > 0) {
             Log::info('Excluding '.count($failedIds).' previously failed molecules. Use --retry-failed to include them.');
@@ -77,7 +91,9 @@ class ImportPubChemNamesAuto extends Command
         $count = $query->count();
         if ($count === 0) {
             Log::info("No molecules found that require PubChem data import for collection {$collection_id}.");
-            Artisan::call('coconut:generate-properties-auto', ['collection_id' => $collection_id]);
+            if ($triggerNext) {
+                Artisan::call('coconut:generate-properties-auto', ['collection_id' => $collection_id, '--trigger' => true]);
+            }
 
             return 0;
         }
@@ -85,9 +101,14 @@ class ImportPubChemNamesAuto extends Command
         Log::info("Found {$count} molecules requiring PubChem data import for collection {$collection_id}");
 
         // Use chunk to process large sets of molecules
-        $query->chunkById(10000, function ($mols) use ($collection_id) {
+        $query->chunkById(10000, function ($mols) use ($collection_id, $triggerNext) {
             $moleculeCount = count($mols);
             Log::info("Processing batch of {$moleculeCount} molecules for collection {$collection_id}");
+
+            // Record the processing attempt in curation status for each molecule
+            foreach ($mols as $molecule) {
+                updateCurationStatus($molecule->id, 'import-pubchem-names', 'processing');
+            }
 
             // Prepare batch jobs
             $batchJobs = [];
@@ -95,10 +116,12 @@ class ImportPubChemNamesAuto extends Command
 
             // Dispatch as a batch
             Bus::batch($batchJobs)
-                ->then(function (Batch $batch) use ($collection_id) {
+                ->then(function (Batch $batch) use ($collection_id, $triggerNext) {
                     Log::info("PubChem import batch completed successfully for collection {$collection_id}: ".$batch->id);
-                    Log::info("Calling GeneratePropertiesAuto after PubChem import batch for collection {$collection_id}");
-                    Artisan::call('coconut:generate-properties-auto', ['collection_id' => $collection_id]);
+                    if ($triggerNext) {
+                        Log::info("Calling GeneratePropertiesAuto after PubChem import batch for collection {$collection_id}");
+                        Artisan::call('coconut:generate-properties-auto', ['collection_id' => $collection_id, '--trigger' => true]);
+                    }
                 })
                 ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
                     Log::error("PubChem import batch failed for collection {$collection_id}: ".$e->getMessage());

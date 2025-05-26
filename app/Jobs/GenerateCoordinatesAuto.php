@@ -11,7 +11,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Throwable;
 
 class GenerateCoordinatesAuto implements ShouldQueue
 {
@@ -28,14 +27,6 @@ class GenerateCoordinatesAuto implements ShouldQueue
     }
 
     /**
-     * Get a unique identifier for the queued job.
-     */
-    public function uniqueId(): string
-    {
-        return $this->molecule->id;
-    }
-
-    /**
      * Execute the job.
      */
     public function handle(): void
@@ -44,39 +35,47 @@ class GenerateCoordinatesAuto implements ShouldQueue
             return;
         }
 
-        $id = $this->molecule->id;
-        $canonical_smiles = $this->molecule->canonical_smiles;
+        try {
+            $id = $this->molecule->id;
+            $canonical_smiles = $this->molecule->canonical_smiles;
 
-        // Build endpoints
-        $apiUrl = env('API_URL', 'https://api.cheminf.studio/latest/');
-        $d2Endpoint = $apiUrl.'convert/mol2D?smiles='.urlencode($canonical_smiles).'&toolkit=rdkit';
-        $d3Endpoint = $apiUrl.'convert/mol3D?smiles='.urlencode($canonical_smiles).'&toolkit=rdkit';
+            // Build endpoints
+            $apiUrl = env('API_URL', 'https://api.cheminf.studio/latest/');
+            $d2Endpoint = $apiUrl.'convert/mol2D?smiles='.urlencode($canonical_smiles).'&toolkit=rdkit';
+            $d3Endpoint = $apiUrl.'convert/mol3D?smiles='.urlencode($canonical_smiles).'&toolkit=rdkit';
 
-        // Fetch coordinates from API
-        $d2 = $this->fetchFromApi($d2Endpoint, $canonical_smiles);
-        $d3 = $this->fetchFromApi($d3Endpoint, $canonical_smiles);
+            // Fetch coordinates from API
+            $d2 = $this->fetchFromApi($d2Endpoint, $canonical_smiles);
+            $d3 = $this->fetchFromApi($d3Endpoint, $canonical_smiles);
 
-        // Skip if both 2D and 3D coordinates are null
-        if ((is_null($d2) || $d2 === '') && (is_null($d3) || $d3 === '')) {
-            Log::warning("Failed to generate coordinates for molecule ID: {$id}");
+            // Skip if both 2D and 3D coordinates are null
+            if ((is_null($d2) || $d2 === '') && (is_null($d3) || $d3 === '')) {
+                $error = "Failed to generate coordinates for molecule ID: {$id}";
+                Log::warning($error);
+                updateCurationStatus($id, 'generate-coordinates', 'failed', $error);
 
-            return;
+                return;
+            }
+
+            // Save the structure
+            $this->saveStructure($id, $d2, $d3);
+            updateCurationStatus($id, 'generate-coordinates', 'completed');
+        } catch (\Exception $e) {
+            $error = "Error processing molecule {$this->molecule->id}: ".$e->getMessage();
+            Log::error($error);
+            updateCurationStatus($this->molecule->id, 'generate-coordinates', 'failed', $error);
+            throw $e;
         }
-
-        // Save the structure
-        $this->saveStructure($id, $d2, $d3);
     }
 
     /**
      * Make an HTTP GET request with basic retry/backoff handling.
-     *
-     * @return mixed (string|null) Returns the response body or null on failure.
      */
     private function fetchFromApi(string $endpoint, string $smiles)
     {
         $maxRetries = 3;
+        $backoffSeconds = 2;
         $attempt = 0;
-        $backoffSeconds = 0.1;
 
         while ($attempt < $maxRetries) {
             try {
@@ -86,6 +85,7 @@ class GenerateCoordinatesAuto implements ShouldQueue
                     return $response->body();
                 }
 
+                // Throttling: if we hit a 429, wait and retry
                 if ($response->status() === 429) {
                     Log::warning("Throttled (429) for SMILES: {$smiles}. Retrying in {$backoffSeconds} second(s)...");
                     sleep($backoffSeconds);
@@ -97,7 +97,7 @@ class GenerateCoordinatesAuto implements ShouldQueue
                 Log::error("Error fetching data for SMILES: {$smiles}, HTTP status: ".$response->status());
 
                 return null;
-            } catch (Throwable $e) {
+            } catch (\Exception $e) {
                 Log::error("Exception fetching data for SMILES: {$smiles}. ".$e->getMessage());
                 sleep($backoffSeconds);
                 $attempt++;
@@ -118,8 +118,9 @@ class GenerateCoordinatesAuto implements ShouldQueue
             $structure['2d'] = json_encode($d2);
             $structure['3d'] = json_encode($d3);
             $structure->save();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             Log::error("Error saving structure for molecule ID {$moleculeId}: ".$e->getMessage());
+            throw $e;
         }
     }
 }

@@ -44,18 +44,27 @@ class ClassifyMoleculeAuto implements ShouldQueue
             return;
         }
 
-        $id = $this->molecule->id;
-        $canonical_smiles = $this->molecule->canonical_smiles;
+        try {
+            $id = $this->molecule->id;
+            $canonical_smiles = $this->molecule->canonical_smiles;
 
-        // Build endpoint
-        $apiUrl = 'https://npclassifier.gnps2.org/classify?smiles=';
-        $endpoint = $apiUrl.urlencode($canonical_smiles);
+            // Build endpoint
+            $apiUrl = 'https://npclassifier.gnps2.org/classify?smiles=';
+            $endpoint = $apiUrl.urlencode($canonical_smiles);
 
-        // Fetch classification data from API
-        $response_data = $this->fetchFromApi($endpoint, $canonical_smiles);
+            // Fetch classification data from API
+            $response_data = $this->fetchFromApi($endpoint, $canonical_smiles);
 
-        if ($response_data) {
-            $this->updateProperties($id, $response_data);
+            if ($response_data) {
+                $this->updateProperties($id, $response_data);
+                updateCurationStatus($id, 'classify', 'completed');
+            } else {
+                updateCurationStatus($id, 'classify', 'failed', 'Failed to fetch or process classification data');
+            }
+        } catch (Throwable $e) {
+            Log::error("Error classifying molecule {$this->molecule->id}: ".$e->getMessage());
+            updateCurationStatus($this->molecule->id, 'classify', 'failed', $e->getMessage());
+            throw $e;
         }
     }
 
@@ -73,7 +82,6 @@ class ClassifyMoleculeAuto implements ShouldQueue
         while ($attempt < $maxRetries) {
             try {
                 $response = Http::timeout(600)->get($endpoint);
-
                 if ($response->successful()) {
                     return $response->json();
                 }

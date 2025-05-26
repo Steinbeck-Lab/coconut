@@ -16,7 +16,7 @@ class GenerateCoordinatesAuto extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'coconut:generate-coordinates-auto {collection_id=65 : The ID of the collection to process}';
+    protected $signature = 'coconut:generate-coordinates-auto {collection_id=65 : The ID of the collection to process} {--force : Retry processing of molecules with failed status only}';
 
     /**
      * The console command description.
@@ -29,6 +29,7 @@ class GenerateCoordinatesAuto extends Command
     public function handle()
     {
         $collection_id = $this->argument('collection_id');
+        $forceProcess = $this->option('force');
 
         $collection = Collection::find($collection_id);
 
@@ -47,6 +48,18 @@ class GenerateCoordinatesAuto extends Command
             ->doesntHave('structures')
             ->distinct();
 
+        // If not forcing, exclude already processed molecules (completed OR failed)
+        if (! $forceProcess) {
+            $query->where(function ($q) {
+                $q->whereNull('curation_status')
+                    ->orWhereRaw('JSON_EXTRACT(curation_status, "$.generate-coordinates.status") IS NULL')
+                    ->orWhereRaw('JSON_EXTRACT(curation_status, "$.generate-coordinates.status") NOT IN ("completed", "failed")');
+            });
+        } else {
+            // If forcing, only process molecules with failed status
+            $query->whereRaw('JSON_EXTRACT(curation_status, "$.generate-coordinates.status") = "failed"');
+        }
+
         $totalCount = $query->count();
 
         if ($totalCount === 0) {
@@ -57,12 +70,17 @@ class GenerateCoordinatesAuto extends Command
 
         Log::info("Total molecules to process in collection {$collection_id}: {$totalCount}");
 
-        // Process molecules in chunks of 1000
+        // Process molecules in chunks
         $query->chunkById(1000, function ($molecules) use ($collection_id) {
             $moleculeIds = $molecules->pluck('id')->toArray();
             $batchSize = count($moleculeIds);
 
             Log::info("Processing batch of {$batchSize} molecules for coordinate generation in collection {$collection_id}");
+
+            // Mark molecules as processing
+            foreach ($molecules as $molecule) {
+                updateCurationStatus($molecule->id, 'generate-coordinates', 'processing');
+            }
 
             // Create and dispatch batch job
             $batchJobs = [];
