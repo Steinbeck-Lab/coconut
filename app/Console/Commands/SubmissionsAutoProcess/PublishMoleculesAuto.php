@@ -50,13 +50,12 @@ class PublishMoleculesAuto extends Command
         // If not forcing, exclude already processed molecules (completed OR failed)
         if (! $forcePublish) {
             $query->where(function ($q) {
-                $q->whereNull('curation_status')
-                    ->orWhereRaw('JSON_EXTRACT(curation_status, "$.publish-molecules.status") IS NULL')
-                    ->orWhereRaw('JSON_EXTRACT(curation_status, "$.publish-molecules.status") NOT IN ("completed", "failed")');
+                $q->whereNull('curation_status->publish-molecules->status')
+                    ->orWhereNotIn('curation_status->publish-molecules->status', ['completed', 'failed']);
             });
         } else {
             // If forcing, only process molecules with failed status
-            $query->whereRaw('JSON_EXTRACT(curation_status, "$.publish-molecules.status") = "failed"');
+            $query->where('curation_status->publish-molecules->status', 'failed');
         }
 
         // Get the count of molecules to be processed

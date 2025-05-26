@@ -58,13 +58,12 @@ class GeneratePropertiesAuto extends Command
         // If not forcing, exclude already processed molecules (completed OR failed)
         if (! $forceProcess) {
             $query->where(function ($q) {
-                $q->whereNull('curation_status')
-                    ->orWhereRaw('JSON_EXTRACT(curation_status, "$.generate-properties.status") IS NULL')
-                    ->orWhereRaw('JSON_EXTRACT(curation_status, "$.generate-properties.status") NOT IN ("completed", "failed")');
+                $q->whereNull('curation_status->generate-properties->status')
+                    ->orWhereNotIn('curation_status->generate-properties->status', ['completed', 'failed']);
             });
         } else {
             // If forcing, only process molecules with failed status
-            $query->whereRaw('JSON_EXTRACT(curation_status, "$.generate-properties.status") = "failed"');
+            $query->where('curation_status->generate-properties->status', 'failed');
         }
 
         // Get count of molecules to process

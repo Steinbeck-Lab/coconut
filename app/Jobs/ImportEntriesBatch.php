@@ -41,7 +41,7 @@ class ImportEntriesBatch implements ShouldQueue
         $batchJobs = [];
         foreach ($entries as $entry) {
             if ($this->batch_type == 'auto') {
-                array_push($batchJobs, values: new ImportEntryMoleculeAuto($entry));
+                array_push($batchJobs, new ImportEntryMoleculeAuto($entry));
             } elseif ($this->batch_type == 'references') {
                 array_push($batchJobs, new ImportEntryReferencesAuto($entry));
             } else {

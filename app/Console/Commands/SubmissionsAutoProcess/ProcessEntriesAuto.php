@@ -64,6 +64,13 @@ class ProcessEntriesAuto extends Command
             $collection->job_info = '';
             $collection->save();
 
+            if ($triggerNext) {
+                Artisan::call('coconut:entries-import-auto', [
+                    'collection_id' => $collection_id,
+                    '--trigger' => true,
+                ]);
+            }
+
             return 0;
         }
 

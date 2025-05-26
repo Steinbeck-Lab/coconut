@@ -149,7 +149,7 @@ class AssignIdentifiersAuto extends Command
                     DB::table('entries')
                         ->where('molecule_id', $data['row_id'])
                         ->where('collection_id', $collection_id)
-                        ->update(['identifier' => $data['identifier']]);
+                        ->update(['coconut_id' => $data['identifier']]);
                 }
             });
             $i++;
@@ -172,9 +172,6 @@ class AssignIdentifiersAuto extends Command
         Log::info('Temporary files cleaned up.');
         Log::info("Identifier assignment completed for collection ID: {$collection_id}");
 
-        if ($triggerNext) {
-            Artisan::call('coconut:publish-molecules-auto', ['collection_id' => $collection_id, '--trigger' => true]);
-        }
     }
 
     public function generateIdentifier($index, $type)

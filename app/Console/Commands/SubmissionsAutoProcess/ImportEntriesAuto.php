@@ -69,6 +69,13 @@ class ImportEntriesAuto extends Command
             $collection->job_info = '';
             $collection->save();
 
+            if ($triggerNext) {
+                Artisan::call('coconut:molecules-assign-identifiers-auto', [
+                    'collection_id' => $collection_id,
+                    '--trigger' => true,
+                ]);
+            }
+
             return 0;
         }
 
@@ -76,6 +83,7 @@ class ImportEntriesAuto extends Command
 
         $batch = Bus::batch($batchJobs)
             ->then(function (Batch $batch) use ($collection_id, $triggerNext) {
+                Log::info("Entries imported for collection ID {$collection_id}.");
                 // Clear cache for this collection only
                 Cache::forget('stats.collections'.$collection_id.'entries.count');
                 Cache::forget('stats.collections'.$collection_id.'molecules.count');
@@ -101,7 +109,5 @@ class ImportEntriesAuto extends Command
             ->onConnection('redis')
             ->onQueue('default')
             ->dispatch();
-
-        Log::info("Import process started for collection ID {$collection_id}.");
     }
 }

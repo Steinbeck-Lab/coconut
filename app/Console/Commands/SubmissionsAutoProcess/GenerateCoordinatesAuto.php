@@ -51,13 +51,12 @@ class GenerateCoordinatesAuto extends Command
         // If not forcing, exclude already processed molecules (completed OR failed)
         if (! $forceProcess) {
             $query->where(function ($q) {
-                $q->whereNull('curation_status')
-                    ->orWhereRaw('JSON_EXTRACT(curation_status, "$.generate-coordinates.status") IS NULL')
-                    ->orWhereRaw('JSON_EXTRACT(curation_status, "$.generate-coordinates.status") NOT IN ("completed", "failed")');
+                $q->whereNull('curation_status->generate-coordinates->status')
+                    ->orWhereNotIn('curation_status->generate-coordinates->status', ['completed', 'failed']);
             });
         } else {
             // If forcing, only process molecules with failed status
-            $query->whereRaw('JSON_EXTRACT(curation_status, "$.generate-coordinates.status") = "failed"');
+            $query->where('curation_status->generate-coordinates->status', 'failed');
         }
 
         $totalCount = $query->count();

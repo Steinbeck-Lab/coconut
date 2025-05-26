@@ -58,13 +58,12 @@ class ClassifyAuto extends Command
         // If not forcing, exclude already processed molecules (completed OR failed)
         if (! $forceProcess) {
             $query->where(function ($q) {
-                $q->whereNull('curation_status')
-                    ->orWhereRaw('JSON_EXTRACT(curation_status, "$.classify.status") IS NULL')
-                    ->orWhereRaw('JSON_EXTRACT(curation_status, "$.classify.status") NOT IN ("completed", "failed")');
+                $q->whereNull('curation_status->classify->status')
+                    ->orWhereNotIn('curation_status->classify->status', ['completed', 'failed']);
             });
         } else {
             // If forcing, only process molecules with failed status
-            $query->whereRaw('JSON_EXTRACT(curation_status, "$.classify.status") = "failed"');
+            $query->where('curation_status->classify->status', 'failed');
         }
 
         Log::info("Processing molecules in collection {$collection_id} that need classification.");
@@ -74,7 +73,7 @@ class ClassifyAuto extends Command
         if ($totalCount === 0) {
             Log::info("No molecules found to classify in collection {$collection_id}.");
             if ($triggerNext) {
-                Artisan::call('coconut:generate-coordinates-auto', ['collection_id' => $collection_id, '--trigger' => true]);
+                Artisan::call('coconut:generate-coordinates-auto', ['collection_id' => $collection_id]);
             }
 
             return 0;
@@ -103,7 +102,7 @@ class ClassifyAuto extends Command
                     Log::info("NPClassifier batch completed for collection {$collection_id}: ".$batch->id);
                     if ($triggerNext) {
                         Log::info("Calling GenerateCoordinatesAuto after NPClassifier batch for collection {$collection_id}");
-                        Artisan::call('coconut:generate-coordinates-auto', ['collection_id' => $collection_id, '--trigger' => true]);
+                        Artisan::call('coconut:generate-coordinates-auto', ['collection_id' => $collection_id]);
                     }
                 })
                 ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {

@@ -38,7 +38,8 @@ class EditCollection extends EditRecord
                 ->modalDescription('This will make all the new submitted molecules in this collection public. Are you sure you\'d like to proceed? This cannot be undone.')
                 ->action(function () {
                     Artisan::call('coconut:publish-molecules-auto', [
-                        '--collection_id' => $this->record->id,
+                        'collection_id' => $this->record->id,
+                        '--trigger' => true,
                     ]);
                 })
                 ->visible(function () {

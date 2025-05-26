@@ -51,6 +51,7 @@ class Molecule extends Model implements Auditable
         'is_tautomer',
         'is_parent',
         'is_placeholder',
+        'curation_status',
     ];
 
     /**
@@ -62,6 +63,7 @@ class Molecule extends Model implements Auditable
         'synonyms' => 'array',
         'cas' => 'array',
         'comment' => 'array',
+        'curation_status' => 'array',
     ];
 
     /**

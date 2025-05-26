@@ -73,13 +73,12 @@ class ImportPubChemNamesAuto extends Command
         // If not forcing, exclude already processed molecules (completed OR failed)
         if (! $forceProcess) {
             $query->where(function ($q) {
-                $q->whereNull('curation_status')
-                    ->orWhereRaw('JSON_EXTRACT(curation_status, "$.import-pubchem-names.status") IS NULL')
-                    ->orWhereRaw('JSON_EXTRACT(curation_status, "$.import-pubchem-names.status") NOT IN ("completed", "failed")');
+                $q->whereNull('curation_status->import-pubchem-names->status')
+                    ->orWhereNotIn('curation_status->import-pubchem-names->status', ['completed', 'failed']);
             });
         } else {
             // If forcing, only process molecules with failed status
-            $query->whereRaw('JSON_EXTRACT(curation_status, "$.import-pubchem-names.status") = "failed"');
+            $query->where('curation_status->import-pubchem-names->status', 'failed');
         }
 
         // Exclude failed molecules unless retry is specified
