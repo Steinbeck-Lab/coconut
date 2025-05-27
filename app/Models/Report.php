@@ -26,18 +26,20 @@ class Report extends Model implements Auditable
         'report_type',
         'title',
         'evidence',
-        'url',
+        'doi',
         'mol_id_csv',
         'status',
         'comment',
         'user_id',
         'suggested_changes',
-        'is_change',
-        'doi',
+        'report_category',
+        'assigned_to',
     ];
 
     protected $casts = [
         'suggested_changes' => 'array',
+        'report_category' => 'string',
+        'status' => 'string',
     ];
 
     /**

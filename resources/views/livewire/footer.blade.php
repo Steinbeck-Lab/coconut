@@ -25,7 +25,7 @@
                             </div>
                         </a>
                     </div>
-                    <p class="mt-8 text-center text-base text-gray-400"> © 2024 COCONUT. All rights reserved. </p>
+                    <p class="mt-8 text-center text-base text-gray-400"> © {{ now()->year }} COCONUT. All rights reserved. </p>
                     <div class="mt-2 text-center text-base text-gray-400"><a target="_blank" href="/terms-of-service"
                             class="underline text-sm text-gray-600 hover:text-gray-900">Terms of Service</a> and <a
                             target="_blank" href="/privacy-policy"

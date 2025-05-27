@@ -34,7 +34,7 @@ features:
 
 footer:
   message: "COCONUT - Empowering Natural Product Research"
-  copyright: "© 2024 COCONUT Database"
+  copyright: "© 2025 COCONUT Database"
 
 ---
 

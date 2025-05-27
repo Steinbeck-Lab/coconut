@@ -12,6 +12,18 @@ The **COCONUT** offers extensive data on natural products, updated monthly and h
 
 ## Available Datasets
 
-- Postgres Dump
-- CSV Format
-- SDF Format
+### Postgres Database Dump
+Complete database dump containing all tables including molecules, collections, citations, and more.
+
+### CSV Format Files
+- **Lite Format:** Essential molecular information (identifiers, structures, properties)
+- **Full Format:** Complete dataset including organisms, collections, DOIs, and CAS numbers
+
+### SDF (Structure-Data File) Format
+- **2D Coordinate Files:** Available in lite and full versions
+- **3D Coordinate Files:** Molecular structures with 3D coordinates
+  
+### Collection-Specific Downloads
+Individual collection SDF downloads containing 2D coordinates and comprehensive molecular data.
+
+For more details, click [here](/data.md)

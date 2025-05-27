@@ -34,6 +34,7 @@ class CollectionList extends Component
     {
         $search = $this->query;
         $collections = Collection::query()
+            ->where('status', 'PUBLISHED')
             ->where(function ($query) use ($search) {
                 $query->whereRaw('LOWER(title) LIKE ?', ['%'.strtolower($search).'%'])
                     ->orWhereRaw('LOWER(description) LIKE ?', ['%'.strtolower($search).'%']);
