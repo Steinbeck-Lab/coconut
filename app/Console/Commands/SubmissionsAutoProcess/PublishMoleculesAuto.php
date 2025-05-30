@@ -86,12 +86,12 @@ class PublishMoleculesAuto extends Command
         }
 
         // Call artisan command to carry on the metadata fetching process
-        if ($triggerNext) {
-            Artisan::call('coconut:entries-import-references', [
-                'collection_id' => $collection_id,
-                '--trigger' => true,
-            ]);
-        }
+        // if ($triggerNext) {
+        //     Artisan::call('coconut:entries-import-references', [
+        //         'collection_id' => $collection_id,
+        //         '--trigger' => true,
+        //     ]);
+        // }
 
         return 0;
     }

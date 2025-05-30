@@ -983,11 +983,11 @@ class ReportResource extends Resource
 
                 // Only set relationship fields if there's actual data
                 if (! empty($allDois)) {
-                    $new_entry->doi = implode('||', $allDois);
-                    $new_entry->organism = implode('||', $allOrganisms);
-                    $new_entry->organism_part = implode('||', $allParts);
-                    $new_entry->geo_location = implode('||', $allGeoLocations);
-                    $new_entry->location = implode('||', $allEcosystems);
+                    $new_entry->doi = implode('##', $allDois);
+                    $new_entry->organism = implode('##', $allOrganisms);
+                    $new_entry->organism_part = implode('##', $allParts);
+                    $new_entry->geo_location = implode('##', $allGeoLocations);
+                    $new_entry->location = implode('##', $allEcosystems);
                 }
             }
 

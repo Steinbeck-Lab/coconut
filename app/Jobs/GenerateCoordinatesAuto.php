@@ -64,7 +64,7 @@ class GenerateCoordinatesAuto implements ShouldQueue
 
             // Update attached reports status to COMPLETED
             foreach ($this->molecule->reports as $report) {
-                $report->status =  ReportStatus::COMPLETED->value;
+                $report->status = ReportStatus::COMPLETED->value;
                 $report->save();
             }
         } catch (\Exception $e) {

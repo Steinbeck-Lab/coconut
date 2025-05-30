@@ -49,11 +49,11 @@ class CollectionResource extends Resource
                         ->schema([
                             Select::make('status')
                                 ->options(getCollectionStatuses())
-                                ->default(function (Model $record) {
+                                ->default(function (?Model $record) {
                                     return $record->status ?? 'DRAFT';
                                 })
                                 ->required()
-                                ->hidden(function (Model $record) {
+                                ->hidden(function (?Model $record) {
                                     return auth()->user()->cannot('update', $record);
                                 }),
                         ])->columns(4),
