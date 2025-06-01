@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\SubmissionsAutoProcess;
 
+use App\Events\ImportPipelineJobFailed;
 use App\Jobs\ImportEntriesBatch;
 use App\Models\Collection;
 use App\Models\Entry;
@@ -99,8 +100,20 @@ class ImportEntriesReferencesAuto extends Command
                 ]);
             }
         })
-            ->catch(function (Batch $batch, Throwable $e) {
+            ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
                 Log::error('References import batch failed: '.$e->getMessage());
+
+                // Dispatch event for batch-level notification
+                ImportPipelineJobFailed::dispatch(
+                    'Import References Auto Batch',
+                    $e,
+                    [
+                        'batch_id' => $batch->id,
+                        'collection_id' => $collection_id,
+                        'step' => 'import_references_batch',
+                    ],
+                    $batch->id
+                );
             })
             ->finally(function (Batch $batch) use ($collection) {
                 if ($batch->finished() && ! $batch->hasFailures()) {

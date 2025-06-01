@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\ImportPipelineJobFailed;
 use App\Models\Properties;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -60,10 +61,35 @@ class ClassifyMoleculeAuto implements ShouldQueue
                 updateCurationStatus($id, 'classify', 'completed');
             } else {
                 updateCurationStatus($id, 'classify', 'failed', 'Failed to fetch or process classification data');
+
+                // Dispatch event for notification handling
+                ImportPipelineJobFailed::dispatch(
+                    self::class,
+                    new \Exception('Failed to fetch or process classification data'),
+                    [
+                        'molecule_id' => $this->molecule->id,
+                        'canonical_smiles' => $canonical_smiles ?? 'Unknown',
+                        'step' => 'classify',
+                    ],
+                    $this->batch()?->id
+                );
             }
         } catch (Throwable $e) {
             Log::error("Error classifying molecule {$this->molecule->id}: ".$e->getMessage());
             updateCurationStatus($this->molecule->id, 'classify', 'failed', $e->getMessage());
+
+            // Dispatch event for notification handling
+            ImportPipelineJobFailed::dispatch(
+                self::class,
+                $e,
+                [
+                    'molecule_id' => $this->molecule->id,
+                    'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
+                    'step' => 'classify',
+                ],
+                $this->batch()?->id
+            );
+
             throw $e;
         }
     }

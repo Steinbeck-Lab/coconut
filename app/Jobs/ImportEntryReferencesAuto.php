@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\ImportPipelineJobFailed;
 use App\Models\Citation;
 use App\Models\Ecosystem;
 use App\Models\GeoLocation;
@@ -74,6 +75,20 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
         } catch (Exception $e) {
             // Update status to failed with error message
             updateCurationStatus($molecule->id, 'import_references', 'failed', $e->getMessage());
+
+            // Dispatch event for notification handling
+            ImportPipelineJobFailed::dispatch(
+                self::class,
+                $e,
+                [
+                    'molecule_id' => $molecule->id,
+                    'entry_id' => $this->entry->id,
+                    'canonical_smiles' => $molecule->canonical_smiles ?? 'Unknown',
+                    'step' => 'import_references',
+                ],
+                $this->batch()?->id
+            );
+
             throw $e;
         }
     }

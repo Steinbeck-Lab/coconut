@@ -92,6 +92,18 @@ class GenerateCoordinatesAuto extends Command
                 })
                 ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
                     Log::error("Coordinate generation batch failed for collection {$collection_id}: ".$e->getMessage());
+
+                    // Dispatch event for batch-level notification
+                    \App\Events\ImportPipelineJobFailed::dispatch(
+                        'Generate Coordinates Auto Batch',
+                        $e,
+                        [
+                            'batch_id' => $batch->id,
+                            'collection_id' => $collection_id,
+                            'step' => 'generate_coordinates_batch',
+                        ],
+                        $batch->id
+                    );
                 })
                 ->finally(function (Batch $batch) {
                     // Cleanup or final logging

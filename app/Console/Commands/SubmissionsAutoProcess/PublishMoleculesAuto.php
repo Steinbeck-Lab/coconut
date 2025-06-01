@@ -77,6 +77,17 @@ class PublishMoleculesAuto extends Command
                     } catch (\Exception $e) {
                         Log::error("Error publishing molecule {$molecule->id}: ".$e->getMessage());
                         updateCurationStatus($molecule->id, 'publish-molecules', 'failed', $e->getMessage());
+
+                        // Dispatch event for job-level notification
+                        \App\Events\ImportPipelineJobFailed::dispatch(
+                            'Publish Molecules Auto',
+                            $e,
+                            [
+                                'molecule_id' => $molecule->id,
+                                'identifier' => $molecule->identifier ?? 'Unknown',
+                                'step' => 'publish-molecules',
+                            ]
+                        );
                     }
                 });
 

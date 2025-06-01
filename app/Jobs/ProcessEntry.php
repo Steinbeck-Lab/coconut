@@ -103,6 +103,19 @@ class ProcessEntry implements ShouldQueue
             $status = 'REJECTED';
             $error_code = 7;
             $is_invalid = true;
+
+            // Dispatch event for notification handling
+            \App\Events\ImportPipelineJobFailed::dispatch(
+                self::class,
+                $e,
+                [
+                    'entry_id' => $this->entry->id,
+                    'canonical_smiles' => $canonical_smiles ?? 'Unknown',
+                    'step' => 'process-entry',
+                    'error_code' => $e->getCode(),
+                ],
+                $this->batch()?->id
+            );
         } catch (\Exception $e) {
             Log::error('An unexpected exception occurred: '.$e->getMessage().' - '.$canonical_smiles);
             $errors = [
@@ -111,6 +124,18 @@ class ProcessEntry implements ShouldQueue
             $status = 'REJECTED';
             $error_code = 7;
             $is_invalid = true;
+
+            // Dispatch event for notification handling
+            \App\Events\ImportPipelineJobFailed::dispatch(
+                self::class,
+                $e,
+                [
+                    'entry_id' => $this->entry->id,
+                    'canonical_smiles' => $canonical_smiles ?? 'Unknown',
+                    'step' => 'process-entry',
+                ],
+                $this->batch()?->id
+            );
         }
         $this->entry->error_code = $error_code;
         $this->entry->errors = $errors;

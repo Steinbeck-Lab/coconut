@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\ImportPipelineJobFailed;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -52,10 +53,35 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
                 updateCurationStatus($this->molecule->id, 'import-pubchem-names', 'completed');
             } else {
                 updateCurationStatus($this->molecule->id, 'import-pubchem-names', 'failed', 'Failed to fetch or process PubChem data');
+
+                // Dispatch event for notification handling
+                ImportPipelineJobFailed::dispatch(
+                    self::class,
+                    new \Exception('Failed to fetch or process PubChem data'),
+                    [
+                        'molecule_id' => $this->molecule->id,
+                        'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
+                        'step' => 'import-pubchem-names',
+                    ],
+                    $this->batch()?->id
+                );
             }
         } catch (\Exception $e) {
             Log::error("Error processing molecule {$this->molecule->id}: ".$e->getMessage());
             updateCurationStatus($this->molecule->id, 'import-pubchem-names', 'failed', $e->getMessage());
+
+            // Dispatch event for notification handling
+            ImportPipelineJobFailed::dispatch(
+                self::class,
+                $e,
+                [
+                    'molecule_id' => $this->molecule->id,
+                    'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
+                    'step' => 'import-pubchem-names',
+                ],
+                $this->batch()?->id
+            );
+
             throw $e;
         }
     }

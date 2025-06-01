@@ -54,11 +54,36 @@ class GenerateProperties implements ShouldQueue
                 $error = 'Failed to get properties from API: '.$response->status();
                 Log::error($error.' - '.$canonical_smiles);
                 updateCurationStatus($this->molecule->id, 'generate-properties', 'failed', $error);
+
+                // Dispatch event for notification handling
+                \App\Events\ImportPipelineJobFailed::dispatch(
+                    self::class,
+                    new \Exception($error),
+                    [
+                        'molecule_id' => $this->molecule->id,
+                        'canonical_smiles' => $canonical_smiles ?? 'Unknown',
+                        'step' => 'generate-properties',
+                    ],
+                    $this->batch()?->id
+                );
             }
         } catch (\Exception $e) {
             $error = 'An unexpected exception occurred: '.$e->getMessage();
             Log::error($error.' - '.$canonical_smiles);
             updateCurationStatus($this->molecule->id, 'generate-properties', 'failed', $error);
+
+            // Dispatch event for notification handling
+            \App\Events\ImportPipelineJobFailed::dispatch(
+                self::class,
+                $e,
+                [
+                    'molecule_id' => $this->molecule->id,
+                    'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
+                    'step' => 'generate-properties',
+                ],
+                $this->batch()?->id
+            );
+
             throw $e;
         }
     }

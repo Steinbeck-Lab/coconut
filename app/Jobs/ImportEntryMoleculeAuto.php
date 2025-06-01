@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\ImportPipelineJobFailed;
 use App\Models\Molecule;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -11,6 +12,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class ImportEntryMoleculeAuto implements ShouldBeUnique, ShouldQueue
 {
@@ -31,68 +33,86 @@ class ImportEntryMoleculeAuto implements ShouldBeUnique, ShouldQueue
      */
     public function handle(): void
     {
-        if ($this->entry->status == 'PASSED') {
-            $molecule = null;
-            if ($this->entry->has_stereocenters) {
-                $data = $this->getRepresentations('parent');
-                $parent = $this->firstOrCreateMolecule($data['canonical_smiles'], $data['standard_inchi']);
-                if ($parent->wasRecentlyCreated) {
-                    $parent->is_parent = true;
-                    $parent->is_placeholder = true;
-                    $parent->variants_count += $parent->variants_count;
-                    $parent = $this->assignData($parent, $data);
-                    $parent->save();
-                }
-                $this->attachCollection($parent);
+        try {
+            if ($this->entry->status == 'PASSED') {
+                $molecule = null;
+                if ($this->entry->has_stereocenters) {
+                    $data = $this->getRepresentations('parent');
+                    $parent = $this->firstOrCreateMolecule($data['canonical_smiles'], $data['standard_inchi']);
+                    if ($parent->wasRecentlyCreated) {
+                        $parent->is_parent = true;
+                        $parent->is_placeholder = true;
+                        $parent->variants_count += $parent->variants_count;
+                        $parent = $this->assignData($parent, $data);
+                        $parent->save();
+                    }
+                    $this->attachCollection($parent);
 
-                $data = $this->getRepresentations('standardized');
-                if ($data['has_stereo_defined']) {
+                    $data = $this->getRepresentations('standardized');
+                    if ($data['has_stereo_defined']) {
+                        $molecule = $this->firstOrCreateMolecule($data['canonical_smiles'], $data['standard_inchi']);
+                        if ($molecule->wasRecentlyCreated) {
+                            $molecule->status = 'DRAFT';
+                            $molecule->has_stereo = true;
+                            $molecule->parent_id = $parent->id;
+                            $parent->has_variants = true;
+                            $parent->save();
+                            $molecule = $this->assignData($molecule, $data);
+                            $molecule->save();
+                        }
+                        $this->entry->molecule_id = $molecule->id;
+                        $this->entry->save();
+
+                        $this->attachCollection($molecule);
+                    } else {
+                        $this->entry->molecule_id = $parent->id;
+                        $this->entry->save();
+
+                        $this->attachCollection($parent);
+                    }
+                } else {
+                    $data = $this->getRepresentations('standardized');
                     $molecule = $this->firstOrCreateMolecule($data['canonical_smiles'], $data['standard_inchi']);
                     if ($molecule->wasRecentlyCreated) {
-                        $molecule->status = 'DRAFT';
-                        $molecule->has_stereo = true;
-                        $molecule->parent_id = $parent->id;
-                        $parent->has_variants = true;
-                        $parent->save();
                         $molecule = $this->assignData($molecule, $data);
                         $molecule->save();
                     }
+                    $molecule->is_placeholder = false;
+                    $molecule->save();
                     $this->entry->molecule_id = $molecule->id;
                     $this->entry->save();
-
                     $this->attachCollection($molecule);
-                } else {
-                    $this->entry->molecule_id = $parent->id;
-                    $this->entry->save();
+                }
 
-                    $this->attachCollection($parent);
+                // Fetch attached reports and attach the created molecule to those reports
+                $attachedReports = $this->entry->reports;
+                foreach ($attachedReports as $report) {
+                    // Get the actual molecule associated with this entry
+                    if ($this->entry->molecule_id) {
+                        // Use auditSyncWithoutDetaching to avoid duplicates automatically
+                        $report->auditSyncWithoutDetaching('molecules', [$this->entry->molecule_id]);
+                    }
                 }
-            } else {
-                $data = $this->getRepresentations('standardized');
-                $molecule = $this->firstOrCreateMolecule($data['canonical_smiles'], $data['standard_inchi']);
-                if ($molecule->wasRecentlyCreated) {
-                    $molecule = $this->assignData($molecule, $data);
-                    $molecule->save();
-                }
-                $molecule->is_placeholder = false;
-                $molecule->save();
-                $this->entry->molecule_id = $molecule->id;
+
+                $this->entry->status = 'AUTOCURATION';
                 $this->entry->save();
-                $this->attachCollection($molecule);
             }
+        } catch (\Exception $e) {
+            Log::error("Error in ImportEntryMoleculeAuto for entry {$this->entry->id}: ".$e->getMessage());
 
-            // Fetch attached reports and attach the created molecule to those reports
-            $attachedReports = $this->entry->reports;
-            foreach ($attachedReports as $report) {
-                // Get the actual molecule associated with this entry
-                if ($this->entry->molecule_id) {
-                    // Use auditSyncWithoutDetaching to avoid duplicates automatically
-                    $report->auditSyncWithoutDetaching('molecules', [$this->entry->molecule_id]);
-                }
-            }
+            // Dispatch event for notification handling
+            ImportPipelineJobFailed::dispatch(
+                self::class,
+                $e,
+                [
+                    'entry_id' => $this->entry->id,
+                    'collection_id' => $this->entry->collection_id,
+                    'step' => 'import-entry-molecule-auto',
+                ],
+                $this->batch()?->id
+            );
 
-            $this->entry->status = 'AUTOCURATION';
-            $this->entry->save();
+            throw $e;
         }
     }
 
@@ -170,7 +190,37 @@ class ImportEntryMoleculeAuto implements ShouldBeUnique, ShouldQueue
         } catch (QueryException $e) {
             if ($this->isUniqueViolationException($e)) {
                 // $this->attachCollection($molecule);
+            } else {
+                // Dispatch event for notification handling
+                ImportPipelineJobFailed::dispatch(
+                    self::class,
+                    $e,
+                    [
+                        'entry_id' => $this->entry->id,
+                        'molecule_id' => $molecule->id,
+                        'collection_id' => $this->entry->collection_id,
+                        'step' => 'attach-collection',
+                    ],
+                    $this->batch()?->id
+                );
+
+                throw $e;
             }
+        } catch (\Exception $e) {
+            // Dispatch event for notification handling
+            ImportPipelineJobFailed::dispatch(
+                self::class,
+                $e,
+                [
+                    'entry_id' => $this->entry->id,
+                    'molecule_id' => $molecule->id,
+                    'collection_id' => $this->entry->collection_id,
+                    'step' => 'attach-collection',
+                ],
+                $this->batch()?->id
+            );
+
+            throw $e;
         }
     }
 
