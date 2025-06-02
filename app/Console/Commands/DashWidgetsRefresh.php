@@ -155,8 +155,14 @@ class DashWidgetsRefresh extends Command
 
             DB::statement(
                 "UPDATE collections
-            SET (total_entries, successful_entries, failed_entries, molecules_count, citations_count, organisms_count, geo_count) = ({$total_entries[0]->count}, {$successful_entries[0]->count}, {$failed_entries[0]->count}, {$molecules_count[0]->count}, {$unique_dois_count}, {$unique_organisms_count}, {$unique_geo_locations_count})
-            WHERE id = {$collection->id};"
+                SET total_entries = {$total_entries[0]->count}, 
+                    successful_entries = {$successful_entries[0]->count}, 
+                    failed_entries = {$failed_entries[0]->count}, 
+                    molecules_count = {$molecules_count[0]->count}, 
+                    citations_count = {$unique_dois_count}, 
+                    organisms_count = {$unique_organisms_count}, 
+                    geo_count = {$unique_geo_locations_count}
+                WHERE id = {$collection->id};"
             );
         }
 
