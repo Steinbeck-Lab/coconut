@@ -30,9 +30,9 @@ class GenerateSwaggerDocs extends Command
         $publicPaths = [
             '/api/auth/login',
             '/api/auth/register',
+            '/api/search',
         ];
         $this->modifyOpenAPIJsonFile($publicPaths);
-
     }
 
     public function modifyOpenAPIJsonFile($filterPaths = [], $filePath = 'vendor/rest/openapi.json')
@@ -45,6 +45,7 @@ class GenerateSwaggerDocs extends Command
 
         $jsonData = json_decode(File::get($jsonFilePath), true);
 
+        // Add security to non-public paths
         if (isset($jsonData['paths'])) {
             foreach ($jsonData['paths'] as $pathKey => &$path) {
                 if (! in_array($pathKey, $filterPaths)) {
@@ -55,6 +56,20 @@ class GenerateSwaggerDocs extends Command
             }
         }
 
+        // Remove suggested_changes from reports search API sorts
+        if (isset($jsonData['paths']['/api/reports/search']['post']['requestBody']['content']['application/json']['example']['search']['sorts'])) {
+            $sorts = &$jsonData['paths']['/api/reports/search']['post']['requestBody']['content']['application/json']['example']['search']['sorts'];
+
+            // Filter out the suggested_changes sort
+            $sorts = array_filter($sorts, function ($sort) {
+                return $sort['field'] !== 'suggested_changes';
+            });
+
+            // Re-index the array
+            $sorts = array_values($sorts);
+        }
+
+        // Update security schemes
         if (isset($jsonData['components']['securitySchemes'])) {
             foreach ($jsonData['components']['securitySchemes'] as &$scheme) {
                 if (isset($scheme['flows'])) {
@@ -65,6 +80,16 @@ class GenerateSwaggerDocs extends Command
                 }
             }
         }
+
+        $jsonData['components']['securitySchemes'] = [
+            'sanctum' => [
+                'type' => 'apiKey',
+                'scheme' => 'Bearer',
+                'description' => 'Enter token in format (Bearer \<token\>)',
+                'name' => 'Authorization',
+                'in' => 'header',
+            ],
+        ];
 
         $updatedJsonContents = json_encode($jsonData, JSON_PRETTY_PRINT);
 

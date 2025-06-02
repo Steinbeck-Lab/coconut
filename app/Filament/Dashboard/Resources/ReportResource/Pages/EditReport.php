@@ -12,7 +12,18 @@ class EditReport extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        if ($this->record['is_change'] == true) {
+        if ($this->record['report_category'] === 'new_molecule') {
+            $molecule_data = $data['suggested_changes']['new_molecule_data'];
+            $data = array_merge($data, [
+                'canonical_smiles' => $molecule_data['canonical_smiles'],
+                'reference_id' => $molecule_data['reference_id'],
+                'name' => $molecule_data['name'],
+                'link' => $molecule_data['link'] ?? null,
+                'mol_filename' => $molecule_data['mol_filename'] ?? null,
+                'structural_comments' => $molecule_data['structural_comments'] ?? null,
+                'references' => $molecule_data['references'] ?? [],
+            ]);
+        } elseif ($this->record['report_category'] === 'change') {
             // initiate the flags to show only the fields that need to be shown - overall changes are always from the initial suggestions
             if (array_key_exists('geo_location_changes', $this->record['suggested_changes']['overall_changes'])) {
                 $data['show_geo_location_existing'] = $this->record['suggested_changes']['overall_changes']['geo_location_changes']['delete'] ? true : false;
@@ -70,7 +81,17 @@ class EditReport extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        if ($this->record->is_change) {
+        if ($this->record['report_category'] === 'new_molecule') {
+            $data['suggested_changes']['new_molecule_data'] = [
+                'canonical_smiles' => $data['canonical_smiles'],
+                'reference_id' => $data['reference_id'],
+                'name' => $data['name'],
+                'link' => $data['link'] ?? null,
+                'mol_filename' => $data['mol_filename'] ?? null,
+                'structural_comments' => $data['structural_comments'] ?? null,
+                'references' => $data['references'] ?? [],
+            ];
+        } elseif ($this->record['report_category'] === 'change') {
             $data = copyChangesToCuratorJSON($this->record, $data);
         }
 

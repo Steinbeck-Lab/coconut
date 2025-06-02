@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('coconut:entries-process')->everyMinute()->withoutOverlapping();
         $schedule->command('coconut:entries-import')->everyMinute()->withoutOverlapping();
-        $schedule->command('coconut:cache')->everyFifteenMinutes()->withoutOverlapping();
+        $schedule->command('coconut:cache')->everySixHours()->withoutOverlapping();
     }
 
     /**

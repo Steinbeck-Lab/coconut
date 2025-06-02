@@ -42,11 +42,13 @@
                     <div class="-my-12 divide-y divide-gray-900/10">
                         <article class="py-12 mt-24">
                             <div class="group relative max-w-xl">
-                                <time datetime="2024-08-01" class="block text-sm leading-6 text-gray-600">Version:
-                                    October 2024 - <a
+                                <time datetime="{{ now()->format('Y-m-d') }}" class="block text-sm leading-6 text-gray-600">Version:
+                                    {{ now()->format('F Y') }}
+                                    {{-- - <a
                                         class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
-                                        href="https://coconut.s3.uni-jena.de/prod/downloads/2024-10/release.md">release
-                                        notes</a></time>
+                                        href="https://coconut.s3.uni-jena.de/prod/downloads/2025-02/release.md">release
+                                        notes</a> --}}
+                                </time>
                                 <p class="mt-2 line-clamp-3 text-sm leading-6 text-gray-900 font-bold">COCONUT data is
                                     released
                                     under
@@ -55,19 +57,33 @@
                                     this data.</p>
                             </div>
                             <div class="mt-4">
+                                @php
+                                    $currentYearMonth = now()->format('Y-m');
+                                    $currentMonthYear = now()->format('m-Y');
+                                @endphp
                                 <div class="relative gap-x-2.5 text-sm font-semibold leading-6 text-gray-900">
                                     Natural Products - SDF
                                 </div>
                                 <div class="mt-1 border-b border-gray-100 pb-2">
-                                    <div><a href="https://coconut.s3.uni-jena.de/prod/downloads/2024-10/coconut-10-2024.sdf.zip"
+                                    <div><a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/coconut_sdf_2d_lite-{{ $currentMonthYear }}.zip"
                                             class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
-                                            (coconut-10-2024.sdf / 287.7 MB) <span aria-hidden="true">→</span></a></div>
+                                            (coconut_sdf_2d_lite-{{ $currentMonthYear }}.zip / 287.6 MB) <span aria-hidden="true">→</span></a></div>
                                     <div>
-                                        <a href="https://coconut.s3.uni-jena.de/prod/downloads/2024-10/coconut_complete-10-2024.sdf.zip"
+                                        <a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/coconut_sdf_2d-{{ $currentMonthYear }}.zip"
                                             class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
-                                            (coconut_complete-10-2024.sdf / 690.8 MB) <span
+                                            (coconut_sdf_2d-{{ $currentMonthYear }}.zip / 691.7 MB) <span
                                                 aria-hidden="true">→</span></a>
                                     </div>
+                                </div>
+                                <div class="relative gap-x-2.5 text-sm font-semibold leading-6 text-gray-900 mt-2">
+                                    Natural Products - 3D SDF (Generated using RDKit) 
+                                </div>
+                                <div class="mt-1 border-b border-gray-100 pb-2">
+                                    
+                                    <div><a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/coconut_sdf_3d-{{ $currentMonthYear }}.zip"
+                                            class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
+                                            (coconut_sdf_3d-{{ $currentMonthYear }}.zip / 305.3 MB) <span aria-hidden="true">→</span></a></div>
+                                    <small>Note: Coordinates are not minimised</small>
                                 </div>
                             </div>
                             <div class="mt-4">
@@ -75,9 +91,9 @@
                                     Complete (active/inactive) COCONUT dataset
                                 </div>
                                 <div class="mt-1 flex border-b border-gray-100 pb-2">
-                                    <a href="https://coconut.s3.uni-jena.de/prod/downloads/2024-10/coconut-dump-10-2024.sql"
+                                    <a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/coconut-dump-{{ $currentMonthYear }}.sql"
                                         class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
-                                        (coconut-dump-10-2024 / 1.84 GB)<span aria-hidden="true">→</span></a>
+                                        (coconut-dump-{{ $currentMonthYear }}.sql / 31.91 GB)<span aria-hidden="true">→</span></a>
                                 </div>
                             </div>
                             <div class="mt-4">
@@ -85,13 +101,13 @@
                                     Natural Products - CSV format
                                 </div>
                                 <div class="mt-1 border-b border-gray-100 pb-2">
-                                    <div><a href="https://coconut.s3.uni-jena.de/prod/downloads/2024-10/coconut-10-2024.csv.zip"
+                                    <div><a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/coconut_csv_lite-{{ $currentMonthYear }}.zip"
                                             class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
-                                            (coconut-10-2024.csv / 188.3 MB) <span aria-hidden="true">→</span></a></div>
+                                            (coconut_csv_lite-{{ $currentMonthYear }}.zip / 191 MB) <span aria-hidden="true">→</span></a></div>
                                     <div>
-                                        <a href="https://coconut.s3.uni-jena.de/prod/downloads/2024-10/coconut_complete-10-2024.csv.zip"
+                                        <a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/coconut_csv-{{ $currentMonthYear }}.zip"
                                             class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
-                                            (coconut_complete-10-2024.csv / 207.1 MB) <span
+                                            (coconut_csv-{{ $currentMonthYear }}.zip / 207.9 MB) <span
                                                 aria-hidden="true">→</span></a>
                                     </div>
                                 </div>
