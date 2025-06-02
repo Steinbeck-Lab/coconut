@@ -42,7 +42,7 @@ class AssignIdentifiersAuto extends Command
             return 1;
         }
 
-        $this->info("Assigning identifiers for collection ID: {$collection_id}");
+        Log::info("Assigning identifiers for collection ID: {$collection_id}");
 
         $batchSize = 10000;
         $currentIndex = $this->fetchLastIndex() + 1;
@@ -54,7 +54,6 @@ class AssignIdentifiersAuto extends Command
             ->where('molecules.has_stereo', false)
             ->whereNull('molecules.identifier')
             ->where('entries.collection_id', $collection_id)
-            ->distinct()
             ->get();
 
         $data = [];
@@ -71,7 +70,7 @@ class AssignIdentifiersAuto extends Command
             $this->insertBatch($data);
         });
 
-        $this->info('Mapping parents: Done');
+        Log::info('Mapping parents: Done');
 
         // Step: 2
         $mappings = DB::table('molecules')
@@ -80,19 +79,17 @@ class AssignIdentifiersAuto extends Command
             ->whereNotNull('molecules.parent_id')
             ->where('molecules.has_stereo', true)
             ->where('entries.collection_id', $collection_id)
-            ->distinct()
             ->get()
             ->groupBy('parent_id')
             ->map(function ($items) {
                 return $items->sortBy('id')->pluck('identifier', 'id')->toArray();
             });
 
+        // Get ALL parent molecule identifiers (not just those in current collection)
         $identifier_mappings = DB::table('molecules')
-            ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
             ->where('molecules.has_stereo', false)
             ->where('molecules.is_parent', true)
-            ->where('entries.collection_id', $collection_id)
-            ->distinct()
+            ->whereNotNull('molecules.identifier')  // Has existing identifier
             ->pluck('molecules.identifier', 'molecules.id')
             ->toArray();
 
@@ -170,7 +167,6 @@ class AssignIdentifiersAuto extends Command
 
         Log::info('Temporary files cleaned up.');
         Log::info("Identifier assignment completed for collection ID: {$collection_id}");
-
     }
 
     public function generateIdentifier($index, $type)
