@@ -2,7 +2,8 @@
 
 namespace App\Livewire;
 
-use Cache;
+use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
@@ -125,6 +126,62 @@ class MoleculeDetails extends Component
         }, $references, $urls);
 
         return $combined;
+    }
+
+    /**
+     * Get unique contributors from audit trail
+     */
+    public function getContributors()
+    {
+        $audits = collect();
+        
+        // Get audits from the molecule
+        $audits = $audits->merge($this->molecule->audits);
+        
+        // Get audits from related properties
+        if ($this->molecule->properties) {
+            $audits = $audits->merge($this->molecule->properties->audits);
+        }
+        
+        // Get audits from related structures
+        if ($this->molecule->structures) {
+            $audits = $audits->merge($this->molecule->structures->audits);
+        }
+        
+        // Extract unique users from audits
+        $userIds = $audits->pluck('user_id')->unique()->filter();
+        
+        $contributors = collect();
+        
+        // Check if COCONUT Curator (system user) has contributed
+        $hasSystemContributions = $audits->where('user_id', 11)->isNotEmpty() || 
+                                 $audits->whereNull('user_id')->isNotEmpty();
+        
+        if ($hasSystemContributions) {
+            // Add COCONUT Curator as a special contributor
+            $contributors->push((object) [
+                'id' => 'coconut_curator',
+                'name' => 'COCONUT Curator',
+                'profile_photo_url' => null,
+                'is_system' => true
+            ]);
+        }
+        
+        // Add actual users (excluding system user ID 11)
+        $realUsers = $userIds
+            ->filter(function($userId) { return $userId != 11; })
+            ->map(function ($userId) {
+                return User::find($userId);
+            })
+            ->filter() // Remove null users
+            ->map(function ($user) {
+                $user->is_system = false;
+                return $user;
+            });
+            
+        $contributors = $contributors->merge($realUsers)->sortBy('name');
+            
+        return $contributors;
     }
 
     public function render(): View

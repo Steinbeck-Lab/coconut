@@ -42,8 +42,8 @@
                     <div class="-my-12 divide-y divide-gray-900/10">
                         <article class="py-12 mt-24">
                             <div class="group relative max-w-xl">
-                                <time datetime="2024-08-01" class="block text-sm leading-6 text-gray-600">Version:
-                                    March 2025 
+                                <time datetime="{{ now()->format('Y-m-d') }}" class="block text-sm leading-6 text-gray-600">Version:
+                                    {{ now()->format('F Y') }}
                                     {{-- - <a
                                         class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
                                         href="https://coconut.s3.uni-jena.de/prod/downloads/2025-02/release.md">release

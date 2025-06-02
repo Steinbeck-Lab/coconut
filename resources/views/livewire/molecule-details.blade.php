@@ -458,8 +458,7 @@
                                 <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
                                     <div class="divide-y divide-gray-200">
                                         <div class="px-4 py-5 sm:px-6">
-                                            <h2 id="notes-title" class="text-lg font-medium text-gray-900">
-                                                Chemical
+                                            <h2 id="notes-title" class="text-lg font-medium text-gray-900">Chemical
                                                 classification
                                             </h2>
                                         </div>
@@ -1143,6 +1142,127 @@
                                 <livewire:molecule-depict3d :height="300" :molecule="$molecule" :smiles="$molecule->canonical_smiles"
                                     lazy="on-load">
                             </div>
+                            
+                            <!-- Contributors Section -->
+                            @php
+                                $contributors = $this->getContributors();
+                            @endphp
+                            @if($contributors->count() > 0)
+                            <div class="mx-2 mb-6">
+                                <div class="bg-white">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <h3 class="text-lg font-medium text-gray-900">
+                                            Contributors
+                                        </h3>
+                                        <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                                            {{ $contributors->count() }}
+                                        </span>
+                                    </div>
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($contributors->take(8) as $contributor)
+                                        <div class="relative group">
+                                            @if(isset($contributor->is_system) && $contributor->is_system)
+                                                @if($contributor->profile_photo_url)
+                                                    <!-- COCONUT Curator with profile photo -->
+                                                    <div class="relative">
+                                                        <img class="h-8 w-8 rounded-full border-2 border-white shadow-sm hover:scale-110 transition-transform cursor-pointer" 
+                                                             src="{{ $contributor->profile_photo_url }}" 
+                                                             alt="{{ $contributor->name }}"
+                                                             title="{{ $contributor->name }}">
+                                                        <!-- Verification badge overlay -->
+                                                        <div class="absolute -bottom-1 -right-1 h-3 w-3 rounded-full bg-blue-600 border border-white flex items-center justify-center">
+                                                            <svg class="h-2 w-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    <!-- COCONUT Curator system icon -->
+                                                    <div class="h-8 w-8 rounded-full bg-blue-100 border-2 border-white shadow-sm hover:scale-110 transition-transform cursor-pointer flex items-center justify-center"
+                                                         title="{{ $contributor->name }}">
+                                                        <svg class="h-6 w-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                        </svg>
+                                                    </div>
+                                                @endif
+                                            @elseif($contributor->profile_photo_url)
+                                                <img class="h-8 w-8 rounded-full border-2 border-white shadow-sm hover:scale-110 transition-transform cursor-pointer" 
+                                                     src="{{ $contributor->profile_photo_url }}" 
+                                                     alt="{{ $contributor->name }}"
+                                                     title="{{ $contributor->name }}">
+                                            @else
+                                                <div class="h-8 w-8 rounded-full bg-gray-300 border-2 border-white shadow-sm hover:scale-110 transition-transform cursor-pointer flex items-center justify-center"
+                                                     title="{{ $contributor->name }}">
+                                                    <span class="text-xs font-medium text-gray-600">
+                                                        {{ strtoupper(substr($contributor->name, 0, 1)) }}
+                                                    </span>
+                                                </div>
+                                            @endif
+                                            <!-- Tooltip -->
+                                            <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                                {{ $contributor->name }}
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                        @if($contributors->count() > 8)
+                                        <div class="h-8 w-8 rounded-full bg-gray-100 border-2 border-white shadow-sm flex items-center justify-center">
+                                            <span class="text-xs font-medium text-gray-600">
+                                                +{{ $contributors->count() - 8 }}
+                                            </span>
+                                        </div>
+                                        @endif
+                                    </div>
+                                    @if($contributors->count() > 8)
+                                    <details class="mt-3">
+                                        <summary class="text-sm text-gray-600 cursor-pointer hover:text-gray-800">
+                                            View all {{ $contributors->count() }} contributors
+                                        </summary>
+                                        <div class="mt-2 space-y-1">
+                                            @foreach($contributors as $contributor)
+                                            <div class="flex items-center text-sm text-gray-600">
+                                                @if(isset($contributor->is_system) && $contributor->is_system)
+                                                    @if($contributor->profile_photo_url)
+                                                        <!-- COCONUT Curator with profile photo -->
+                                                        <div class="relative mr-2">
+                                                            <img class="h-4 w-4 rounded-full" 
+                                                                 src="{{ $contributor->profile_photo_url }}" 
+                                                                 alt="{{ $contributor->name }}">
+                                                            <!-- Verification badge overlay -->
+                                                            <div class="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-blue-600 border border-white flex items-center justify-center">
+                                                                <svg class="h-1 w-1 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                                </svg>
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <!-- COCONUT Curator system icon -->
+                                                        <div class="h-4 w-4 rounded-full bg-blue-100 mr-2 flex items-center justify-center">
+                                                            <svg class="h-4 w-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                            </svg>
+                                                        </div>
+                                                    @endif
+                                                @elseif($contributor->profile_photo_url)
+                                                    <img class="h-4 w-4 rounded-full mr-2" 
+                                                         src="{{ $contributor->profile_photo_url }}" 
+                                                         alt="{{ $contributor->name }}">
+                                                @else
+                                                    <div class="h-4 w-4 rounded-full bg-gray-300 mr-2 flex items-center justify-center">
+                                                        <span class="text-xs font-medium text-gray-600">
+                                                            {{ strtoupper(substr($contributor->name, 0, 1)) }}
+                                                        </span>
+                                                    </div>
+                                                @endif
+                                                {{ $contributor->name }}
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </details>
+                                    @endif
+                                </div>
+                            </div>
+                            @endif
+                            
                             <dl class="mt-5 flex w-full mx-2">
                                 <div class="md:text-left">
                                     <dd class="mt-1"><a
