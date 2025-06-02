@@ -32,35 +32,32 @@ class GenerateCoordinatesAuto extends Command
         $forceProcess = $this->option('force');
 
         $collection = Collection::find($collection_id);
-
         if (! $collection) {
             Log::error("Collection with ID {$collection_id} not found.");
 
             return 1;
         }
-
         Log::info("Starting coordinate generation for molecules missing structures in collection ID: {$collection_id}");
-
-        // Retrieve molecules missing structures filtered by collection
         $query = Molecule::select('molecules.id')
             ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
             ->where('entries.collection_id', $collection_id)
             ->doesntHave('structures')
+            ->where('molecules.active', true)
             ->distinct();
 
-        // If not forcing, exclude already processed molecules (completed OR failed)
-        if (! $forceProcess) {
+        // Flag logic:
+        // --force: only when running standalone, picks up failed entries
+        if ($forceProcess) {
+            $query->where('curation_status->generate-coordinates->status', 'failed');
+        } else {
             $query->where(function ($q) {
                 $q->whereNull('curation_status->generate-coordinates->status')
                     ->orWhereNotIn('curation_status->generate-coordinates->status', ['completed', 'failed']);
             });
-        } else {
-            // If forcing, only process molecules with failed status
-            $query->where('curation_status->generate-coordinates->status', 'failed');
         }
 
+        // Count the total number of molecules to process
         $totalCount = $query->count();
-
         if ($totalCount === 0) {
             Log::info("No molecules found that require coordinate generation in collection {$collection_id}.");
 

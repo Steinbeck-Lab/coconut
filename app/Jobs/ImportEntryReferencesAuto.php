@@ -20,6 +20,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Str;
 
 class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
@@ -73,6 +74,7 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
             $this->entry->save();
 
         } catch (Exception $e) {
+            Log::error('Inside job: Error processing references for entry ID '.$this->entry->id.': '.$e->getMessage());
             // Update status to failed with error message
             updateCurationStatus($molecule->id, 'import_references', 'failed', $e->getMessage());
 

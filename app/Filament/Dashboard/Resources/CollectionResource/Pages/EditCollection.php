@@ -7,6 +7,7 @@ use App\Filament\Dashboard\Resources\CollectionResource\Widgets\EntriesOverview;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 
 class EditCollection extends EditRecord
 {
@@ -52,8 +53,14 @@ class EditCollection extends EditRecord
 
                     $moleculesToPublish = $this->record->molecules()->where('status', 'DRAFT')->whereNotNull('identifier')->exists();
 
+                    Log::info($pendingProcessingCount, [
+                        'moleculesStillUnderProcess' => $moleculesStillUnderProcess,
+                        'moleculesToPublish' => $moleculesToPublish,
+                        'canUpdate' => auth()->user()->can('update', $this->record),
+                    ]);
+
                     // Action is visible only if both conditions are false
-                    return ! $pendingProcessingCount > 0 && ! $moleculesStillUnderProcess && $moleculesToPublish && auth()->user()->can('update', $this->record);
+                    return $pendingProcessingCount == 0 && $moleculesStillUnderProcess == 0 && $moleculesToPublish && auth()->user()->can('update', $this->record);
                 }),
             Actions\DeleteAction::make(),
         ];

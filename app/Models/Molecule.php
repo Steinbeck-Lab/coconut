@@ -184,7 +184,7 @@ class Molecule extends Model implements Auditable
      */
     public function related()
     {
-        return $this->belongsToMany(Molecule::class, 'molecule_related', 'molecule_id', 'related_id');
+        return $this->belongsToMany(Molecule::class, 'molecule_related', 'molecule_id', 'related_id')->withTimestamps();
     }
 
     /**

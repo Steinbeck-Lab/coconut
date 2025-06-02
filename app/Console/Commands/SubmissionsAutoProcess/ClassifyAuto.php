@@ -17,7 +17,7 @@ class ClassifyAuto extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'coconut:npclassify-auto {collection_id=65 : The ID of the collection to process} {--force : Retry processing of molecules with failed status only} {--trigger : Trigger subsequent commands in the processing chain}';
+    protected $signature = 'coconut:npclassify-auto {collection_id=65 : The ID of the collection to process} {--force : Retry processing of molecules with failed status only} {--trigger : Trigger subsequent commands in the processing chain} {--trigger-force : Trigger downstream commands and pick up failed rows}';
 
     /**
      * The console command description.
@@ -32,21 +32,19 @@ class ClassifyAuto extends Command
         $collection_id = $this->argument('collection_id');
         $forceProcess = $this->option('force');
         $triggerNext = $this->option('trigger');
+        $triggerForce = $this->option('trigger-force');
 
         $collection = Collection::find($collection_id);
-
         if (! $collection) {
             Log::error("Collection with ID {$collection_id} not found.");
 
             return 1;
         }
-
         Log::info("Classifying molecules using NPClassifier for collection ID: {$collection_id}");
-
-        // Base query for molecules needing classification
         $query = Molecule::select('molecules.id', 'molecules.canonical_smiles')
             ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
             ->where('entries.collection_id', $collection_id)
+            ->where('molecules.active', true)
             ->whereHas('properties', function ($q) {
                 $q->whereNull('np_classifier_pathway')
                     ->whereNull('np_classifier_superclass')
@@ -55,25 +53,35 @@ class ClassifyAuto extends Command
             })
             ->distinct();
 
-        // If not forcing, exclude already processed molecules (completed OR failed)
-        if (! $forceProcess) {
+        // Flag logic:
+        // --force: only when running standalone, picks up failed entries
+        // --trigger: triggers downstream, does NOT pick up failed entries
+        // --trigger-force: triggers downstream AND picks up failed entries
+        if ($triggerForce || $forceProcess) {
+            $query->where('curation_status->classify->status', 'failed');
+        } else {
             $query->where(function ($q) {
                 $q->whereNull('curation_status->classify->status')
                     ->orWhereNotIn('curation_status->classify->status', ['completed', 'failed']);
             });
-        } else {
-            // If forcing, only process molecules with failed status
-            $query->where('curation_status->classify->status', 'failed');
         }
 
         Log::info("Processing molecules in collection {$collection_id} that need classification.");
 
-        // Count the total number of molecules
+        // Count the total number of molecules to process
         $totalCount = $query->count();
         if ($totalCount === 0) {
             Log::info("No molecules found to classify in collection {$collection_id}.");
-            if ($triggerNext) {
-                Artisan::call('coconut:generate-coordinates-auto', ['collection_id' => $collection_id]);
+            if ($triggerForce) {
+                Artisan::call('coconut:generate-coordinates-auto', [
+                    'collection_id' => $collection_id,
+                    '--trigger-force' => true,
+                ]);
+            } elseif ($triggerNext) {
+                Artisan::call('coconut:generate-coordinates-auto', [
+                    'collection_id' => $collection_id,
+                    '--trigger' => true,
+                ]);
             }
 
             return 0;
@@ -83,7 +91,7 @@ class ClassifyAuto extends Command
         Log::info("Starting NPClassifier for {$totalCount} molecules in collection {$collection_id}");
 
         // Process molecules in chunks and create batch jobs
-        $query->chunkById(1000, function ($molecules) use ($collection_id, $triggerNext) {
+        $query->chunkById(1000, function ($molecules) use ($collection_id, $triggerNext, $triggerForce) {
             $moleculeCount = count($molecules);
             Log::info("Processing batch of {$moleculeCount} molecules for classification in collection {$collection_id}");
 
@@ -98,11 +106,17 @@ class ClassifyAuto extends Command
 
             // Dispatch the batch
             Bus::batch($batchJobs)
-                ->then(function (Batch $batch) use ($collection_id, $triggerNext) {
-                    Log::info("NPClassifier batch completed for collection {$collection_id}: ".$batch->id);
-                    if ($triggerNext) {
-                        Log::info("Calling GenerateCoordinatesAuto after NPClassifier batch for collection {$collection_id}");
-                        Artisan::call('coconut:generate-coordinates-auto', ['collection_id' => $collection_id]);
+                ->then(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {
+                    if ($triggerForce) {
+                        Artisan::call('coconut:generate-coordinates-auto', [
+                            'collection_id' => $collection_id,
+                            '--trigger-force' => true,
+                        ]);
+                    } elseif ($triggerNext) {
+                        Artisan::call('coconut:generate-coordinates-auto', [
+                            'collection_id' => $collection_id,
+                            '--trigger' => true,
+                        ]);
                     }
                 })
                 ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {

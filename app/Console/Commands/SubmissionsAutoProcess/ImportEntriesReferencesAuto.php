@@ -20,7 +20,7 @@ class ImportEntriesReferencesAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:entries-import-references {collection_id=65 : The ID of the collection to import references for} {--force : Retry processing of molecules with failed status only} {--trigger : Trigger subsequent commands in the processing chain}';
+    protected $signature = 'coconut:entries-import-references {collection_id=65 : The ID of the collection to import references for} {--force : Retry processing of molecules with failed status only} {--trigger : Trigger subsequent commands in the processing chain} {--trigger-force : Trigger downstream commands and pick up failed rows}';
 
     /**
      * The console command description.
@@ -37,15 +37,14 @@ class ImportEntriesReferencesAuto extends Command
         $collection_id = $this->argument('collection_id');
         $force = $this->option('force');
         $triggerNext = $this->option('trigger');
+        $triggerForce = $this->option('trigger-force');
 
         $collection = Collection::find($collection_id);
-
         if (! $collection) {
             Log::error("Collection with ID {$collection_id} not found.");
 
             return 1;
         }
-
         Log::info("Importing references for collection ID: {$collection_id}");
 
         // Update collection status
@@ -58,21 +57,52 @@ class ImportEntriesReferencesAuto extends Command
         $query = Entry::select('id')
             ->where('status', 'AUTOCURATION')
             ->where('molecule_id', '!=', null)
-            ->where('collection_id', $collection_id);
+            ->where('collection_id', $collection_id)
+            ->whereHas('molecule', function ($q) {
+                $q->where('active', true);
+            });
 
-        // Skip already processed entries unless force flag is used (completed OR failed)
-        if (! $force) {
+        // Flag logic:
+        // --force: only when running standalone, picks up failed entries
+        // --trigger: triggers downstream, does NOT pick up failed entries
+        // --trigger-force: triggers downstream AND picks up failed entries
+        if ($triggerForce || $force) {
+            // Pick up failed entries if either flag is set
+            $query->whereHas('molecule', function ($q) {
+                $q->where('curation_status->import-entries-references->status', 'failed');
+            });
+        } else {
+            // Default: only pick up entries not completed/failed
             $query->whereHas('molecule', function ($q) {
                 $q->where(function ($q) {
                     $q->whereNull('curation_status->import-entries-references->status')
                         ->orWhereNotIn('curation_status->import-entries-references->status', ['completed', 'failed']);
                 });
             });
-        } else {
-            // If forcing, only process entries with failed status
-            $query->whereHas('molecule', function ($q) {
-                $q->where('curation_status->import-entries-references->status', 'failed');
-            });
+        }
+
+        // Count the total number of entries to process
+        $totalCount = $query->count();
+        if ($totalCount === 0) {
+            Log::info("No entries found in AUTOCURATION status for collection ID {$collection_id}.");
+            $collection->jobs_status = 'COMPLETE';
+            $collection->job_info = '';
+            $collection->save();
+
+            // Trigger next command if specified
+            if ($triggerForce) {
+                Artisan::call('coconut:import-pubchem-data-auto', [
+                    'collection_id' => $collection_id,
+                    '--trigger-force' => true,
+                ]);
+            } elseif ($triggerNext) {
+                Artisan::call('coconut:import-pubchem-data-auto', [
+                    'collection_id' => $collection_id,
+                    '--trigger' => true,
+                ]);
+            }
+
+            return 0;
         }
 
         $query->chunk(10000, function ($ids) use (&$batchJobs) {
@@ -91,9 +121,14 @@ class ImportEntriesReferencesAuto extends Command
 
         Log::info('Dispatching references import batch...');
 
-        $batch = Bus::batch($batchJobs)->then(function (Batch $batch) use ($collection_id, $triggerNext) {
+        $batch = Bus::batch($batchJobs)->then(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {
             // Call the next command in the chain with the same collection ID
-            if ($triggerNext) {
+            if ($triggerForce) {
+                Artisan::call('coconut:import-pubchem-data-auto', [
+                    'collection_id' => $collection_id,
+                    '--trigger-force' => true,
+                ]);
+            } elseif ($triggerNext) {
                 Artisan::call('coconut:import-pubchem-data-auto', [
                     'collection_id' => $collection_id,
                     '--trigger' => true,

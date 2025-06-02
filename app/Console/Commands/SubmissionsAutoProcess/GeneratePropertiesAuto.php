@@ -20,7 +20,7 @@ class GeneratePropertiesAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:generate-properties-auto {collection_id=65 : The ID of the collection to process} {--force : Retry processing of molecules with failed status only} {--trigger : Trigger subsequent commands in the processing chain}';
+    protected $signature = 'coconut:generate-properties-auto {collection_id=65 : The ID of the collection to process} {--force : Retry processing of molecules with failed status only} {--trigger : Trigger subsequent commands in the processing chain} {--trigger-force : Trigger downstream commands and pick up failed rows}';
 
     /**
      * The console command description.
@@ -37,70 +37,84 @@ class GeneratePropertiesAuto extends Command
         $collection_id = $this->argument('collection_id');
         $forceProcess = $this->option('force');
         $triggerNext = $this->option('trigger');
+        $triggerForce = $this->option('trigger-force');
 
         $collection = Collection::find($collection_id);
-
         if (! $collection) {
             Log::error("Collection with ID {$collection_id} not found.");
 
             return 1;
         }
-
-        Log::info("Generating properties for molecules in collection ID: {$collection_id}");
-        Log::info("Starting property generation for molecules missing properties in collection {$collection_id}...");
-
-        // Base query for molecules filtered by collection
+        Log::info("Starting property generation for molecules in collection ID: {$collection_id}");
         $query = Molecule::select('molecules.id')
             ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
             ->where('entries.collection_id', $collection_id)
-            ->doesntHave('properties')
+            ->where('molecules.active', true)
             ->distinct();
 
-        // If not forcing, exclude already processed molecules (completed OR failed)
-        if (! $forceProcess) {
+        // Flag logic:
+        // --force: only when running standalone, picks up failed entries
+        // --trigger: triggers downstream, does NOT pick up failed entries
+        // --trigger-force: triggers downstream AND picks up failed entries
+        if ($triggerForce || $forceProcess) {
+            $query->where('curation_status->generate-properties->status', 'failed');
+        } else {
             $query->where(function ($q) {
                 $q->whereNull('curation_status->generate-properties->status')
                     ->orWhereNotIn('curation_status->generate-properties->status', ['completed', 'failed']);
             });
-        } else {
-            // If forcing, only process molecules with failed status
-            $query->where('curation_status->generate-properties->status', 'failed');
         }
 
-        // Get count of molecules to process
-        $count = $query->count();
-        if ($count === 0) {
+        // Count the total number of molecules to process
+        $totalCount = $query->count();
+        if ($totalCount === 0) {
             Log::info("No molecules found that require property generation in collection {$collection_id}.");
-            if ($triggerNext) {
-                Artisan::call('coconut:npclassify-auto', ['collection_id' => $collection_id, '--trigger' => true]);
+            // Trigger next command if specified
+            if ($triggerForce) {
+                Artisan::call('coconut:npclassify-auto', [
+                    'collection_id' => $collection_id,
+                    '--trigger-force' => true,
+                ]);
+            } elseif ($triggerNext) {
+                Artisan::call('coconut:npclassify-auto', [
+                    'collection_id' => $collection_id,
+                    '--trigger' => true,
+                ]);
             }
 
             return 0;
         }
 
-        Log::info("Found {$count} molecules requiring property generation for collection {$collection_id}");
+        Log::info("Found {$totalCount} molecules requiring property generation for collection {$collection_id}");
 
         // Use chunk to process large sets of molecules
-        $query->chunk(30000, function ($mols) use ($collection_id, $triggerNext) {
-            $moleculeCount = count($mols);
+        $query->chunkById(1000, function ($molecules) use ($collection_id, $triggerNext, $triggerForce) {
+            $moleculeCount = count($molecules);
             Log::info("Processing batch of {$moleculeCount} molecules for property generation in collection {$collection_id}");
 
             // Mark molecules as processing
-            foreach ($mols as $molecule) {
+            foreach ($molecules as $molecule) {
                 updateCurationStatus($molecule->id, 'generate-properties', 'processing');
             }
 
             // Prepare batch jobs
             $batchJobs = [];
-            $batchJobs[] = new GeneratePropertiesBatch($mols->pluck('id')->toArray());
+            $batchJobs[] = new GeneratePropertiesBatch($molecules->pluck('id')->toArray());
 
             // Dispatch as a batch
             Bus::batch($batchJobs)
-                ->then(function (Batch $batch) use ($collection_id, $triggerNext) {
-                    Log::info("Properties generation batch completed for collection {$collection_id}: ".$batch->id);
-                    if ($triggerNext) {
-                        Log::info("Calling NPClassifier batch after GenerateProperties batch for collection {$collection_id}");
-                        Artisan::call('coconut:npclassify-auto', ['collection_id' => $collection_id, '--trigger' => true]);
+                ->then(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {
+                    Log::info("Property generation batch completed for collection {$collection_id}: ".$batch->id);
+                    if ($triggerForce) {
+                        Artisan::call('coconut:npclassify-auto', [
+                            'collection_id' => $collection_id,
+                            '--trigger-force' => true,
+                        ]);
+                    } elseif ($triggerNext) {
+                        Artisan::call('coconut:npclassify-auto', [
+                            'collection_id' => $collection_id,
+                            '--trigger' => true,
+                        ]);
                     }
                 })
                 ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {

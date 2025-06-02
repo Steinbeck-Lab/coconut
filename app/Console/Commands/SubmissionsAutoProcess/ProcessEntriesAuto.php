@@ -77,14 +77,20 @@ class ProcessEntriesAuto extends Command
         $batch = Bus::batch($batchJobs)
             ->then(function (Batch $batch) use ($collection_id, $triggerNext) {
                 if ($triggerNext) {
+                    Log::info("Processing complete for collection ID {$collection_id}. Triggering next step.");
+                    Log::info("Triggering auto-import of entries for collection ID {$collection_id}.");
                     Artisan::call('coconut:entries-import-auto', [
                         'collection_id' => $collection_id,
                         '--trigger' => true,
                     ]);
                 }
             })
-            ->catch(function (Batch $batch, Throwable $e) {})
+            ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
+                Log::error("Batch processing failed for collection ID {$collection_id}: ".$e->getMessage());
+
+            })
             ->finally(function (Batch $batch) use ($collection) {
+                Log::info("Batch processing completed for collection ID {$collection}.");
                 if ($batch->finished() && ! $batch->hasFailures()) {
                     $collection->jobs_status = 'INCURATION';
                     $collection->job_info = '';
