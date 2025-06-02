@@ -3,6 +3,16 @@
 namespace App\Providers;
 
 use App\Listeners\ReportEventSubscriber;
+use App\Models\Citation;
+use App\Models\Collection;
+use App\Models\GeoLocation;
+use App\Models\Molecule;
+use App\Models\Organism;
+use App\Observers\CitationObserver;
+use App\Observers\CollectionObserver;
+use App\Observers\GeoLocationObserver;
+use App\Observers\MoleculeObserver;
+use App\Observers\OrganismObserver;
 use BezhanSalleh\PanelSwitch\PanelSwitch;
 use Filament\Facades\Filament;
 use Filament\Navigation\UserMenuItem;
@@ -28,6 +38,13 @@ class AppServiceProvider extends ServiceProvider
         if (env('APP_ENV') === 'production' || env('APP_ENV') === 'development') {
             URL::forceScheme('https');
         }
+
+        // Register Model Observers for event-driven cache invalidation
+        Molecule::observe(MoleculeObserver::class);
+        Collection::observe(CollectionObserver::class);
+        Organism::observe(OrganismObserver::class);
+        Citation::observe(CitationObserver::class);
+        GeoLocation::observe(GeoLocationObserver::class);
 
         Filament::serving(function () {
             Filament::registerUserMenuItems([

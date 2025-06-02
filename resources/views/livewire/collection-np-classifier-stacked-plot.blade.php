@@ -174,7 +174,6 @@
             // Create a promise that resolves when the data is updated
             waitForDataUpdate()
                 .then(chartData => {
-                    console.log("Data update detected, rendering chart:", chartData);
                     renderChart(chartData);
                 })
                 .catch(error => {
@@ -286,33 +285,26 @@
 
             try {
                 const chartData = JSON.parse(dataElement.value);
-                console.log("Initial chart render:", chartData);
                 renderChart(chartData);
             } catch (e) {
                 console.error("Error parsing initial chart data:", e);
             }
         }
 
-
-
         function renderChart(chartData) {
-            console.log("Rendering chart with data", chartData);
             if (!chartData || !chartData.data || chartData.data.length === 0) {
-                console.log("No data available to render chart");
                 d3.select("#np-classifier-chart-container").html("<div style='text-align:center; padding:50px;'>No data available with current filter settings</div>");
                 return;
             }
 
             // Check if the classes property exists and is not empty
             if (!chartData.classes || chartData.classes.length === 0) {
-                console.log("No classes available to render chart");
                 d3.select("#np-classifier-chart-container").html("<div style='text-align:center; padding:50px;'>No classifier classes found with current filter settings</div>");
                 return;
             }
 
             // Check for collectionSortedClasses
             if (!chartData.collectionSortedClasses) {
-                console.log("Missing collection sorted classes data");
                 chartData.collectionSortedClasses = {};
                 // Create default sorted classes for each collection
                 chartData.data.forEach(collection => {
@@ -451,22 +443,8 @@
 
             // First, check that we have all necessary data
             if (!chartData.data || !chartData.classes || !chartData.collectionSortedClasses) {
-                console.log("Missing required data for rendering chart:", {
-                    hasData: Boolean(chartData.data),
-                    hasClasses: Boolean(chartData.classes),
-                    hasSortedClasses: Boolean(chartData.collectionSortedClasses)
-                });
                 return;
             }
-
-            // More detailed debug logging
-            console.log("Chart data:", {
-                collections: chartData.data.length,
-                classes: chartData.classes.length,
-                sortScope: chartData.sortScope,
-                sortBy: chartData.sortBy,
-                sample: chartData.data.length > 0 ? chartData.data[0].title : 'none'
-            });
 
             // Process data for each collection
             data.forEach(collection => {
@@ -474,7 +452,6 @@
 
                 // Skip if we don't have sorting information for this collection
                 if (!collectionSortedClasses[collectionTitle]) {
-                    console.log(`Missing sort order for collection: ${collectionTitle}`);
                     return;
                 }
 
@@ -528,8 +505,6 @@
                     }
                 });
             });
-
-            console.log(`Generated ${barData.length} bar segments for rendering`);
 
             // Draw all rectangles in one go for better performance
             svg.selectAll("rect")
@@ -593,12 +568,10 @@
         }
     });
     document.addEventListener('livewire:load', function() {
-        console.log("Livewire loaded");
         Livewire.hook('message.processed', function(message, component) {
             if (component.fingerprint.name === 'collection-np-classifier-stacked-plot') {
                 // Re-render the chart with the latest data
                 const chartData = @json($classifierData);
-                console.log("Data after Livewire update:", chartData);
                 renderChart(chartData);
             }
         });

@@ -82,6 +82,37 @@ class DashWidgetsRefresh extends Command
         });
         $this->info('Cache for molecules refreshed.');
 
+        // New statistics cache entries
+        Cache::flexible('stats.organisms.with_iri', [172800, 259200], function () {
+            return DB::table('organisms')->selectRaw('COUNT(DISTINCT(slug))')->whereNotNull('iri')->get()[0]->count;
+        });
+        $this->info('Cache for organisms with IRI refreshed.');
+
+        Cache::flexible('stats.molecules.with_organisms', [172800, 259200], function () {
+            return DB::table('molecule_organism')->selectRaw('count(DISTINCT(molecule_id))')->get()[0]->count;
+        });
+        $this->info('Cache for molecules with organisms refreshed.');
+
+        Cache::flexible('stats.molecules.with_citations', [172800, 259200], function () {
+            return DB::table('citables')->selectRaw('count(DISTINCT(citable_id))')->where('citable_type', 'App\Models\Molecule')->get()[0]->count;
+        });
+        $this->info('Cache for molecules with citations refreshed.');
+
+        Cache::flexible('stats.geo_locations.distinct', [172800, 259200], function () {
+            return DB::table('geo_locations')->selectRaw('count(DISTINCT name)')->get()[0]->count;
+        });
+        $this->info('Cache for distinct geo locations refreshed.');
+
+        Cache::flexible('stats.molecules.with_geolocations', [172800, 259200], function () {
+            return DB::table('geo_location_molecule')->selectRaw('count(DISTINCT(molecule_id))')->get()[0]->count;
+        });
+        $this->info('Cache for molecules with geo locations refreshed.');
+
+        Cache::flexible('stats.molecules.revoked', [172800, 259200], function () {
+            return DB::table('molecules')->selectRaw('count(*)')->where('status', 'REVOKED')->get()[0]->count;
+        });
+        $this->info('Cache for revoked molecules refreshed.');
+
         // Create the cache for all Collection widgets
 
         $this->info('Processing collection wiget counts');
