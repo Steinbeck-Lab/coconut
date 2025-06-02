@@ -75,12 +75,11 @@ class ClassifyAuto extends Command
             if ($triggerForce) {
                 Artisan::call('coconut:generate-coordinates-auto', [
                     'collection_id' => $collection_id,
-                    '--trigger-force' => true,
+                    '--force' => true,
                 ]);
             } elseif ($triggerNext) {
                 Artisan::call('coconut:generate-coordinates-auto', [
                     'collection_id' => $collection_id,
-                    '--trigger' => true,
                 ]);
             }
 
@@ -110,12 +109,11 @@ class ClassifyAuto extends Command
                     if ($triggerForce) {
                         Artisan::call('coconut:generate-coordinates-auto', [
                             'collection_id' => $collection_id,
-                            '--trigger-force' => true,
+                            '--force' => true,
                         ]);
                     } elseif ($triggerNext) {
                         Artisan::call('coconut:generate-coordinates-auto', [
                             'collection_id' => $collection_id,
-                            '--trigger' => true,
                         ]);
                     }
                 })
