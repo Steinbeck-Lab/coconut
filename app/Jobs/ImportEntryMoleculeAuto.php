@@ -21,6 +21,11 @@ class ImportEntryMoleculeAuto implements ShouldBeUnique, ShouldQueue
     protected $entry;
 
     /**
+     * The number of seconds the job can run before timing out.
+     */
+    public $timeout = 45;
+
+    /**
      * Create a new job instance.
      */
     public function __construct($entry)
@@ -249,5 +254,32 @@ class ImportEntryMoleculeAuto implements ShouldBeUnique, ShouldQueue
         $model['canonical_smiles'] = $data['canonical_smiles'];
 
         return $model;
+    }
+
+    /**
+     * Handle a job failure.
+     */
+    public function failed(\Throwable $exception): void
+    {
+        $isTimeout = str_contains($exception->getMessage(), 'Job has timed out') ||
+                     str_contains($exception->getMessage(), 'Maximum execution time') ||
+                     $exception instanceof \Illuminate\Queue\MaxAttemptsExceededException;
+
+        $errorMessage = $isTimeout ? 'Job timed out after 45 seconds' : $exception->getMessage();
+
+        Log::error("ImportEntryMoleculeAuto job failed for entry {$this->entry->id}: {$errorMessage}");
+
+        // Dispatch event for notification handling
+        ImportPipelineJobFailed::dispatch(
+            self::class,
+            $exception,
+            [
+                'entry_id' => $this->entry->id,
+                'collection_id' => $this->entry->collection_id,
+                'step' => 'import-entry-molecule-auto',
+                'timeout' => $isTimeout,
+            ],
+            $this->batch()?->id
+        );
     }
 }

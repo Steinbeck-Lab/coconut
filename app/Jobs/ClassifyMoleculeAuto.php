@@ -21,6 +21,11 @@ class ClassifyMoleculeAuto implements ShouldQueue
     protected $molecule;
 
     /**
+     * The number of seconds the job can run before timing out.
+     */
+    public $timeout = 45;
+
+    /**
      * Create a new job instance.
      */
     public function __construct($molecule)
@@ -160,5 +165,33 @@ class ClassifyMoleculeAuto implements ShouldQueue
 
             $properties->save();
         }
+    }
+
+    /**
+     * Handle a job failure.
+     */
+    public function failed(\Throwable $exception): void
+    {
+        $isTimeout = str_contains($exception->getMessage(), 'Job has timed out') ||
+                     str_contains($exception->getMessage(), 'Maximum execution time') ||
+                     $exception instanceof \Illuminate\Queue\MaxAttemptsExceededException;
+
+        $errorMessage = $isTimeout ? 'Job timed out after 45 seconds' : $exception->getMessage();
+
+        Log::error("ClassifyMoleculeAuto job failed for molecule {$this->molecule->id}: {$errorMessage}");
+        updateCurationStatus($this->molecule->id, 'classify', 'failed', $errorMessage);
+
+        // Dispatch event for notification handling
+        ImportPipelineJobFailed::dispatch(
+            self::class,
+            $exception,
+            [
+                'molecule_id' => $this->molecule->id,
+                'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
+                'step' => 'classify',
+                'timeout' => $isTimeout,
+            ],
+            $this->batch()?->id
+        );
     }
 }

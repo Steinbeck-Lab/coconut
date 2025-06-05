@@ -32,11 +32,21 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
     public $citation_ids_array = [];
 
     /**
+     * The number of seconds the job can run before timing out.
+     */
+    public $timeout = 45;
+
+    /**
      * Create a new job instance.
      */
     public function __construct($entry)
     {
         $this->entry = $entry;
+    }
+
+    public function uniqueId()
+    {
+        return "import-references-{$this->entry->id}";
     }
 
     /**
@@ -57,7 +67,7 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
         }
 
         // Update status to processing
-        updateCurationStatus($molecule->id, 'import_references', 'processing');
+        // updateCurationStatus($molecule->id, 'import-references', 'processing');
 
         try {
             // Process references if they exist
@@ -67,16 +77,15 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
             }
 
             // Mark as completed
-            updateCurationStatus($molecule->id, 'import_references', 'completed');
+            updateCurationStatus($molecule->id, 'import-references', 'completed');
 
             // Update the entry status to IMPORTED
             $this->entry->status = 'IMPORTED';
             $this->entry->save();
-
         } catch (Exception $e) {
             Log::error('Inside job: Error processing references for entry ID '.$this->entry->id.': '.$e->getMessage());
             // Update status to failed with error message
-            updateCurationStatus($molecule->id, 'import_references', 'failed', $e->getMessage());
+            updateCurationStatus($molecule->id, 'import-references', 'failed', $e->getMessage());
 
             // Dispatch event for notification handling
             ImportPipelineJobFailed::dispatch(
@@ -86,13 +95,43 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
                     'molecule_id' => $molecule->id,
                     'entry_id' => $this->entry->id,
                     'canonical_smiles' => $molecule->canonical_smiles ?? 'Unknown',
-                    'step' => 'import_references',
+                    'step' => 'import-references',
                 ],
                 $this->batch()?->id
             );
 
             throw $e;
         }
+    }
+
+    /**
+     * Handle a job failure.
+     */
+    public function failed(\Throwable $exception): void
+    {
+        $isTimeout = str_contains($exception->getMessage(), 'Job has timed out') ||
+            str_contains($exception->getMessage(), 'Maximum execution time') ||
+            $exception instanceof \Illuminate\Queue\MaxAttemptsExceededException;
+
+        $errorMessage = $isTimeout ? 'Job timed out after 45 seconds' : $exception->getMessage();
+
+        Log::error("ImportEntryReferencesAuto job failed for entry {$this->entry->id}: {$errorMessage}");
+
+        // Update curation status
+        updateCurationStatus($this->entry->molecule_id, 'import-references', 'failed', $errorMessage);
+
+        // Dispatch event for notification handling
+        ImportPipelineJobFailed::dispatch(
+            self::class,
+            $exception,
+            [
+                'entry_id' => $this->entry->id,
+                'molecule_id' => $this->entry->molecule_id,
+                'step' => 'import-references',
+                'timeout' => $isTimeout,
+            ],
+            $this->batch()?->id
+        );
     }
 
     /**
@@ -226,7 +265,7 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
             }
         }
 
-        $molecule->citations()->syncWithoutDetaching($citation);
+        $molecule->citations()->syncWithoutDetaching($citation->id);
         $this->citation_ids_array[] = $citation->id;
     }
 
@@ -259,7 +298,8 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
                         'resulttype' => 'core',
                         'synonym' => 'true',
                     ];
-                    $europemcResponse = $this->makeRequest($europemcUrl, $europemcParams)->json();
+                    $response = $this->makeRequest($europemcUrl, $europemcParams);
+                    $europemcResponse = $response ? $response->json() : null;
 
                     if ($europemcResponse && isset($europemcResponse['resultList']['result']) && count($europemcResponse['resultList']['result']) > 0) {
                         $citationResponse = $this->formatCitationResponse($europemcResponse['resultList']['result'][0], 'europemc');
@@ -294,7 +334,7 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
                         }
                     }
                 }
-                $molecule->citations()->syncWithoutDetaching($citation);
+                $molecule->citations()->syncWithoutDetaching($citation->id);
                 $this->citation_ids_array[] = $citation->id;
             }
         }
@@ -416,7 +456,7 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
     public function makeRequest($url, $params = [])
     {
         try {
-            $response = Http::timeout(600)->get($url, $params);
+            $response = Http::timeout(30)->get($url, $params);
             if ($response->successful()) {
                 return $response;
             } else {

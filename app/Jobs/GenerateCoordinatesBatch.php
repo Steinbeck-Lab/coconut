@@ -48,12 +48,17 @@ class GenerateCoordinatesBatch implements ShouldQueue
         // Create individual jobs for each molecule
         $batchJobs = [];
         foreach ($molecules as $molecule) {
-            array_push($batchJobs, new GenerateCoordinatesAuto($molecule));
+            // array_push($batchJobs, new GenerateCoordinatesAuto($molecule));
+            $delay = 5;
+
+            $job = (new GenerateCoordinatesAuto($molecule))
+                ->delay(now()->addSeconds($delay));
+            array_push($batchJobs, $job);
         }
 
         if (! empty($batchJobs)) {
             $this->batch()->add($batchJobs);
-            Log::info('Added '.count($batchJobs).' coordinate generation jobs to batch');
+            Log::info('Added ' . count($batchJobs) . ' coordinate generation jobs to batch');
         }
     }
 }

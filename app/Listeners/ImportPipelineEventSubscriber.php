@@ -23,7 +23,7 @@ class ImportPipelineEventSubscriber
     public function handleImportPipelineJobFailed(ImportPipelineJobFailed $event): void
     {
         // Get all users with admin roles (super_admin, admin, curator)
-        $adminUsers = User::role(['super_admin', 'admin', 'curator'])->get();
+        $adminUsers = User::whereHas('roles')->get();
 
         foreach ($adminUsers as $user) {
             $user->notify(new ImportPipelineJobFailedNotification($event));
