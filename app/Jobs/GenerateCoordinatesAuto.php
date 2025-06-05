@@ -50,8 +50,8 @@ class GenerateCoordinatesAuto implements ShouldQueue
 
             // Build endpoints
             $apiUrl = env('API_URL', 'https://api.cheminf.studio/latest/');
-            $d2Endpoint = $apiUrl . 'convert/mol2D?smiles=' . urlencode($canonical_smiles) . '&toolkit=rdkit';
-            $d3Endpoint = $apiUrl . 'convert/mol3D?smiles=' . urlencode($canonical_smiles) . '&toolkit=rdkit';
+            $d2Endpoint = $apiUrl.'convert/mol2D?smiles='.urlencode($canonical_smiles).'&toolkit=rdkit';
+            $d3Endpoint = $apiUrl.'convert/mol3D?smiles='.urlencode($canonical_smiles).'&toolkit=rdkit';
 
             // Fetch coordinates from API
             $d2 = $this->fetchFromApi($d2Endpoint, $canonical_smiles);
@@ -76,7 +76,7 @@ class GenerateCoordinatesAuto implements ShouldQueue
                 $report->save();
             }
         } catch (\Exception $e) {
-            $error = "Error processing molecule {$this->molecule->id}: " . $e->getMessage();
+            $error = "Error processing molecule {$this->molecule->id}: ".$e->getMessage();
             Log::error($error);
             updateCurationStatus($this->molecule->id, 'generate-coordinates', 'failed', $error);
 
@@ -108,7 +108,7 @@ class GenerateCoordinatesAuto implements ShouldQueue
                 ->releaseAfter(30)      // Release lock if job fails/times out
                 ->expireAfter(180)      // Maximum lock duration
                 ->dontRelease()         // Don't retry if can't acquire lock
-                ->shared()
+                ->shared(),
         ];
     }
 
@@ -117,7 +117,7 @@ class GenerateCoordinatesAuto implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        Log::error('GenerateCoordinatesAuto job failed for molecule ID ' . $this->molecule->id . ': ' . $exception->getMessage());
+        Log::error('GenerateCoordinatesAuto job failed for molecule ID '.$this->molecule->id.': '.$exception->getMessage());
 
         // Check if this is a timeout exception
         $isTimeout = str_contains($exception->getMessage(), 'timeout') ||
@@ -170,11 +170,11 @@ class GenerateCoordinatesAuto implements ShouldQueue
                     continue;
                 }
 
-                Log::error("Error fetching data for SMILES: {$smiles}, HTTP status: " . $response->status());
+                Log::error("Error fetching data for SMILES: {$smiles}, HTTP status: ".$response->status());
 
                 return null;
             } catch (\Exception $e) {
-                Log::error("Exception fetching data for SMILES: {$smiles}. " . $e->getMessage());
+                Log::error("Exception fetching data for SMILES: {$smiles}. ".$e->getMessage());
                 sleep($backoffSeconds);
                 $attempt++;
             }
@@ -195,7 +195,7 @@ class GenerateCoordinatesAuto implements ShouldQueue
             $structure['3d'] = json_encode($d3);
             $structure->save();
         } catch (\Throwable $e) {
-            Log::error("Error saving structure for molecule ID {$moleculeId}: " . $e->getMessage());
+            Log::error("Error saving structure for molecule ID {$moleculeId}: ".$e->getMessage());
             throw $e;
         }
     }

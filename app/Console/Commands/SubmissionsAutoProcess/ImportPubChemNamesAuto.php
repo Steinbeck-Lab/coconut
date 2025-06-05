@@ -119,9 +119,7 @@ class ImportPubChemNamesAuto extends Command
 
             // Dispatch as a batch
             Bus::batch($batchJobs)
-                ->then(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {
-                   
-                })
+                ->then(function (Batch $batch) {})
                 ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
                     Log::error("PubChem import batch failed for collection {$collection_id}: ".$e->getMessage());
 
@@ -138,7 +136,7 @@ class ImportPubChemNamesAuto extends Command
                     );
                 })
                 ->finally(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {
-                     if ($triggerForce) {
+                    if ($triggerForce) {
                         Artisan::call('coconut:generate-properties-auto', [
                             'collection_id' => $collection_id,
                             '--trigger-force' => true,

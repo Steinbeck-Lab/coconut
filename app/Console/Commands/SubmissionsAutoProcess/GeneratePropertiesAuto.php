@@ -104,10 +104,8 @@ class GeneratePropertiesAuto extends Command
 
             // Dispatch as a batch
             Bus::batch($batchJobs)
-                ->then(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {
-                    
-                })
-                ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
+                ->then(function (Batch $batch) {})
+                ->catch(function (Batch $batch, Throwable $e) {
                     // Log::error("GenerateProperties batch failed for collection {$collection_id}: ".$e->getMessage());
 
                     // // Dispatch event for batch-level notification

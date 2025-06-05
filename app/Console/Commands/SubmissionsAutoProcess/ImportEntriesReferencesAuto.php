@@ -106,7 +106,7 @@ class ImportEntriesReferencesAuto extends Command
         }
 
         $query->chunk(10000, function ($ids) use (&$batchJobs) {
-            $this->info('Found ' . count($ids) . ' entries to process references for');
+            $this->info('Found '.count($ids).' entries to process references for');
             array_push($batchJobs, new ImportEntriesBatch($ids->pluck('id')->toArray(), 'references'));
         });
 
@@ -122,9 +122,9 @@ class ImportEntriesReferencesAuto extends Command
         Log::info('Dispatching references import batch...');
 
         $batch = Bus::batch($batchJobs)
-            ->then(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {})
+            ->then(function (Batch $batch) {})
             ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
-                Log::error('References import batch failed: ' . $e->getMessage());
+                Log::error('References import batch failed: '.$e->getMessage());
 
                 // Dispatch event for batch-level notification
                 ImportPipelineJobFailed::dispatch(
@@ -157,7 +157,7 @@ class ImportEntriesReferencesAuto extends Command
                     $collection->save();
                 }
             })
-            ->name('Import References Auto ' . $collection_id)
+            ->name('Import References Auto '.$collection_id)
             ->allowFailures()
             ->onConnection('redis')
             ->onQueue('default')

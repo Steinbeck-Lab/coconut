@@ -58,7 +58,7 @@ class GenerateCoordinatesBatch implements ShouldQueue
 
         if (! empty($batchJobs)) {
             $this->batch()->add($batchJobs);
-            Log::info('Added ' . count($batchJobs) . ' coordinate generation jobs to batch');
+            Log::info('Added '.count($batchJobs).' coordinate generation jobs to batch');
         }
     }
 }
