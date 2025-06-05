@@ -37,7 +37,12 @@ class GeneratePropertiesBatch implements ShouldQueue
 
         $batchJobs = [];
         foreach ($molecules as $molecule) {
-            array_push($batchJobs, new GenerateProperties($molecule));
+            // array_push($batchJobs, new GenerateProperties($molecule));
+            $delay = 5;
+
+            $job = (new GenerateProperties($molecule))
+                ->delay(now()->addSeconds($delay));
+            array_push($batchJobs, $job);
         }
         $this->batch()->add($batchJobs);
     }
