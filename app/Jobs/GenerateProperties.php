@@ -50,6 +50,11 @@ class GenerateProperties implements ShouldQueue
      */
     public function handle(): void
     {
+        // Check if the batch has been cancelled
+        if ($this->batch() && $this->batch()->cancelled()) {
+            return;
+        }
+
         try {
             $canonical_smiles = $this->molecule->canonical_smiles;
             $API_URL = env('API_URL', 'https://api.cheminf.studio/latest/');

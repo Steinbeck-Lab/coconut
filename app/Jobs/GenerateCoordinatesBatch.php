@@ -30,7 +30,8 @@ class GenerateCoordinatesBatch implements ShouldQueue
      */
     public function handle(): void
     {
-        if ($this->batch()->cancelled()) {
+        // Check if the batch has been cancelled
+        if ($this->batch() && $this->batch()->cancelled()) {
             return;
         }
 

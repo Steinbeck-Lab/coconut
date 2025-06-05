@@ -58,6 +58,11 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
      */
     public function handle(): void
     {
+        // Check if the batch has been cancelled
+        if ($this->batch() && $this->batch()->cancelled()) {
+            return;
+        }
+
         // Only process entries that are in AUTOCURATION status and have a molecule_id
         if ($this->entry->status !== 'AUTOCURATION' || ! $this->entry->molecule_id) {
             return;

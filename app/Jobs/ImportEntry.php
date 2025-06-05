@@ -35,6 +35,11 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
      */
     public function handle(): void
     {
+        // Check if the batch has been cancelled
+        if ($this->batch() && $this->batch()->cancelled()) {
+            return;
+        }
+
         if ($this->entry->status == 'PASSED') {
             $molecule = null;
             if ($this->entry->has_stereocenters) {

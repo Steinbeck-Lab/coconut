@@ -43,6 +43,11 @@ class ImportEntryAuto implements ShouldBeUnique, ShouldQueue
      */
     public function handle(): void
     {
+        // Check if the batch has been cancelled
+        if ($this->batch() && $this->batch()->cancelled()) {
+            return;
+        }
+
         if ($this->entry->status == 'PASSED') {
             $molecule = null;
             $doiRegex = '/\b(10[.][0-9]{4,}(?:[.][0-9]+)*)\b/';

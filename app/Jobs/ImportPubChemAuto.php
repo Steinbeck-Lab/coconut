@@ -56,6 +56,11 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
      */
     public function handle(): void
     {
+        // Check if the batch has been cancelled
+        if ($this->batch() && $this->batch()->cancelled()) {
+            return;
+        }
+
         Log::info('ImportPubChem job started for molecule ID: '.$this->molecule->id);
 
         try {

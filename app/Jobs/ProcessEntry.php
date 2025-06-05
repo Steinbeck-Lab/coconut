@@ -32,6 +32,11 @@ class ProcessEntry implements ShouldQueue
      */
     public function handle(): void
     {
+        // Check if the batch has been cancelled
+        if ($this->batch() && $this->batch()->cancelled()) {
+            return;
+        }
+
         // Fetch attached reports and update their status to INPROGRESS
         $attachedReports = $this->entry->reports;
         foreach ($attachedReports as $report) {

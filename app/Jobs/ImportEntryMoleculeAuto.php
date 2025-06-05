@@ -42,6 +42,11 @@ class ImportEntryMoleculeAuto implements ShouldBeUnique, ShouldQueue
      */
     public function handle(): void
     {
+        // Check if the batch has been cancelled
+        if ($this->batch() && $this->batch()->cancelled()) {
+            return;
+        }
+
         try {
             if ($this->entry->status == 'PASSED') {
                 $molecule = null;
