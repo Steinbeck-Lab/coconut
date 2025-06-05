@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Events\ImportPipelineJobFailed;
 use App\Models\Molecule;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -109,19 +108,6 @@ class ImportEntryMoleculeAuto implements ShouldBeUnique, ShouldQueue
             }
         } catch (\Exception $e) {
             Log::error("Error in ImportEntryMoleculeAuto for entry {$this->entry->id}: ".$e->getMessage());
-
-            // Dispatch event for notification handling
-            ImportPipelineJobFailed::dispatch(
-                self::class,
-                $e,
-                [
-                    'entry_id' => $this->entry->id,
-                    'collection_id' => $this->entry->collection_id,
-                    'step' => $this->stepName,
-                ],
-                $this->batch()?->id
-            );
-
             throw $e;
         }
     }
@@ -201,35 +187,9 @@ class ImportEntryMoleculeAuto implements ShouldBeUnique, ShouldQueue
             if ($this->isUniqueViolationException($e)) {
                 // $this->attachCollection($molecule);
             } else {
-                // Dispatch event for notification handling
-                ImportPipelineJobFailed::dispatch(
-                    self::class,
-                    $e,
-                    [
-                        'entry_id' => $this->entry->id,
-                        'molecule_id' => $molecule->id,
-                        'collection_id' => $this->entry->collection_id,
-                        'step' => $this->stepName.'-attach-collection',
-                    ],
-                    $this->batch()?->id
-                );
-
                 throw $e;
             }
         } catch (\Exception $e) {
-            // Dispatch event for notification handling
-            ImportPipelineJobFailed::dispatch(
-                self::class,
-                $e,
-                [
-                    'entry_id' => $this->entry->id,
-                    'molecule_id' => $molecule->id,
-                    'collection_id' => $this->entry->collection_id,
-                    'step' => $this->stepName.'-attach-collection',
-                ],
-                $this->batch()?->id
-            );
-
             throw $e;
         }
     }

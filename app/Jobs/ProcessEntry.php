@@ -103,19 +103,7 @@ class ProcessEntry implements ShouldQueue
             $status = 'REJECTED';
             $error_code = 7;
             $is_invalid = true;
-
-            // Dispatch event for notification handling
-            \App\Events\ImportPipelineJobFailed::dispatch(
-                self::class,
-                $e,
-                [
-                    'entry_id' => $this->entry->id,
-                    'canonical_smiles' => $canonical_smiles ?? 'Unknown',
-                    'step' => 'process-entry',
-                    'error_code' => $e->getCode(),
-                ],
-                $this->batch()?->id
-            );
+            throw $e;
         } catch (\Exception $e) {
             Log::error('An unexpected exception occurred: '.$e->getMessage().' - '.$canonical_smiles);
             $errors = [
@@ -124,18 +112,7 @@ class ProcessEntry implements ShouldQueue
             $status = 'REJECTED';
             $error_code = 7;
             $is_invalid = true;
-
-            // Dispatch event for notification handling
-            \App\Events\ImportPipelineJobFailed::dispatch(
-                self::class,
-                $e,
-                [
-                    'entry_id' => $this->entry->id,
-                    'canonical_smiles' => $canonical_smiles ?? 'Unknown',
-                    'step' => 'process-entry',
-                ],
-                $this->batch()?->id
-            );
+            throw $e;
         }
         $this->entry->error_code = $error_code;
         $this->entry->errors = $errors;
@@ -146,5 +123,24 @@ class ProcessEntry implements ShouldQueue
         $this->entry->cm_data = $data;
         $this->entry->has_stereocenters = $has_stereocenters;
         $this->entry->save();
+    }
+
+    /**
+     * Handle a job failure.
+     */
+    public function failed(\Throwable $exception): void
+    {
+        handleJobFailure(
+            self::class,
+            $exception,
+            'process-entry',
+            [
+                'entry_id' => $this->entry->id,
+                'canonical_smiles' => $this->entry->canonical_smiles ?? 'Unknown',
+            ],
+            $this->batch()?->id,
+            null,
+            $this->entry->id
+        );
     }
 }

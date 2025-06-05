@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Events\ImportPipelineJobFailed;
 use App\Models\Citation;
 use App\Models\Ecosystem;
 use App\Models\GeoLocation;
@@ -91,20 +90,6 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
             Log::error('Inside job: Error processing references for entry ID '.$this->entry->id.': '.$e->getMessage());
             // Update status to failed with error message
             updateCurationStatus($molecule->id, $this->stepName, 'failed', $e->getMessage());
-
-            // Dispatch event for notification handling
-            ImportPipelineJobFailed::dispatch(
-                self::class,
-                $e,
-                [
-                    'molecule_id' => $molecule->id,
-                    'entry_id' => $this->entry->id,
-                    'canonical_smiles' => $molecule->canonical_smiles ?? 'Unknown',
-                    'step' => 'import-references',
-                ],
-                $this->batch()?->id
-            );
-
             throw $e;
         }
     }

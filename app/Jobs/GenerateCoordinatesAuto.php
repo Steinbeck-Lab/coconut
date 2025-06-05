@@ -84,19 +84,6 @@ class GenerateCoordinatesAuto implements ShouldQueue
             $error = "Error processing molecule {$this->molecule->id}: ".$e->getMessage();
             Log::error($error);
             updateCurationStatus($this->molecule->id, $this->stepName, 'failed', $error);
-
-            // Dispatch event for job-level notification
-            \App\Events\ImportPipelineJobFailed::dispatch(
-                self::class,
-                $e,
-                [
-                    'molecule_id' => $this->molecule->id,
-                    'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
-                    'step' => $this->stepName,
-                ],
-                $this->batch()?->id
-            );
-
             throw $e;
         }
     }
