@@ -1,9 +1,12 @@
 <?php
 
+use App\Events\ImportPipelineJobFailed;
 use App\Models\Citation;
 use App\Models\Molecule;
 use Filament\Forms\Components\KeyValue;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Events\AuditCustom;
 
 function npScore($old_value)
@@ -547,4 +550,64 @@ function getCurationStatus($moleculeId, $command = null)
     }
 
     return $molecule->curation_status;
+}
+
+/**
+ * Handle job failures consistently across all queue jobs.
+ * This centralizes the error handling, logging, status updates, and event dispatching.
+ *
+ * @param  string  $jobClass  The job class name (use self::class in the job)
+ * @param  \Throwable  $exception  The exception that caused the failure
+ * @param  string  $stepName  The step name for this job (from $this->stepName)
+ * @param  array  $contextData  Additional context data for the event
+ * @param  string|null  $batchId  The batch ID if running in a batch
+ * @param  string|null  $moleculeId  The molecule ID if applicable
+ * @param  string|null  $entryId  The entry ID if applicable
+ */
+function handleJobFailure(
+    string $jobClass,
+    \Throwable $exception,
+    string $stepName,
+    array $contextData = [],
+    ?string $batchId = null,
+    ?string $moleculeId = null,
+    ?string $entryId = null
+): void {
+    $errorMessage = $exception->getMessage();
+    $jobShortName = class_basename($jobClass);
+
+    // Build log message
+    $logContext = [];
+    if ($moleculeId) {
+        $logContext[] = "molecule {$moleculeId}";
+    }
+    if ($entryId) {
+        $logContext[] = "entry {$entryId}";
+    }
+
+    $logMessage = "{$jobShortName} job failed";
+    if (! empty($logContext)) {
+        $logMessage .= ' for '.implode(', ', $logContext);
+    }
+    $logMessage .= ": {$errorMessage}";
+
+    Log::error($logMessage);
+
+    // Update curation status if molecule ID is provided
+    if ($moleculeId) {
+        updateCurationStatus($moleculeId, $stepName, 'failed', $errorMessage);
+    }
+
+    // Prepare event data
+    $eventData = array_merge([
+        'step' => $stepName,
+    ], $contextData);
+
+    // Dispatch event for notification handling
+    ImportPipelineJobFailed::dispatch(
+        $jobClass,
+        $exception,
+        $eventData,
+        $batchId
+    );
 }

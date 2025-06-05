@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands\SubmissionsAutoProcess;
 
-use App\Events\ImportPipelineJobFailed;
 use App\Jobs\GeneratePropertiesBatch;
 use App\Models\Collection;
 use App\Models\Molecule;
@@ -105,21 +104,7 @@ class GeneratePropertiesAuto extends Command
             // Dispatch as a batch
             Bus::batch($batchJobs)
                 ->then(function (Batch $batch) {})
-                ->catch(function (Batch $batch, Throwable $e) {
-                    // Log::error("GenerateProperties batch failed for collection {$collection_id}: ".$e->getMessage());
-
-                    // // Dispatch event for batch-level notification
-                    // ImportPipelineJobFailed::dispatch(
-                    //     'Generate Properties Auto Batch',
-                    //     $e,
-                    //     [
-                    //         'batch_id' => $batch->id,
-                    //         'collection_id' => $collection_id,
-                    //         'step' => 'generate_properties_batch',
-                    //     ],
-                    //     $batch->id
-                    // );
-                })
+                ->catch(function (Batch $batch, Throwable $e) {})
                 ->finally(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {
                     Log::info("Property generation batch completed for collection {$collection_id}: ".$batch->id);
                     if ($triggerForce) {

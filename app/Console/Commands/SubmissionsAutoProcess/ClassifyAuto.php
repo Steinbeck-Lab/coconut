@@ -110,16 +110,16 @@ class ClassifyAuto extends Command
                     Log::error("NPClassifier batch failed for collection {$collection_id}: ".$e->getMessage());
 
                     // Dispatch event for batch-level notification
-                    \App\Events\ImportPipelineJobFailed::dispatch(
-                        'NPClassifier Auto Batch',
-                        $e,
-                        [
-                            'batch_id' => $batch->id,
-                            'collection_id' => $collection_id,
-                            'step' => 'npclassify_batch',
-                        ],
-                        $batch->id
-                    );
+                    // \App\Events\ImportPipelineJobFailed::dispatch(
+                    //     'NPClassifier Auto Batch',
+                    //     $e,
+                    //     [
+                    //         'batch_id' => $batch->id,
+                    //         'collection_id' => $collection_id,
+                    //         'step' => 'npclassify_batch',
+                    //     ],
+                    //     $batch->id
+                    // );
                 })
                 ->finally(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {
                     if ($triggerForce) {

@@ -21,6 +21,11 @@ class ClassifyMoleculeAuto implements ShouldQueue
     protected $molecule;
 
     /**
+     * The step name for this job.
+     */
+    protected $stepName = 'classify';
+
+    /**
      * The number of seconds the job can run before timing out.
      */
     public $timeout = 45;
@@ -63,9 +68,9 @@ class ClassifyMoleculeAuto implements ShouldQueue
 
             if ($response_data) {
                 $this->updateProperties($id, $response_data);
-                updateCurationStatus($id, 'classify', 'completed');
+                updateCurationStatus($id, $this->stepName, 'completed');
             } else {
-                updateCurationStatus($id, 'classify', 'failed', 'Failed to fetch or process classification data');
+                updateCurationStatus($id, $this->stepName, 'failed', 'Failed to fetch or process classification data');
 
                 // Dispatch event for notification handling
                 ImportPipelineJobFailed::dispatch(
@@ -74,14 +79,14 @@ class ClassifyMoleculeAuto implements ShouldQueue
                     [
                         'molecule_id' => $this->molecule->id,
                         'canonical_smiles' => $canonical_smiles ?? 'Unknown',
-                        'step' => 'classify',
+                        'step' => $this->stepName,
                     ],
                     $this->batch()?->id
                 );
             }
         } catch (Throwable $e) {
             Log::error("Error classifying molecule {$this->molecule->id}: ".$e->getMessage());
-            updateCurationStatus($this->molecule->id, 'classify', 'failed', $e->getMessage());
+            updateCurationStatus($this->molecule->id, $this->stepName, 'failed', $e->getMessage());
 
             // Dispatch event for notification handling
             ImportPipelineJobFailed::dispatch(
@@ -90,7 +95,7 @@ class ClassifyMoleculeAuto implements ShouldQueue
                 [
                     'molecule_id' => $this->molecule->id,
                     'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
-                    'step' => 'classify',
+                    'step' => $this->stepName,
                 ],
                 $this->batch()?->id
             );
@@ -172,26 +177,16 @@ class ClassifyMoleculeAuto implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        $isTimeout = str_contains($exception->getMessage(), 'Job has timed out') ||
-                     str_contains($exception->getMessage(), 'Maximum execution time') ||
-                     $exception instanceof \Illuminate\Queue\MaxAttemptsExceededException;
-
-        $errorMessage = $isTimeout ? 'Job timed out after 45 seconds' : $exception->getMessage();
-
-        Log::error("ClassifyMoleculeAuto job failed for molecule {$this->molecule->id}: {$errorMessage}");
-        updateCurationStatus($this->molecule->id, 'classify', 'failed', $errorMessage);
-
-        // Dispatch event for notification handling
-        ImportPipelineJobFailed::dispatch(
+        handleJobFailure(
             self::class,
             $exception,
+            $this->stepName,
             [
                 'molecule_id' => $this->molecule->id,
                 'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
-                'step' => 'classify',
-                'timeout' => $isTimeout,
             ],
-            $this->batch()?->id
+            $this->batch()?->id,
+            $this->molecule->id
         );
     }
 }

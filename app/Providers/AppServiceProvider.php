@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Listeners\ImportPipelineEventSubscriber;
 use App\Listeners\ReportEventSubscriber;
 use BezhanSalleh\PanelSwitch\PanelSwitch;
 use Filament\Facades\Filament;

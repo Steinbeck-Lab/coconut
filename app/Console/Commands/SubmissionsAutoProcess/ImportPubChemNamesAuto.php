@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands\SubmissionsAutoProcess;
 
-use App\Events\ImportPipelineJobFailed;
 use App\Jobs\ImportPubChemBatch;
 use App\Models\Collection;
 use App\Models\Molecule;
@@ -122,18 +121,6 @@ class ImportPubChemNamesAuto extends Command
                 ->then(function (Batch $batch) {})
                 ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
                     Log::error("PubChem import batch failed for collection {$collection_id}: ".$e->getMessage());
-
-                    // Dispatch event for batch-level notification
-                    ImportPipelineJobFailed::dispatch(
-                        'Import PubChem Auto Batch',
-                        $e,
-                        [
-                            'batch_id' => $batch->id,
-                            'collection_id' => $collection_id,
-                            'step' => 'import_pubchem_batch',
-                        ],
-                        $batch->id
-                    );
                 })
                 ->finally(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {
                     if ($triggerForce) {

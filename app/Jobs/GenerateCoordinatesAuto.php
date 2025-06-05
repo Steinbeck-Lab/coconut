@@ -21,6 +21,11 @@ class GenerateCoordinatesAuto implements ShouldQueue
     protected $molecule;
 
     /**
+     * The step name for this job.
+     */
+    protected $stepName = 'generate-coordinates';
+
+    /**
      * The number of seconds the job can run before timing out.
      *
      * @var int
@@ -61,14 +66,14 @@ class GenerateCoordinatesAuto implements ShouldQueue
             if ((is_null($d2) || $d2 === '') && (is_null($d3) || $d3 === '')) {
                 $error = "Failed to generate coordinates for molecule ID: {$id}";
                 Log::warning($error);
-                updateCurationStatus($id, 'generate-coordinates', 'failed', $error);
+                updateCurationStatus($id, $this->stepName, 'failed', $error);
 
                 return;
             }
 
             // Save the structure
             $this->saveStructure($id, $d2, $d3);
-            updateCurationStatus($id, 'generate-coordinates', 'completed');
+            updateCurationStatus($id, $this->stepName, 'completed');
 
             // Update attached reports status to COMPLETED
             foreach ($this->molecule->reports as $report) {
@@ -78,7 +83,7 @@ class GenerateCoordinatesAuto implements ShouldQueue
         } catch (\Exception $e) {
             $error = "Error processing molecule {$this->molecule->id}: ".$e->getMessage();
             Log::error($error);
-            updateCurationStatus($this->molecule->id, 'generate-coordinates', 'failed', $error);
+            updateCurationStatus($this->molecule->id, $this->stepName, 'failed', $error);
 
             // Dispatch event for job-level notification
             \App\Events\ImportPipelineJobFailed::dispatch(
@@ -87,7 +92,7 @@ class GenerateCoordinatesAuto implements ShouldQueue
                 [
                     'molecule_id' => $this->molecule->id,
                     'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
-                    'step' => 'generate-coordinates',
+                    'step' => $this->stepName,
                 ],
                 $this->batch()?->id
             );
@@ -117,30 +122,16 @@ class GenerateCoordinatesAuto implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        Log::error('GenerateCoordinatesAuto job failed for molecule ID '.$this->molecule->id.': '.$exception->getMessage());
-
-        // Check if this is a timeout exception
-        $isTimeout = str_contains($exception->getMessage(), 'timeout') ||
-            str_contains($exception->getMessage(), 'timed out') ||
-            $exception instanceof \Illuminate\Queue\MaxAttemptsExceededException;
-
-        $errorMessage = $isTimeout ?
-            'Job timed out after 45 seconds' :
-            $exception->getMessage();
-
-        updateCurationStatus($this->molecule->id, 'generate-coordinates', 'failed', $errorMessage);
-
-        // Dispatch event for notification handling
-        \App\Events\ImportPipelineJobFailed::dispatch(
+        handleJobFailure(
             self::class,
             $exception,
+            $this->stepName,
             [
                 'molecule_id' => $this->molecule->id,
                 'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
-                'step' => 'generate-coordinates',
-                'timeout' => $isTimeout,
             ],
-            $this->batch()?->id
+            $this->batch()?->id,
+            $this->molecule->id
         );
     }
 

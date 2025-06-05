@@ -25,6 +25,11 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
     protected $failedIdsFile = 'pubchem_failed_molecules.json';
 
     /**
+     * The step name for this job.
+     */
+    protected $stepName = 'import-pubchem-names';
+
+    /**
      * The number of seconds the job can run before timing out.
      *
      * @var int
@@ -57,9 +62,9 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
         try {
             $result = $this->fetchIUPACNameFromPubChem();
             if ($result === true) {
-                updateCurationStatus($this->molecule->id, 'import-pubchem-names', 'completed');
+                updateCurationStatus($this->molecule->id, $this->stepName, 'completed');
             } else {
-                updateCurationStatus($this->molecule->id, 'import-pubchem-names', 'failed', 'Failed to fetch or process PubChem data');
+                updateCurationStatus($this->molecule->id, $this->stepName, 'failed', 'Failed to fetch or process PubChem data');
 
                 // Dispatch event for notification handling
                 ImportPipelineJobFailed::dispatch(
@@ -68,14 +73,16 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
                     [
                         'molecule_id' => $this->molecule->id,
                         'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
-                        'step' => 'import-pubchem-names',
+                        'step' => $this->stepName,
                     ],
                     $this->batch()?->id
                 );
+
+                throw new \Exception('Failed to fetch or process PubChem data');
             }
         } catch (\Exception $e) {
             Log::error("Error processing molecule {$this->molecule->id}: ".$e->getMessage());
-            updateCurationStatus($this->molecule->id, 'import-pubchem-names', 'failed', $e->getMessage());
+            updateCurationStatus($this->molecule->id, $this->stepName, 'failed', $e->getMessage());
 
             // Dispatch event for notification handling
             ImportPipelineJobFailed::dispatch(
@@ -84,7 +91,7 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
                 [
                     'molecule_id' => $this->molecule->id,
                     'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
-                    'step' => 'import-pubchem-names',
+                    'step' => $this->stepName,
                 ],
                 $this->batch()?->id
             );
@@ -98,30 +105,16 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        Log::error('ImportPubChemAuto job failed for molecule ID '.$this->molecule->id.': '.$exception->getMessage());
-
-        // Check if this is a timeout exception
-        $isTimeout = str_contains($exception->getMessage(), 'timeout') ||
-                    str_contains($exception->getMessage(), 'timed out') ||
-                    $exception instanceof \Illuminate\Queue\MaxAttemptsExceededException;
-
-        $errorMessage = $isTimeout ?
-            'Job timed out after 45 seconds' :
-            $exception->getMessage();
-
-        updateCurationStatus($this->molecule->id, 'import-pubchem-names', 'failed', $errorMessage);
-
-        // Dispatch event for notification handling
-        ImportPipelineJobFailed::dispatch(
+        handleJobFailure(
             self::class,
             $exception,
+            $this->stepName,
             [
                 'molecule_id' => $this->molecule->id,
                 'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
-                'step' => 'import-pubchem-names',
-                'timeout' => $isTimeout,
             ],
-            $this->batch()?->id
+            $this->batch()?->id,
+            $this->molecule->id
         );
     }
 

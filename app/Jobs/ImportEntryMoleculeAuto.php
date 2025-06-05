@@ -21,6 +21,11 @@ class ImportEntryMoleculeAuto implements ShouldBeUnique, ShouldQueue
     protected $entry;
 
     /**
+     * The step name for this job.
+     */
+    protected $stepName = 'import-entry-molecule';
+
+    /**
      * The number of seconds the job can run before timing out.
      */
     public $timeout = 45;
@@ -112,7 +117,7 @@ class ImportEntryMoleculeAuto implements ShouldBeUnique, ShouldQueue
                 [
                     'entry_id' => $this->entry->id,
                     'collection_id' => $this->entry->collection_id,
-                    'step' => 'import-entry-molecule-auto',
+                    'step' => $this->stepName,
                 ],
                 $this->batch()?->id
             );
@@ -204,7 +209,7 @@ class ImportEntryMoleculeAuto implements ShouldBeUnique, ShouldQueue
                         'entry_id' => $this->entry->id,
                         'molecule_id' => $molecule->id,
                         'collection_id' => $this->entry->collection_id,
-                        'step' => 'attach-collection',
+                        'step' => $this->stepName.'-attach-collection',
                     ],
                     $this->batch()?->id
                 );
@@ -220,7 +225,7 @@ class ImportEntryMoleculeAuto implements ShouldBeUnique, ShouldQueue
                     'entry_id' => $this->entry->id,
                     'molecule_id' => $molecule->id,
                     'collection_id' => $this->entry->collection_id,
-                    'step' => 'attach-collection',
+                    'step' => $this->stepName.'-attach-collection',
                 ],
                 $this->batch()?->id
             );
@@ -261,25 +266,17 @@ class ImportEntryMoleculeAuto implements ShouldBeUnique, ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        $isTimeout = str_contains($exception->getMessage(), 'Job has timed out') ||
-                     str_contains($exception->getMessage(), 'Maximum execution time') ||
-                     $exception instanceof \Illuminate\Queue\MaxAttemptsExceededException;
-
-        $errorMessage = $isTimeout ? 'Job timed out after 45 seconds' : $exception->getMessage();
-
-        Log::error("ImportEntryMoleculeAuto job failed for entry {$this->entry->id}: {$errorMessage}");
-
-        // Dispatch event for notification handling
-        ImportPipelineJobFailed::dispatch(
+        handleJobFailure(
             self::class,
             $exception,
+            $this->stepName,
             [
                 'entry_id' => $this->entry->id,
                 'collection_id' => $this->entry->collection_id,
-                'step' => 'import-entry-molecule-auto',
-                'timeout' => $isTimeout,
             ],
-            $this->batch()?->id
+            $this->batch()?->id,
+            null,
+            $this->entry->id
         );
     }
 }

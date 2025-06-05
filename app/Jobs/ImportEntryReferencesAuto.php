@@ -21,7 +21,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Str;
+use Illuminate\Support\Str;
 
 class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
 {
@@ -30,6 +30,11 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
     protected $entry;
 
     public $citation_ids_array = [];
+
+    /**
+     * The step name for this job.
+     */
+    protected $stepName = 'import-references';
 
     /**
      * The number of seconds the job can run before timing out.
@@ -67,7 +72,7 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
         }
 
         // Update status to processing
-        // updateCurationStatus($molecule->id, 'import-references', 'processing');
+        // updateCurationStatus($molecule->id, $this->stepName, 'processing');
 
         try {
             // Process references if they exist
@@ -77,7 +82,7 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
             }
 
             // Mark as completed
-            updateCurationStatus($molecule->id, 'import-references', 'completed');
+            updateCurationStatus($molecule->id, $this->stepName, 'completed');
 
             // Update the entry status to IMPORTED
             $this->entry->status = 'IMPORTED';
@@ -85,7 +90,7 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
         } catch (Exception $e) {
             Log::error('Inside job: Error processing references for entry ID '.$this->entry->id.': '.$e->getMessage());
             // Update status to failed with error message
-            updateCurationStatus($molecule->id, 'import-references', 'failed', $e->getMessage());
+            updateCurationStatus($molecule->id, $this->stepName, 'failed', $e->getMessage());
 
             // Dispatch event for notification handling
             ImportPipelineJobFailed::dispatch(
@@ -109,28 +114,17 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        $isTimeout = str_contains($exception->getMessage(), 'Job has timed out') ||
-            str_contains($exception->getMessage(), 'Maximum execution time') ||
-            $exception instanceof \Illuminate\Queue\MaxAttemptsExceededException;
-
-        $errorMessage = $isTimeout ? 'Job timed out after 45 seconds' : $exception->getMessage();
-
-        Log::error("ImportEntryReferencesAuto job failed for entry {$this->entry->id}: {$errorMessage}");
-
-        // Update curation status
-        updateCurationStatus($this->entry->molecule_id, 'import-references', 'failed', $errorMessage);
-
-        // Dispatch event for notification handling
-        ImportPipelineJobFailed::dispatch(
+        handleJobFailure(
             self::class,
             $exception,
+            $this->stepName,
             [
                 'entry_id' => $this->entry->id,
                 'molecule_id' => $this->entry->molecule_id,
-                'step' => 'import-references',
-                'timeout' => $isTimeout,
             ],
-            $this->batch()?->id
+            $this->batch()?->id,
+            $this->entry->molecule_id,
+            $this->entry->id
         );
     }
 

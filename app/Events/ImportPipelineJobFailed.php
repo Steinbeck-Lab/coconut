@@ -17,7 +17,7 @@ class ImportPipelineJobFailed
      */
     public $jobName;
 
-    public $exception;
+    public $errorDetails;
 
     public $jobData;
 
@@ -26,7 +26,11 @@ class ImportPipelineJobFailed
     public function __construct(string $jobName, Throwable $exception, array $jobData = [], ?string $batchId = null)
     {
         $this->jobName = $jobName;
-        $this->exception = $exception;
+        $this->errorDetails = [
+            'message' => $exception->getMessage(),
+            'class' => get_class($exception),
+            'timestamp' => now()->format('Y-m-d H:i:s T'),
+        ];
         $this->jobData = $jobData;
         $this->batchId = $batchId;
     }

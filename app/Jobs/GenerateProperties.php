@@ -20,6 +20,11 @@ class GenerateProperties implements ShouldQueue
     protected $molecule;
 
     /**
+     * The step name for this job.
+     */
+    protected $stepName = 'generate-properties';
+
+    /**
      * The number of seconds the job can run before timing out.
      */
     public $timeout = 45;
@@ -55,41 +60,18 @@ class GenerateProperties implements ShouldQueue
                 $descriptors = $response->json();
                 $descriptors['standard_inchi'] = $this->molecule->standard_inchi;
                 $this->attachProperties($descriptors, $this->molecule->id);
-                updateCurationStatus($this->molecule->id, 'generate-properties', 'completed');
+                updateCurationStatus($this->molecule->id, $this->stepName, 'completed');
             } else {
                 $error = 'Failed to get properties from API: '.$response->status();
                 Log::error($error.' - '.$canonical_smiles);
-                updateCurationStatus($this->molecule->id, 'generate-properties', 'failed', $error);
+                updateCurationStatus($this->molecule->id, $this->stepName, 'failed', $error);
 
-                // Dispatch event for notification handling
-                // \App\Events\ImportPipelineJobFailed::dispatch(
-                //     self::class,
-                //     new \Exception($error),
-                //     [
-                //         'molecule_id' => $this->molecule->id,
-                //         'canonical_smiles' => $canonical_smiles ?? 'Unknown',
-                //         'step' => 'generate-properties',
-                //     ],
-                //     $this->batch()?->id
-                // );
                 throw new \Exception($error);
             }
         } catch (\Exception $e) {
             $error = 'An unexpected exception occurred: '.$e->getMessage();
             Log::error($error.' - '.$canonical_smiles);
-            updateCurationStatus($this->molecule->id, 'generate-properties', 'failed', $error);
-
-            // Dispatch event for notification handling
-            // \App\Events\ImportPipelineJobFailed::dispatch(
-            //     self::class,
-            //     $e,
-            //     [
-            //         'molecule_id' => $this->molecule->id,
-            //         'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
-            //         'step' => 'generate-properties',
-            //     ],
-            //     $this->batch()?->id
-            // );
+            updateCurationStatus($this->molecule->id, $this->stepName, 'failed', $error);
 
             throw $e;
         }
@@ -147,26 +129,16 @@ class GenerateProperties implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        $isTimeout = str_contains($exception->getMessage(), 'Job has timed out') ||
-            str_contains($exception->getMessage(), 'Maximum execution time') ||
-            $exception instanceof \Illuminate\Queue\MaxAttemptsExceededException;
-
-        $errorMessage = $isTimeout ? 'Job timed out after 45 seconds' : $exception->getMessage();
-
-        Log::error("GenerateProperties job failed for molecule {$this->molecule->id}: {$errorMessage}");
-        updateCurationStatus($this->molecule->id, 'generate-properties', 'failed', $errorMessage);
-
-        // Dispatch event for notification handling
-        \App\Events\ImportPipelineJobFailed::dispatch(
+        handleJobFailure(
             self::class,
             $exception,
+            $this->stepName,
             [
                 'molecule_id' => $this->molecule->id,
                 'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
-                'step' => 'generate-properties',
-                'timeout' => $isTimeout,
             ],
-            $this->batch()?->id
+            $this->batch()?->id,
+            $this->molecule->id
         );
     }
 }

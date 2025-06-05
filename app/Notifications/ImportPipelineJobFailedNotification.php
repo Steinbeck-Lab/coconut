@@ -38,8 +38,9 @@ class ImportPipelineJobFailedNotification extends Notification implements Should
     public function toMail(object $notifiable): MailMessage
     {
         $jobName = $this->event->jobName;
-        $exceptionMessage = $this->event->exception->getMessage();
-        $exceptionClass = get_class($this->event->exception);
+        $exceptionMessage = $this->event->errorDetails['message'];
+        $exceptionClass = $this->event->errorDetails['class'];
+        $timestamp = $this->event->errorDetails['timestamp'];
 
         // Create a dashboard URL for admins to check logs
         $dashboardUrl = url(env('APP_URL').'/dashboard');
@@ -48,9 +49,10 @@ class ImportPipelineJobFailedNotification extends Notification implements Should
             ->subject('Coconut: Import Pipeline Job Failed - '.$jobName)
             ->greeting('Hello '.$notifiable->name.',')
             ->line('An import pipeline job has failed in the Coconut system.')
-            ->line('**Job:** '.$jobName)
+            ->line('**Process:** '.$jobName)
             ->line('**Error Type:** '.$exceptionClass)
-            ->line('**Error Message:** '.$exceptionMessage);
+            ->line('**Error Message:** '.$exceptionMessage)
+            ->line('**Timestamp:** '.$timestamp);
 
         // Add batch information if available
         if ($this->event->batchId) {
@@ -84,8 +86,9 @@ class ImportPipelineJobFailedNotification extends Notification implements Should
     {
         return [
             'job_name' => $this->event->jobName,
-            'exception_message' => $this->event->exception->getMessage(),
-            'exception_class' => get_class($this->event->exception),
+            'exception_message' => $this->event->errorDetails['message'],
+            'exception_class' => $this->event->errorDetails['class'],
+            'timestamp' => $this->event->errorDetails['timestamp'],
             'batch_id' => $this->event->batchId,
             'job_data' => $this->event->jobData,
         ];
