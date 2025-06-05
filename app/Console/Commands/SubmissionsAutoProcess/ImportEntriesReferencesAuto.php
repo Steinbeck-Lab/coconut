@@ -106,7 +106,7 @@ class ImportEntriesReferencesAuto extends Command
         }
 
         $query->chunk(10000, function ($ids) use (&$batchJobs) {
-            $this->info('Found '.count($ids).' entries to process references for');
+            $this->info('Found ' . count($ids) . ' entries to process references for');
             array_push($batchJobs, new ImportEntriesBatch($ids->pluck('id')->toArray(), 'references'));
         });
 
@@ -121,22 +121,10 @@ class ImportEntriesReferencesAuto extends Command
 
         Log::info('Dispatching references import batch...');
 
-        $batch = Bus::batch($batchJobs)->then(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {
-            // Call the next command in the chain with the same collection ID
-            if ($triggerForce) {
-                Artisan::call('coconut:import-pubchem-data-auto', [
-                    'collection_id' => $collection_id,
-                    '--trigger-force' => true,
-                ]);
-            } elseif ($triggerNext) {
-                Artisan::call('coconut:import-pubchem-data-auto', [
-                    'collection_id' => $collection_id,
-                    '--trigger' => true,
-                ]);
-            }
-        })
+        $batch = Bus::batch($batchJobs)
+            ->then(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {})
             ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
-                Log::error('References import batch failed: '.$e->getMessage());
+                Log::error('References import batch failed: ' . $e->getMessage());
 
                 // Dispatch event for batch-level notification
                 ImportPipelineJobFailed::dispatch(
@@ -150,15 +138,27 @@ class ImportEntriesReferencesAuto extends Command
                     $batch->id
                 );
             })
-            ->finally(function (Batch $batch) use ($collection) {
+            ->finally(function (Batch $batch) use ($collection, $triggerNext, $triggerForce) {
+                // Call the next command in the chain with the same collection ID
+                if ($triggerForce) {
+                    Artisan::call('coconut:import-pubchem-data-auto', [
+                        'collection_id' => $collection->id,
+                        '--trigger-force' => true,
+                    ]);
+                } elseif ($triggerNext) {
+                    Artisan::call('coconut:import-pubchem-data-auto', [
+                        'collection_id' => $collection->id,
+                        '--trigger' => true,
+                    ]);
+                }
                 if ($batch->finished() && ! $batch->hasFailures()) {
                     $collection->jobs_status = 'INCURATION';
                     $collection->job_info = '';
                     $collection->save();
                 }
             })
-            ->name('Import References Auto '.$collection_id)
-            ->allowFailures(false)
+            ->name('Import References Auto ' . $collection_id)
+            ->allowFailures()
             ->onConnection('redis')
             ->onQueue('default')
             ->dispatch();

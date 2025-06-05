@@ -56,7 +56,7 @@ class ImportEntries extends Command
                 $collection->save();
                 Cache::forget('stats.collections'.$collection->id.'molecules.count');
             })->name('Import Entries '.$collection->id)
-                ->allowFailures(false)
+                ->allowFailures()
                 ->onConnection('redis')
                 ->onQueue('default')
                 ->dispatch();

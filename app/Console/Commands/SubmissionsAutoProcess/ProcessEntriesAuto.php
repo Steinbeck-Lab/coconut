@@ -98,7 +98,7 @@ class ProcessEntriesAuto extends Command
                 }
             })
             ->name('Process Entries Auto '.$collection_id)
-            ->allowFailures(false)
+            ->allowFailures()
             ->onConnection('redis')
             ->onQueue('default')
             ->dispatch();

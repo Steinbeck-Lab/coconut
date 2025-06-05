@@ -109,9 +109,9 @@ class ImportPubChemNamesAuto extends Command
             Log::info("Processing batch of {$moleculeCount} molecules for collection {$collection_id}");
 
             // Record the processing attempt in curation status for each molecule
-            foreach ($mols as $molecule) {
-                updateCurationStatus($molecule->id, 'import-pubchem-names', 'processing');
-            }
+            // foreach ($mols as $molecule) {
+            //     updateCurationStatus($molecule->id, 'import-pubchem-names', 'processing');
+            // }
 
             // Prepare batch jobs
             $batchJobs = [];
@@ -120,17 +120,7 @@ class ImportPubChemNamesAuto extends Command
             // Dispatch as a batch
             Bus::batch($batchJobs)
                 ->then(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {
-                    if ($triggerForce) {
-                        Artisan::call('coconut:generate-properties-auto', [
-                            'collection_id' => $collection_id,
-                            '--trigger-force' => true,
-                        ]);
-                    } elseif ($triggerNext) {
-                        Artisan::call('coconut:generate-properties-auto', [
-                            'collection_id' => $collection_id,
-                            '--trigger' => true,
-                        ]);
-                    }
+                   
                 })
                 ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
                     Log::error("PubChem import batch failed for collection {$collection_id}: ".$e->getMessage());
@@ -147,11 +137,21 @@ class ImportPubChemNamesAuto extends Command
                         $batch->id
                     );
                 })
-                ->finally(function (Batch $batch) {
-                    // Handle final cleanup or logging
+                ->finally(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {
+                     if ($triggerForce) {
+                        Artisan::call('coconut:generate-properties-auto', [
+                            'collection_id' => $collection_id,
+                            '--trigger-force' => true,
+                        ]);
+                    } elseif ($triggerNext) {
+                        Artisan::call('coconut:generate-properties-auto', [
+                            'collection_id' => $collection_id,
+                            '--trigger' => true,
+                        ]);
+                    }
                 })
                 ->name("Import PubChem Auto Batch Collection {$collection_id}")
-                ->allowFailures(true)
+                ->allowFailures()
                 ->onConnection('redis')
                 ->onQueue('default')
                 ->dispatch();

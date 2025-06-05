@@ -95,9 +95,9 @@ class ClassifyAuto extends Command
             Log::info("Processing batch of {$moleculeCount} molecules for classification in collection {$collection_id}");
 
             // Mark molecules as processing
-            foreach ($molecules as $molecule) {
-                updateCurationStatus($molecule->id, 'classify', 'processing');
-            }
+            // foreach ($molecules as $molecule) {
+            //     updateCurationStatus($molecule->id, 'classify', 'processing');
+            // }
 
             $batchJobs = [];
             $moleculeIds = $molecules->pluck('id')->toArray();
@@ -106,16 +106,7 @@ class ClassifyAuto extends Command
             // Dispatch the batch
             Bus::batch($batchJobs)
                 ->then(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {
-                    if ($triggerForce) {
-                        Artisan::call('coconut:generate-coordinates-auto', [
-                            'collection_id' => $collection_id,
-                            '--force' => true,
-                        ]);
-                    } elseif ($triggerNext) {
-                        Artisan::call('coconut:generate-coordinates-auto', [
-                            'collection_id' => $collection_id,
-                        ]);
-                    }
+                    
                 })
                 ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
                     Log::error("NPClassifier batch failed for collection {$collection_id}: ".$e->getMessage());
@@ -132,9 +123,20 @@ class ClassifyAuto extends Command
                         $batch->id
                     );
                 })
-                ->finally(function (Batch $batch) {})
+                ->finally(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {
+                    if ($triggerForce) {
+                        Artisan::call('coconut:generate-coordinates-auto', [
+                            'collection_id' => $collection_id,
+                            '--force' => true,
+                        ]);
+                    } elseif ($triggerNext) {
+                        Artisan::call('coconut:generate-coordinates-auto', [
+                            'collection_id' => $collection_id,
+                        ]);
+                    }
+                })
                 ->name("NPClassifier Batch Auto Collection {$collection_id}")
-                ->allowFailures(true)
+                ->allowFailures()
                 ->onConnection('redis')
                 ->onQueue('default')
                 ->dispatch();

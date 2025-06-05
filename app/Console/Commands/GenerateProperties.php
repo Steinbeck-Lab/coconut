@@ -76,7 +76,7 @@ class GenerateProperties extends Command
                         // Handle final...
                     })
                     ->name('Generate Properties:'.$collection_id.' - '.$i)
-                    ->allowFailures(false)
+                    ->allowFailures()
                     ->onConnection('redis')
                     ->onQueue('default')
                     ->dispatch();

@@ -50,6 +50,7 @@ class GeneratePropertiesAuto extends Command
             ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
             ->where('entries.collection_id', $collection_id)
             ->where('molecules.active', true)
+            ->doesntHave('properties')
             ->distinct();
 
         // Flag logic:
@@ -93,9 +94,9 @@ class GeneratePropertiesAuto extends Command
             Log::info("Processing batch of {$moleculeCount} molecules for property generation in collection {$collection_id}");
 
             // Mark molecules as processing
-            foreach ($molecules as $molecule) {
-                updateCurationStatus($molecule->id, 'generate-properties', 'processing');
-            }
+            // foreach ($molecules as $molecule) {
+            //     updateCurationStatus($molecule->id, 'generate-properties', 'processing');
+            // }
 
             // Prepare batch jobs
             $batchJobs = [];
@@ -104,6 +105,24 @@ class GeneratePropertiesAuto extends Command
             // Dispatch as a batch
             Bus::batch($batchJobs)
                 ->then(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {
+                    
+                })
+                ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
+                    // Log::error("GenerateProperties batch failed for collection {$collection_id}: ".$e->getMessage());
+
+                    // // Dispatch event for batch-level notification
+                    // ImportPipelineJobFailed::dispatch(
+                    //     'Generate Properties Auto Batch',
+                    //     $e,
+                    //     [
+                    //         'batch_id' => $batch->id,
+                    //         'collection_id' => $collection_id,
+                    //         'step' => 'generate_properties_batch',
+                    //     ],
+                    //     $batch->id
+                    // );
+                })
+                ->finally(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {
                     Log::info("Property generation batch completed for collection {$collection_id}: ".$batch->id);
                     if ($triggerForce) {
                         Artisan::call('coconut:npclassify-auto', [
@@ -117,24 +136,8 @@ class GeneratePropertiesAuto extends Command
                         ]);
                     }
                 })
-                ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
-                    Log::error("GenerateProperties batch failed for collection {$collection_id}: ".$e->getMessage());
-
-                    // Dispatch event for batch-level notification
-                    ImportPipelineJobFailed::dispatch(
-                        'Generate Properties Auto Batch',
-                        $e,
-                        [
-                            'batch_id' => $batch->id,
-                            'collection_id' => $collection_id,
-                            'step' => 'generate_properties_batch',
-                        ],
-                        $batch->id
-                    );
-                })
-                ->finally(function (Batch $batch) {})
                 ->name("Generate Properties Auto Collection {$collection_id}")
-                ->allowFailures(true)
+                ->allowFailures()
                 ->onConnection('redis')
                 ->onQueue('default')
                 ->dispatch();

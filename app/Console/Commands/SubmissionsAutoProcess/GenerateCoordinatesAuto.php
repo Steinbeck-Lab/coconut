@@ -74,9 +74,9 @@ class GenerateCoordinatesAuto extends Command
             Log::info("Processing batch of {$batchSize} molecules for coordinate generation in collection {$collection_id}");
 
             // Mark molecules as processing
-            foreach ($molecules as $molecule) {
-                updateCurationStatus($molecule->id, 'generate-coordinates', 'processing');
-            }
+            // foreach ($molecules as $molecule) {
+            //     updateCurationStatus($molecule->id, 'generate-coordinates', 'processing');
+            // }
 
             // Create and dispatch batch job
             $batchJobs = [];
@@ -102,11 +102,11 @@ class GenerateCoordinatesAuto extends Command
                         $batch->id
                     );
                 })
-                ->finally(function (Batch $batch) {
-                    // Cleanup or final logging
+                ->finally(function (Batch $batch) use ($collection_id) {
+                    Log::info("Coordinate generation batch finally block executed for collection {$collection_id}: ".$batch->id);
                 })
                 ->name("Generate Coordinates Auto Collection {$collection_id}")
-                ->allowFailures(true)
+                ->allowFailures()
                 ->onConnection('redis')
                 ->onQueue('default')
                 ->dispatch();
