@@ -2,13 +2,13 @@
 
 namespace App\Notifications;
 
-use App\Events\ImportPipelineJobFailed;
+use App\Events\PostPublishJobFailed;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ImportPipelineJobFailedNotification extends Notification implements ShouldQueue
+class PostPublishJobFailedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -17,7 +17,7 @@ class ImportPipelineJobFailedNotification extends Notification implements Should
      */
     public $event;
 
-    public function __construct(ImportPipelineJobFailed $event)
+    public function __construct(PostPublishJobFailed $event)
     {
         $this->event = $event;
     }
@@ -46,9 +46,9 @@ class ImportPipelineJobFailedNotification extends Notification implements Should
         $dashboardUrl = url(env('APP_URL').'/dashboard');
 
         $mailMessage = (new MailMessage)
-            ->subject('Coconut: Import Pipeline Job Failed - '.$jobName)
+            ->subject('Coconut: Post Publish Job Failed - '.$jobName)
             ->greeting('Hello '.$notifiable->name.',')
-            ->line('An import pipeline job has failed in the Coconut system.')
+            ->line('A post publish job has failed in the Coconut system.')
             ->line('**Process:** '.$jobName)
             ->line('**Error Type:** '.$exceptionClass)
             ->line('**Error Message:** '.$exceptionMessage)
@@ -72,7 +72,7 @@ class ImportPipelineJobFailedNotification extends Notification implements Should
         $mailMessage
             ->line('Please check the application logs for more details.')
             ->action('View Dashboard', $dashboardUrl)
-            ->line('This is an automated notification from the Coconut import pipeline system.');
+            ->line('This is an automated notification from the Coconut post publish system.');
 
         return $mailMessage;
     }

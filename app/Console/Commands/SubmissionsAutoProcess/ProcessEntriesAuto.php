@@ -19,7 +19,7 @@ class ProcessEntriesAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:entries-process-auto {collection_id=65 : The ID of the collection to process} {--trigger : Trigger subsequent commands in the processing chain}';
+    protected $signature = 'coconut:validate-molecules {collection_id=65 : The ID of the collection to process} {--trigger : Trigger subsequent commands in the processing chain}';
 
     /**
      * The console command description.
@@ -65,7 +65,7 @@ class ProcessEntriesAuto extends Command
             $collection->save();
 
             if ($triggerNext) {
-                Artisan::call('coconut:entries-import-auto', [
+                Artisan::call('coconut:import-molecules', [
                     'collection_id' => $collection_id,
                     '--trigger' => true,
                 ]);
@@ -79,7 +79,7 @@ class ProcessEntriesAuto extends Command
                 if ($triggerNext) {
                     Log::info("Processing complete for collection ID {$collection_id}. Triggering next step.");
                     Log::info("Triggering auto-import of entries for collection ID {$collection_id}.");
-                    Artisan::call('coconut:entries-import-auto', [
+                    Artisan::call('coconut:import-molecules', [
                         'collection_id' => $collection_id,
                         '--trigger' => true,
                     ]);
@@ -90,14 +90,37 @@ class ProcessEntriesAuto extends Command
 
             })
             ->finally(function (Batch $batch) use ($collection) {
-                Log::info("Batch processing completed for collection ID {$collection}.");
+                Log::info("Batch processing completed for collection ID {$collection->id}.");
                 if ($batch->finished() && ! $batch->hasFailures()) {
                     $collection->jobs_status = 'INCURATION';
                     $collection->job_info = '';
                     $collection->save();
+                } elseif ($batch->hasFailures()) {
+                    // Dispatch PrePublishJobFailed event with batch statistics
+                    $batchStats = [
+                        'batch_id' => $batch->id,
+                        'collection_id' => $collection->id,
+                        'collection_name' => $collection->name ?? 'Unknown',
+                        'total_jobs' => $batch->totalJobs,
+                        'processed_jobs' => $batch->processedJobs(),
+                        'failed_jobs' => $batch->failedJobs,
+                        'pending_jobs' => $batch->pendingJobs,
+                        'progress' => $batch->progress(),
+                        'finished_at' => $batch->finishedAt,
+                        'cancelled_at' => $batch->cancelledAt,
+                    ];
+                    
+                    $exception = new \Exception("Batch processing failed for collection ID {$collection->id}. {$batch->failedJobs} out of {$batch->totalJobs} jobs failed.");
+                    
+                    \App\Events\PrePublishJobFailed::dispatch(
+                        'Validate Molecules - Batch Failed',
+                        $exception,
+                        $batchStats,
+                        $batch->id
+                    );
                 }
             })
-            ->name('Process Entries Auto '.$collection_id)
+            ->name('Validate Molecules '.$collection_id)
             ->allowFailures()
             ->onConnection('redis')
             ->onQueue('default')

@@ -20,7 +20,7 @@ class ImportEntriesAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:entries-import-auto {collection_id=65 : The ID of the collection to import} {--trigger : Trigger subsequent commands in the processing chain}';
+    protected $signature = 'coconut:import-molecules {collection_id=65 : The ID of the collection to import} {--trigger : Trigger subsequent commands in the processing chain}';
 
     /**
      * The console command description.
@@ -90,7 +90,7 @@ class ImportEntriesAuto extends Command
 
                 // Call the next command in the chain with the same collection ID
                 if ($triggerNext) {
-                    // Artisan::call('coconut:molecules-assign-identifiers-auto', [
+                    // Artisan::call('coconut:publish-molecules', [
                     //     'collection_id' => $collection_id,
                     //     '--trigger' => true,
                     // ]);
@@ -102,9 +102,32 @@ class ImportEntriesAuto extends Command
                     $collection->jobs_status = 'INCURATION';
                     $collection->job_info = '';
                     $collection->save();
+                } elseif ($batch->hasFailures()) {
+                    // Dispatch PrePublishJobFailed event with batch statistics
+                    $batchStats = [
+                        'batch_id' => $batch->id,
+                        'collection_id' => $collection->id,
+                        'collection_name' => $collection->name ?? 'Unknown',
+                        'total_jobs' => $batch->totalJobs,
+                        'processed_jobs' => $batch->processedJobs(),
+                        'failed_jobs' => $batch->failedJobs,
+                        'pending_jobs' => $batch->pendingJobs,
+                        'progress' => $batch->progress(),
+                        'finished_at' => $batch->finishedAt,
+                        'cancelled_at' => $batch->cancelledAt,
+                    ];
+                    
+                    $exception = new \Exception("Batch processing failed for collection ID {$collection->id}. {$batch->failedJobs} out of {$batch->totalJobs} jobs failed.");
+                    
+                    \App\Events\PrePublishJobFailed::dispatch(
+                        'Import Molecules - Batch Failed',
+                        $exception,
+                        $batchStats,
+                        $batch->id
+                    );
                 }
             })
-            ->name('Import Entries Auto '.$collection_id)
+            ->name('Import Molecules '.$collection_id)
             ->allowFailures()
             ->onConnection('redis')
             ->onQueue('default')
