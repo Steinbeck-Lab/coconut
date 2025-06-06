@@ -19,7 +19,7 @@ class ImportEntriesReferencesAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:entries-import-references {collection_id=65 : The ID of the collection to import references for} {--force : Retry processing of molecules with failed status only} {--trigger : Trigger subsequent commands in the processing chain} {--trigger-force : Trigger downstream commands and pick up failed rows}';
+    protected $signature = 'coconut:enrich-molecules {collection_id=65 : The ID of the collection to import references for} {--force : Retry processing of molecules with failed status only} {--trigger : Trigger subsequent commands in the processing chain} {--trigger-force : Trigger downstream commands and pick up failed rows}';
 
     /**
      * The console command description.
@@ -67,17 +67,17 @@ class ImportEntriesReferencesAuto extends Command
         // --trigger-force: triggers downstream AND picks up failed entries
         if ($triggerForce || $force) {
             // Pick up failed entries if either flag is set
-            $query->whereHas('molecule', function ($q) {
-                $q->where('curation_status->import-entries-references->status', 'failed');
-            });
+            // $query->whereHas('molecule', function ($q) {
+            //     $q->where('curation_status->import-entries-references->status', 'failed');
+            // });
         } else {
             // Default: only pick up entries not completed/failed
-            $query->whereHas('molecule', function ($q) {
-                $q->where(function ($q) {
-                    $q->whereNull('curation_status->import-entries-references->status')
-                        ->orWhereNotIn('curation_status->import-entries-references->status', ['completed', 'failed']);
-                });
-            });
+            // $query->whereHas('molecule', function ($q) {
+            //     $q->where(function ($q) {
+            //         $q->whereNull('curation_status->import-entries-references->status')
+            //             ->orWhereNotIn('curation_status->import-entries-references->status', ['completed', 'failed']);
+            //     });
+            // });
         }
 
         // Count the total number of entries to process
@@ -90,12 +90,12 @@ class ImportEntriesReferencesAuto extends Command
 
             // Trigger next command if specified
             if ($triggerForce) {
-                Artisan::call('coconut:import-pubchem-data-auto', [
+                Artisan::call('coconut:import-pubchem-data', [
                     'collection_id' => $collection_id,
                     '--trigger-force' => true,
                 ]);
             } elseif ($triggerNext) {
-                Artisan::call('coconut:import-pubchem-data-auto', [
+                Artisan::call('coconut:import-pubchem-data', [
                     'collection_id' => $collection_id,
                     '--trigger' => true,
                 ]);
@@ -128,12 +128,12 @@ class ImportEntriesReferencesAuto extends Command
             ->finally(function (Batch $batch) use ($collection, $triggerNext, $triggerForce) {
                 // Call the next command in the chain with the same collection ID
                 if ($triggerForce) {
-                    Artisan::call('coconut:import-pubchem-data-auto', [
+                    Artisan::call('coconut:import-pubchem-data', [
                         'collection_id' => $collection->id,
                         '--trigger-force' => true,
                     ]);
                 } elseif ($triggerNext) {
-                    Artisan::call('coconut:import-pubchem-data-auto', [
+                    Artisan::call('coconut:import-pubchem-data', [
                         'collection_id' => $collection->id,
                         '--trigger' => true,
                     ]);

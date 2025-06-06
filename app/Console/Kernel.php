@@ -15,6 +15,12 @@ class Kernel extends ConsoleKernel
         $schedule->command('coconut:entries-process')->everyMinute()->withoutOverlapping();
         $schedule->command('coconut:entries-import')->everyMinute()->withoutOverlapping();
         $schedule->command('coconut:cache')->everyFifteenMinutes()->withoutOverlapping();
+
+        // Production auto-processing commands
+        if (app()->environment('production')) {
+            $schedule->command('coconut:validate-data')->everyFiveMinutes()->withoutOverlapping();
+            $schedule->command('coconut:entries-import-references')->everyTenMinutes()->withoutOverlapping();
+        }
     }
 
     /**

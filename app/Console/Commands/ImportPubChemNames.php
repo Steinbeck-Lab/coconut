@@ -17,7 +17,7 @@ class ImportPubChemNames extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:import-pubchem-data {collection_id} {file?}';
+    protected $signature = 'coconut:import-pubchem-data-old {collection_id} {file?}';
 
     /**
      * The console command description.

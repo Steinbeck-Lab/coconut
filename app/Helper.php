@@ -1,6 +1,6 @@
 <?php
 
-use App\Events\ImportPipelineJobFailed;
+use App\Events\PostPublishJobFailed;
 use App\Models\Citation;
 use App\Models\Molecule;
 use Filament\Forms\Components\KeyValue;
@@ -604,7 +604,7 @@ function handleJobFailure(
     ], $contextData);
 
     // Dispatch event for notification handling
-    ImportPipelineJobFailed::dispatch(
+    PostPublishJobFailed::dispatch(
         $jobClass,
         $exception,
         $eventData,

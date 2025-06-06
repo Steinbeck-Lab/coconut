@@ -16,7 +16,7 @@ class GenerateCoordinates extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'coconut:generate-coordinates {collection_id?}';
+    protected $signature = 'coconut:generate-coordinates-old {collection_id?}';
 
     /**
      * The console command description.

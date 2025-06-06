@@ -20,7 +20,7 @@ class ImportPubChemNamesAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:import-pubchem-data-auto {collection_id=65 : The ID of the collection to process} {--retry-failed : Include previously failed molecules} {--force : Retry processing of molecules with failed status only} {--trigger : Trigger subsequent commands in the processing chain} {--trigger-force : Trigger downstream commands and pick up failed rows}';
+    protected $signature = 'coconut:import-pubchem-data {collection_id=65 : The ID of the collection to process} {--retry-failed : Include previously failed molecules} {--force : Retry processing of molecules with failed status only} {--trigger : Trigger subsequent commands in the processing chain} {--trigger-force : Trigger downstream commands and pick up failed rows}';
 
     /**
      * The console command description.
@@ -72,12 +72,12 @@ class ImportPubChemNamesAuto extends Command
         // --trigger: triggers downstream, does NOT pick up failed entries
         // --trigger-force: triggers downstream AND picks up failed entries
         if ($triggerForce || $forceProcess) {
-            $query->where('curation_status->import-pubchem-names->status', 'failed');
+            // $query->where('curation_status->import-pubchem-names->status', 'failed');
         } else {
-            $query->where(function ($q) {
-                $q->whereNull('curation_status->import-pubchem-names->status')
-                    ->orWhereNotIn('curation_status->import-pubchem-names->status', ['completed', 'failed']);
-            });
+            // $query->where(function ($q) {
+            //     $q->whereNull('curation_status->import-pubchem-names->status')
+            //         ->orWhereNotIn('curation_status->import-pubchem-names->status', ['completed', 'failed']);
+            // });
         }
 
         // Count the total number of molecules to process
@@ -86,12 +86,12 @@ class ImportPubChemNamesAuto extends Command
             Log::info("No molecules found that require PubChem data import for collection {$collection_id}.");
             // Trigger next command if specified
             if ($triggerForce) {
-                Artisan::call('coconut:generate-properties-auto', [
+                Artisan::call('coconut:generate-properties', [
                     'collection_id' => $collection_id,
                     '--trigger-force' => true,
                 ]);
             } elseif ($triggerNext) {
-                Artisan::call('coconut:generate-properties-auto', [
+                Artisan::call('coconut:generate-properties', [
                     'collection_id' => $collection_id,
                     '--trigger' => true,
                 ]);
@@ -124,12 +124,12 @@ class ImportPubChemNamesAuto extends Command
                 })
                 ->finally(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {
                     if ($triggerForce) {
-                        Artisan::call('coconut:generate-properties-auto', [
+                        Artisan::call('coconut:generate-properties', [
                             'collection_id' => $collection_id,
                             '--trigger-force' => true,
                         ]);
                     } elseif ($triggerNext) {
-                        Artisan::call('coconut:generate-properties-auto', [
+                        Artisan::call('coconut:generate-properties', [
                             'collection_id' => $collection_id,
                             '--trigger' => true,
                         ]);

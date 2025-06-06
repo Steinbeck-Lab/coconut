@@ -17,7 +17,7 @@ class ClassifyAuto extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'coconut:npclassify-auto {collection_id=65 : The ID of the collection to process} {--force : Retry processing of molecules with failed status only} {--trigger : Trigger subsequent commands in the processing chain} {--trigger-force : Trigger downstream commands and pick up failed rows}';
+    protected $signature = 'coconut:npclassify {collection_id=65 : The ID of the collection to process} {--force : Retry processing of molecules with failed status only} {--trigger : Trigger subsequent commands in the processing chain} {--trigger-force : Trigger downstream commands and pick up failed rows}';
 
     /**
      * The console command description.
@@ -58,12 +58,12 @@ class ClassifyAuto extends Command
         // --trigger: triggers downstream, does NOT pick up failed entries
         // --trigger-force: triggers downstream AND picks up failed entries
         if ($triggerForce || $forceProcess) {
-            $query->where('curation_status->classify->status', 'failed');
+            // $query->where('curation_status->classify->status', 'failed');
         } else {
-            $query->where(function ($q) {
-                $q->whereNull('curation_status->classify->status')
-                    ->orWhereNotIn('curation_status->classify->status', ['completed', 'failed']);
-            });
+            // $query->where(function ($q) {
+            //     $q->whereNull('curation_status->classify->status')
+            //         ->orWhereNotIn('curation_status->classify->status', ['completed', 'failed']);
+            // });
         }
 
         Log::info("Processing molecules in collection {$collection_id} that need classification.");
@@ -73,12 +73,12 @@ class ClassifyAuto extends Command
         if ($totalCount === 0) {
             Log::info("No molecules found to classify in collection {$collection_id}.");
             if ($triggerForce) {
-                Artisan::call('coconut:generate-coordinates-auto', [
+                Artisan::call('coconut:generate-coordinates', [
                     'collection_id' => $collection_id,
                     '--force' => true,
                 ]);
             } elseif ($triggerNext) {
-                Artisan::call('coconut:generate-coordinates-auto', [
+                Artisan::call('coconut:generate-coordinates', [
                     'collection_id' => $collection_id,
                 ]);
             }
@@ -108,27 +108,15 @@ class ClassifyAuto extends Command
                 ->then(function (Batch $batch) {})
                 ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
                     Log::error("NPClassifier batch failed for collection {$collection_id}: ".$e->getMessage());
-
-                    // Dispatch event for batch-level notification
-                    // \App\Events\ImportPipelineJobFailed::dispatch(
-                    //     'NPClassifier Auto Batch',
-                    //     $e,
-                    //     [
-                    //         'batch_id' => $batch->id,
-                    //         'collection_id' => $collection_id,
-                    //         'step' => 'npclassify_batch',
-                    //     ],
-                    //     $batch->id
-                    // );
                 })
                 ->finally(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {
                     if ($triggerForce) {
-                        Artisan::call('coconut:generate-coordinates-auto', [
+                        Artisan::call('coconut:generate-coordinates', [
                             'collection_id' => $collection_id,
                             '--force' => true,
                         ]);
                     } elseif ($triggerNext) {
-                        Artisan::call('coconut:generate-coordinates-auto', [
+                        Artisan::call('coconut:generate-coordinates', [
                             'collection_id' => $collection_id,
                         ]);
                     }

@@ -13,7 +13,7 @@ class PublishMolecules extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:publish-molecules {collection_id?}';
+    protected $signature = 'coconut:publish-molecules-old {collection_id?}';
 
     /**
      * The console command description.

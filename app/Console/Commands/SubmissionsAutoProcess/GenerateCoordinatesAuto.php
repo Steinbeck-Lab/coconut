@@ -16,7 +16,7 @@ class GenerateCoordinatesAuto extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'coconut:generate-coordinates-auto {collection_id=65 : The ID of the collection to process} {--force : Retry processing of molecules with failed status only}';
+    protected $signature = 'coconut:generate-coordinates {collection_id=65 : The ID of the collection to process} {--force : Retry processing of molecules with failed status only}';
 
     /**
      * The console command description.
@@ -48,12 +48,12 @@ class GenerateCoordinatesAuto extends Command
         // Flag logic:
         // --force: only when running standalone, picks up failed entries
         if ($forceProcess) {
-            $query->where('curation_status->generate-coordinates->status', 'failed');
+            // $query->where('curation_status->generate-coordinates->status', 'failed');
         } else {
-            $query->where(function ($q) {
-                $q->whereNull('curation_status->generate-coordinates->status')
-                    ->orWhereNotIn('curation_status->generate-coordinates->status', ['completed', 'failed']);
-            });
+            // $query->where(function ($q) {
+            //     $q->whereNull('curation_status->generate-coordinates->status')
+            //         ->orWhereNotIn('curation_status->generate-coordinates->status', ['completed', 'failed']);
+            // });
         }
 
         // Count the total number of molecules to process
