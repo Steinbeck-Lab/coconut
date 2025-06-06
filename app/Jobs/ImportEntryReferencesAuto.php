@@ -33,12 +33,12 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
     /**
      * The step name for this job.
      */
-    protected $stepName = 'import-references';
+    protected $stepName = 'enrich-molecules';
 
     /**
      * The number of seconds the job can run before timing out.
      */
-    public $timeout = 45;
+    public $timeout = 120;
 
     /**
      * Create a new job instance.
@@ -50,7 +50,7 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
 
     public function uniqueId()
     {
-        return "import-references-{$this->entry->id}";
+        return "enrich-molecules-{$this->entry->id}";
     }
 
     /**
@@ -91,7 +91,7 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
             // Update the entry status to IMPORTED
             $this->entry->status = 'IMPORTED';
             $this->entry->save();
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Inside job: Error processing references for entry ID '.$this->entry->id.': '.$e->getMessage());
             // Update status to failed with error message
             updateCurationStatus($molecule->id, $this->stepName, 'failed', $e->getMessage());
@@ -104,6 +104,8 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
+        Log::info("ImportEntryReferencesAuto failed() method called for entry {$this->entry->id}: ".$exception->getMessage());
+
         handleJobFailure(
             self::class,
             $exception,
@@ -440,7 +442,7 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
     public function makeRequest($url, $params = [])
     {
         try {
-            $response = Http::timeout(30)->get($url, $params);
+            $response = Http::timeout(45)->get($url, $params);
             if ($response->successful()) {
                 return $response;
             } else {

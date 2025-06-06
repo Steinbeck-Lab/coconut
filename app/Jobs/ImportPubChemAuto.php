@@ -33,7 +33,7 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
      *
      * @var int
      */
-    public $timeout = 45;
+    public $timeout = 120;
 
     /**
      * Create a new job instance.
@@ -71,7 +71,7 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
                 updateCurationStatus($this->molecule->id, $this->stepName, 'failed', 'Failed to fetch or process PubChem data');
                 throw new \Exception('Failed to fetch or process PubChem data');
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error("Error processing molecule {$this->molecule->id}: ".$e->getMessage());
             updateCurationStatus($this->molecule->id, $this->stepName, 'failed', $e->getMessage());
             throw $e;
@@ -83,6 +83,8 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
+        Log::info("ImportPubChemAuto failed() method called for molecule {$this->molecule->id}: ".$exception->getMessage());
+
         handleJobFailure(
             self::class,
             $exception,

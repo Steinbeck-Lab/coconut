@@ -30,7 +30,7 @@ class GenerateCoordinatesAuto implements ShouldQueue
      *
      * @var int
      */
-    public $timeout = 45;
+    public $timeout = 120;
 
     /**
      * Create a new job instance.
@@ -110,6 +110,8 @@ class GenerateCoordinatesAuto implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
+        Log::info("GenerateCoordinatesAuto failed() method called for molecule {$this->molecule->id}: ".$exception->getMessage());
+
         handleJobFailure(
             self::class,
             $exception,
@@ -134,7 +136,7 @@ class GenerateCoordinatesAuto implements ShouldQueue
 
         while ($attempt < $maxRetries) {
             try {
-                $response = Http::timeout(30)->get($endpoint);
+                $response = Http::timeout(45)->get($endpoint);
 
                 if ($response->successful()) {
                     return $response->body();

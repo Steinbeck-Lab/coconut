@@ -135,6 +135,8 @@ class ProcessEntry implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
+        Log::info("ProcessEntry failed() method called for entry {$this->entry->id}: ".$exception->getMessage());
+
         handleJobFailure(
             self::class,
             $exception,

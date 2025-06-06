@@ -27,7 +27,7 @@ class GenerateProperties implements ShouldQueue
     /**
      * The number of seconds the job can run before timing out.
      */
-    public $timeout = 45;
+    public $timeout = 120;
 
     /**
      * Create a new job instance.
@@ -60,7 +60,7 @@ class GenerateProperties implements ShouldQueue
             $API_URL = env('API_URL', 'https://api.cheminf.studio/latest/');
             $ENDPOINT = $API_URL.'chem/descriptors?smiles='.urlencode($canonical_smiles).'&format=json&toolkit=rdkit';
 
-            $response = Http::timeout(30)->get($ENDPOINT);
+            $response = Http::timeout(45)->get($ENDPOINT);
             if ($response->successful()) {
                 $descriptors = $response->json();
                 $descriptors['standard_inchi'] = $this->molecule->standard_inchi;
@@ -73,7 +73,7 @@ class GenerateProperties implements ShouldQueue
 
                 throw new \Exception($error);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $error = 'An unexpected exception occurred: '.$e->getMessage();
             Log::error($error.' - '.$canonical_smiles);
             updateCurationStatus($this->molecule->id, $this->stepName, 'failed', $error);
@@ -122,9 +122,8 @@ class GenerateProperties implements ShouldQueue
     {
         return [
             (new WithoutOverlapping('999999'))
-                ->releaseAfter(30)      // Release lock if job fails/times out
-                ->expireAfter(180)      // Maximum lock duration
-                ->dontRelease()         // Don't retry if can't acquire lock
+                ->releaseAfter(30)
+                ->expireAfter(180)
                 ->shared(),
         ];
     }
@@ -134,6 +133,8 @@ class GenerateProperties implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
+        Log::info("GenerateProperties failed() method called for molecule {$this->molecule->id}: ".$exception->getMessage());
+
         handleJobFailure(
             self::class,
             $exception,

@@ -27,7 +27,7 @@ class ImportEntryMoleculeAuto implements ShouldBeUnique, ShouldQueue
     /**
      * The number of seconds the job can run before timing out.
      */
-    public $timeout = 45;
+    public $timeout = 120;
 
     /**
      * Create a new job instance.
@@ -111,7 +111,7 @@ class ImportEntryMoleculeAuto implements ShouldBeUnique, ShouldQueue
                 $this->entry->status = 'AUTOCURATION';
                 $this->entry->save();
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error("Error in ImportEntryMoleculeAuto for entry {$this->entry->id}: ".$e->getMessage());
             throw $e;
         }
@@ -231,6 +231,8 @@ class ImportEntryMoleculeAuto implements ShouldBeUnique, ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
+        Log::info("ImportEntryMoleculeAuto failed() method called for entry {$this->entry->id}: ".$exception->getMessage());
+
         handleJobFailure(
             self::class,
             $exception,

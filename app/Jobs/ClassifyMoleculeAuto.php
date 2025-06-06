@@ -27,7 +27,7 @@ class ClassifyMoleculeAuto implements ShouldQueue
     /**
      * The number of seconds the job can run before timing out.
      */
-    public $timeout = 45;
+    public $timeout = 120;
 
     /**
      * Create a new job instance.
@@ -153,6 +153,8 @@ class ClassifyMoleculeAuto implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
+        Log::info("ClassifyMoleculeAuto failed() method called for molecule {$this->molecule->id}: ".$exception->getMessage());
+
         handleJobFailure(
             self::class,
             $exception,
