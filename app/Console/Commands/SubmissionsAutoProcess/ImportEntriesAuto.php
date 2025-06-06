@@ -70,10 +70,10 @@ class ImportEntriesAuto extends Command
             $collection->save();
 
             if ($triggerNext) {
-                Artisan::call('coconut:molecules-assign-identifiers-auto', [
-                    'collection_id' => $collection_id,
-                    '--trigger' => true,
-                ]);
+                // Artisan::call('coconut:molecules-assign-identifiers-auto', [
+                //     'collection_id' => $collection_id,
+                //     '--trigger' => true,
+                // ]);
             }
 
             return 0;
@@ -90,10 +90,10 @@ class ImportEntriesAuto extends Command
 
                 // Call the next command in the chain with the same collection ID
                 if ($triggerNext) {
-                    Artisan::call('coconut:molecules-assign-identifiers-auto', [
-                        'collection_id' => $collection_id,
-                        '--trigger' => true,
-                    ]);
+                    // Artisan::call('coconut:molecules-assign-identifiers-auto', [
+                    //     'collection_id' => $collection_id,
+                    //     '--trigger' => true,
+                    // ]);
                 }
             })
             ->catch(function (Batch $batch, Throwable $e) {})
