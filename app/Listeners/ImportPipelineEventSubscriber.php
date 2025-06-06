@@ -5,6 +5,8 @@ namespace App\Listeners;
 use App\Events\ImportPipelineJobFailed;
 use App\Models\User;
 use App\Notifications\ImportPipelineJobFailedNotification;
+use Filament\Notifications\Actions\Action;
+use Filament\Notifications\Notification;
 use Illuminate\Events\Dispatcher;
 
 class ImportPipelineEventSubscriber
@@ -22,11 +24,29 @@ class ImportPipelineEventSubscriber
      */
     public function handleImportPipelineJobFailed(ImportPipelineJobFailed $event): void
     {
+
+        $jobName = $event->jobName;
+        $exceptionMessage = $event->errorDetails['message'];
+        $exceptionClass = $event->errorDetails['class'];
+        $timestamp = $event->errorDetails['timestamp'];
+
         // Get all users with admin roles (super_admin, admin, curator)
         $adminUsers = User::whereHas('roles')->get();
 
         foreach ($adminUsers as $user) {
-            $user->notify(new ImportPipelineJobFailedNotification($event));
+            // $user->notify(new ImportPipelineJobFailedNotification($event));
+
+            Notification::make()
+                ->title('Import Pipeline Job Failed')
+                ->body("Job: {$jobName} failed with error: {$exceptionMessage}")
+                ->danger() // This makes it a red/error notification
+                ->persistent() // This makes it stay until manually dismissed
+                ->actions([
+                    Action::make('mark_as_read')
+                        ->label('Mark as Read')
+                        ->close(),
+                ])
+                ->sendToDatabase($user);
         }
     }
 
