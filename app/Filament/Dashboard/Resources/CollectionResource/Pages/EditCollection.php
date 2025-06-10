@@ -38,7 +38,7 @@ class EditCollection extends EditRecord
                 ->requiresConfirmation()
                 ->modalDescription('This will make all the new submitted molecules in this collection public. Are you sure you\'d like to proceed? This cannot be undone.')
                 ->action(function () {
-                    Artisan::call('coconut:publish-molecules-auto', [
+                    Artisan::call('coconut:publish-molecules', [
                         'collection_id' => $this->record->id,
                         '--trigger' => true,
                     ]);
@@ -49,18 +49,16 @@ class EditCollection extends EditRecord
                     // $pendingProcessing = $submittedCount > 0 || $pendingCount > 0;
 
                     // Condition 2: Check if there are any molecules with status 'DRAFT' but null identifier
-                    $moleculesStillUnderProcess = $this->record->molecules()->where('status', 'DRAFT')->whereNull('identifier')->exists();
+                    $moleculesReadyToPublish = $this->record->molecules()->where('status', 'DRAFT')->whereNull('identifier')->exists();
 
-                    $moleculesToPublish = $this->record->molecules()->where('status', 'DRAFT')->whereNotNull('identifier')->exists();
 
                     Log::info($pendingProcessingCount, [
-                        'moleculesStillUnderProcess' => $moleculesStillUnderProcess,
-                        'moleculesToPublish' => $moleculesToPublish,
+                        'moleculesStillUnderProcess' => $moleculesReadyToPublish,
                         'canUpdate' => auth()->user()->can('update', $this->record),
                     ]);
 
                     // Action is visible only if both conditions are false
-                    return $pendingProcessingCount == 0 && $moleculesStillUnderProcess == 0 && $moleculesToPublish && auth()->user()->can('update', $this->record);
+                    return $pendingProcessingCount == 0 && $moleculesReadyToPublish > 0 && auth()->user()->can('update', $this->record);
                 }),
             Actions\DeleteAction::make(),
         ];

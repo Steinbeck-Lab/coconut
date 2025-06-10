@@ -54,7 +54,7 @@ class ImportPubChemNamesAuto extends Command
             return 1;
         }
         Log::info("Importing PubChem data for collection ID: {$collection_id}");
-        $failedIds = $this->getFailedMoleculeIds();
+        // $failedIds = $this->getFailedMoleculeIds();
         $query = Molecule::select('molecules.id')
             ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
             ->where('entries.collection_id', $collection_id)
@@ -72,12 +72,12 @@ class ImportPubChemNamesAuto extends Command
         // --trigger: triggers downstream, does NOT pick up failed entries
         // --trigger-force: triggers downstream AND picks up failed entries
         if ($triggerForce || $forceProcess) {
-            // $query->where('curation_status->import-pubchem-names->status', 'failed');
+            $query->where('curation_status->import-pubchem-names->status', 'failed');
         } else {
-            // $query->where(function ($q) {
-            //     $q->whereNull('curation_status->import-pubchem-names->status')
-            //         ->orWhereNotIn('curation_status->import-pubchem-names->status', ['completed', 'failed']);
-            // });
+            $query->where(function ($q) {
+                $q->whereNull('curation_status->import-pubchem-names->status')
+                    ->orWhereNotIn('curation_status->import-pubchem-names->status', [ 'failed']);
+            });
         }
 
         // Count the total number of molecules to process

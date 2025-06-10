@@ -17,7 +17,7 @@ class PublishMoleculesAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:publish-molecules-auto {collection_id=65 : The ID of the collection to import} {--force : Retry processing of molecules with failed status only}';
+    protected $signature = 'coconut:publish-molecules {collection_id=65 : The ID of the collection to import} {--force : Retry processing of molecules with failed status only}  {--trigger : Trigger subsequent commands in the processing chain}';
 
     /**
      * The console command description.
@@ -25,6 +25,8 @@ class PublishMoleculesAuto extends Command
      * @var string
      */
     protected $description = 'Publish draft molecules and assign identifiers to them, optionally filtered by collection';
+
+    protected $stepName = 'publish-molecules';
 
     /**
      * Execute the console command.
@@ -75,19 +77,19 @@ class PublishMoleculesAuto extends Command
                         $molecule->save();
 
                         // Update curation status
-                        updateCurationStatus($molecule->id, 'publish-molecules', 'completed');
+                        updateCurationStatus($molecule->id, $this->stepName, 'completed');
                     } catch (\Exception $e) {
                         Log::error("Error publishing molecule {$molecule->id}: ".$e->getMessage());
-                        updateCurationStatus($molecule->id, 'publish-molecules', 'failed', $e->getMessage());
+                        updateCurationStatus($molecule->id, $this->stepName, 'failed', $e->getMessage());
 
                         // Dispatch event for job-level notification
-                        \App\Events\ImportPipelineJobFailed::dispatch(
+                        \App\Events\PostPublishJobFailed::dispatch(
                             'Publish Molecules Auto',
                             $e,
                             [
                                 'molecule_id' => $molecule->id,
                                 'identifier' => $molecule->identifier ?? 'Unknown',
-                                'step' => 'publish-molecules',
+                                'step' => $this->stepName,
                             ]
                         );
                     }
