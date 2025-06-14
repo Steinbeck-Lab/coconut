@@ -78,7 +78,7 @@ class Collection extends Model implements Auditable, HasMedia
      */
     public function molecules(): BelongsToMany
     {
-        return $this->belongsToMany(Molecule::class)->withPivot('url', 'reference', 'mol_filename', 'structural_comments')->withTimestamps();
+        return $this->belongsToMany(Molecule::class)->using(CollectionMolecule::class)->withPivot('url', 'reference', 'mol_filename', 'structural_comments')->withTimestamps();
     }
 
     /**
