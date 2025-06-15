@@ -21,39 +21,39 @@ return new class extends Migration
             ->whereNull('curation_status')
             ->where('created_at', '<', '2025-01-01 00:00:00')
             ->update([
-            'curation_status' => json_encode([
-                'publish-molecules' => [
-                    'status' => 'completed',
-                    'error_message' => null,
-                    'processed_at' => DB::raw('created_at')
-                ],
-                'enrich-molecules' => [
-                    'status' => 'completed',
-                    'error_message' => null,
-                    'processed_at' => DB::raw('created_at')
-                ],
-                'import-pubchem-names' => [
-                    'status' => 'completed',
-                    'error_message' => null,
-                    'processed_at' => DB::raw('created_at')
-                ],
-                'generate-properties' => [
-                    'status' => 'completed',
-                    'error_message' => null,
-                    'processed_at' => DB::raw('created_at')
-                ],
-                'classify' => [
-                    'status' => 'completed',
-                    'error_message' => null,
-                    'processed_at' => DB::raw('created_at')
-                ],
-                'generate-coordinates' => [
-                    'status' => 'completed',
-                    'error_message' => null,
-                    'processed_at' => DB::raw('created_at')
-                ]
-            ])
-        ]);
+                'curation_status' => json_encode([
+                    'publish-molecules' => [
+                        'status' => 'completed',
+                        'error_message' => null,
+                        'processed_at' => DB::raw('created_at'),
+                    ],
+                    'enrich-molecules' => [
+                        'status' => 'completed',
+                        'error_message' => null,
+                        'processed_at' => DB::raw('created_at'),
+                    ],
+                    'import-pubchem-names' => [
+                        'status' => 'completed',
+                        'error_message' => null,
+                        'processed_at' => DB::raw('created_at'),
+                    ],
+                    'generate-properties' => [
+                        'status' => 'completed',
+                        'error_message' => null,
+                        'processed_at' => DB::raw('created_at'),
+                    ],
+                    'classify' => [
+                        'status' => 'completed',
+                        'error_message' => null,
+                        'processed_at' => DB::raw('created_at'),
+                    ],
+                    'generate-coordinates' => [
+                        'status' => 'completed',
+                        'error_message' => null,
+                        'processed_at' => DB::raw('created_at'),
+                    ],
+                ]),
+            ]);
     }
 
     /**

@@ -35,7 +35,7 @@ class PrePublishJobFailed
         ];
         $this->jobData = $jobData;
         $this->batchId = $batchId;
-        
+
         // Assign jobData directly to batchStats since we're passing batch statistics as jobData
         $this->batchStats = $jobData;
     }

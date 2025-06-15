@@ -134,18 +134,14 @@ class AssignIdentifiersAuto extends Command
 
         $batchSize = 10000;
         $i = 0;
-        SupportCollection::make($bulkUpdateData)->chunk($batchSize)->each(function ($chunk) use (&$i, $collection_id) {
+        SupportCollection::make($bulkUpdateData)->chunk($batchSize)->each(function ($chunk) use (&$i) {
             echo $i;
             echo "\r\n";
-            DB::transaction(function () use ($chunk, $collection_id) {
+            DB::transaction(function () use ($chunk) {
                 foreach ($chunk as $data) {
                     DB::table('molecules')
                         ->where('id', $data['row_id'])
                         ->update(['identifier' => $data['identifier']]);
-                    DB::table('entries')
-                        ->where('molecule_id', $data['row_id'])
-                        ->where('collection_id', $collection_id)
-                        ->update(['coconut_id' => $data['identifier']]);
                 }
             });
             $i++;

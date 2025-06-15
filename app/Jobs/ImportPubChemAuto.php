@@ -196,7 +196,7 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
 
         if (! $cidResponse->successful()) {
             Log::error('Failed to fetch CID from PubChem for molecule ID: '.$this->molecule->id);
-            $this->storeFailedMolecule('failed_cid_fetch');
+            // $this->storeFailedMolecule('failed_cid_fetch');
 
             return false;
         }
@@ -209,7 +209,7 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
 
             if (! $dataResponse->successful()) {
                 Log::error('Failed to fetch data from PubChem for CID: '.$cid);
-                $this->storeFailedMolecule('failed_data_fetch');
+                // $this->storeFailedMolecule('failed_data_fetch');
 
                 return false;
             }
@@ -217,7 +217,7 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
             $data = $dataResponse->json();
             if (! isset($data['PC_Compounds'])) {
                 Log::error('PC_Compounds key not found for CID: '.$cid);
-                $this->storeFailedMolecule('missing_pc_compounds');
+                // $this->storeFailedMolecule('missing_pc_compounds');
 
                 return false;
             }
@@ -246,7 +246,7 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
             return true;
         } else {
             Log::error('Invalid CID from PubChem for molecule ID: '.$this->molecule->id);
-            $this->storeFailedMolecule('invalid_cid');
+            // $this->storeFailedMolecule('invalid_cid');
 
             return false;
         }
@@ -274,7 +274,7 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
             } while ($attempt < $maxRetries);
 
             if (! $synResponse || ! $synResponse->successful() || strpos($synResponse->body(), 'Status: 503') !== false) {
-                $this->storeFailedMolecule('failed_synonyms_fetch');
+                // $this->storeFailedMolecule('failed_synonyms_fetch');
 
                 return;
             }

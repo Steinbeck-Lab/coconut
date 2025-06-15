@@ -51,7 +51,6 @@ class EditCollection extends EditRecord
                     // Condition 2: Check if there are any molecules with status 'DRAFT' but null identifier
                     $moleculesReadyToPublish = $this->record->molecules()->where('status', 'DRAFT')->whereNull('identifier')->exists();
 
-
                     Log::info($pendingProcessingCount, [
                         'moleculesStillUnderProcess' => $moleculesReadyToPublish,
                         'canUpdate' => auth()->user()->can('update', $this->record),

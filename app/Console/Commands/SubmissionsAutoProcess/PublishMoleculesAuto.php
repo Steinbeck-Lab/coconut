@@ -52,15 +52,15 @@ class PublishMoleculesAuto extends Command
             ->where('status', 'DRAFT');
 
         // If not forcing, exclude already processed molecules (completed OR failed)
-        // if (! $forcePublish) {
-        //     $query->where(function ($q) {
-        //         $q->whereNull('curation_status->publish-molecules->status')
-        //             ->orWhereNotIn('curation_status->publish-molecules->status', ['completed', 'failed']);
-        //     });
-        // } else {
-        //     // If forcing, only process molecules with failed status
-        //     $query->where('curation_status->publish-molecules->status', 'failed');
-        // }
+        if (! $forcePublish) {
+            // $query->where(function ($q) {
+            //     $q->whereNull('curation_status->publish-molecules->status')
+            //         ->orWhereNotIn('curation_status->publish-molecules->status', ['completed', 'failed']);
+            // });
+        } else {
+            // If forcing, only process molecules with failed status
+            // $query->where('curation_status->publish-molecules->status', 'failed');
+        }
 
         // Get the count of molecules to be processed
         $count = $query->count();
@@ -107,9 +107,18 @@ class PublishMoleculesAuto extends Command
                 $collection->save();
                 Log::info("Collection {$collection->name} (ID: {$collection_id}) has been published.");
             }
-
         } else {
             Log::info('No molecules to process.');
+            Log::info('Proceeding to assign identifiers for already published molecules...');
+
+            $this->assignIdentifiers($collection_id);
+
+            // Only publish the collection if it was in DRAFT status
+            if ($collection->status == 'DRAFT') {
+                $collection->status = 'PUBLISHED';
+                $collection->save();
+                Log::info("Collection {$collection->name} (ID: {$collection_id}) has been published.");
+            }
         }
 
         return 0;
@@ -123,15 +132,18 @@ class PublishMoleculesAuto extends Command
         Log::info("Assigning identifiers for collection ID: {$collection_id}");
 
         $batchSize = 10000;
-        $currentIndex = $this->fetchLastIndex() + 1;
+        $startingIndex = $this->fetchLastIndex();
+        $currentIndex = $startingIndex;
+        Log::info("Starting index for identifier assignment: {$startingIndex}");
 
         // Step 1: Assign identifiers to parent molecules (molecules without stereo information)
         $parents = DB::table('molecules')
-            ->select('molecules.id', 'molecules.identifier')
+            ->select('molecules.id')
+            ->distinct()
             ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
             ->where('molecules.has_stereo', false)
             ->whereNull('molecules.identifier')
-            ->where('molecules.active', true) // Only process active (published) molecules
+            ->whereIn('molecules.status', ['APPROVED', 'REVOKED']) // Filter for only published ones
             ->where('entries.collection_id', $collection_id)
             ->get();
 
@@ -139,15 +151,13 @@ class PublishMoleculesAuto extends Command
             Log::info("Assigning identifiers to {$parents->count()} parent molecules...");
 
             $data = [];
-            $parents->chunk($batchSize)->each(function ($moleculesChunk) use (&$currentIndex, &$data) {
+            $parents->chunk($batchSize)->each(function ($moleculesChunk) use (&$currentIndex, &$data, $collection_id) {
                 $header = ['id', 'identifier'];
                 foreach ($moleculesChunk as $molecule) {
-                    if (! $molecule->identifier) {
-                        $data[] = array_combine($header, [$molecule->id, $this->generateIdentifier($currentIndex, 'parent')]);
-                        $currentIndex++;
-                    }
+                    $currentIndex++;
+                    $data[] = array_combine($header, [$molecule->id, $this->generateIdentifier($currentIndex, 'parent')]);
                 }
-                $this->insertBatch($data);
+                $this->insertBatch($data, $collection_id);
                 $data = []; // Reset for next chunk
             });
 
@@ -155,27 +165,46 @@ class PublishMoleculesAuto extends Command
         }
 
         // Step 2: Handle stereo variants (molecules with stereo information)
-        $mappings = DB::table('molecules')
-            ->select('molecules.parent_id', 'molecules.id', 'molecules.identifier')
-            ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
-            ->whereNotNull('molecules.parent_id')
-            ->where('molecules.has_stereo', true)
-            ->where('molecules.active', true) // Only process active (published) molecules
-            ->where('entries.collection_id', $collection_id)
-            ->get()
-            ->groupBy('parent_id')
-            ->map(function ($items) {
-                return $items->sortBy('id')->pluck('identifier', 'id')->toArray();
-            });
+
+        // First, get distinct parent_ids from the current collection
+        $childMolecules = DB::table('molecules as m')
+            ->join('entries as e', 'm.id', '=', 'e.molecule_id')
+            ->where('e.collection_id', $collection_id)
+            ->whereNull('m.identifier')
+            ->whereNotNull('m.parent_id');
+
+        $parentIds = $childMolecules->pluck('m.parent_id')->unique()->filter(function ($id) {
+            return ! is_null($id);
+        });
+
+        $childrenIds = $childMolecules->pluck('m.id')->unique();
+
+        if ($parentIds->isEmpty()) {
+            $mappings = collect();
+        } else {
+            // Get ALL stereo variants for these parent_ids (not just from current collection)
+            $mappings = DB::table('molecules')
+                ->select('molecules.parent_id', 'molecules.id', 'molecules.identifier')
+                ->whereNotNull('molecules.parent_id')
+                ->where('molecules.has_stereo', true)
+                ->whereIn('molecules.status', ['APPROVED', 'REVOKED'])
+                ->whereIn('molecules.parent_id', $parentIds)
+                ->get()
+                ->groupBy('parent_id')
+                ->map(function ($items) {
+                    return $items->sortBy('id')->pluck('identifier', 'id')->toArray();
+                });
+        }
 
         if ($mappings->count() > 0) {
             Log::info("Processing stereo variants for {$mappings->count()} parent groups...");
 
-            // Get ALL parent molecule identifiers (not just those in current collection)
+            // Get parent molecule identifiers for the specific parent_ids we're working with
             $identifier_mappings = DB::table('molecules')
                 ->where('molecules.has_stereo', false)
                 ->where('molecules.is_parent', true)
                 ->whereNotNull('molecules.identifier')  // Has existing identifier
+                ->whereIn('molecules.id', $parentIds)  // Only get parents we're actually working with
                 ->pluck('molecules.identifier', 'molecules.id')
                 ->toArray();
 
@@ -193,8 +222,8 @@ class PublishMoleculesAuto extends Command
             file_put_contents($filePath, $jsonData);
 
             // Step 3: Assign identifiers to stereo variants
-            $mappings = json_decode(file_get_contents(storage_path("parent_id_mappings_{$collection_id}.json")), true);
-            $identifier_mappings = json_decode(file_get_contents(storage_path("identifier_mappings_{$collection_id}.json")), true);
+            // $mappings = json_decode(file_get_contents(storage_path("parent_id_mappings_{$collection_id}.json")), true);
+            // $identifier_mappings = json_decode(file_get_contents(storage_path("identifier_mappings_{$collection_id}.json")), true);
 
             $bulkUpdateData = [];
 
@@ -206,7 +235,7 @@ class PublishMoleculesAuto extends Command
                     }));
 
                     foreach ($group as $rowId => $existingIdentifier) {
-                        if (is_null($existingIdentifier)) {
+                        if (is_null($existingIdentifier) && $childrenIds->contains($rowId)) {
                             $nonNullCount++;
                             $newIdentifier = $baseIdentifier.'.'.$nonNullCount;
 
@@ -223,16 +252,12 @@ class PublishMoleculesAuto extends Command
                 Log::info('Assigning identifiers to '.count($bulkUpdateData).' stereo variant molecules...');
 
                 $i = 0;
-                SupportCollection::make($bulkUpdateData)->chunk($batchSize)->each(function ($chunk) use (&$i, $collection_id) {
-                    DB::transaction(function () use ($chunk, $collection_id) {
+                SupportCollection::make($bulkUpdateData)->chunk($batchSize)->each(function ($chunk) use (&$i) {
+                    DB::transaction(function () use ($chunk) {
                         foreach ($chunk as $data) {
                             DB::table('molecules')
                                 ->where('id', $data['row_id'])
                                 ->update(['identifier' => $data['identifier']]);
-                            DB::table('entries')
-                                ->where('molecule_id', $data['row_id'])
-                                ->where('collection_id', $collection_id)
-                                ->update(['coconut_id' => $data['identifier']]);
                         }
                     });
                     $i++;
@@ -252,6 +277,16 @@ class PublishMoleculesAuto extends Command
             }
 
             Log::info('Temporary files cleaned up.');
+        }
+
+        // Update ticker with final index used
+        if ($currentIndex > $startingIndex) {
+
+            $ticker = Ticker::where('type', 'molecule')->first();
+            $ticker->index = $currentIndex;
+            $ticker->save();
+
+            Log::info("Updated ticker from {$startingIndex} to {$currentIndex}. Used ".($currentIndex - $startingIndex).' new identifiers.');
         }
 
         Log::info("Identifier assignment completed for collection ID: {$collection_id}");
@@ -295,7 +330,7 @@ class PublishMoleculesAuto extends Command
     /**
      * Insert a batch of data into the database
      */
-    private function insertBatch(array $data)
+    private function insertBatch(array $data, $collection_id)
     {
         if (! empty($data)) {
             DB::transaction(function () use ($data) {

@@ -98,6 +98,31 @@ class ImportEntriesAuto extends Command
             })
             ->catch(function (Batch $batch, Throwable $e) {})
             ->finally(function (Batch $batch) use ($collection) {
+                // Log the batch statistics
+                $totalMolecules = $collection->molecules()->count();
+                $existingMolecules = $collection->molecules()->whereNotNull('identifier')->count();
+                $existingParents = $collection->molecules()->whereNotNull('identifier')->where('is_parent', true)->count();
+                $existingChildren = $collection->molecules()->whereNotNull('identifier')->where('is_parent', false)->count();
+                $newMolecules = $collection->molecules()->whereNull('identifier')->count();
+                $newParents = $collection->molecules()->whereNull('identifier')->where('is_parent', true)->count();
+                $newChildren = $collection->molecules()->whereNull('identifier')->where('is_parent', false)->count();
+
+                Log::info('Total molecules found for collection ID '.$collection->id.': '.$totalMolecules);
+                Log::info('No. of existing molecules: '.$existingMolecules.
+                    ' (Parents: '.$existingParents.', Children: '.$existingChildren.')');
+
+                // Get molecule IDs for new molecules (without identifier) for the entry check
+                $newMoleculeIds = $collection->molecules()->whereNull('identifier')->pluck('molecules.id')->toArray();
+                $newMoleculesWithEntries = Entry::where('collection_id', $collection->id)
+                    ->where('status', 'AUTOCURATION')
+                    ->whereNotIn('molecule_id', $newMoleculeIds)
+                    ->count();
+
+                Log::info('No. of New molecules that already exist: '.$newMoleculesWithEntries);
+                Log::info('No. of New moleules: '.$newMolecules.
+                    ' (Parents: '.$newParents.', Children: '.$newChildren.')');
+
+                // Check batch status
                 if ($batch->finished() && ! $batch->hasFailures()) {
                     $collection->jobs_status = 'INCURATION';
                     $collection->job_info = '';
@@ -116,9 +141,9 @@ class ImportEntriesAuto extends Command
                         'finished_at' => $batch->finishedAt,
                         'cancelled_at' => $batch->cancelledAt,
                     ];
-                    
+
                     $exception = new \Exception("Batch processing failed for collection ID {$collection->id}. {$batch->failedJobs} out of {$batch->totalJobs} jobs failed.");
-                    
+
                     \App\Events\PrePublishJobFailed::dispatch(
                         'Import Molecules - Batch Failed',
                         $exception,
@@ -130,7 +155,7 @@ class ImportEntriesAuto extends Command
             ->name('Import Molecules '.$collection_id)
             ->allowFailures()
             ->onConnection('redis')
-            ->onQueue('default')
+            ->onQueue('sequential')
             ->dispatch();
     }
 }

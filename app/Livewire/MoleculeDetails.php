@@ -132,12 +132,12 @@ class MoleculeDetails extends Component
      */
     public function getCurationStatusProperty()
     {
-        if (!$this->molecule->curation_status) {
+        if (! $this->molecule->curation_status) {
             return null;
         }
-        
-        return is_string($this->molecule->curation_status) 
-            ? json_decode($this->molecule->curation_status, true) 
+
+        return is_string($this->molecule->curation_status)
+            ? json_decode($this->molecule->curation_status, true)
             : $this->molecule->curation_status;
     }
 
@@ -148,11 +148,11 @@ class MoleculeDetails extends Component
     {
         return [
             'publish-molecules',
-            'enrich-molecules', 
+            'enrich-molecules',
             'import-pubchem-names',
             'generate-properties',
             'classify',
-            'generate-coordinates'
+            'generate-coordinates',
         ];
     }
 
@@ -164,19 +164,19 @@ class MoleculeDetails extends Component
         $curationStatus = $this->curationStatus;
         $requiredSteps = $this->requiredSteps;
         $incompleteSteps = [];
-        
+
         if ($curationStatus) {
             foreach ($requiredSteps as $step) {
-                if (!isset($curationStatus[$step]) || $curationStatus[$step]['status'] !== 'completed') {
+                if (! isset($curationStatus[$step]) || $curationStatus[$step]['status'] !== 'completed') {
                     $incompleteSteps[] = ucwords(str_replace('-', ' ', $step));
                 }
             }
         } else {
-            $incompleteSteps = array_map(function($step) { 
-                return ucwords(str_replace('-', ' ', $step)); 
+            $incompleteSteps = array_map(function ($step) {
+                return ucwords(str_replace('-', ' ', $step));
             }, $requiredSteps);
         }
-        
+
         return $incompleteSteps;
     }
 
@@ -185,7 +185,7 @@ class MoleculeDetails extends Component
      */
     public function getIsCurationIncompleteProperty()
     {
-        return !empty($this->incompleteSteps);
+        return ! empty($this->incompleteSteps);
     }
 
     public function render(): View

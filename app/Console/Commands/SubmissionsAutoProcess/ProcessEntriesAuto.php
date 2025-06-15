@@ -109,9 +109,9 @@ class ProcessEntriesAuto extends Command
                         'finished_at' => $batch->finishedAt,
                         'cancelled_at' => $batch->cancelledAt,
                     ];
-                    
+
                     $exception = new \Exception("Batch processing failed for collection ID {$collection->id}. {$batch->failedJobs} out of {$batch->totalJobs} jobs failed.");
-                    
+
                     \App\Events\PrePublishJobFailed::dispatch(
                         'Validate Molecules - Batch Failed',
                         $exception,

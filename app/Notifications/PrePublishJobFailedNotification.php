@@ -60,10 +60,10 @@ class PrePublishJobFailedNotification extends Notification implements ShouldQueu
         }
 
         // Add batch statistics if available
-        if (!empty($this->event->batchStats)) {
+        if (! empty($this->event->batchStats)) {
             $mailMessage->line('**Batch Statistics:**');
             $stats = $this->event->batchStats;
-            
+
             if (isset($stats['collection_name'])) {
                 $mailMessage->line('- Collection: '.$stats['collection_name']);
             }

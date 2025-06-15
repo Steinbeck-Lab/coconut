@@ -64,19 +64,19 @@ class ImportPipelineEventSubscriber
 
         // Build notification body with batch statistics if available
         $notificationBody = "Job: {$jobName} failed with error: {$exceptionMessage}";
-        
-        if (!empty($event->batchStats)) {
+
+        if (! empty($event->batchStats)) {
             $stats = $event->batchStats;
             $notificationBody .= "\n\nBatch Statistics:";
-            
+
             if (isset($stats['collection_name'])) {
-                $notificationBody .= "\n• Collection: " . $stats['collection_name'];
+                $notificationBody .= "\n Collection: ".$stats['collection_name'];
             }
             if (isset($stats['failed_jobs'], $stats['total_jobs'])) {
-                $notificationBody .= "\n• Failed Jobs: " . $stats['failed_jobs'] . " / " . $stats['total_jobs'];
+                $notificationBody .= "\n Failed Jobs: ".$stats['failed_jobs'].' / '.$stats['total_jobs'];
             }
             if (isset($stats['progress'])) {
-                $notificationBody .= "\n• Progress: " . number_format($stats['progress'], 2) . "%";
+                $notificationBody .= "\n Progress: ".number_format($stats['progress'], 2).'%';
             }
         }
 

@@ -76,7 +76,7 @@ class ImportPubChemNamesAuto extends Command
         } else {
             $query->where(function ($q) {
                 $q->whereNull('curation_status->import-pubchem-names->status')
-                    ->orWhereNotIn('curation_status->import-pubchem-names->status', [ 'failed']);
+                    ->orWhereNotIn('curation_status->import-pubchem-names->status', ['failed']);
             });
         }
 

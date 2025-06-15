@@ -18,6 +18,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -74,9 +75,6 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
         if (! $molecule) {
             return;
         }
-
-        // Update status to processing
-        // updateCurationStatus($molecule->id, $this->stepName, 'processing');
 
         try {
             // Process references if they exist
@@ -244,11 +242,25 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
     public function fetchCitation($citation_text, $molecule)
     {
         try {
-            $citation = Citation::firstOrCreate(['citation_text' => $citation_text]);
+            // Use a database transaction to prevent race conditions
+            $citation = DB::transaction(function () use ($citation_text) {
+                // First try to find existing citation with FOR UPDATE lock
+                $existing = Citation::where('citation_text', $citation_text)->lockForUpdate()->first();
+
+                if ($existing) {
+                    return $existing;
+                }
+
+                // If not found, create new one
+                return Citation::create(['citation_text' => $citation_text]);
+            });
         } catch (QueryException $e) {
             if ($this->isUniqueViolationException($e)) {
                 $this->fetchDOICitation($citation_text, $molecule);
+
+                return;
             }
+            throw $e;
         }
 
         $molecule->citations()->syncWithoutDetaching($citation->id);
