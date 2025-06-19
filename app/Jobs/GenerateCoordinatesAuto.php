@@ -9,7 +9,6 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -87,22 +86,6 @@ class GenerateCoordinatesAuto implements ShouldQueue
             updateCurationStatus($this->molecule->id, $this->stepName, 'failed', $error);
             throw $e;
         }
-    }
-
-    /**
-     * Get the middleware the job should pass through.
-     *
-     * @return array<int, object>
-     */
-    public function middleware(): array
-    {
-        return [
-            (new WithoutOverlapping('999999'))
-                ->releaseAfter(30)      // Release lock if job fails/times out
-                ->expireAfter(180)      // Maximum lock duration
-                ->dontRelease()         // Don't retry if can't acquire lock
-                ->shared(),
-        ];
     }
 
     /**

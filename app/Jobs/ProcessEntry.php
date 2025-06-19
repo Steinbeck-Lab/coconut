@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\ReportStatus;
+use App\Events\PrePublishJobFailed;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -52,6 +53,7 @@ class ProcessEntry implements ShouldQueue
         $molecular_formula = null;
         $data = null;
         $has_stereocenters = false;
+        $is_invalid = false;
         $error_code = -1;
         $API_URL = env('API_URL', 'https://api.cheminf.studio/latest/');
         $ENDPOINT = $API_URL.'chem/coconut/pre-processing?smiles='.urlencode($canonical_smiles).'&_3d_mol=false&descriptors=false';
@@ -90,14 +92,15 @@ class ProcessEntry implements ShouldQueue
             } else {
                 $statusCode = $response->status();
                 $errorData = $response->json();
+                $errorMessage = is_array($errorData) ? json_encode($errorData) : (string) $errorData;
                 $errors = [
-                    'Request Exception occurred' => $errorData.' - '.$canonical_smiles,
+                    'Request Exception occurred' => $errorMessage.' - '.$canonical_smiles,
                     'code' => $statusCode,
                 ];
                 $status = 'REJECTED';
                 $error_code = 7;
                 $is_invalid = true;
-                Log::error('Request Exception occurred: '.$errorData.' - '.$canonical_smiles, ['code' => $statusCode]);
+                Log::error('Request Exception occurred: '.$errorMessage.' - '.$canonical_smiles, ['code' => $statusCode]);
             }
         } catch (RequestException $e) {
             Log::error('Request Exception occurred: '.$e->getMessage().' - '.$canonical_smiles, ['code' => $e->getCode()]);
@@ -123,6 +126,7 @@ class ProcessEntry implements ShouldQueue
         $this->entry->errors = $errors;
         $this->entry->standardized_canonical_smiles = $standardized_smiles;
         $this->entry->parent_canonical_smiles = $parent_canonical_smiles;
+        $this->entry->is_invalid = $is_invalid;
         $this->entry->molecular_formula = $molecular_formula;
         $this->entry->status = $status;
         $this->entry->cm_data = $data;
@@ -147,7 +151,8 @@ class ProcessEntry implements ShouldQueue
             ],
             $this->batch()?->id,
             null,
-            $this->entry->id
+            $this->entry->id,
+            PrePublishJobFailed::class
         );
     }
 }

@@ -61,29 +61,57 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
             return;
         }
 
-        Log::info('ImportPubChem job started for molecule ID: '.$this->molecule->id);
-
         try {
             $result = $this->fetchIUPACNameFromPubChem();
             if ($result === true) {
                 updateCurationStatus($this->molecule->id, $this->stepName, 'completed');
+                Log::info('PubChem import completed', [
+                    'molecule_id' => $this->molecule->id,
+                    'step' => $this->stepName,
+                    'result' => 'success',
+                ]);
             } else {
-                updateCurationStatus($this->molecule->id, $this->stepName, 'failed', 'Failed to fetch or process PubChem data');
-                throw new \Exception('Failed to fetch or process PubChem data');
+                // Treat as data-not-found, not a job failure
+                updateCurationStatus($this->molecule->id, $this->stepName, 'failed', 'PubChem data not available');
+                Log::warning('PubChem data not available', [
+                    'molecule_id' => $this->molecule->id,
+                    'step' => $this->stepName,
+                    'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
+                    'result' => 'data_not_found',
+                    'batch_id' => $this->batch()?->id,
+                ]);
             }
         } catch (\Throwable $e) {
-            Log::error("Error processing molecule {$this->molecule->id}: ".$e->getMessage());
+            // Only actual system errors should be treated as job failures
             updateCurationStatus($this->molecule->id, $this->stepName, 'failed', $e->getMessage());
+            Log::error('PubChem import system error', [
+                'molecule_id' => $this->molecule->id,
+                'step' => $this->stepName,
+                'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
+                'error_message' => $e->getMessage(),
+                'error_class' => get_class($e),
+                'batch_id' => $this->batch()?->id,
+                'result' => 'system_error',
+            ]);
             throw $e;
         }
     }
 
     /**
      * Handle a job failure.
+     * This should only be called for actual system errors, not data unavailability.
      */
     public function failed(\Throwable $exception): void
     {
-        Log::info("ImportPubChemAuto failed() method called for molecule {$this->molecule->id}: ".$exception->getMessage());
+        Log::error('ImportPubChemAuto job system failure', [
+            'molecule_id' => $this->molecule->id,
+            'step' => $this->stepName,
+            'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
+            'error_message' => $exception->getMessage(),
+            'error_class' => get_class($exception),
+            'batch_id' => $this->batch()?->id,
+            'result' => 'system_failure',
+        ]);
 
         handleJobFailure(
             self::class,
@@ -195,8 +223,13 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
         $cidResponse = $this->throttledGet($smilesURL);
 
         if (! $cidResponse->successful()) {
-            Log::error('Failed to fetch CID from PubChem for molecule ID: '.$this->molecule->id);
-            // $this->storeFailedMolecule('failed_cid_fetch');
+            Log::debug('PubChem CID fetch failed', [
+                'molecule_id' => $this->molecule->id,
+                'step' => $this->stepName,
+                'failure_point' => 'cid_fetch',
+                'http_status' => $cidResponse->status(),
+                'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
+            ]);
 
             return false;
         }
@@ -208,16 +241,25 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
             $dataResponse = $this->throttledGet($cidPropsURL);
 
             if (! $dataResponse->successful()) {
-                Log::error('Failed to fetch data from PubChem for CID: '.$cid);
-                // $this->storeFailedMolecule('failed_data_fetch');
+                Log::debug('PubChem data fetch failed', [
+                    'molecule_id' => $this->molecule->id,
+                    'step' => $this->stepName,
+                    'failure_point' => 'data_fetch',
+                    'cid' => $cid,
+                    'http_status' => $dataResponse->status(),
+                ]);
 
                 return false;
             }
 
             $data = $dataResponse->json();
             if (! isset($data['PC_Compounds'])) {
-                Log::error('PC_Compounds key not found for CID: '.$cid);
-                // $this->storeFailedMolecule('missing_pc_compounds');
+                Log::debug('PubChem response missing compounds', [
+                    'molecule_id' => $this->molecule->id,
+                    'step' => $this->stepName,
+                    'failure_point' => 'missing_pc_compounds',
+                    'cid' => $cid,
+                ]);
 
                 return false;
             }
@@ -232,7 +274,12 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
             }
 
             if (! $IUPACName) {
-                Log::error('IUPAC Name not found in PubChem data for CID: '.$cid);
+                Log::debug('IUPAC name not found in PubChem data', [
+                    'molecule_id' => $this->molecule->id,
+                    'step' => $this->stepName,
+                    'cid' => $cid,
+                    'props_count' => count($props),
+                ]);
             }
 
             // Fetch synonyms and CAS numbers
@@ -245,8 +292,13 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
 
             return true;
         } else {
-            Log::error('Invalid CID from PubChem for molecule ID: '.$this->molecule->id);
-            // $this->storeFailedMolecule('invalid_cid');
+            Log::debug('Invalid CID from PubChem', [
+                'molecule_id' => $this->molecule->id,
+                'step' => $this->stepName,
+                'failure_point' => 'invalid_cid',
+                'cid_response' => $cid,
+                'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
+            ]);
 
             return false;
         }
@@ -274,7 +326,13 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
             } while ($attempt < $maxRetries);
 
             if (! $synResponse || ! $synResponse->successful() || strpos($synResponse->body(), 'Status: 503') !== false) {
-                // $this->storeFailedMolecule('failed_synonyms_fetch');
+                Log::debug('PubChem synonyms fetch failed', [
+                    'molecule_id' => $this->molecule->id,
+                    'step' => $this->stepName,
+                    'failure_point' => 'synonyms_fetch',
+                    'cid' => $cid,
+                    'attempts' => $attempt,
+                ]);
 
                 return;
             }

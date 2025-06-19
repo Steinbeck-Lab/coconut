@@ -91,6 +91,9 @@ class ProcessEntriesAuto extends Command
             })
             ->finally(function (Batch $batch) use ($collection) {
                 Log::info("Batch processing completed for collection ID {$collection->id}.");
+                Log::info('Total jobs: '.$batch->totalJobs.
+                    ', Processed jobs: '.$batch->processedJobs().
+                    ', Failed jobs: '.$batch->failedJobs);
                 if ($batch->finished() && ! $batch->hasFailures()) {
                     $collection->jobs_status = 'INCURATION';
                     $collection->job_info = '';

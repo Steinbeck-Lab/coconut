@@ -140,11 +140,11 @@ class PublishMoleculesAuto extends Command
         $parents = DB::table('molecules')
             ->select('molecules.id')
             ->distinct()
-            ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
+            ->join('collection_molecule', 'collection_molecule.molecule_id', '=', 'molecules.id')
             ->where('molecules.has_stereo', false)
             ->whereNull('molecules.identifier')
             ->whereIn('molecules.status', ['APPROVED', 'REVOKED']) // Filter for only published ones
-            ->where('entries.collection_id', $collection_id)
+            ->where('collection_molecule.collection_id', $collection_id)
             ->get();
 
         if ($parents->count() > 0) {
@@ -168,8 +168,8 @@ class PublishMoleculesAuto extends Command
 
         // First, get distinct parent_ids from the current collection
         $childMolecules = DB::table('molecules as m')
-            ->join('entries as e', 'm.id', '=', 'e.molecule_id')
-            ->where('e.collection_id', $collection_id)
+            ->join('collection_molecule as cm', 'm.id', '=', 'cm.molecule_id')
+            ->where('cm.collection_id', $collection_id)
             ->whereNull('m.identifier')
             ->whereNotNull('m.parent_id');
 
@@ -285,7 +285,6 @@ class PublishMoleculesAuto extends Command
             $ticker = Ticker::where('type', 'molecule')->first();
             $ticker->index = $currentIndex;
             $ticker->save();
-
             Log::info("Updated ticker from {$startingIndex} to {$currentIndex}. Used ".($currentIndex - $startingIndex).' new identifiers.');
         }
 

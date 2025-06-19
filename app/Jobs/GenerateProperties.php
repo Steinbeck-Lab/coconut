@@ -8,7 +8,6 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -111,21 +110,6 @@ class GenerateProperties implements ShouldQueue
         $properties->np_likeness = $descriptors['nplikeness'] ?? 0;
         $properties->molecule_id = $id;
         $properties->save();
-    }
-
-    /**
-     * Get the middleware the job should pass through.
-     *
-     * @return array<int, object>
-     */
-    public function middleware(): array
-    {
-        return [
-            (new WithoutOverlapping('999999'))
-                ->releaseAfter(30)
-                ->expireAfter(180)
-                ->shared(),
-        ];
     }
 
     /**

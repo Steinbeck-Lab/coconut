@@ -563,6 +563,7 @@ function getCurationStatus($moleculeId, $command = null)
  * @param  string|null  $batchId  The batch ID if running in a batch
  * @param  string|null  $moleculeId  The molecule ID if applicable
  * @param  string|null  $entryId  The entry ID if applicable
+ * @param  string  $eventClass  The event class to dispatch (default: PostPublishJobFailed)
  */
 function handleJobFailure(
     string $jobClass,
@@ -571,7 +572,8 @@ function handleJobFailure(
     array $contextData = [],
     ?string $batchId = null,
     ?string $moleculeId = null,
-    ?string $entryId = null
+    ?string $entryId = null,
+    string $eventClass = PostPublishJobFailed::class
 ): void {
     $errorMessage = $exception->getMessage();
     $jobShortName = class_basename($jobClass);
@@ -603,8 +605,8 @@ function handleJobFailure(
         'step' => $stepName,
     ], $contextData);
 
-    // Dispatch event for notification handling
-    PostPublishJobFailed::dispatch(
+    // Dispatch the specified event for notification handling
+    $eventClass::dispatch(
         $jobClass,
         $exception,
         $eventData,

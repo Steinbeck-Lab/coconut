@@ -68,4 +68,9 @@ class Entry extends Model implements Auditable
     {
         return $this->morphToMany(Report::class, 'reportable');
     }
+
+    public function transformAudit(array $data): array
+    {
+        return changeAudit($data);
+    }
 }

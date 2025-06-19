@@ -263,7 +263,7 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
             throw $e;
         }
 
-        $molecule->citations()->syncWithoutDetaching($citation->id);
+        // $molecule->citations()->syncWithoutDetaching($citation->id);
         $this->citation_ids_array[] = $citation->id;
     }
 
@@ -332,7 +332,7 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
                         }
                     }
                 }
-                $molecule->citations()->syncWithoutDetaching($citation->id);
+                // $molecule->citations()->syncWithoutDetaching($citation->id);
                 $this->citation_ids_array[] = $citation->id;
             }
         }
@@ -490,6 +490,10 @@ class ImportEntryReferencesAuto implements ShouldBeUnique, ShouldQueue
             if ($reference['organisms']) {
                 $this->saveOrganismDetails($reference['organisms'], $molecule);
             }
+        }
+
+        if (! empty($this->citation_ids_array)) {
+            $molecule->citations()->auditSyncWithoutDetaching(array_unique($this->citation_ids_array));
         }
     }
 }
