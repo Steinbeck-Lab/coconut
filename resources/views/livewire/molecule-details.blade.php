@@ -603,7 +603,7 @@
                                                 <div x-data="{ showAllCitations: false }">
                                                     <div class="not-prose grid grid-cols-1 gap-6 sm:grid-cols-2">
                                                         @foreach ($molecule->citations as $index => $citation)
-                                                        @if ($citation->title != '')
+                                                        @if ($citation->doi != '' || $citation->citation_text != '')
                                                         <div class="group relative rounded-xl border border-slate-200"
                                                             x-show="showAllCitations || {{ $index }} < 6">
                                                             <div
@@ -698,53 +698,72 @@
                                                                             class="rounded-xl"></span>{{ $citation->authors }}
                                                                     </a>
                                                                 </h2>
-                                                                <h2
-                                                                    class="mt-2 font-display text-base text-slate-900">
-                                                                    <a target="_blank"
-                                                                        href="https://doi.org/{{ $citation->doi }}">
-                                                                        <span
-                                                                            class="rounded-xl"></span>DOI: {{ $citation->doi }}
-                                                                    </a>
-                                                                    <span class="ml-3 mr-4">
-                                                                        <livewire:copy-button
-                                                                            text-to-copy="{{ $citation->doi }}" />
-                                                                    </span>
-                                                                </h2>
-                                                                <h2
-                                                                    class="mt-2 font-display text-base text-slate-900">
-                                                                    <a target="_blank"
-                                                                        href="https://www.lens.org/lens/search/scholar/list?q=ids.doi:{{ $citation->doi }}">
-                                                                        <span
-                                                                            class="rounded-xl"></span>Lens.org <svg xmlns="http://www.w3.org/2000/svg"
-                                                                            fill="none"
-                                                                            viewBox="0 0 24 24"
-                                                                            stroke-width="1.5"
-                                                                            stroke="currentColor"
-                                                                            class="size-4 inline">
-                                                                            <path
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25">
-                                                                            </path>
-                                                                        </svg>
-                                                                    </a>
-                                                                    <span x-data="{ tooltip: false }"
-                                                                        x-on:mouseover="tooltip = true"
-                                                                        x-on:mouseleave="tooltip = false"
-                                                                        class="h-5 w-5 cursor-pointer inline">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                                            class="h-5 w-5 inline" fill="none"
-                                                                            viewBox="0 0 24 24" stroke="currentColor">
-                                                                            <path stroke-linecap="round"
-                                                                                stroke-linejoin="round" stroke-width="2"
-                                                                                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                        </svg>
-                                                                        <div x-show="tooltip"
-                                                                            class="text-sm text-white absolute bg-green-400 rounded-lg p-2 transform -translate-y-8 translate-x-8 z-10">
-                                                                            The Lens serves all the patents and scholarly work in the world as a free, open and secure digital public good, with user privacy a paramount focus.
-                                                                        </div>
-                                                                    </span>
-                                                                </h2>
+                                                                @if ($citation->doi and $citation->doi != '')
+                                                                    <h2
+                                                                        class="mt-2 font-display text-base text-slate-900">
+                                                                        <a target="_blank"
+                                                                            href="https://doi.org/{{ $citation->doi }}">
+                                                                            <span
+                                                                                class="rounded-xl"></span>DOI: {{ $citation->doi }}
+                                                                        </a>
+                                                                        <span class="ml-3 mr-4">
+                                                                            <livewire:copy-button
+                                                                                text-to-copy="{{ $citation->doi }}" />
+                                                                        </span>
+                                                                    </h2>
+                                                                    <h2
+                                                                        class="mt-2 font-display text-base text-slate-900">
+                                                                        <a target="_blank"
+                                                                            href="https://www.lens.org/lens/search/scholar/list?q=ids.doi:{{ $citation->doi }}">
+                                                                            <span
+                                                                                class="rounded-xl"></span>Lens.org <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                fill="none"
+                                                                                viewBox="0 0 24 24"
+                                                                                stroke-width="1.5"
+                                                                                stroke="currentColor"
+                                                                                class="size-4 inline">
+                                                                                <path
+                                                                                    stroke-linecap="round"
+                                                                                    stroke-linejoin="round"
+                                                                                    d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25">
+                                                                                </path>
+                                                                            </svg>
+                                                                        </a>
+                                                                        <span x-data="{ tooltip: false }"
+                                                                            x-on:mouseover="tooltip = true"
+                                                                            x-on:mouseleave="tooltip = false"
+                                                                            class="h-5 w-5 cursor-pointer inline">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                class="h-5 w-5 inline" fill="none"
+                                                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                                                <path stroke-linecap="round"
+                                                                                    stroke-linejoin="round" stroke-width="2"
+                                                                                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                            </svg>
+                                                                            <div x-show="tooltip"
+                                                                                class="text-sm text-white absolute bg-green-400 rounded-lg p-2 transform -translate-y-8 translate-x-8 z-10">
+                                                                                The Lens serves all the patents and scholarly work in the world as a free, open and secure digital public good, with user privacy a paramount focus.
+                                                                            </div>
+                                                                        </span>
+                                                                    </h2>
+                                                                @endif
+                                                                @if ($citation->citation_text and $citation->citation_text != '')
+                                                                    <h2 class="mt-2 font-display text-base text-slate-900">
+                                                                        @php
+                                                                            $isUrl = filter_var($citation->citation_text, FILTER_VALIDATE_URL);
+                                                                        @endphp
+                                                                        @if ($isUrl)
+                                                                            <a target="_blank" href="{{ $citation->citation_text }}" class="inline-flex items-center px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold rounded-lg shadow-sm transition-colors duration-150">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                                                                </svg>
+                                                                                Reference URL
+                                                                            </a>
+                                                                        @else
+                                                                            <span class="rounded-xl">Note: {{ $citation->citation_text }}</span>
+                                                                        @endif
+                                                                    </h2>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                         @endif

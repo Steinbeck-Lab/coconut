@@ -105,6 +105,7 @@ class FetchCitationMetadataAuto extends Command
         Log::info("Found {$totalCount} citations that need metadata fetching");
         if ($totalCount === 0) {
             Log::info('No citations found that need metadata fetching.');
+
             return 0;
         }
 
