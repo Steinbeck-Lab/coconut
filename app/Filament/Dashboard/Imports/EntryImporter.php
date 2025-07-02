@@ -197,4 +197,9 @@ class EntryImporter extends Importer
 
         return array_map('trim', explode($separator, $data));
     }
+
+    public function getJobQueue(): ?string
+    {
+        return 'import';
+    }
 }
