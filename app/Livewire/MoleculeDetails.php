@@ -117,8 +117,14 @@ class MoleculeDetails extends Component
 
     public function getReferenceUrls($pivot)
     {
+        if (! $pivot || ! isset($pivot->reference) || ! isset($pivot->url)) {
+            return [];
+        }
         $references = explode('|', $pivot->reference);
         $urls = explode('|', $pivot->url);
+        if (count($references) !== count($urls)) {
+            return [];
+        }
         $combined = array_combine($references, $urls);
         $combined = array_map(function ($key, $value) {
             return [$key => $value];
