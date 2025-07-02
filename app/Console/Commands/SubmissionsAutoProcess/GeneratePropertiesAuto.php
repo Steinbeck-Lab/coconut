@@ -7,7 +7,6 @@ use App\Models\Collection;
 use App\Models\Molecule;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -19,7 +18,7 @@ class GeneratePropertiesAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:generate-properties {collection_id=65 : The ID of the collection to process} {--force : Retry processing of molecules with failed status only} {--trigger : Trigger subsequent commands in the processing chain} {--trigger-force : Trigger downstream commands and pick up failed rows}';
+    protected $signature = 'coconut:generate-properties {collection_id : The ID of the collection to process}';
 
     /**
      * The console command description.
@@ -34,9 +33,6 @@ class GeneratePropertiesAuto extends Command
     public function handle()
     {
         $collection_id = $this->argument('collection_id');
-        $forceProcess = $this->option('force');
-        $triggerNext = $this->option('trigger');
-        $triggerForce = $this->option('trigger-force');
 
         $collection = Collection::find($collection_id);
         if (! $collection) {
@@ -44,7 +40,6 @@ class GeneratePropertiesAuto extends Command
 
             return 1;
         }
-        Log::info("Starting property generation for molecules in collection ID: {$collection_id}");
         $query = Molecule::select('molecules.id')
             ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
             ->where('entries.collection_id', $collection_id)
@@ -56,46 +51,21 @@ class GeneratePropertiesAuto extends Command
         // --force: only when running standalone, picks up failed entries
         // --trigger: triggers downstream, does NOT pick up failed entries
         // --trigger-force: triggers downstream AND picks up failed entries
-        if ($triggerForce || $forceProcess) {
-            // $query->where('curation_status->generate-properties->status', 'failed');
-        } else {
-            // $query->where(function ($q) {
-            //     $q->whereNull('curation_status->generate-properties->status')
-            //         ->orWhereNotIn('curation_status->generate-properties->status', ['completed', 'failed']);
-            // });
-        }
 
         // Count the total number of molecules to process
         $totalCount = $query->count();
         if ($totalCount === 0) {
             Log::info("No molecules found that require property generation in collection {$collection_id}.");
-            // Trigger next command if specified
-            if ($triggerForce) {
-                Artisan::call('coconut:npclassify', [
-                    'collection_id' => $collection_id,
-                    '--trigger-force' => true,
-                ]);
-            } elseif ($triggerNext) {
-                Artisan::call('coconut:npclassify', [
-                    'collection_id' => $collection_id,
-                    '--trigger' => true,
-                ]);
-            }
 
             return 0;
         }
 
-        Log::info("Found {$totalCount} molecules requiring property generation for collection {$collection_id}");
+        Log::info("Starting property generation for {$totalCount} molecules in collection {$collection_id}.");
 
         // Use chunk to process large sets of molecules
-        $query->chunkById(1000, function ($molecules) use ($collection_id, $triggerNext, $triggerForce) {
+        $query->chunkById(1000, function ($molecules) use ($collection_id) {
             $moleculeCount = count($molecules);
             Log::info("Processing batch of {$moleculeCount} molecules for property generation in collection {$collection_id}");
-
-            // Mark molecules as processing
-            // foreach ($molecules as $molecule) {
-            //     updateCurationStatus($molecule->id, 'generate-properties', 'processing');
-            // }
 
             // Prepare batch jobs
             $batchJobs = [];
@@ -103,21 +73,8 @@ class GeneratePropertiesAuto extends Command
 
             // Dispatch as a batch
             Bus::batch($batchJobs)
-                ->then(function (Batch $batch) {})
-                ->catch(function (Batch $batch, Throwable $e) {})
-                ->finally(function (Batch $batch) use ($collection_id, $triggerNext, $triggerForce) {
-                    Log::info("Property generation batch completed for collection {$collection_id}: ".$batch->id);
-                    if ($triggerForce) {
-                        Artisan::call('coconut:npclassify', [
-                            'collection_id' => $collection_id,
-                            '--trigger-force' => true,
-                        ]);
-                    } elseif ($triggerNext) {
-                        Artisan::call('coconut:npclassify', [
-                            'collection_id' => $collection_id,
-                            '--trigger' => true,
-                        ]);
-                    }
+                ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
+                    Log::error("Batch job failed for collection {$collection_id}: ".$e->getMessage());
                 })
                 ->name("Generate Properties Auto Collection {$collection_id}")
                 ->allowFailures()

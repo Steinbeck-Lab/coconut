@@ -17,7 +17,7 @@ class PublishMoleculesAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:publish-molecules {collection_id=65 : The ID of the collection to import} {--force : Retry processing of molecules with failed status only}  {--trigger : Trigger subsequent commands in the processing chain}';
+    protected $signature = 'coconut:publish-molecules {collection_id : The ID of the collection to import}';
 
     /**
      * The console command description.
@@ -34,7 +34,6 @@ class PublishMoleculesAuto extends Command
     public function handle()
     {
         $collection_id = $this->argument('collection_id');
-        $forcePublish = $this->option('force');
 
         $collection = Collection::find($collection_id);
 
@@ -48,19 +47,7 @@ class PublishMoleculesAuto extends Command
 
         // Base query for draft molecules
         $query = $collection->molecules()
-            // ->whereNotNull('identifier')
             ->where('status', 'DRAFT');
-
-        // If not forcing, exclude already processed molecules (completed OR failed)
-        if (! $forcePublish) {
-            // $query->where(function ($q) {
-            //     $q->whereNull('curation_status->publish-molecules->status')
-            //         ->orWhereNotIn('curation_status->publish-molecules->status', ['completed', 'failed']);
-            // });
-        } else {
-            // If forcing, only process molecules with failed status
-            // $query->where('curation_status->publish-molecules->status', 'failed');
-        }
 
         // Get the count of molecules to be processed
         $count = $query->count();
@@ -222,8 +209,6 @@ class PublishMoleculesAuto extends Command
             file_put_contents($filePath, $jsonData);
 
             // Step 3: Assign identifiers to stereo variants
-            // $mappings = json_decode(file_get_contents(storage_path("parent_id_mappings_{$collection_id}.json")), true);
-            // $identifier_mappings = json_decode(file_get_contents(storage_path("identifier_mappings_{$collection_id}.json")), true);
 
             $bulkUpdateData = [];
 

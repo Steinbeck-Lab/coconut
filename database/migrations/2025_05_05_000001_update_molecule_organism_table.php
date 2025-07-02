@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignId('ecosystem_id')->nullable()->constrained()->onDelete('cascade');
 
             // add citation_ids column
-            $table->string('citation_ids')->nullable()->after('sample_location_id');
+            $table->text('citation_ids')->nullable()->after('sample_location_id');
 
             // Drop old unique index if it exists
             // $table->dropPrimary('molecule_organism_pkey');

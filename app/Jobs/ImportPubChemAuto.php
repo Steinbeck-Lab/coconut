@@ -9,19 +9,14 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redis;
-use Illuminate\Support\Facades\Storage;
 
 class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $molecule;
-
-    protected $failedIdsFile = 'pubchem_failed_molecules.json';
 
     /**
      * The step name for this job.
@@ -137,99 +132,13 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
         return $response;
     }
 
-    /**
-     * Store a failed molecule ID in the JSON file using direct Redis connection
-     */
-    private function storeFailedMolecule($reason = 'failed_cid_fetch')
-    {
-        try {
-            $lockName = 'pubchem_failed_molecules_lock';
-            $lock = Cache::lock($lockName, 30);
-            $lockAcquired = false;
-
-            for ($attempt = 1; $attempt <= 5; $attempt++) {
-                try {
-                    $lockAcquired = $lock->get();
-                    if ($lockAcquired) {
-                        Log::info("Lock acquired for molecule ID: {$this->molecule->id} on attempt {$attempt}");
-                        break;
-                    }
-                    Log::info("Lock attempt {$attempt} failed for molecule ID: {$this->molecule->id}");
-                    usleep(200000 * $attempt);
-                } catch (\Exception $e) {
-                    Log::error("Error acquiring lock on attempt {$attempt}: ".$e->getMessage());
-                }
-            }
-
-            if (! $lockAcquired) {
-                Log::error("Failed to acquire lock for molecule ID: {$this->molecule->id}");
-
-                return;
-            }
-
-            try {
-                $failedIds = [];
-                $fileExists = Storage::disk('local')->exists($this->failedIdsFile);
-                Log::info("File exists check for {$this->failedIdsFile}: ".($fileExists ? 'true' : 'false'));
-
-                if ($fileExists) {
-                    $fileContent = Storage::disk('local')->get($this->failedIdsFile);
-                    $failedIds = json_decode($fileContent, true);
-                    if ($failedIds === null) {
-                        Log::error('JSON decode failed: '.json_last_error_msg());
-                        $failedIds = [];
-                    }
-                }
-
-                if (isset($failedIds[$this->molecule->id])) {
-                    Log::info("Molecule ID {$this->molecule->id} already exists in failed list, skipping");
-
-                    return;
-                }
-
-                $failedIds[$this->molecule->id] = [
-                    'molecule_id' => $this->molecule->id,
-                    'reason' => $reason,
-                    'failed_at' => now()->toDateTimeString(),
-                    'smiles' => $this->molecule->canonical_smiles ?? null,
-                ];
-
-                $jsonContent = json_encode($failedIds, JSON_PRETTY_PRINT);
-                $writeResult = Storage::disk('local')->put($this->failedIdsFile, $jsonContent);
-
-                if ($writeResult) {
-                    $verifyContent = Storage::disk('local')->get($this->failedIdsFile);
-                    $verifiedIds = json_decode($verifyContent, true);
-                    if (isset($verifiedIds[$this->molecule->id])) {
-                        Log::info("Verified molecule ID {$this->molecule->id} was successfully added to failed list");
-                    } else {
-                        Log::error("Verification failed - molecule ID {$this->molecule->id} not found in file after write");
-                    }
-                }
-            } finally {
-                if ($lockAcquired) {
-                    $lock->release();
-                    Log::info("Lock released for molecule ID: {$this->molecule->id}");
-                }
-            }
-        } catch (\Exception $e) {
-            Log::error('Exception in storeFailedMolecule: '.$e->getMessage()."\n".$e->getTraceAsString());
-        }
-    }
-
     public function fetchIUPACNameFromPubChem()
     {
         $smilesURL = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/cids/TXT?smiles='.urlencode($this->molecule->canonical_smiles);
         $cidResponse = $this->throttledGet($smilesURL);
 
         if (! $cidResponse->successful()) {
-            Log::debug('PubChem CID fetch failed', [
-                'molecule_id' => $this->molecule->id,
-                'step' => $this->stepName,
-                'failure_point' => 'cid_fetch',
-                'http_status' => $cidResponse->status(),
-                'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
-            ]);
+            updateCurationStatus($this->molecule->id, $this->stepName, 'failed', 'PubChem CID fetch failed - HTTP status: '.$cidResponse->status());
 
             return false;
         }
@@ -241,25 +150,14 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
             $dataResponse = $this->throttledGet($cidPropsURL);
 
             if (! $dataResponse->successful()) {
-                Log::debug('PubChem data fetch failed', [
-                    'molecule_id' => $this->molecule->id,
-                    'step' => $this->stepName,
-                    'failure_point' => 'data_fetch',
-                    'cid' => $cid,
-                    'http_status' => $dataResponse->status(),
-                ]);
+                updateCurationStatus($this->molecule->id, $this->stepName, 'failed', 'PubChem data fetch failed for CID: '.$cid.' - HTTP status: '.$dataResponse->status());
 
                 return false;
             }
 
             $data = $dataResponse->json();
             if (! isset($data['PC_Compounds'])) {
-                Log::debug('PubChem response missing compounds', [
-                    'molecule_id' => $this->molecule->id,
-                    'step' => $this->stepName,
-                    'failure_point' => 'missing_pc_compounds',
-                    'cid' => $cid,
-                ]);
+                updateCurationStatus($this->molecule->id, $this->stepName, 'failed', 'PubChem response missing compounds for CID: '.$cid);
 
                 return false;
             }
@@ -274,12 +172,7 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
             }
 
             if (! $IUPACName) {
-                Log::debug('IUPAC name not found in PubChem data', [
-                    'molecule_id' => $this->molecule->id,
-                    'step' => $this->stepName,
-                    'cid' => $cid,
-                    'props_count' => count($props),
-                ]);
+                updateCurationStatus($this->molecule->id, $this->stepName, 'partial', 'IUPAC name not found in PubChem data for CID: '.$cid);
             }
 
             // Fetch synonyms and CAS numbers
@@ -292,13 +185,7 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
 
             return true;
         } else {
-            Log::debug('Invalid CID from PubChem', [
-                'molecule_id' => $this->molecule->id,
-                'step' => $this->stepName,
-                'failure_point' => 'invalid_cid',
-                'cid_response' => $cid,
-                'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
-            ]);
+            updateCurationStatus($this->molecule->id, $this->stepName, 'failed', 'Invalid CID from PubChem: '.$cid);
 
             return false;
         }
@@ -326,13 +213,7 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
             } while ($attempt < $maxRetries);
 
             if (! $synResponse || ! $synResponse->successful() || strpos($synResponse->body(), 'Status: 503') !== false) {
-                Log::debug('PubChem synonyms fetch failed', [
-                    'molecule_id' => $this->molecule->id,
-                    'step' => $this->stepName,
-                    'failure_point' => 'synonyms_fetch',
-                    'cid' => $cid,
-                    'attempts' => $attempt,
-                ]);
+                updateCurationStatus($this->molecule->id, $this->stepName, 'partial', 'PubChem synonyms fetch failed for CID: '.$cid.' after '.$attempt.' attempts');
 
                 return;
             }
