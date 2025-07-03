@@ -9,7 +9,6 @@ use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
-use Throwable;
 
 class ImportEntries extends Command
 {
@@ -47,8 +46,8 @@ class ImportEntries extends Command
 
             $batchJobs = [];
             $i = 0;
-            Entry::select('id')->where('status', 'PASSED')->where('collection_id', $collection->id)->chunk(1000, function ($ids) use (&$batchJobs, &$i) {
-                array_push($batchJobs, new ImportEntriesBatch($ids->pluck('id')->toArray(), null));
+            Entry::select('id')->where('status', 'PASSED')->where('collection_id', $collection->id)->chunk(10000, function ($ids) use (&$batchJobs, &$i) {
+                array_push($batchJobs, new ImportEntriesBatch($ids->pluck('id')->toArray()));
                 $i = $i + 1;
             });
             $batch = Bus::batch($batchJobs)->then(function (Batch $batch) {})->catch(function (Batch $batch, Throwable $e) {})->finally(function (Batch $batch) use ($collection) {
@@ -57,7 +56,7 @@ class ImportEntries extends Command
                 $collection->save();
                 Cache::forget('stats.collections'.$collection->id.'molecules.count');
             })->name('Import Entries '.$collection->id)
-                ->allowFailures()
+                ->allowFailures(false)
                 ->onConnection('redis')
                 ->onQueue('default')
                 ->dispatch();

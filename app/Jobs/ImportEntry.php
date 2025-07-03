@@ -35,11 +35,6 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
      */
     public function handle(): void
     {
-        // Check if the batch has been cancelled
-        if ($this->batch() && $this->batch()->cancelled()) {
-            return;
-        }
-
         if ($this->entry->status == 'PASSED') {
             $molecule = null;
             if ($this->entry->has_stereocenters) {
@@ -83,7 +78,6 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                     $molecule->save();
                 }
                 $molecule->is_placeholder = false;
-                $molecule->name = $this->entry->name ?? null;
                 $molecule->save();
                 $this->entry->molecule_id = $molecule->id;
                 $this->entry->save();
