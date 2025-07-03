@@ -1,97 +1,144 @@
 services:
-    app:
-        build:
-            context: .
-            dockerfile: ./FrankenPHP.Dockerfile
-        image: coconut-8.3/app
-        container_name: coconut_app
-        env_file:
-            - .env
-        networks:
-            - coconut
-        ports:
-            - '${APP_PORT:-8000}:8000'
-        depends_on:
-            - pgsql
-            - redis
-            - cm
-    worker:
-        build:
-            context: .
-            dockerfile: ./FrankenPHP.Dockerfile
-        image: coconut-8.3/app
-        container_name: coconut_worker
-        env_file:
-            - .env
-        networks:
-            - coconut
-        depends_on:
-            - app
-            - pgsql
-            - redis
-            - cm
-        environment:
-            WITH_SCHEDULER: true
-            WITH_HORIZON: true
-    pgsql:
-        image: "informaticsmatters/rdkit-cartridge-debian:latest"
-        ports:
-            - '${FORWARD_DB_PORT:-5432}:5432'
-        environment:
-            PGPASSWORD: '${DB_PASSWORD:-secret}'
-            POSTGRES_DB: '${DB_DATABASE}'
-            POSTGRES_USER: '${DB_USERNAME}'
-            POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
-        volumes:
-            - 'coconut-pgsql:/var/lib/postgresql/data'
-            - './docker/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
-        networks:
-            - coconut
-        healthcheck:
-            test:
-                - CMD
-                - pg_isready
-                - '-q'
-                - '-d'
-                - '${DB_DATABASE}'
-                - '-U'
-                - '${DB_USERNAME}'
-            retries: 3
-            timeout: 5s
-    redis:
-        image: 'redis:alpine'
-        ports:
-            - '${FORWARD_REDIS_PORT:-6379}:6379'
-        volumes:
-            - 'coconut-redis:/data'
-        networks:
-            - coconut
-        healthcheck:
-            test:
-                - CMD
-                - redis-cli
-                - ping
-            retries: 3
-            timeout: 5s
-    cm:
-        image: "nfdi4chem/cheminformatics-microservice:latest-lite"
-        environment:
-            HOMEPAGE_URL:  "https://docs.api.naturalproducts.net"
-        ports:
-            - '${APP_PORT:-8001}:80'
-        healthcheck:
-            test: ["CMD", "curl", "-f", "http://cm:80/latest/chem/health"]
-            interval: 1m30s
-            timeout: 10s
-            retries: 20
-            start_period: 60s
-        networks:
-            - coconut
+  traefik:
+    container_name: traefik
+    restart: unless-stopped
+    image: traefik:v3.0
+    command:
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.file.filename=/etc/traefik/dynamic.yml
+    networks:
+      - coconut
+    ports:
+      - 8080:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/ssl/dev.coconut.naturalproducts.net/:/certs:ro
+      - /etc/traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
+
+  app:
+    image: nfdi4chem/coconut:dev-latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      CONTAINER_MODE: http
+      OCTANE_SERVER: frankenphp
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.laravel.rule=Host(`dev.coconut.naturalproducts.net`)
+      - traefik.http.routers.laravel.entrypoints=websecure
+      - traefik.http.routers.laravel.tls=true
+      - traefik.http.services.laravel.loadbalancer.server.port=8000
+    networks:
+      - coconut
+    depends_on:
+      pgsql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      cm:
+        condition: service_healthy
+    healthcheck:
+      interval: 30s
+      retries: 3
+      start_period: 30s
+      test:
+        - CMD
+        - curl
+        - -f
+        - http://localhost/octane-test
+      timeout: 10s
+
+  worker:
+    image: nfdi4chem/coconut:dev-latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - coconut
+    depends_on:
+      - app
+      - pgsql
+      - redis
+      - cm
+    environment:
+      CONTAINER_MODE: worker
+      WITH_SCHEDULER: true
+      WITH_HORIZON: true
+
+
+  pgsql:
+    image: informaticsmatters/rdkit-cartridge-debian:latest
+    restart: unless-stopped
+    ports:
+      - '${FORWARD_DB_PORT:-5432}:5432'
+    environment:
+      PGPASSWORD: '${DB_PASSWORD:-secret}'
+      POSTGRES_DB: '${DB_DATABASE}'
+      POSTGRES_USER: '${DB_USERNAME}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
+    volumes:
+      - coconut-pgsql:/var/lib/postgresql/data
+      - ./docker/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql
+    networks:
+      - coconut
+    healthcheck:
+      test:
+        - CMD
+        - pg_isready
+        - -q
+        - -d
+        - '${DB_DATABASE}'
+        - -U
+        - '${DB_USERNAME}'
+      retries: 3
+      timeout: 5s
+
+
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    ports:
+      - '${FORWARD_REDIS_PORT:-6379}:6379'
+    volumes:
+      - coconut-redis:/data
+    networks:
+      - coconut
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      retries: 3
+      timeout: 5s
+
+
+  cm:
+    image: nfdi4chem/cheminformatics-microservice:latest-lite
+    restart: unless-stopped
+    environment:
+      HOMEPAGE_URL: "https://docs.api.naturalproducts.net"
+    ports:
+      - '8001:80'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://cm:80/latest/chem/health"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+    networks:
+      - coconut
+
 networks:
-    coconut:
-        driver: bridge
+  coconut:
+    driver: bridge
+
 volumes:
-    coconut-pgsql:
-        driver: local
-    coconut-redis:
-        driver: local
+  coconut-pgsql:
+    driver: local
+  coconut-redis:
+    driver: local
