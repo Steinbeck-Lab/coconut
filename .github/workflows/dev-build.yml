@@ -61,9 +61,8 @@ jobs:
         push: true
         build-args: |
           RELEASE_VERSION=latest
-          COMPOSER_AUTH=${{ secrets.COMPOSER_AUTH }}
-        # secrets: |
-        #   id=composer_auth,src=auth.json
+        secrets: |
+          id=composer_auth,src=auth.json
         tags: ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:dev-latest
         cache-from: type=gha
         cache-to: type=gha,mode=max

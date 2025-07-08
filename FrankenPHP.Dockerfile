@@ -108,7 +108,7 @@ RUN cp ${PHP_INI_DIR}/php.ini-production ${PHP_INI_DIR}/php.ini
 USER ${USER}
 
 # uncomment when built manually otherwise provided via composer auth
-# COPY --link --chown=${WWWUSER}:${WWWUSER} auth.json ./
+COPY --link --chown=${WWWUSER}:${WWWUSER} auth.json ./
 COPY --link --chown=${WWWUSER}:${WWWUSER} --from=vendor /usr/bin/composer /usr/bin/composer
 COPY --link --chown=${WWWUSER}:${WWWUSER} composer.json composer.lock ./
 
