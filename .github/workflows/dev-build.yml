@@ -62,7 +62,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: .
-        file: ./FrankenPHP.Dockerfile
+        file: ./Dockerfile
         push: true
         build-args: |
           RELEASE_VERSION=latest
