@@ -109,7 +109,6 @@ USER ${USER}
 
 # uncomment when built manually otherwise provided via composer auth
 #COPY --link --chown=${WWWUSER}:${WWWUSER} auth.json ./
-COPY --link --chown=${WWWUSER}:${WWWUSER} /run/secrets/composer_auth ./auth.json
 COPY --link --chown=${WWWUSER}:${WWWUSER} --from=vendor /usr/bin/composer /usr/bin/composer
 COPY --link --chown=${WWWUSER}:${WWWUSER} composer.json composer.lock ./
 
