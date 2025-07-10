@@ -22,8 +22,9 @@ services:
   app:
     image: nfdi4chem/coconut:dev-latest
     restart: unless-stopped
-    env_file:
-      - .env
+    volumes:
+        - app_storage:/app/storage
+        - ./../.env:/app/.env:ro
     environment:
       CONTAINER_MODE: http
       OCTANE_SERVER: frankenphp
@@ -50,14 +51,12 @@ services:
         - CMD
         - curl
         - -f
-        - http://localhost/octane-test
+        - http://localhost:8000/up
       timeout: 10s
 
   worker:
     image: nfdi4chem/coconut:dev-latest
     restart: unless-stopped
-    env_file:
-      - .env
     networks:
       - coconut
     depends_on:
@@ -69,6 +68,9 @@ services:
       CONTAINER_MODE: worker
       WITH_SCHEDULER: true
       WITH_HORIZON: true
+    volumes:
+        - app_storage:/app/storage
+        - ./../.env:/app/.env:ro
 
 
   pgsql:
