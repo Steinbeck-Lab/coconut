@@ -87,6 +87,9 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 # Copy application files
 COPY --chown=laravel:laravel . .
 
+# Ensure node_modules is not copied (will be installed fresh)
+RUN rm -rf node_modules package-lock.json
+
 RUN --mount=type=secret,id=composer_auth \
     COMPOSER_AUTH=$(cat /run/secrets/composer_auth) \
     composer install \
@@ -98,10 +101,23 @@ RUN --mount=type=secret,id=composer_auth \
     --audit
 
 # Install npm dependencies and build frontend assets
-RUN npm ci --no-audit && npm run build
+RUN set -e && \
+    npm ci --no-audit && \
+    npm run build && \
+    ls -la public/build/ && \
+    test -f public/build/manifest.json && \
+    echo "Manifest.json exists and is valid JSON:" && \
+    cat public/build/manifest.json && \
+    echo "Build completed successfully"
 
 # Remove Vite development server hot file (forces Laravel to use built assets)
 RUN rm -f public/hot
+
+# Ensure build directory exists and has proper permissions
+RUN chown -R laravel:laravel public/build && \
+    chmod -R 755 public/build && \
+    test -f public/build/manifest.json && \
+    jq . public/build/manifest.json > /dev/null
 
 # Create required directories and set permissions
 RUN mkdir -p \
