@@ -52,6 +52,10 @@ jobs:
         echo $COMPOSER_AUTH | base64 -d  > auth.json
         mkdir -p ~/.config/composer
         echo $COMPOSER_AUTH | base64 -d  > ~/.config/composer/auth.json
+    
+    - name: install-composer-dependencies
+      run: |
+        composer install --no-interaction --prefer-dist --optimize-autoloader
 
     # Build and push the app Docker image
     - name: Build and push App Docker image
