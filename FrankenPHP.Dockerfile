@@ -1,183 +1,136 @@
+# =============================================================================
+# Laravel + FrankenPHP Production Dockerfile
+# =============================================================================
+# Multi-stage build for optimal image size and security
+# Following industry best practices for PHP/Laravel applications
+# =============================================================================
+
 ARG PHP_VERSION=8.3
-
 ARG FRANKENPHP_VERSION=latest
-
 ARG COMPOSER_VERSION=latest
+ARG NODE_VERSION=18
 
-ARG NODE_VERSION="18"
+# =============================================================================
+# Composer Dependencies Stage
+# =============================================================================
+FROM composer:${COMPOSER_VERSION} AS composer
 
-FROM composer:${COMPOSER_VERSION} AS vendor
+# =============================================================================
+# Main Application Stage
+# =============================================================================
+FROM dunglas/frankenphp:${FRANKENPHP_VERSION}-php${PHP_VERSION}
 
-FROM dunglas/frankenphp:${FRANKENPHP_VERSION}-php${PHP_VERSION} AS final
-
-LABEL maintainer="SMortexa <seyed.me720@gmail.com>"
-LABEL org.opencontainers.image.title="Laravel Octane Dockerfile"
-LABEL org.opencontainers.image.description="Production-ready Dockerfile for Laravel Octane"
-LABEL org.opencontainers.image.source=https://github.com/exaco/laravel-octane-dockerfile
-LABEL org.opencontainers.image.licenses=MIT
-
+# Build arguments
 ARG WWWUSER=1000
 ARG WWWGROUP=1000
 ARG TZ=UTC
-ARG APP_DIR=/var/www/html
 ARG COMPOSER_AUTH
 
+# Environment variables
 ENV DEBIAN_FRONTEND=noninteractive \
-    TERM=xterm-color \
-    WITH_HORIZON=false \
-    WITH_SCHEDULER=false \
+    TZ=$TZ \
     OCTANE_SERVER=frankenphp \
-    USER=octane \
-    ROOT=${APP_DIR} \
     COMPOSER_FUND=0 \
-    COMPOSER_MAX_PARALLEL_HTTP=24 \
-    XDG_CONFIG_HOME=${APP_DIR}/.config \
-    XDG_DATA_HOME=${APP_DIR}/.data
+    COMPOSER_MAX_PARALLEL_HTTP=24
 
-WORKDIR ${ROOT}
+# Set timezone
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-SHELL ["/bin/bash", "-eou", "pipefail", "-c"]
-
-RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime \
-    && echo ${TZ} > /etc/timezone
-
-RUN apt-get update; \
-    apt-get upgrade -yqq; \
-    apt-get install -yqq --no-install-recommends --show-progress \
-    apt-utils \
-    curl \
-    wget \
-    vim \
+# Install system dependencies and PHP extensions
+RUN apt-get update && apt-get install -y \
     git \
-    ncdu \
-    procps \
-    ca-certificates \
+    curl \
+    netcat-openbsd \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    libpq-dev \
+    libmagickwand-dev \
+    libicu-dev \
     supervisor \
-    libsodium-dev \
-    # Install PHP extensions (included with dunglas/frankenphp)
-    && install-php-extensions \
-    bz2 \
-    pcntl \
-    mbstring \
-    bcmath \
-    sockets \
-    pgsql \
+    unzip \
+    && docker-php-ext-install \
     pdo_pgsql \
-    opcache \
+    pgsql \
+    mbstring \
     exif \
-    pdo_mysql \
+    pcntl \
+    bcmath \
+    gd \
     zip \
     intl \
-    gd \
+    && pecl install \
     redis \
-    rdkafka \
-    memcached \
-    igbinary \
-    ldap \
-    && apt-get -y autoremove \
+    imagick \
+    && docker-php-ext-enable \
+    redis \
+    && echo "extension=imagick.so" > /usr/local/etc/php/conf.d/imagick.ini \
     && apt-get clean \
-    && docker-php-source delete \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-    && rm /var/log/lastlog /var/log/faillog
+    && rm -rf /var/lib/apt/lists/*
 
-RUN arch="$(uname -m)" \
-    && case "$arch" in \
-    armhf) _cronic_fname='supercronic-linux-arm' ;; \
-    aarch64) _cronic_fname='supercronic-linux-arm64' ;; \
-    x86_64) _cronic_fname='supercronic-linux-amd64' ;; \
-    x86) _cronic_fname='supercronic-linux-386' ;; \
-    *) echo >&2 "error: unsupported architecture: $arch"; exit 1 ;; \
-    esac \
-    && wget -q "https://github.com/aptible/supercronic/releases/download/v0.2.29/${_cronic_fname}" \
-    -O /usr/bin/supercronic \
-    && chmod +x /usr/bin/supercronic \
-    && mkdir -p /etc/supercronic \
-    && echo "*/1 * * * * php ${ROOT}/artisan schedule:run --no-interaction" > /etc/supercronic/laravel
+# Install Node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs
 
-RUN userdel --remove --force www-data \
-    && groupadd --force -g ${WWWGROUP} ${USER} \
-    && useradd -ms /bin/bash --no-log-init --no-user-group -g ${WWWGROUP} -u ${WWWUSER} ${USER}
+# Create application user
+RUN groupadd --gid $WWWGROUP laravel \
+&& useradd --uid $WWWUSER --gid laravel --shell /bin/bash --create-home laravel
 
-RUN chown -R ${USER}:${USER} ${ROOT} /var/{log,run} \
-    && chmod -R a+rw ${ROOT} /var/{log,run}
+# Set working directory
+WORKDIR /app
 
-RUN cp ${PHP_INI_DIR}/php.ini-production ${PHP_INI_DIR}/php.ini
+# Copy application files
+COPY --chown=laravel:laravel . .
 
-USER ${USER}
-
-# uncomment when built manually otherwise provided via composer auth
-# COPY --link --chown=${WWWUSER}:${WWWUSER} auth.json ./
-COPY --link --chown=${WWWUSER}:${WWWUSER} --from=vendor /usr/bin/composer /usr/bin/composer
-COPY --link --chown=${WWWUSER}:${WWWUSER} composer.json composer.lock ./
-
+# Install PHP dependencies
 RUN COMPOSER_AUTH="$COMPOSER_AUTH" composer install \
     --no-dev \
     --no-interaction \
-    --no-autoloader \
     --no-ansi \
+    --optimize-autoloader \
     --no-scripts \
     --audit
 
-COPY --link --chown=${WWWUSER}:${WWWUSER} . .
+# Install npm dependencies and build frontend assets
+RUN npm ci --no-audit && npm run build
 
-###########################################
-# Build frontend assets with NPM
-###########################################
+# Remove Vite development server hot file (forces Laravel to use built assets)
+RUN rm -f public/hot
 
-FROM node:${NODE_VERSION} AS build
-
-ENV ROOT=/var/www/html
-
-WORKDIR ${ROOT}
-
-COPY --link package.json package-lock.json ./
-
-RUN npm ci
-
-COPY --link --from=final ${ROOT}/vendor vendor
-COPY --link . .
-
-RUN npm run build
-
-###########################################
-
-FROM final
-
-WORKDIR ${ROOT}
-
-COPY --link --chown=${WWWUSER}:${WWWUSER} --from=build ${ROOT}/public public
-
+# Create required directories and set permissions
 RUN mkdir -p \
-    storage/framework/{sessions,views,cache,testing} \
+    storage/app/public \
+    storage/framework/cache \
+    storage/framework/sessions \
+    storage/framework/views \
     storage/logs \
-    bootstrap/cache && chmod -R a+rw storage
+    bootstrap/cache \
+    && chown -R laravel:laravel storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
-COPY --link --chown=${WWWUSER}:${WWWUSER} deployment/supervisord.conf /etc/supervisor/
-COPY --link --chown=${WWWUSER}:${WWWUSER} deployment/octane/FrankenPHP/supervisord.frankenphp.conf /etc/supervisor/conf.d/
-COPY --link --chown=${WWWUSER}:${WWWUSER} deployment/supervisord.*.conf /etc/supervisor/conf.d/
-COPY --link --chown=${WWWUSER}:${WWWUSER} deployment/start-container /usr/local/bin/start-container
-COPY --link --chown=${WWWUSER}:${WWWUSER} deployment/healthcheck /usr/local/bin/healthcheck
-COPY --link --chown=${WWWUSER}:${WWWUSER} deployment/php.ini ${PHP_INI_DIR}/conf.d/99-octane.ini
 
-# FrankenPHP embedded PHP configuration
-COPY --link --chown=${WWWUSER}:${WWWUSER} deployment/php.ini /lib/php.ini
+# Copy and setup startup script
+COPY deployment/start-container /usr/local/bin/start-container
+RUN chmod +x /usr/local/bin/start-container
 
-RUN composer install \
-    --classmap-authoritative \
-    --no-interaction \
-    --no-ansi \
-    --no-dev \
-    && composer clear-cache
+# Copy supervisor configurations
+COPY deployment/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY deployment/supervisord-worker.conf /etc/supervisor/conf.d/supervisord-worker.conf
 
-RUN chmod +x /usr/local/bin/start-container /usr/local/bin/healthcheck
+# Copy Caddyfile for FrankenPHP
+COPY deployment/Caddyfile /etc/caddy/Caddyfile
 
-RUN cat deployment/utilities.sh >> ~/.bashrc
+# Copy and setup health check script
+COPY deployment/healthcheck /usr/local/bin/healthcheck
+RUN chmod +x /usr/local/bin/healthcheck
 
+# Expose port
 EXPOSE 8000
-EXPOSE 443
-EXPOSE 443/udp
-EXPOSE 2019
 
+# Set entrypoint
 ENTRYPOINT ["start-container"]
 
-HEALTHCHECK --start-period=5s --interval=2s --timeout=5s --retries=8 CMD healthcheck || exit 1
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD healthcheck 
