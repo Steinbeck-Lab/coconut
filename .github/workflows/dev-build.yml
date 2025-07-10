@@ -75,10 +75,10 @@ jobs:
     - name: Test built image
       run: |
         echo "Testing if PHP is available..."
-        docker run --rm --workdir=/app --entrypoint="" ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest /usr/local/bin/php --version
+        docker run --rm --workdir=/app --entrypoint="" ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:dev-latest /usr/local/bin/php --version
         echo "Testing if start-container script exists..."
-        docker run --rm --entrypoint="" ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest ls -la /usr/local/bin/start-container
+        docker run --rm --entrypoint="" ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:dev-latest ls -la /usr/local/bin/start-container
         echo "Testing if Laravel application is properly set up..."
-        docker run --rm --workdir=/app --entrypoint="" ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest /usr/local/bin/php artisan --version
+        docker run --rm --workdir=/app --entrypoint="" ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:dev-latest /usr/local/bin/php artisan --version
         echo "Testing if supervisor configurations exist..."
-        docker run --rm --entrypoint="" ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest ls -la /etc/supervisor/conf.d/ 
+        docker run --rm --entrypoint="" ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:dev-latest ls -la /etc/supervisor/conf.d/ 

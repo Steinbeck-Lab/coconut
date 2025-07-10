@@ -97,7 +97,6 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 COPY --chown=laravel:laravel . .
 
 RUN --mount=type=secret,id=composer_auth \
-    COMPOSER_AUTH=$(cat /run/secrets/composer_auth) \
     composer install \
     --no-dev \
     --no-interaction \
