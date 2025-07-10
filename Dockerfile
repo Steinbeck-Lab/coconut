@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.4
 # =============================================================================
 # Laravel + FrankenPHP Production Dockerfile
 # =============================================================================
@@ -86,8 +87,9 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 # Copy application files
 COPY --chown=laravel:laravel . .
 
-# Install PHP dependencies
-RUN COMPOSER_AUTH="$COMPOSER_AUTH" composer install \
+RUN --mount=type=secret,id=composer_auth \
+    COMPOSER_AUTH=$(cat /run/secrets/composer_auth) \
+    composer install \
     --no-dev \
     --no-interaction \
     --no-ansi \
