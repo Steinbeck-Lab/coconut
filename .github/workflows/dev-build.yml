@@ -45,12 +45,13 @@ jobs:
         username: ${{ env.DOCKER_HUB_USERNAME  }}
         password: ${{ env.DOCKER_HUB_PASSWORD  }}
 
-    - name: Create composer auth file for Docker secrets
+    - name: set composer auth for private repos
       env:
         COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
       run: |
-        echo "$COMPOSER_AUTH" > auth.json
-        echo "✅ Composer auth file created for Docker secrets"
+        echo $COMPOSER_AUTH | base64 -d  > auth.json
+        mkdir -p ~/.config/composer
+        echo $COMPOSER_AUTH | base64 -d  > ~/.config/composer/auth.json
 
     # Build and push the app Docker image
     - name: Build and push App Docker image
