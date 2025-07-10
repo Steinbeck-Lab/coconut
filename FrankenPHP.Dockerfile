@@ -80,6 +80,9 @@ RUN groupadd --gid $WWWGROUP laravel \
 # Set working directory
 WORKDIR /app
 
+# Copy Composer from official image
+COPY --from=composer /usr/bin/composer /usr/bin/composer
+
 # Copy application files
 COPY --chown=laravel:laravel . .
 
