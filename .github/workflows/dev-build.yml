@@ -50,8 +50,6 @@ jobs:
         COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
       run: |
         echo $COMPOSER_AUTH | base64 -d  > auth.json
-        mkdir -p ~/.config/composer
-        echo $COMPOSER_AUTH | base64 -d  > ~/.config/composer/auth.json
 
     # Build and push the app Docker image
     - name: Build and push App Docker image
