@@ -49,7 +49,7 @@ jobs:
       env:
         COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
       run: |
-        echo $COMPOSER_AUTH > auth.json
+        echo "$COMPOSER_AUTH" > auth.json
 
     # Build and push the app Docker image
     - name: Build and push App Docker image
