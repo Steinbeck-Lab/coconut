@@ -1,0 +1,31 @@
+{
+    frankenphp
+    order php_server before file_server
+}
+
+:8000 {
+    root * /app/public
+    
+    # Enable PHP processing
+    php_server
+    
+    # Handle Laravel's pretty URLs
+    try_files {path} {path}/ /index.php?{query}
+    
+    # Security headers
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy strict-origin-when-cross-origin
+    }
+    
+    # Gzip compression
+    encode gzip
+    
+    # Logging
+    log {
+        output stdout
+        format json
+    }
+} 

@@ -1,21 +1,21 @@
 
 # This worklflow will perform following actions when the code is pushed to development branch:
 # - Build the latest docker image in development.
-# - Push the latest docker image to Google Artifact Registry-Dev.
-# - Rollout the latest image in GKE.
+# - Push the latest docker image to Docker Hub.
 # 
 # Maintainers:
+#   - name: Nisha Sharma
+#   - email: nisha.sharma@uni-jena.de
 #   - name: Chandu Nainala
 #   - email: chandu.nainala@uni-jena.de
 
-name : Build COCONUT image
+name : Build COCONUT image and push to Docker Hub
 
 on:
   push:
-    branches: [development]
+    branches: [main]
 
 env:
-  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
   REPOSITORY_NAME: coconut
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
   DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
@@ -24,14 +24,19 @@ env:
 
 jobs:
   setup-build-publish-deploy-dev:
-    name: Build & deploy to development
+    name: Build & deploy to Production
     runs-on: ubuntu-latest
     environment:
-      name: Dev
+      name: Production
+      url: https://coconut.naturalproducts.net
+
     steps:
     # Checkout code
     - name: Checkout
       uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
     # Login to Docker
     - name: Log in to Docker Hub
@@ -39,6 +44,13 @@ jobs:
       with:
         username: ${{ env.DOCKER_HUB_USERNAME  }}
         password: ${{ env.DOCKER_HUB_PASSWORD  }}
+
+    - name: Create composer auth file for Docker secrets
+      env:
+        COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+      run: |
+        echo "$COMPOSER_AUTH" > auth.json
+        echo "✅ Composer auth file created for Docker secrets"
 
     # Build and push the app Docker image
     - name: Build and push App Docker image
@@ -49,5 +61,12 @@ jobs:
         push: true
         build-args: |
           RELEASE_VERSION=latest
-          COMPOSER_AUTH=${{ secrets.COMPOSER_AUTH }}
+        secrets: |
+          id=composer_auth,src=auth.json
         tags: ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    # Remove composer auth file
+    - name: Remove composer auth file
+      run: rm -f auth.json
