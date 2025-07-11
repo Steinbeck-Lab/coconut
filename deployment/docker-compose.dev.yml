@@ -9,11 +9,12 @@ services:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --providers.file.filename=/etc/traefik/dynamic.yml
+      - --accesslog
     networks:
       - coconut
     ports:
       - 8080:80
-      - 443:443
+      - 443:443   
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/ssl/dev.coconut.naturalproducts.net/:/certs:ro
@@ -31,8 +32,9 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.laravel.rule=Host(`dev.coconut.naturalproducts.net`)
-      - traefik.http.routers.laravel.entrypoints=websecure
-      - traefik.http.routers.laravel.tls=true
+#      - traefik.http.routers.laravel.entrypoints=websecure
+      - traefik.http.routers.laravel.entrypoints=web
+#      - traefik.http.routers.laravel.tls=true
       - traefik.http.services.laravel.loadbalancer.server.port=8000
     networks:
       - coconut
@@ -79,10 +81,10 @@ services:
     ports:
       - '${FORWARD_DB_PORT:-5432}:5432'
     environment:
-      PGPASSWORD: '${DB_PASSWORD:-secret}'
+      PGPASSWORD: '${DB_PASSWORD}'
       POSTGRES_DB: '${DB_DATABASE}'
       POSTGRES_USER: '${DB_USERNAME}'
-      POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD}'
     volumes:
       - coconut-pgsql:/var/lib/postgresql/data
       - ./docker/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql
@@ -143,4 +145,6 @@ volumes:
   coconut-pgsql:
     driver: local
   coconut-redis:
+    driver: local
+  app_storage:
     driver: local
