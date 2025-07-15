@@ -13,15 +13,7 @@ if [ -n "$DB_HOST" ]; then
     echo "Database is up!"
 fi
 
-# Laravel optimizations
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
 
-# Run migrations if requested
-if [ "$RUN_MIGRATIONS" = "true" ]; then
-    php artisan migrate --force
-fi
 
 # Choose supervisor configuration based on mode
 if [ "$RUN_WORKER" = "true" ]; then
