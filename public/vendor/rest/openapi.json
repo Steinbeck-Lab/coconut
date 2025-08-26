@@ -629,9 +629,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Aliquam eligendi sunt.",
-                                        "description": "In earum rerum et ut. Architecto consequuntur asperiores autem. Repellat et deleniti et unde aperiam quidem odio occaecati. Explicabo et iusto minus perferendis.",
-                                        "url": "http:\/\/www.rohan.com\/sunt-aut-id-ratione-voluptatem-distinctio-ut-omnis",
+                                        "title": "Est consectetur labore ut.",
+                                        "description": "Distinctio assumenda eum itaque veritatis in aut. Rem aut exercitationem occaecati rerum quo. Illo veritatis aut non non. Quia ipsum doloribus fugiat vel corrupti fugit quasi.",
+                                        "url": "http:\/\/crooks.com\/",
                                         "identifier": null
                                     },
                                     "meta": []
@@ -674,10 +674,10 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Voluptas nobis et excepturi id.",
-                                        "description": "Reiciendis labore ut soluta blanditiis expedita velit perspiciatis rerum. Facilis incidunt velit facilis enim quaerat inventore. Vitae soluta sed adipisci nihil.",
-                                        "url": "https:\/\/kuhic.com\/aspernatur-aut-ut-non-est-hic-qui-eos.html",
-                                        "identifier": "Culpa quia enim et molestiae autem."
+                                        "title": "Et alias rerum incidunt et.",
+                                        "description": "Libero nesciunt placeat magnam sint. Ut in voluptas consequatur. Laborum aspernatur sint ut optio. Voluptatem illo distinctio culpa laborum.",
+                                        "url": "http:\/\/kutch.com\/ab-voluptatem-consequatur-minus-voluptas-repudiandae-perferendis",
+                                        "identifier": null
                                     },
                                     "meta": []
                                 }
@@ -946,9 +946,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1002\/chem.202303989~88",
-                                        "title": "Strategies for the Construction of Benzobicyclo[3.2.1]octane in Natural Product Synthesis.",
-                                        "authors": "Liu JX, Li H, Zhang SP, Lu SC, Gong YL, Xu S.",
+                                        "doi": "10.1016\/j.bbrep.2025.102032~58",
+                                        "title": "RNA signaling in medicinal plants: An overlooked mechanism for phytochemical regulation.",
+                                        "authors": "Alum EU, Udechukwu CD, Obasi DC.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -991,9 +991,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.2174\/0125899775372804250402051832~53",
-                                        "title": "Plant Endophytes and their Secondary Metabolites: A Source of Bioactive Compounds.",
-                                        "authors": "Narwal S, Singh G, Yadav N, Garg P, Grewal N, Dhingra AK.",
+                                        "doi": "10.1039\/b700306b~29",
+                                        "title": "Natural product isolation.",
+                                        "authors": "Sticher O.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -1568,8 +1568,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Emanuel Crona",
-                                        "email": "xbogisich@example.com"
+                                        "name": "Annabel Medhurst",
+                                        "email": "veum.adolphus@example.com"
                                     },
                                     "meta": []
                                 }
@@ -1611,8 +1611,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Sean West III",
-                                        "email": "bschneider@example.com"
+                                        "name": "Dr. Gonzalo Simonis II",
+                                        "email": "ssimonis@example.net"
                                     },
                                     "meta": []
                                 }
@@ -2939,8 +2939,8 @@
             }
         },
         "\/api\/search": {
-            "parameters": {
-                "0": {
+            "parameters": [
+                {
                     "name": "query",
                     "in": "query",
                     "description": "Search query string",
@@ -2949,7 +2949,7 @@
                         "type": "string"
                     }
                 },
-                "1": {
+                {
                     "name": "sort",
                     "in": "query",
                     "description": "Sorting option",
@@ -2958,7 +2958,7 @@
                         "type": "string"
                     }
                 },
-                "2": {
+                {
                     "name": "type",
                     "in": "query",
                     "description": "Type filter",
@@ -2967,7 +2967,7 @@
                         "type": "string"
                     }
                 },
-                "3": {
+                {
                     "name": "tagType",
                     "in": "query",
                     "description": "Tag type filter",
@@ -2976,7 +2976,7 @@
                         "type": "string"
                     }
                 },
-                "4": {
+                {
                     "name": "page",
                     "in": "query",
                     "description": "Page number for pagination",
@@ -2985,7 +2985,7 @@
                         "type": "integer"
                     }
                 },
-                "5": {
+                {
                     "name": "limit",
                     "in": "query",
                     "description": "Number of results per page",
@@ -2994,7 +2994,7 @@
                         "type": "integer"
                     }
                 },
-                "6": {
+                {
                     "name": "offset",
                     "in": "query",
                     "description": "Offset for pagination",
@@ -3002,13 +3002,8 @@
                     "schema": {
                         "type": "integer"
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
+                }
+            ],
             "post": {
                 "tags": [
                     "Advanced Search"
@@ -3066,12 +3061,7 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
+                }
             }
         }
     },

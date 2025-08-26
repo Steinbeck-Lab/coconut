@@ -44,9 +44,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Rest::resource('users', \App\Rest\Controllers\UsersController::class);
     Rest::resource('properties', \App\Rest\Controllers\PropertiesController::class);
     Rest::resource('reports', \App\Rest\Controllers\ReportsController::class);
-
-    Route::post('search', [\App\Http\Controllers\API\SearchController::class, 'search'])->name('api.search');
 });
+Route::post('search', [\App\Http\Controllers\API\SearchController::class, 'search'])->name('api.search');
 
 Route::prefix('schemas')->group(function () {
     Route::prefix('bioschemas')->group(function () {

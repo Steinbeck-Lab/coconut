@@ -140,9 +140,25 @@ class ReportResource extends Resource
                                         }
                                     }
                                 })
-                                ->requiresConfirmation(function ($record) {
-                                    // Only use the default confirmation modal when report_category is SUBMISSION
-                                    return $record['report_category'] === ReportCategory::SUBMISSION->value;
+                                ->requiresConfirmation(function ($record, $livewire) {
+
+                                    // For new molecule reports, validate before showing confirmation
+                                    if ($record['report_category'] === 'new_molecule') {
+                                        try {
+                                            // Attempt to validate
+                                            $livewire->validate();
+
+                                            // If validation passed, show confirmation modal
+                                            return true;
+                                        } catch (\Illuminate\Validation\ValidationException $e) {
+                                            // Validation failed, don't show confirmation modal
+                                            // Filament will automatically show validation errors
+                                            return false;
+                                        }
+                                    }
+
+                                    // Only use the default confirmation modal when report_category is 'new_molecule'
+                                    return $record['report_category'] === 'new_molecule';
                                 })
                                 ->hidden(function (Get $get, string $operation) {
                                     return ! auth()->user()->roles()->exists() ||
@@ -151,8 +167,19 @@ class ReportResource extends Resource
                                         $operation != 'edit';
                                 })
                                 ->action(function (array $data, Report $record, Molecule $molecule, $set, $livewire, $get): void {
-                                    self::approveReport($data, $record, $molecule, $livewire);
-                                    $set('status', ReportStatus::APPROVED->value);
+                                    // Add this validation check before processing the approval
+                                    if ($record['report_category'] === 'new_molecule') {
+                                        // Validate the form data
+                                        $livewire->validate();
+
+                                        // If validation passes, proceed with approval
+                                        self::approveReport($data, $record, $molecule, $livewire);
+                                        $set('status', 'approved');
+                                    } else {
+                                        // For other report types, proceed as normal
+                                        self::approveReport($data, $record, $molecule, $livewire);
+                                        $set('status', 'approved');
+                                    }
                                 })
                                 ->modalSubmitAction(function () {
                                     if (! empty(self::$approved_changes) && count(self::$approved_changes) <= 1) {
@@ -566,7 +593,10 @@ class ReportResource extends Resource
                                             ->schema([
                                                 TextInput::make('name')
                                                     ->label('Organism Name')
-                                                    ->required()
+                                                    ->live(onBlur: true)
+                                                    ->required(
+                                                        fn (callable $get): bool => ! empty($get('parts'))
+                                                    )
                                                     ->maxLength(255)
                                                     ->placeholder('Enter organism name')
                                                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Scientific name of the organism'),
@@ -574,6 +604,7 @@ class ReportResource extends Resource
                                                 TagsInput::make('parts')
                                                     ->label('Organism Parts')
                                                     ->placeholder('Add organism part')
+                                                    ->live(onBlur: true)
                                                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Parts of the organism where the molecule was found'),
 
                                                 Repeater::make('locations')
@@ -581,6 +612,10 @@ class ReportResource extends Resource
                                                     ->schema([
                                                         TextInput::make('name')
                                                             ->label('Location Name')
+                                                            ->required(
+                                                                fn (callable $get): bool => ! empty($get('ecosystems'))
+                                                            )
+                                                            ->live(onBlur: true)
                                                             ->maxLength(255)
                                                             ->placeholder('Enter location name')
                                                             ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Name of the geographic location'),
@@ -588,6 +623,7 @@ class ReportResource extends Resource
                                                         TagsInput::make('ecosystems')
                                                             ->label('Ecosystems/Sublocations')
                                                             ->placeholder('Add ecosystem')
+                                                            ->live(onBlur: true)
                                                             ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Specific ecosystems or sublocations where the organism was found'),
                                                     ])
                                                     ->addActionLabel('Add Location')
@@ -729,10 +765,7 @@ class ReportResource extends Resource
                         },
                     ]),
                 Textarea::make('comment')
-                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide your comments/observations on anything noteworthy in the Curation process.')
-                    ->hidden(function () {
-                        return ! auth()->user()->hasRole('curator');
-                    }),
+                    ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide your comments/observations on anything noteworthy in the Curation process.'),
             ])->columns(1);
     }
 
@@ -898,6 +931,8 @@ class ReportResource extends Resource
 
     public static function approveReport(array $data, Report $record, Molecule $molecule, $livewire): void
     {
+        if ($record['report_category'] === 'new_molecule') {
+            self::saveChangesToReport($record, $livewire->data);
         if ($record['report_category'] === ReportCategory::SUBMISSION->value) {
             $molecule_data = $record['suggested_changes']['new_molecule_data'];
 
@@ -977,7 +1012,6 @@ class ReportResource extends Resource
                             $allGeoLocations[] = implode('|', $orgLocations);
                             $allEcosystems[] = implode('|', $orgEcosystems);
                         }
-                        // dd($molecule_data, $allDois, $allOrganisms, $allParts, $allGeoLocations, $allEcosystems);
                     }
                 }
 
@@ -1046,6 +1080,27 @@ class ReportResource extends Resource
         }
 
         $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
+    }
+
+    public static function saveChangesToReport(Report $record, array $data): void
+    {
+        $temp = [];
+        $temp['title'] = $data['title'];
+        $temp['evidence'] = $data['evidence'];
+        $temp['doi'] = $data['doi'];
+        $temp['mol_id_csv'] = $data['mol_id_csv'];
+        $temp['comment'] = $data['comment'];
+        $temp['suggested_changes']['new_molecule_data']['canonical_smiles'] = $data['canonical_smiles'];
+        $temp['suggested_changes']['new_molecule_data']['reference_id'] = $data['reference_id'];
+        $temp['suggested_changes']['new_molecule_data']['name'] = $data['name'];
+        $temp['suggested_changes']['new_molecule_data']['link'] = $data['link'] ?? null;
+        $temp['suggested_changes']['new_molecule_data']['mol_filename'] = $data['mol_filename'] ?? null;
+        $temp['suggested_changes']['new_molecule_data']['structural_comments'] = $data['structural_comments'] ?? null;
+        $temp['suggested_changes']['new_molecule_data']['references'] = $data['references'] ?? [];
+
+        $record->save();
+        $record->update($temp);
+        $record->refresh();
     }
 
     public static function rejectReport(array $data, Report $record, $livewire): void

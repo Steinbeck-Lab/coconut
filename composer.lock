@@ -6206,16 +6206,16 @@
         },
         {
             "name": "lomkit/laravel-rest-api",
-            "version": "v2.12.0",
+            "version": "v2.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Lomkit/laravel-rest-api.git",
-                "reference": "336d79b85bb39e584adfc8f4a7bbed9561d2491d"
+                "reference": "88b14587b4efd7e59d7379658c606d325bb513b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Lomkit/laravel-rest-api/zipball/336d79b85bb39e584adfc8f4a7bbed9561d2491d",
-                "reference": "336d79b85bb39e584adfc8f4a7bbed9561d2491d",
+                "url": "https://api.github.com/repos/Lomkit/laravel-rest-api/zipball/88b14587b4efd7e59d7379658c606d325bb513b4",
+                "reference": "88b14587b4efd7e59d7379658c606d325bb513b4",
                 "shasum": ""
             },
             "require": {
@@ -6268,7 +6268,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Lomkit/laravel-rest-api/issues",
-                "source": "https://github.com/Lomkit/laravel-rest-api/tree/v2.12.0"
+                "source": "https://github.com/Lomkit/laravel-rest-api/tree/v2.13.0"
             },
             "funding": [
                 {
@@ -6276,7 +6276,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-04-14T14:27:01+00:00"
+            "time": "2025-05-25T09:02:04+00:00"
         },
         {
             "name": "maartenpaauw/laravel-specification-pattern",
