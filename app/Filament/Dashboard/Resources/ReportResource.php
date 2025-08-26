@@ -931,8 +931,6 @@ class ReportResource extends Resource
 
     public static function approveReport(array $data, Report $record, Molecule $molecule, $livewire): void
     {
-        if ($record['report_category'] === 'new_molecule') {
-            self::saveChangesToReport($record, $livewire->data);
         if ($record['report_category'] === ReportCategory::SUBMISSION->value) {
             $molecule_data = $record['suggested_changes']['new_molecule_data'];
 
