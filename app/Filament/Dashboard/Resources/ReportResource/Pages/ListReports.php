@@ -2,6 +2,7 @@
 
 namespace App\Filament\Dashboard\Resources\ReportResource\Pages;
 
+use App\Enums\ReportStatus;
 use App\Filament\Dashboard\Resources\ReportResource;
 use App\Models\Report;
 use Archilex\AdvancedTables\AdvancedTables;
@@ -26,45 +27,45 @@ class ListReports extends ListRecords
     {
         $presetViews = [
             'submitted' => PresetView::make()
-                ->modifyQueryUsing(fn ($query) => $query->where('status', 'submitted'))
+                ->modifyQueryUsing(fn ($query) => $query->where('status', ReportStatus::SUBMITTED->value))
                 ->favorite()
                 ->badge(function () {
                     if (auth()->user()->roles()->exists()) {
-                        return Report::query()->where('status', 'submitted')->count();
+                        return Report::query()->where('status', ReportStatus::SUBMITTED->value)->count();
                     }
 
-                    return Report::query()->where('user_id', auth()->id())->where('status', 'submitted')->count();
+                    return Report::query()->where('user_id', auth()->id())->where('status', ReportStatus::SUBMITTED->value)->count();
                 })
                 ->preserveAll()
                 ->default(),
             'approved' => PresetView::make()
-                ->modifyQueryUsing(fn ($query) => $query->where('status', 'approved'))
+                ->modifyQueryUsing(fn ($query) => $query->where('status', ReportStatus::APPROVED->value))
                 ->favorite()
                 ->badge(function () {
                     if (auth()->user()->roles()->exists()) {
-                        return Report::query()->where('status', 'approved')->count();
+                        return Report::query()->where('status', ReportStatus::APPROVED->value)->count();
                     }
 
-                    return Report::query()->where('user_id', auth()->id())->where('status', 'approved')->count();
+                    return Report::query()->where('user_id', auth()->id())->where('status', ReportStatus::APPROVED->value)->count();
                 })
                 ->preserveAll(),
             'rejected' => PresetView::make()
-                ->modifyQueryUsing(fn ($query) => $query->where('status', 'rejected'))
+                ->modifyQueryUsing(fn ($query) => $query->where('status', ReportStatus::REJECTED->value))
                 ->favorite()
                 ->badge(function () {
                     if (auth()->user()->roles()->exists()) {
-                        return Report::query()->where('status', 'rejected')->count();
+                        return Report::query()->where('status', ReportStatus::REJECTED->value)->count();
                     }
 
-                    return Report::query()->where('user_id', auth()->id())->where('status', 'rejected')->count();
+                    return Report::query()->where('user_id', auth()->id())->where('status', ReportStatus::REJECTED->value)->count();
                 })
                 ->preserveAll(),
         ];
         if (auth()->user()->roles()->exists()) {
             $presetViews['assigned'] = PresetView::make()
-                ->modifyQueryUsing(fn ($query) => $query->where('assigned_to', auth()->id())->where('status', 'submitted'))
+                ->modifyQueryUsing(fn ($query) => $query->where('assigned_to', auth()->id())->where('status', ReportStatus::SUBMITTED->value))
                 ->favorite()
-                ->badge(Report::query()->where('assigned_to', auth()->id())->where('status', 'submitted')->count())
+                ->badge(Report::query()->where('assigned_to', auth()->id())->where('status', ReportStatus::SUBMITTED->value)->count())
                 ->preserveAll();
         }
 

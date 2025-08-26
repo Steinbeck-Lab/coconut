@@ -17,7 +17,7 @@ class ImportPubChemNames extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:import-pubchem-data {collection_id} {file?}';
+    protected $signature = 'coconut:import-pubchem-data-old {collection_id} {file?}';
 
     /**
      * The console command description.
@@ -52,7 +52,7 @@ class ImportPubChemNames extends Command
                     $i = $i + 1;
                 });
                 $batch = Bus::batch($batchJobs)->then(function (Batch $batch) {})->catch(function (Batch $batch, Throwable $e) {})->finally(function (Batch $batch) {})->name('Import PubChem '.$collection->id)
-                    ->allowFailures(false)
+                    ->allowFailures()
                     ->onConnection('redis')
                     ->onQueue('default')
                     ->dispatch();

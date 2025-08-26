@@ -16,7 +16,7 @@ class Classify extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'coconut:npclassify {collection_id?}';
+    protected $signature = 'coconut:npclassify-old {collection_id?}';
 
     /**
      * The console command description.

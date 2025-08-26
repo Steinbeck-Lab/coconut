@@ -51,6 +51,7 @@ class Molecule extends Model implements Auditable
         'is_tautomer',
         'is_parent',
         'is_placeholder',
+        'curation_status',
     ];
 
     /**
@@ -62,6 +63,7 @@ class Molecule extends Model implements Auditable
         'synonyms' => 'array',
         'cas' => 'array',
         'comment' => 'array',
+        'curation_status' => 'array',
     ];
 
     /**
@@ -122,7 +124,34 @@ class Molecule extends Model implements Auditable
      */
     public function organisms(): BelongsToMany
     {
-        return $this->belongsToMany(Organism::class)->withTimestamps();
+        return $this->belongsToMany(Organism::class)->distinct('organism_id')->withTimestamps();
+    }
+
+    /**
+     * Get all organism relationships including sample location data.
+     */
+    public function organismRelations(): BelongsToMany
+    {
+        return $this->belongsToMany(Organism::class)
+            ->withPivot([
+                'sample_location_id',
+                'geo_location_id',
+                'ecosystem_id',
+                'collection_ids',
+                'citation_ids',
+                'notes',
+            ])
+            ->withTimestamps();
+    }
+
+    /**
+     * Get all of the sample locations for the molecule.
+     */
+    public function sampleLocations(): BelongsToMany
+    {
+        return $this->belongsToMany(SampleLocation::class, 'molecule_organism', 'molecule_id', 'sample_location_id')
+            ->withTimestamps()
+            ->distinct('sample_location_id');
     }
 
     /**
@@ -130,12 +159,16 @@ class Molecule extends Model implements Auditable
      */
     public function geo_locations(): BelongsToMany
     {
-        return $this->belongsToMany(GeoLocation::class)->withPivot('locations')->withTimestamps();
+        return $this->belongsToMany(GeoLocation::class, 'molecule_organism', 'molecule_id', 'geo_location_id')
+            ->withTimestamps()
+            ->distinct('geo_location_id');
     }
 
-    public function sampleLocations(): BelongsToMany
+    public function ecosystems(): BelongsToMany
     {
-        return $this->belongsToMany(SampleLocation::class)->withTimestamps();
+        return $this->belongsToMany(Ecosystem::class, 'molecule_organism', 'molecule_id', 'ecosystem_id')
+            ->withTimestamps()
+            ->distinct('ecosystem_id');
     }
 
     /**
@@ -151,7 +184,7 @@ class Molecule extends Model implements Auditable
      */
     public function related()
     {
-        return $this->belongsToMany(Molecule::class, 'molecule_related', 'molecule_id', 'related_id');
+        return $this->belongsToMany(Molecule::class, 'molecule_related', 'molecule_id', 'related_id')->withTimestamps();
     }
 
     /**
@@ -160,6 +193,97 @@ class Molecule extends Model implements Auditable
     public function issues(): BelongsToMany
     {
         return $this->belongsToMany(Issue::class)->withPivot('is_active', 'is_resolved', 'meta_data')->withTimestamps();
+    }
+
+    public function getDetailedOrganismData()
+    {
+        $this->load([
+            'organismRelations' => function ($query) {
+                $query->with(['sampleLocations', 'geoLocations']);
+            },
+        ]);
+
+        $organismData = [];
+
+        foreach ($this->organismRelations as $organism) {
+            $pivotData = $organism->pivot;
+            $organismId = $organism->id;
+
+            // Initialize organism entry if not exists
+            if (! isset($organismData[$organismId])) {
+                $organismData[$organismId] = [
+                    'organism' => $organism,
+                    'samples' => [],
+                    'geoLocations' => [],
+                    'ecosystems' => [],
+                    'collections' => [],
+                    'citations' => [],
+                ];
+            }
+
+            // Add sample location
+            if ($pivotData->sample_location_id) {
+                $sampleLocation = SampleLocation::find($pivotData->sample_location_id);
+                if ($sampleLocation) {
+                    $organismData[$organismId]['samples'][$sampleLocation->id] = $sampleLocation;
+                }
+            }
+
+            // Add geo location
+            if ($pivotData->geo_location_id) {
+                $geoLocation = GeoLocation::find($pivotData->geo_location_id);
+                if ($geoLocation) {
+                    $organismData[$organismId]['geoLocations'][$geoLocation->id] = $geoLocation;
+                }
+            }
+
+            // Add ecosystem
+            if ($pivotData->ecosystem_id) {
+                $ecosystem = Ecosystem::find($pivotData->ecosystem_id);
+                if ($ecosystem) {
+                    $organismData[$organismId]['ecosystems'][$ecosystem->id] = $ecosystem;
+                }
+            }
+
+            // Add collections
+            if (! empty($pivotData->collection_ids)) {
+                $collectionIds = is_array($pivotData->collection_ids)
+                    ? $pivotData->collection_ids
+                    : json_decode($pivotData->collection_ids, true);
+
+                if (is_array($collectionIds)) {
+                    $collections = Collection::whereIn('id', $collectionIds)->get();
+                    foreach ($collections as $collection) {
+                        $organismData[$organismId]['collections'][$collection->id] = $collection;
+                    }
+                }
+            }
+
+            // Add citations
+            if (! empty($pivotData->citation_ids)) {
+                $citationIds = is_array($pivotData->citation_ids)
+                    ? $pivotData->citation_ids
+                    : json_decode($pivotData->citation_ids, true);
+
+                if (is_array($citationIds)) {
+                    $citations = Citation::whereIn('id', $citationIds)->get();
+                    foreach ($citations as $citation) {
+                        $organismData[$organismId]['citations'][$citation->id] = $citation;
+                    }
+                }
+            }
+        }
+
+        // Convert associative arrays to indexed arrays
+        foreach ($organismData as &$data) {
+            $data['samples'] = array_values($data['samples']);
+            $data['geoLocations'] = array_values($data['geoLocations']);
+            $data['ecosystems'] = array_values($data['ecosystems']);
+            $data['collections'] = array_values($data['collections']);
+            $data['citations'] = array_values($data['citations']);
+        }
+
+        return $organismData;
     }
 
     public function transformAudit(array $data): array
@@ -172,7 +296,7 @@ class Molecule extends Model implements Auditable
      */
     public function getSchema($type = 'bioschemas')
     {
-        if ($type == 'bioschemas') {
+        if ($type == 'bioschemas' && $this->properties) {
             $moleculeSchema = Schema::MolecularEntity();
             $moleculeSchema['@id'] = $this->inchi_key;
             $moleculeSchema['dct:conformsTo'] = $this->prepareConformsTo();
