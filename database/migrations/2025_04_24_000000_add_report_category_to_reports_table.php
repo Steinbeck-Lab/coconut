@@ -26,9 +26,13 @@ return new class extends Migration
     {
         Schema::table('reports', function (Blueprint $table) {
             $table->boolean('is_change')->nullable()->after('report_type');
-            // Restore data
-            DB::table('reports')->where('report_category', 'change')->update(['is_change' => true]);
-            DB::table('reports')->where('report_category', 'report')->update(['is_change' => false]);
+        });
+
+        // Restore data after creating the column
+        DB::table('reports')->where('report_category', 'change')->update(['is_change' => true]);
+        DB::table('reports')->where('report_category', 'report')->update(['is_change' => false]);
+
+        Schema::table('reports', function (Blueprint $table) {
             $table->dropColumn('report_category');
         });
     }

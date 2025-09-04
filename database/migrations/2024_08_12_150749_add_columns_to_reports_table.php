@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('reports', function (Blueprint $table) {
-            $table->boolean('is_change')->nullable();
+            // is_change column already exists from create_reports_table migration
+            // Only add suggested_changes column
             $table->json('suggested_changes')->nullable();
         });
     }
@@ -23,7 +24,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('reports', function (Blueprint $table) {
-            $table->dropColumn(['is_change', 'suggested_changes']);
+            // Only drop suggested_changes column, keep is_change as it belongs to the original table
+            $table->dropColumn('suggested_changes');
         });
     }
 };
