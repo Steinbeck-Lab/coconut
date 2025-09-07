@@ -16,7 +16,7 @@ class GenerateCoordinatesAuto extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'coconut:generate-coordinates {collection_id=65 : The ID of the collection to process} {--force : Retry processing of molecules with failed status only}';
+    protected $signature = 'coconut:generate-coordinates {collection_id : The ID of the collection to process} {--force : Retry processing of molecules with failed status only}';
 
     /**
      * The console command description.

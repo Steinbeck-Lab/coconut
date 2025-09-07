@@ -18,7 +18,7 @@ class ImportPubChemNamesAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:import-pubchem-data {collection_id : The ID of the collection to process}';
+    protected $signature = 'coconut:import-pubchem-data {collection_id : The ID of the collection to process} {--retry-failed : Retry previously failed entries}';
 
     /**
      * The console command description.
