@@ -237,7 +237,23 @@ return [
                 // Inherits all settings from defaults
             ],
         ],
-
+        'development' => [
+            'supervisor-concurrent' => [
+                'maxProcesses' => 10,         // Reduced to focus resources on import
+                'maxJobs' => 50,             // Add memory management
+                'memory' => 256,             // Increase for better performance
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'supervisor-import' => [
+                'maxProcesses' => 12,       // High concurrency for imports
+                'balanceMaxShift' => 2,      // Faster scaling for import bursts
+                'balanceCooldown' => 5,      // Slightly longer cooldown for stability
+            ],
+            'supervisor-sequential' => [
+                // Inherits all settings from defaults
+            ],
+        ],
         'local' => [
             'supervisor-concurrent' => [
                 'maxProcesses' => 10,          // Minimal for essential tasks only
