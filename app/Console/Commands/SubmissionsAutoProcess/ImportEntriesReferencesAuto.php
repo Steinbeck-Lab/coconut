@@ -457,6 +457,7 @@ class ImportEntriesReferencesAuto extends Command
             $dois[] = $doi;
         }
 
+        // Check if the dois are split properly (especially considering that non dois are there).
         return $dois;
     }
 
@@ -636,6 +637,24 @@ class ImportEntriesReferencesAuto extends Command
                             'updated_at' => now(),
                         ]);
 
+                        // Create an audit record for the new entry
+                        $this->collectAudit(
+                            'molecule_organism',
+                            $newId,
+                            [],
+                            [
+                                'molecule_id' => $molecule->id,
+                                'organism_id' => $pivot[0],
+                                'sample_location_id' => $pivot[1],
+                                'geo_location_id' => $pivot[2],
+                                'ecosystem_id' => $pivot[3],
+                                'collection_ids' => json_encode($newCollectionIds),
+                                'citation_ids' => json_encode($newCitationIds),
+                            ],
+                            $entryAuditRecords,
+                            'created'
+                        );
+
                         // Successfully created, no need to update
                         continue;
                     } catch (QueryException $e) {
@@ -660,22 +679,31 @@ class ImportEntriesReferencesAuto extends Command
                     $mergedCollectionIds = array_unique(array_merge($existingCollectionIds, $newCollectionIds));
                     $mergedCitationIds = array_unique(array_merge($existingCitationIds, $newCitationIds));
 
-                    $oldValues = [
-                        'collection_ids' => $existing->collection_ids,
-                        'citation_ids' => $existing->citation_ids,
-                        'updated_at' => $existing->updated_at,
-                    ];
-                    $newValues = [
-                        'collection_ids' => json_encode($mergedCollectionIds),
-                        'citation_ids' => json_encode($mergedCitationIds),
-                        'updated_at' => now(),
-                    ];
+                    // Check if there are actual changes before updating
+                    $existingCollectionJson = json_encode($existingCollectionIds);
+                    $existingCitationJson = json_encode($existingCitationIds);
+                    $newCollectionJson = json_encode($mergedCollectionIds);
+                    $newCitationJson = json_encode($mergedCitationIds);
 
-                    DB::table('molecule_organism')
-                        ->where('id', $existing->id)
-                        ->update($newValues);
+                    if ($existingCollectionJson !== $newCollectionJson || $existingCitationJson !== $newCitationJson) {
+                        $oldValues = [
+                            'collection_ids' => $existing->collection_ids,
+                            'citation_ids' => $existing->citation_ids,
+                            'updated_at' => $existing->updated_at,
+                        ];
 
-                    $this->collectAudit('molecule_organism', $existing->id, $oldValues, $newValues, $entryAuditRecords);
+                        $newValues = [
+                            'collection_ids' => $newCollectionJson,
+                            'citation_ids' => $newCitationJson,
+                            'updated_at' => now(),
+                        ];
+
+                        DB::table('molecule_organism')
+                            ->where('id', $existing->id)
+                            ->update($newValues);
+
+                        $this->collectAudit('molecule_organism', $existing->id, $oldValues, $newValues, $entryAuditRecords);
+                    }
                 }
             }
         }
@@ -690,7 +718,28 @@ class ImportEntriesReferencesAuto extends Command
         $changes = [];
         foreach ($newValues as $key => $newValue) {
             $oldValue = $oldValues[$key] ?? null;
-            if ($oldValue !== $newValue) {
+
+            // Special handling for JSON fields
+            if (($key === 'collection_ids' || $key === 'citation_ids') &&
+                 is_string($oldValue) && is_string($newValue)) {
+                // Decode JSON strings for comparison
+                $oldDecoded = json_decode($oldValue ?? '[]', true);
+                $newDecoded = json_decode($newValue, true);
+
+                // Sort arrays to ensure consistent comparison
+                if (is_array($oldDecoded)) {
+                    sort($oldDecoded);
+                }
+                if (is_array($newDecoded)) {
+                    sort($newDecoded);
+                }
+
+                if (json_encode($oldDecoded) !== json_encode($newDecoded)) {
+                    $changes[$key] = ['old' => $oldValue, 'new' => $newValue];
+                }
+            }
+            // Standard comparison for non-JSON fields
+            elseif ($oldValue !== $newValue) {
                 $changes[$key] = ['old' => $oldValue, 'new' => $newValue];
             }
         }
@@ -700,7 +749,7 @@ class ImportEntriesReferencesAuto extends Command
         }
 
         $auditRecords[] = [
-            'auditable_type' => 'App\\Models\\'.ucfirst(Str::singular($table)),
+            'auditable_type' => 'App\\Models\\'.Str::studly(Str::singular($table)),
             'auditable_id' => $recordId,
             'user_type' => 'App\\Models\\User',
             'user_id' => 11, // COCONUT curator user ID for batch processing
@@ -724,6 +773,15 @@ class ImportEntriesReferencesAuto extends Command
         if (empty($auditRecords)) {
             return;
         }
+
+        // Count audits by type for logging
+        $countsByType = [];
+        foreach ($auditRecords as $record) {
+            $type = $record['auditable_type'];
+            $countsByType[$type] = ($countsByType[$type] ?? 0) + 1;
+        }
+
+        Log::info('Audit records by type: '.json_encode($countsByType));
 
         try {
             // Use chunking to avoid hitting database limits
