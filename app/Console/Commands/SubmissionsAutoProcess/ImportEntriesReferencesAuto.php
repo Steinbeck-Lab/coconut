@@ -319,19 +319,24 @@ class ImportEntriesReferencesAuto extends Command
     {
         // Save organism details - sample location and geo location
         foreach ($references as $reference) {
+            // Create separate citation array for this specific reference
+            $currentReferenceCitations = [];
+
             $doi = $reference['doi'] ?? '';
 
             $doiRegex = '/\b(10[.][0-9]{4,}(?:[.][0-9]+)*)\b/';
             if ($doi && $doi != '') {
                 if (preg_match($doiRegex, $doi)) {
+                    $this->fetchDOICitation($doi, $molecule, $currentReferenceCitations);
                     $this->fetchDOICitation($doi, $molecule, $citation_ids_array);
                 } else {
+                    $this->fetchCitation($doi, $molecule, $currentReferenceCitations);
                     $this->fetchCitation($doi, $molecule, $citation_ids_array);
                 }
             }
 
             if (isset($reference['organisms']) && $reference['organisms']) {
-                $this->saveOrganismDetails($reference['organisms'], $molecule, $entry, $citation_ids_array, $entryAuditRecords);
+                $this->saveOrganismDetails($reference['organisms'], $molecule, $entry, $currentReferenceCitations, $entryAuditRecords);
             }
         }
 
