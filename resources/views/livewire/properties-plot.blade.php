@@ -45,9 +45,16 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Wait a bit for the zoom plugin to load
-            setTimeout(() => {
+            // Function to check if ChartZoom plugin is available
+            function isChartZoomAvailable() {
+                return typeof Chart !== 'undefined' && 
+                       Chart.registry && 
+                       Chart.registry.plugins && 
+                       Chart.registry.plugins.get('zoom');
+            }
 
+            // Function to initialize the chart
+            function initializeChart() {
                 const plotCanvas = document.getElementById('plot-{{ $name }}');
 
                 // Data from Livewire/PHP
@@ -150,7 +157,27 @@
                 document.getElementById('reset-zoom-{{ $name }}').addEventListener('click', function() {
                     chart.resetZoom();
                 });
-            }, 100); // Close setTimeout with 100ms delay
+            }
+
+            // Check if plugin is available and initialize chart
+            if (isChartZoomAvailable()) {
+                initializeChart();
+            } else {
+                // Retry checking for plugin availability with exponential backoff
+                let attempts = 0;
+                const maxAttempts = 10;
+                const checkInterval = setInterval(() => {
+                    attempts++;
+                    if (isChartZoomAvailable()) {
+                        clearInterval(checkInterval);
+                        initializeChart();
+                    } else if (attempts >= maxAttempts) {
+                        clearInterval(checkInterval);
+                        console.warn('ChartZoom plugin not available after maximum attempts, initializing chart without zoom functionality');
+                        initializeChart();
+                    }
+                }, 50 * Math.pow(2, attempts)); // Exponential backoff: 50ms, 100ms, 200ms, etc.
+            }
         });
     </script>
 
