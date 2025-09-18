@@ -13,7 +13,7 @@ services:
     networks:
       - coconut
     ports:
-      - 8080:80
+      - 80:80
       - 443:443   
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -77,7 +77,8 @@ services:
   pgsql:
     image: informaticsmatters/rdkit-cartridge-debian:latest
     restart: unless-stopped
-    # Port mapping removed for production hardening; re-add if external DB access required
+    ports:
+      - '${FORWARD_DB_PORT:-5432}:5432'
     environment:
       PGPASSWORD: '${DB_PASSWORD}'
       POSTGRES_DB: '${DB_DATABASE}'
@@ -104,7 +105,8 @@ services:
   redis:
     image: redis:alpine
     restart: unless-stopped
-    # Port mapping removed for production hardening; re-add if external Redis access required
+    ports:
+      - '${FORWARD_REDIS_PORT:-6379}:6379'
     volumes:
       - coconut-redis:/data
     networks:

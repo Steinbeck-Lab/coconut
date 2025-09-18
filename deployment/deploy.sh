@@ -252,7 +252,7 @@ case true in
         display_help
         ;;
     *)
-        echo "Skipping build and deploy step — please pass at least one argument: \n--build: Build and deploy the application \n--deploy: Perform zero-downtime deployment \n--backup: Create a database backup \n--restart: Restart services \n--multi-platform: Build multi-platform Docker images. If you are unsure, use the --help flag for guidance."
+        echo "Skipping build and deploy step — please pass at least one argument: \n--build: Build and deploy the application \n--deploy: Perform zero-downtime deployment \n--backup: Create a database backup \n--restart: Restart services. If you are unsure, use the --help flag for guidance."
         ;;
 esac
 
