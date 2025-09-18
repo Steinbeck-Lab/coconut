@@ -5,10 +5,10 @@ set -e
 # Print timestamp at the start of the script
 echo "🚀 ==== Script started at: $(date '+%Y-%m-%d %H:%M:%S') ==== "
 
-APP_IMAGE="nfdi4chem/coconut:dev-latest"
-WORKER_IMAGE="nfdi4chem/coconut:dev-latest"
+APP_IMAGE="nfdi4chem/coconut:latest"
+WORKER_IMAGE="nfdi4chem/coconut:latest"
 PROJECT_ROOT=$(dirname "$(dirname "$(realpath "$0")")")
-APP_COMPOSE_FILE="$PROJECT_ROOT/deployment/docker-compose.dev.yml"
+APP_COMPOSE_FILE="$PROJECT_ROOT/deployment/docker-compose.prod.yml"
 ENV_FILE="$PROJECT_ROOT/.env"
 NEW_CONTAINER_ID=""
 BACKUP_DIR="./backups"
@@ -25,7 +25,7 @@ set -a
 source .env
 set +a
 
-export COMPOSE_PROJECT_NAME=development
+export COMPOSE_PROJECT_NAME=production
 
 # === Functions ===
 
@@ -140,8 +140,7 @@ deploy_service() {
     if [ "$(docker pull "$APP_IMAGE" | grep -c "Status: Image is up to date")" -eq 0 ]; then
         echo "📦 New image available for app and worker."
 
-       # Uncomment this line in production to create a backup before deployment
-       # backup_database 
+        backup_database 
 
         # Scale up both app and worker to 2
         docker compose -f "$APP_COMPOSE_FILE" up -d app worker --scale app=2 --scale worker=2 --no-deps --no-recreate
@@ -153,8 +152,10 @@ deploy_service() {
         remove_old_containers "worker"
 
         echo "✅ Deployment of app and worker done successfully."
+
         run_migration_and_clear_cache
-        echo "Application is available at: https://dev.coconut.naturalproducts.net/"
+
+        echo "Application is available at: https://coconut.naturalproducts.net/"
     else
         echo "✅ No update for app and worker. Skipping deployment."
     fi
@@ -176,7 +177,7 @@ build_or_restart_services() {
 
     cleanup
     echo "Services restarted successfully!"
-    echo "Application is available at: https://dev.coconut.naturalproducts.net/"
+    echo "Application is available at: https://coconut.naturalproducts.net/"
 }
 
 # Create database backup
