@@ -201,9 +201,7 @@ run_migration_and_clear_cache() {
     # Run seeders
     echo "Executing Laravel database migration..."
     docker compose -f "$APP_COMPOSE_FILE" exec -T app php artisan migrate --force
-    docker compose -f "$APP_COMPOSE_FILE" exec -T app php artisan cache:clear
     docker compose -f "$APP_COMPOSE_FILE" exec -T app php artisan optimize:clear
-    docker compose -f "$APP_COMPOSE_FILE" exec -T app php artisan optimize
 
     docker compose -f "$APP_COMPOSE_FILE" ps
 
