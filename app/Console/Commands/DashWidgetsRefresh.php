@@ -121,7 +121,7 @@ class DashWidgetsRefresh extends Command
         foreach ($collection_ids as $collection) {
             $this->info('Processing collection '.$collection->id);
 
-            $entries = DB::select("SELECT doi, organism, geo_location FROM entries WHERE collection_id = {$collection->id};");
+            $entries = DB::select('SELECT doi, organism, geo_location FROM entries WHERE collection_id = ?', [$collection->id]);
 
             $dois = [];
             $organisms = [];
@@ -148,21 +148,31 @@ class DashWidgetsRefresh extends Command
             $unique_organisms_count = count(array_unique($organisms));
             $unique_geo_locations_count = count(array_unique($geo_locations));
 
-            $total_entries = DB::select("SELECT count(*) FROM entries WHERE collection_id = {$collection->id};");
-            $successful_entries = DB::select("SELECT count(*) FROM entries WHERE collection_id = {$collection->id} AND status = 'PASSED';");
-            $failed_entries = DB::select("SELECT count(*) FROM entries WHERE collection_id = {$collection->id} AND status = 'REJECTED';");
-            $molecules_count = DB::select("SELECT count(*) FROM collection_molecule WHERE collection_id = {$collection->id};");
+            $total_entries = DB::select('SELECT count(*) as count FROM entries WHERE collection_id = ?', [$collection->id]);
+            $successful_entries = DB::select("SELECT count(*) as count FROM entries WHERE collection_id = ? AND status = 'PASSED'", [$collection->id]);
+            $failed_entries = DB::select("SELECT count(*) as count FROM entries WHERE collection_id = ? AND status = 'REJECTED'", [$collection->id]);
+            $molecules_count = DB::select('SELECT count(*) as count FROM collection_molecule WHERE collection_id = ?', [$collection->id]);
 
             DB::statement(
-                "UPDATE collections
-                SET total_entries = {$total_entries[0]->count}, 
-                    successful_entries = {$successful_entries[0]->count}, 
-                    failed_entries = {$failed_entries[0]->count}, 
-                    molecules_count = {$molecules_count[0]->count}, 
-                    citations_count = {$unique_dois_count}, 
-                    organisms_count = {$unique_organisms_count}, 
-                    geo_count = {$unique_geo_locations_count}
-                WHERE id = {$collection->id};"
+                'UPDATE collections
+                SET total_entries = ?, 
+                    successful_entries = ?, 
+                    failed_entries = ?, 
+                    molecules_count = ?, 
+                    citations_count = ?, 
+                    organisms_count = ?, 
+                    geo_count = ?
+                WHERE id = ?',
+                [
+                    $total_entries[0]->count,
+                    $successful_entries[0]->count,
+                    $failed_entries[0]->count,
+                    $molecules_count[0]->count,
+                    $unique_dois_count,
+                    $unique_organisms_count,
+                    $unique_geo_locations_count,
+                    $collection->id,
+                ]
             );
         }
 

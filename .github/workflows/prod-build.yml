@@ -1,6 +1,6 @@
 
-# This worklflow will perform following actions when the code is pushed to development branch:
-# - Build the latest docker image in development.
+# This workflow performs the following actions when the code is pushed to the main branch
+# - Build the latest docker image in production.
 # - Push the latest docker image to Docker Hub.
 # 
 # Maintainers:
@@ -9,64 +9,95 @@
 #   - name: Chandu Nainala
 #   - email: chandu.nainala@uni-jena.de
 
-name : Build COCONUT image and push to Docker Hub
+name : Production - Build COCONUT image and push to Docker Hub
 
+# Runs on manual workflow_dispatch with confirmation
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type 'DEPLOY' to confirm production deployment"
+        required: true
+        type: string
 
+# Environment variables used across all jobs
 env:
   REPOSITORY_NAME: coconut
-  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-  DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
   APP_IMAGE: coconut-app
   REPOSITORY_NAMESPACE: nfdi4chem
 
 jobs:
+  # Guard: confirm input and authorize actor
+  guard:
+    name: Access control and confirmation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate actor and confirmation
+        shell: bash
+        run: |
+          echo "Actor: ${GITHUB_ACTOR}"
+          # Confirm input (workflow_dispatch)
+          if [[ "${{ github.event.inputs.confirm }}" != "DEPLOY" ]]; then
+            echo "Confirmation token mismatch. Expected 'DEPLOY'."
+            exit 1
+          fi
+
+          # Authorize actor (comma/space separated list in secret)
+          AUTHORIZED_ACTORS="${{ secrets.PROD_DEPLOY_AUTHORIZED_ACTORS }}"
+          allowed=0
+          for u in ${AUTHORIZED_ACTORS//,/ }; do
+            if [[ "${u,,}" == "${GITHUB_ACTOR,,}" ]]; then
+              allowed=1
+              break
+            fi
+          done
+          if [[ $allowed -ne 1 ]]; then
+            echo "User '${GITHUB_ACTOR}' is not authorized to trigger this workflow."
+            exit 1
+          fi
+          echo "Authorization check passed."
+  # Build and deploy to production
   setup-build-publish-deploy-dev:
     name: Build & deploy to Production
     runs-on: ubuntu-latest
-    environment:
-      name: Production
-      url: https://coconut.naturalproducts.net
-
     steps:
-    # Checkout code
-    - name: Checkout
-      uses: actions/checkout@v4
+      # Checkout code
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-    # Login to Docker
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ env.DOCKER_HUB_USERNAME  }}
-        password: ${{ env.DOCKER_HUB_PASSWORD  }}
+      # Login to Docker
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD  }}
 
-    - name: Create composer auth file for Docker secrets
-      env:
-        COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
-      run: |
-        echo "$COMPOSER_AUTH" > auth.json
-        echo "✅ Composer auth file created for Docker secrets"
+      - name: Create composer auth file for Docker secrets
+        env:
+          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+        run: |
+          echo $COMPOSER_AUTH | base64 -d  > auth.json
+          echo "✅ Composer auth file created for Docker secrets"
 
-    # Build and push the app Docker image
-    - name: Build and push App Docker image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: ./FrankenPHP.Dockerfile
-        push: true
-        build-args: |
-          RELEASE_VERSION=latest
-        secrets: |
-          id=composer_auth,src=auth.json
-        tags: ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+      # Build and push the app Docker image
+      - name: Build and push App Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          platforms: linux/amd64
+          build-args: |
+            RELEASE_VERSION=latest
+          secrets: |
+            id=composer_auth,src=auth.json
+          tags: ${{ env.REPOSITORY_NAMESPACE }}/${{ env.REPOSITORY_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-    # Remove composer auth file
-    - name: Remove composer auth file
-      run: rm -f auth.json
+      # Remove composer auth file
+      - name: Remove composer auth file
+        run: rm -f auth.json

@@ -4,6 +4,8 @@
     searchType: 'exact',
     smiles: @entangle('smiles'),
     currentSmiles: '',  // New state for current SMILES
+    editorOutput: '',   // New state for editor output
+    searchSource: 'editor', // 'smiles' or 'editor'
     type: @entangle('type'),
     draggedFile: null,
     recentSearches: JSON.parse(localStorage.getItem('recentSearches') || '[]'),
@@ -39,7 +41,12 @@
         reader.readAsText(file);
     },
     performSearch() {
-        const smiles = window.getEditorSmiles();
+        let smiles = '';
+        if (this.searchSource === 'smiles') {
+            smiles = this.currentSmiles;
+        } else {
+            smiles = this.editorOutput;
+        }
         const query = { type: this.type, q: smiles };
 
         this.recentSearches.push(query);
@@ -57,29 +64,53 @@
     loadSearch(search) {
         this.type = search.type;
         window.editor.setSmiles(search.q);
+        this.editorOutput = window.getEditorSmiles();
     },
     loadSmilesIntoEditor() {
         try {
             window.editor.setSmiles(this.currentSmiles);
+            // Update the editorOutput and also force polling to pick up the change
+            if (window.getEditorSmiles) {
+                this.editorOutput = window.getEditorSmiles();
+            }
         } catch(e) {
             console.error('Invalid SMILES:', e);
             // Revert to last valid SMILES if invalid
             this.currentSmiles = window.editor.getSmiles();
+            if (window.getEditorSmiles) {
+                this.editorOutput = window.getEditorSmiles();
+            }
             alert('Invalid SMILES string');
         }
-    }
+    },
 }">
-    <div x-init="$watch('isOpen', value => {
-        if (value) {
-            setTimeout(() => {
-                window.editor = OCL.StructureEditor.createSVGEditor('structureSearchEditor', 1);
-                if (smiles) {
-                    window.editor.setSmiles(smiles);
-                }
-                window.getEditorSmiles = () => window.editor.getSmiles();
-            }, 100);
-        }
-    });">
+    <div x-init="
+        $watch('isOpen', value => {
+            if (value) {
+                setTimeout(() => {
+                    window.editor = OCL.StructureEditor.createSVGEditor('structureSearchEditor', 1);
+                    if (smiles) {
+                        window.editor.setSmiles(smiles);
+                    }
+                    window.getEditorSmiles = () => window.editor.getSmiles();
+                    
+                    // Always poll for changes every 300ms while modal is open (robust for all editors)
+                    if ($data._editorPoll) clearInterval($data._editorPoll);
+                    let lastSmiles = window.getEditorSmiles();
+                    $data._editorPoll = setInterval(() => {
+                        if (!$data.isOpen) { clearInterval($data._editorPoll); return; }
+                        const current = window.getEditorSmiles();
+                        if (current !== lastSmiles) {
+                            $data.editorOutput = current;
+                            lastSmiles = current;
+                        }
+                    }, 300);
+                }, 100);
+            } else {
+                if ($data._editorPoll) clearInterval($data._editorPoll);
+            }
+        });
+    ">
         <div x-show="isOpen" x-cloak class="fixed z-20 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <div class="flex items-center justify-center min-h-screen text-center px-8">
                 <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
@@ -97,7 +128,7 @@
                                     <!-- New SMILES display field -->
                                     <div class="mb-3">
                                         <label for="smiles-string" class="block text-sm font-medium text-gray-700">SMILES String</label>
-                                        <div class="mt-1 flex rounded-md shadow-sm">
+                                        <div class="mt-1 flex rounded-md shadow-sm items-center">
                                             <input type="text" 
                                                    id="smiles-string" 
                                                    x-model="currentSmiles" 
@@ -105,9 +136,26 @@
                                                    placeholder="Enter SMILES string to load into the Editor">
                                             <button 
                                                 @click="loadSmilesIntoEditor()"
-                                                class="relative -ml-px inline-flex items-center space-x-2 rounded-r-md border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                                class="relative -ml-px inline-flex items-center space-x-2 rounded-none border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                                                 Load
                                             </button>
+                                            <input type="radio" name="search-source" value="smiles" x-model="searchSource" class="ml-2 h-4 w-4 text-secondary-dark border-gray-300 focus:ring-secondary-dark" 
+                                                :title="'Use this SMILES string for search'"
+                                                :disabled="!currentSmiles || currentSmiles.trim() === ''"/>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="editor-output" class="block text-sm font-medium text-gray-700">Editor Output</label>
+                                        <div class="mt-1 flex rounded-md shadow-sm items-center">
+                                            <input type="text" 
+                                                   id="editor-output" 
+                                                   x-model="editorOutput" 
+                                                   readonly
+                                                   class="block w-full rounded-l-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-gray-100" 
+                                                   placeholder="Editor Output">
+                                            <input type="radio" name="search-source" value="editor" x-model="searchSource" class="ml-2 h-4 w-4 text-secondary-dark border-gray-300 focus:ring-secondary-dark" 
+                                                :title="'Use the editor output for search'"
+                                                :disabled="!editorOutput || editorOutput.trim() === ''"/>
                                         </div>
                                     </div>
                                     <div class="py-3">
