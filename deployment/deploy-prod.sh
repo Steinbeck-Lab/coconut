@@ -25,7 +25,7 @@ set -a
 source .env
 set +a
 
-export COMPOSE_PROJECT_NAME=production
+export COMPOSE_PROJECT_NAME=coconut
 
 # === Functions ===
 

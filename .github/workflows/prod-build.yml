@@ -9,7 +9,7 @@
 #   - name: Chandu Nainala
 #   - email: chandu.nainala@uni-jena.de
 
-name : Build COCONUT image and push to Docker Hub to Production
+name : Production - Build COCONUT image and push to Docker Hub
 
 # Runs on manual workflow_dispatch with confirmation
 on:
