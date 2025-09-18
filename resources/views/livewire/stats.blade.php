@@ -257,7 +257,14 @@
 </div>
 
 <!-- Chart.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+
+<script>
+// Register the zoom plugin globally after Chart.js loads
+Chart.register(window.ChartZoom);
+</script>
 
 <!-- Chart Configuration Script -->
 <script>
