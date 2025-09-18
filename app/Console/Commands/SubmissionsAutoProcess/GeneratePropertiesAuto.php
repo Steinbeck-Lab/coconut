@@ -40,12 +40,14 @@ class GeneratePropertiesAuto extends Command
 
             return 1;
         }
+
         $query = Molecule::select('molecules.id')
-            ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
-            ->where('entries.collection_id', $collection_id)
+            ->join('collection_molecule', 'collection_molecule.molecule_id', '=', 'molecules.id')
+            ->leftJoin('properties', 'properties.molecule_id', '=', 'molecules.id')
+            ->where('collection_molecule.collection_id', $collection_id)
             ->where('molecules.active', true)
-            ->doesntHave('properties')
-            ->distinct();
+            ->whereNull('properties.molecule_id')  // More efficient than doesntHave
+            ->orderBy('molecules.id');
 
         // Flag logic:
         // --force: only when running standalone, picks up failed entries

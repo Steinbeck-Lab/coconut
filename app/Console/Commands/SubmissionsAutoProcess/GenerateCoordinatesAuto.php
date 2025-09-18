@@ -38,12 +38,20 @@ class GenerateCoordinatesAuto extends Command
             return 1;
         }
         Log::info("Starting coordinate generation for molecules missing structures in collection ID: {$collection_id}");
+        // $query = Molecule::select('molecules.id')
+        //     ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
+        //     ->where('entries.collection_id', $collection_id)
+        //     ->doesntHave('structures')
+        //     ->where('molecules.active', true)
+        //     ->distinct();
+
         $query = Molecule::select('molecules.id')
-            ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
-            ->where('entries.collection_id', $collection_id)
-            ->doesntHave('structures')
+            ->join('collection_molecule', 'collection_molecule.molecule_id', '=', 'molecules.id')
+            ->leftJoin('structures', 'structures.molecule_id', '=', 'molecules.id')
+            ->where('collection_molecule.collection_id', $collection_id)
             ->where('molecules.active', true)
-            ->distinct();
+            ->whereNull('structures.molecule_id')  // More efficient than doesntHave
+            ->orderBy('molecules.id');
 
         // Flag logic:
         // --force: only when running standalone, picks up failed entries
