@@ -16,10 +16,10 @@ class GeoLocationStats extends BaseWidget
     {
         return [
             Stat::make('Total Molecules', Cache::flexible('stats.geo_locations'.$this->record->id.'molecules.count', [172800, 259200], function () {
-                return DB::table('geo_location_molecule')->selectRaw('count(*)')->whereRaw('geo_location_id='.$this->record->id)->get()[0]->count;
+                return DB::table('geo_location_molecule')->selectRaw('count(*)')->whereRaw('geo_location_id=?', [$this->record->id])->get()[0]->count;
             })),
             Stat::make('Total Organisms', Cache::flexible('stats.geo_locations'.$this->record->id.'organisms.count', [172800, 259200], function () {
-                return DB::table('geo_location_molecule')->selectRaw('count(*)')->whereRaw('geo_location_id='.$this->record->id)->Join('molecule_organism', 'geo_location_molecule.molecule_id', '=', 'molecule_organism.molecule_id')->get()[0]->count;
+                return DB::table('geo_location_molecule')->selectRaw('count(*)')->whereRaw('geo_location_id=?', [$this->record->id])->Join('molecule_organism', 'geo_location_molecule.molecule_id', '=', 'molecule_organism.molecule_id')->get()[0]->count;
             })),
         ];
     }
