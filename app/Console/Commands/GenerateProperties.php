@@ -17,7 +17,7 @@ class GenerateProperties extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:generate-properties {collection_id?}';
+    protected $signature = 'coconut:generate-properties-old {collection_id?}';
 
     /**
      * The console command description.
@@ -76,7 +76,7 @@ class GenerateProperties extends Command
                         // Handle final...
                     })
                     ->name('Generate Properties:'.$collection_id.' - '.$i)
-                    ->allowFailures(false)
+                    ->allowFailures()
                     ->onConnection('redis')
                     ->onQueue('default')
                     ->dispatch();

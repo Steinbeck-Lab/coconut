@@ -18,6 +18,7 @@ use Filament\Facades\Filament;
 use Filament\Navigation\UserMenuItem;
 use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
@@ -35,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (env('APP_ENV') === 'production' || env('APP_ENV') === 'development') {
+        if (App::environment('production') || App::environment('development')) {
             URL::forceScheme('https');
         }
 

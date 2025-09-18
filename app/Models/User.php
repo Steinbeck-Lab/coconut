@@ -7,6 +7,7 @@ use Archilex\AdvancedTables\Concerns\HasViews;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -88,6 +89,20 @@ class User extends Authenticatable implements Auditable, FilamentUser
     public function linkedSocialAccounts()
     {
         return $this->hasMany(LinkedSocialAccount::class);
+    }
+
+    /**
+     * Get the user's full name attribute.
+     * This ensures Filament always gets a proper name even if the name field is null.
+     */
+    public function getNameAttribute(): string
+    {
+        // If name is already set, use it; otherwise, combine first_name and last_name
+        if (! empty($this->attributes['name'])) {
+            return $this->attributes['name'];
+        }
+
+        return trim(($this->first_name ?? '').' '.($this->last_name ?? '')) ?: 'Unknown User';
     }
 
     /**

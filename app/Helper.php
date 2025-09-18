@@ -1,9 +1,12 @@
 <?php
 
+use App\Events\PostPublishJobFailed;
 use App\Models\Citation;
 use App\Models\Molecule;
 use Filament\Forms\Components\KeyValue;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Events\AuditCustom;
 
 function npScore($old_value)
@@ -23,6 +26,17 @@ function getReportTypes()
         'citation' => 'Citation',
         'collection' => 'Collection',
         'organism' => 'Organism',
+    ];
+}
+
+function getCollectionStatuses()
+{
+    return [
+        'DRAFT' => 'Draft',
+        'REVIEW' => 'Review',
+        'EMBARGO' => 'Embargo',
+        'PUBLISHED' => 'Published',
+        'REJECTED' => 'Rejected',
     ];
 }
 
@@ -266,7 +280,21 @@ function getOverallChanges($data)
 {
     $overall_changes = [];
     $geo_location_changes = [];
-    $molecule = Molecule::where('identifier', $data['mol_id_csv'])->first();
+
+    // Handle mol_ids properly whether it's a string, an array, or enum value
+    $molecule_identifier = $data['mol_ids'];
+    // If mol_ids is an array (from JSON column), get the first item
+    if (is_array($molecule_identifier)) {
+        $molecule_identifier = $molecule_identifier[0] ?? null;
+    } elseif (is_string($molecule_identifier)) {
+        // If it's a string, check if it's a JSON string
+        $decoded = json_decode($molecule_identifier, true);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $molecule_identifier = $decoded[0] ?? null;
+        }
+    }
+
+    $molecule = Molecule::where('identifier', $molecule_identifier)->first();
 
     $db_geo_locations = $molecule->geo_locations->pluck('name')->toArray();
     $deletable_locations = array_key_exists('existing_geo_locations', $data) ? array_diff($db_geo_locations, $data['existing_geo_locations']) : [];
@@ -358,10 +386,10 @@ function getOverallChanges($data)
     $new_citations = [];
     $new_citations_form_data = [];
     if (array_key_exists('new_citations', $data)) {
-        foreach ($data['new_citations'] as $ciation) {
-            if ($ciation['title']) {
-                $new_citations[] = $ciation['title'];
-                $new_citations_form_data[] = $ciation;
+        foreach ($data['new_citations'] as $citation) {
+            if ($citation['title']) {
+                $new_citations[] = $citation['title'];
+                $new_citations_form_data[] = $citation;
             }
         }
     }
@@ -477,4 +505,111 @@ function getFilterMap()
         'org' => 'organism',
         'cite' => 'ciatation',
     ];
+}
+
+function updateCurationStatus($moleculeId, $command, $status, $errorMessage = null)
+{
+    $molecule = Molecule::find($moleculeId);
+    if (! $molecule) {
+        return false;
+    }
+
+    $curationStatus = $molecule->curation_status ?? [];
+    $curationStatus[$command] = [
+        'status' => $status,
+        'error_message' => $errorMessage,
+        'processed_at' => now()->toISOString(),
+    ];
+
+    $molecule->curation_status = $curationStatus;
+
+    return $molecule->save();
+}
+
+function isAlreadyProcessed($moleculeId, $command)
+{
+    $molecule = Molecule::find($moleculeId);
+    if (! $molecule || ! $molecule->curation_status) {
+        return false;
+    }
+
+    $commandStatus = $molecule->curation_status[$command] ?? null;
+
+    return $commandStatus && ($commandStatus['status'] === 'completed' || $commandStatus['status'] === 'failed');
+}
+
+function getCurationStatus($moleculeId, $command = null)
+{
+    $molecule = Molecule::find($moleculeId);
+    if (! $molecule) {
+        return null;
+    }
+
+    if ($command) {
+        return $molecule->curation_status[$command] ?? null;
+    }
+
+    return $molecule->curation_status;
+}
+
+/**
+ * Handle job failures consistently across all queue jobs.
+ * This centralizes the error handling, logging, status updates, and event dispatching.
+ *
+ * @param  string  $jobClass  The job class name (use self::class in the job)
+ * @param  \Throwable  $exception  The exception that caused the failure
+ * @param  string  $stepName  The step name for this job (from $this->stepName)
+ * @param  array  $contextData  Additional context data for the event
+ * @param  string|null  $batchId  The batch ID if running in a batch
+ * @param  string|null  $moleculeId  The molecule ID if applicable
+ * @param  string|null  $entryId  The entry ID if applicable
+ * @param  string  $eventClass  The event class to dispatch (default: PostPublishJobFailed)
+ */
+function handleJobFailure(
+    string $jobClass,
+    \Throwable $exception,
+    string $stepName,
+    array $contextData = [],
+    ?string $batchId = null,
+    ?string $moleculeId = null,
+    ?string $entryId = null,
+    string $eventClass = PostPublishJobFailed::class
+): void {
+    $errorMessage = $exception->getMessage();
+    $jobShortName = class_basename($jobClass);
+
+    // Build log message
+    $logContext = [];
+    if ($moleculeId) {
+        $logContext[] = "molecule {$moleculeId}";
+    }
+    if ($entryId) {
+        $logContext[] = "entry {$entryId}";
+    }
+
+    $logMessage = "{$jobShortName} job failed";
+    if (! empty($logContext)) {
+        $logMessage .= ' for '.implode(', ', $logContext);
+    }
+    $logMessage .= ": {$errorMessage}";
+
+    Log::error($logMessage);
+
+    // Update curation status if molecule ID is provided
+    if ($moleculeId) {
+        updateCurationStatus($moleculeId, $stepName, 'failed', $errorMessage);
+    }
+
+    // Prepare event data
+    $eventData = array_merge([
+        'step' => $stepName,
+    ], $contextData);
+
+    // Dispatch the specified event for notification handling
+    $eventClass::dispatch(
+        $jobClass,
+        $exception,
+        $eventData,
+        $batchId
+    );
 }
