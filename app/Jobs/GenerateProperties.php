@@ -19,6 +19,16 @@ class GenerateProperties implements ShouldQueue
     protected $molecule;
 
     /**
+     * The step name for this job.
+     */
+    protected $stepName = 'generate-properties';
+
+    /**
+     * The number of seconds the job can run before timing out.
+     */
+    public $timeout = 120;
+
+    /**
      * Create a new job instance.
      */
     public function __construct($molecule)
@@ -39,51 +49,86 @@ class GenerateProperties implements ShouldQueue
      */
     public function handle(): void
     {
-        $canonical_smiles = $this->molecule->canonical_smiles;
-        $API_URL = env('API_URL', 'https://api.cheminf.studio/latest/');
-        $ENDPOINT = $API_URL.'chem/descriptors?smiles='.urlencode($canonical_smiles).'&format=json&toolkit=rdkit';
+        // Check if the batch has been cancelled
+        if ($this->batch() && $this->batch()->cancelled()) {
+            return;
+        }
+
         try {
-            $response = Http::timeout(600)->get($ENDPOINT);
+            $canonical_smiles = $this->molecule->canonical_smiles;
+            $API_URL = env('API_URL', 'https://api.cheminf.studio/latest/');
+            $ENDPOINT = $API_URL.'chem/descriptors?smiles='.urlencode($canonical_smiles).'&format=json&toolkit=rdkit';
+
+            $response = Http::timeout(45)->get($ENDPOINT);
             if ($response->successful()) {
                 $descriptors = $response->json();
                 $descriptors['standard_inchi'] = $this->molecule->standard_inchi;
                 $this->attachProperties($descriptors, $this->molecule->id);
+                updateCurationStatus($this->molecule->id, $this->stepName, 'completed');
+            } else {
+                $error = 'Failed to get properties from API: '.$response->status();
+                Log::error($error.' - '.$canonical_smiles);
+                updateCurationStatus($this->molecule->id, $this->stepName, 'failed', $error);
+
+                throw new \Exception($error);
             }
-        } catch (\Exception $e) {
-            Log::error('An unexpected exception occurred: '.$e->getMessage().' - '.$canonical_smiles);
-            $errors = [
-                'An unexpected exception occurred' => $e->getMessage().' - '.$canonical_smiles,
-            ];
+        } catch (\Throwable $e) {
+            $error = 'An unexpected exception occurred: '.$e->getMessage();
+            Log::error($error.' - '.$canonical_smiles);
+            updateCurationStatus($this->molecule->id, $this->stepName, 'failed', $error);
+
+            throw $e;
         }
     }
 
     public function attachProperties($descriptors, $id)
     {
         $properties = Properties::firstOrCreate(['molecule_id' => $id]);
-        $properties->total_atom_count = $descriptors['atom_count'];
-        $properties->heavy_atom_count = $descriptors['heavy_atom_count'];
-        $properties->molecular_weight = $descriptors['molecular_weight'];
-        $properties->molecular_formula = $molecular_formula = preg_split('#/#', $descriptors['standard_inchi'])[1];
-        $properties->exact_molecular_weight = $descriptors['exact_molecular_weight'];
-        $properties->alogp = $descriptors['alogp'];
-        $properties->rotatable_bond_count = $descriptors['rotatable_bond_count'];
-        $properties->topological_polar_surface_area = $descriptors['topological_polar_surface_area'];
-        $properties->hydrogen_bond_acceptors = $descriptors['hydrogen_bond_acceptors'];
-        $properties->hydrogen_bond_donors = $descriptors['hydrogen_bond_donors'];
-        $properties->hydrogen_bond_acceptors_lipinski = $descriptors['hydrogen_bond_acceptors_lipinski'];
-        $properties->hydrogen_bond_donors_lipinski = $descriptors['hydrogen_bond_donors_lipinski'];
-        $properties->lipinski_rule_of_five_violations = $descriptors['lipinski_rule_of_five_violations'];
-        $properties->aromatic_rings_count = $descriptors['aromatic_rings_count'];
-        $properties->qed_drug_likeliness = $descriptors['qed_drug_likeliness'];
-        $properties->formal_charge = $descriptors['formal_charge'];
-        $properties->fractioncsp3 = $descriptors['fractioncsp3'];
-        $properties->number_of_minimal_rings = $descriptors['number_of_minimal_rings'];
+
+        $properties->total_atom_count = $descriptors['atom_count'] ?? 0;
+        $properties->heavy_atom_count = $descriptors['heavy_atom_count'] ?? 0;
+        $properties->molecular_weight = $descriptors['molecular_weight'] ?? 0;
+        $properties->molecular_formula = preg_split('#/#', $descriptors['standard_inchi'] ?? '')[1] ?? '';
+        $properties->exact_molecular_weight = $descriptors['exact_molecular_weight'] ?? 0;
+        $properties->alogp = $descriptors['alogp'] ?? 0;
+        $properties->rotatable_bond_count = $descriptors['rotatable_bond_count'] ?? 0;
+        $properties->topological_polar_surface_area = $descriptors['topological_polar_surface_area'] ?? 0;
+        $properties->hydrogen_bond_acceptors = $descriptors['hydrogen_bond_acceptors'] ?? 0;
+        $properties->hydrogen_bond_donors = $descriptors['hydrogen_bond_donors'] ?? 0;
+        $properties->hydrogen_bond_acceptors_lipinski = $descriptors['hydrogen_bond_acceptors_lipinski'] ?? 0;
+        $properties->hydrogen_bond_donors_lipinski = $descriptors['hydrogen_bond_donors_lipinski'] ?? 0;
+        $properties->lipinski_rule_of_five_violations = $descriptors['lipinski_rule_of_five_violations'] ?? 0;
+        $properties->aromatic_rings_count = $descriptors['aromatic_rings_count'] ?? 0;
+        $properties->qed_drug_likeliness = $descriptors['qed_drug_likeliness'] ?? 0;
+        $properties->formal_charge = $descriptors['formal_charge'] ?? 0;
+        $properties->fractioncsp3 = $descriptors['fractioncsp3'] ?? 0;
+        $properties->number_of_minimal_rings = $descriptors['number_of_minimal_rings'] ?? 0;
         $properties->van_der_walls_volume = $descriptors['van_der_waals_volume'] == 'None' ? 0 : $descriptors['van_der_waals_volume'];
-        $properties->contains_ring_sugars = $descriptors['circular_sugars'];
-        $properties->contains_linear_sugars = $descriptors['linear_sugars'];
-        $properties->murcko_framework = $descriptors['murcko_framework'];
-        $properties->np_likeness = $descriptors['nplikeness'];
+        $properties->contains_ring_sugars = $descriptors['circular_sugars'] ?? 0;
+        $properties->contains_linear_sugars = $descriptors['linear_sugars'] ?? 0;
+        $properties->murcko_framework = $descriptors['murcko_framework'] ?? '';
+        $properties->np_likeness = $descriptors['nplikeness'] ?? 0;
         $properties->molecule_id = $id;
         $properties->save();
+    }
+
+    /**
+     * Handle a job failure.
+     */
+    public function failed(\Throwable $exception): void
+    {
+        Log::info("GenerateProperties failed() method called for molecule {$this->molecule->id}: ".$exception->getMessage());
+
+        handleJobFailure(
+            self::class,
+            $exception,
+            $this->stepName,
+            [
+                'molecule_id' => $this->molecule->id,
+                'canonical_smiles' => $this->molecule->canonical_smiles ?? 'Unknown',
+            ],
+            $this->batch()?->id,
+            $this->molecule->id
+        );
     }
 }

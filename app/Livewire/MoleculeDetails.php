@@ -2,7 +2,8 @@
 
 namespace App\Livewire;
 
-use Cache;
+use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
@@ -12,9 +13,64 @@ class MoleculeDetails extends Component
 {
     public $molecule;
 
+    public $sortedOrganisms;
+
     public function mount($molecule)
     {
         $this->molecule = $molecule;
+        $this->sortOrganisms();
+    }
+
+    /**
+     * Sort organisms by name and then by taxonomic rank
+     */
+    private function sortOrganisms()
+    {
+        if (! $this->molecule->organisms || count($this->molecule->organisms) === 0) {
+            $this->sortedOrganisms = collect();
+
+            return;
+        }
+
+        // Define the taxonomic rank hierarchy (from highest to lowest)
+        $rankHierarchy = [
+            'kingdom' => 1,
+            'phylum' => 2,
+            'class' => 3,
+            'subclass' => 4,
+            'order' => 5,
+            'family' => 6,
+            'subfamily' => 7,
+            'tribe' => 8,
+            'genus' => 9,
+            'subgenus' => 10,
+            'species' => 11,
+            'subspecies' => 12,
+            'variety' => 13,
+            'sp.' => 14,
+            'spec.' => 15,
+            'no rank' => 16,
+        ];
+
+        // Sort organisms by name first, then by rank
+        $this->sortedOrganisms = $this->molecule->organisms->sort(function ($a, $b) use ($rankHierarchy) {
+            // First sort by name
+            $nameComparison = strcmp(strtolower($a->name), strtolower($b->name));
+            if ($nameComparison !== 0) {
+                return $nameComparison;
+            }
+
+            // If names are equal, sort by rank
+            // Remove "(fuzzy)" suffix and convert to lowercase for comparison
+            $rankA = strtolower(preg_replace('/\s*\(fuzzy\)$/', '', $a->rank));
+            $rankB = strtolower(preg_replace('/\s*\(fuzzy\)$/', '', $b->rank));
+
+            // Get hierarchy values (default to highest value if not found)
+            $valueA = $rankHierarchy[$rankA] ?? 999;
+            $valueB = $rankHierarchy[$rankB] ?? 999;
+
+            return $valueA - $valueB;
+        })->values(); // This resets the array keys to sequential integers starting from 0
     }
 
     public function rendered()
@@ -62,14 +118,140 @@ class MoleculeDetails extends Component
 
     public function getReferenceUrls($pivot)
     {
+        if (! $pivot || ! isset($pivot->reference) || ! isset($pivot->url)) {
+            return [];
+        }
         $references = explode('|', $pivot->reference);
         $urls = explode('|', $pivot->url);
+        if (count($references) !== count($urls)) {
+            return [];
+        }
         $combined = array_combine($references, $urls);
         $combined = array_map(function ($key, $value) {
             return [$key => $value];
         }, $references, $urls);
 
         return $combined;
+    }
+
+    /**
+     * Get unique contributors from audit trail
+     */
+    public function getContributors()
+    {
+        $audits = collect();
+
+        // Get audits from the molecule
+        $audits = $audits->merge($this->molecule->audits);
+
+        // Get audits from related properties
+        if ($this->molecule->properties) {
+            $audits = $audits->merge($this->molecule->properties->audits);
+        }
+
+        // Get audits from related structures
+        if ($this->molecule->structures) {
+            $audits = $audits->merge($this->molecule->structures->audits);
+        }
+
+        // Extract unique users from audits
+        $userIds = $audits->pluck('user_id')->unique()->filter();
+
+        $contributors = collect();
+
+        // Check if COCONUT Curator (system user) has contributed
+        $hasSystemContributions = $audits->where('user_id', 11)->isNotEmpty() ||
+                                 $audits->whereNull('user_id')->isNotEmpty();
+
+        if ($hasSystemContributions) {
+            // Add COCONUT Curator as a special contributor
+            $contributors->push((object) [
+                'id' => 'coconut_curator',
+                'name' => 'COCONUT Curator',
+                'profile_photo_url' => null,
+                'is_system' => true,
+            ]);
+        }
+
+        // Add actual users (excluding system user ID 11)
+        $realUsers = $userIds
+            ->filter(function ($userId) {
+                return $userId != 11;
+            })
+            ->map(function ($userId) {
+                return User::find($userId);
+            })
+            ->filter() // Remove null users
+            ->map(function ($user) {
+                $user->is_system = false;
+
+                return $user;
+            });
+
+        $contributors = $contributors->merge($realUsers)->sortBy('name');
+
+        return $contributors;
+    }
+
+    /**
+     * Get the curation status as an array
+     */
+    public function getCurationStatusProperty()
+    {
+        if (! $this->molecule->curation_status) {
+            return null;
+        }
+
+        return is_string($this->molecule->curation_status)
+            ? json_decode($this->molecule->curation_status, true)
+            : $this->molecule->curation_status;
+    }
+
+    /**
+     * Get the list of required curation steps
+     */
+    public function getRequiredStepsProperty()
+    {
+        return [
+            'publish-molecules',
+            'enrich-molecules',
+            'import-pubchem-names',
+            'generate-properties',
+            'classify',
+            'generate-coordinates',
+        ];
+    }
+
+    /**
+     * Get the list of incomplete curation steps
+     */
+    public function getIncompleteStepsProperty()
+    {
+        $curationStatus = $this->curationStatus;
+        $requiredSteps = $this->requiredSteps;
+        $incompleteSteps = [];
+
+        if ($curationStatus) {
+            foreach ($requiredSteps as $step) {
+                if (! isset($curationStatus[$step]) || $curationStatus[$step]['status'] !== 'completed') {
+                    $incompleteSteps[] = ucwords(str_replace('-', ' ', $step));
+                }
+            }
+        } else {
+            $incompleteSteps = array_map(function ($step) {
+                return ucwords(str_replace('-', ' ', $step));
+            }, $requiredSteps);
+        }
+
+        return $incompleteSteps;
+    }
+
+    /**
+     * Check if curation is incomplete
+     */
+    public function getIsCurationIncompleteProperty()
+    {
+        return ! empty($this->incompleteSteps);
     }
 
     public function render(): View

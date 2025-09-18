@@ -6,20 +6,23 @@
 #   - name: Nisha Sharma
 #   - email: nisha.sharma@uni-jena.de
 
-name: release-please 
+name: Release Please 
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch: {}
 
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
-      - uses: google-github-actions/release-please-action@v4
+      - uses: googleapis/release-please-action@v4.2.0
         with:
           release-type: php
-          package-name: release-please-action
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
-          prerelease: true
+          target-branch: main
+          token: ${{ secrets.GITHUB_TOKEN }}

@@ -56,7 +56,7 @@ class Welcome extends Component
             return DB::table('molecules')->selectRaw('count(*)')->whereRaw('active=true and NOT (is_parent=true AND has_variants=true)')->get()[0]->count;
         });
         $this->totalCollections = Cache::flexible('stats.collections', [172800, 259200], function () {
-            return DB::table('collections')->selectRaw('count(*)')->get()[0]->count;
+            return DB::table('collections')->selectRaw('count(*)')->whereRaw("status = 'PUBLISHED'")->get()[0]->count;
         });
         $this->uniqueOrganisms = Cache::flexible('stats.organisms', [172800, 259200], function () {
             return DB::table('organisms')->selectRaw('count(*)')->get()[0]->count;

@@ -2,6 +2,8 @@
 
 namespace App\Filament\Dashboard\Resources\ReportResource\Pages;
 
+use App\Enums\ReportCategory;
+use App\Enums\ReportStatus;
 use App\Events\ReportSubmitted;
 use App\Filament\Dashboard\Resources\ReportResource;
 use App\Models\Citation;
@@ -19,7 +21,7 @@ class CreateReport extends CreateRecord
 
     protected $is_change = false;
 
-    protected $mol_id_csv = null;
+    protected $mol_ids = null;
 
     protected $report_type = null;
 
@@ -39,6 +41,11 @@ class CreateReport extends CreateRecord
     protected function beforeFill(): void
     {
         $this->data['type'] = request()->type;
+        $this->data['report_category'] = ReportCategory::REVOKE->value;
+
+        if (request()->type == 'change') {
+            $this->data['report_category'] = ReportCategory::UPDATE->value;
+        }
 
         if (request()->has('compound_id')) {
             $this->molecule = Molecule::where('identifier', request()->compound_id)->first();
@@ -75,7 +82,7 @@ class CreateReport extends CreateRecord
             array_push($this->data['citations'], $id);
             $this->data['report_type'] = 'citation';
         } elseif ($request->has('compound_id')) {
-            $this->data['mol_id_csv'] = $request->compound_id;
+            $this->data['mol_ids'] = json_encode([$request->compound_id]); // Store as JSON array
             $this->data['report_type'] = 'molecule';
         } elseif ($request->has('organism_id')) {
             $citation = Organism::where('id', $request->organism_id)->get();
@@ -87,7 +94,7 @@ class CreateReport extends CreateRecord
 
     protected function afterValidate(): void
     {
-        $this->mol_id_csv = $this->data['mol_id_csv'];
+        $this->mol_ids = $this->data['mol_ids'];
         $this->is_change = $this->data['is_change'];
         $this->report_type = $this->data['report_type'];
         $this->evidence = $this->data['evidence'];
@@ -97,11 +104,11 @@ class CreateReport extends CreateRecord
     {
         if ($this->data['report_type'] == 'collection') {
             $this->data['citations'] = [];
-            $this->data['mol_id_csv'] = null;
+            $this->data['mol_ids'] = null;
             $this->data['organisms'] = [];
         } elseif ($this->data['report_type'] == 'citation') {
             $this->data['collections'] = [];
-            $this->data['mol_id_csv'] = null;
+            $this->data['mol_ids'] = null;
             $this->data['organisms'] = [];
         } elseif ($this->data['report_type'] == 'molecule') {
             $this->data['collections'] = [];
@@ -110,20 +117,33 @@ class CreateReport extends CreateRecord
         } elseif ($this->data['report_type'] == 'organism') {
             $this->data['collections'] = [];
             $this->data['citations'] = [];
-            $this->data['mol_id_csv'] = null;
+            $this->data['mol_ids'] = null;
         }
     }
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['user_id'] = auth()->id();
-        $data['status'] = 'submitted';
-        $data['mol_id_csv'] = $this->mol_id_csv;
-        $data['is_change'] = $this->is_change;
+        $data['status'] = ReportStatus::SUBMITTED->value;
+        $data['mol_ids'] = $this->mol_ids;
         $data['report_type'] = $this->report_type;
         $data['evidence'] = $this->evidence;
 
-        if ($data['is_change']) {
+        if ($data['report_category'] === ReportCategory::SUBMISSION->value) {
+            $suggested_changes = [
+                'new_molecule_data' => [
+                    'canonical_smiles' => $data['canonical_smiles'],
+                    'reference_id' => $data['reference_id'],
+                    'name' => $data['name'],
+                    'link' => $data['link'] ?? null,
+                    'mol_filename' => $data['mol_filename'] ?? null,
+                    'structural_comments' => $data['structural_comments'] ?? null,
+                    'references' => $data['references'] ?? [],
+                ],
+            ];
+            $data['suggested_changes'] = $suggested_changes;
+            $data['report_type'] = 'molecule';
+        } elseif ($data['report_category'] === ReportCategory::UPDATE->value) {
             $suggested_changes = [];
             $suggested_changes['existing_geo_locations'] = $data['existing_geo_locations'];
             $suggested_changes['new_geo_locations'] = $data['new_geo_locations'];
@@ -164,11 +184,19 @@ class CreateReport extends CreateRecord
 
     protected function afterCreate(): void
     {
-        if (! is_null($this->record->mol_id_csv)) {
-            $mol_identifiers = explode(',', $this->record->mol_id_csv);
+        if (! is_null($this->record->mol_ids)) {
+            // Handle JSON format
+            $mol_identifiers = is_string($this->record->mol_ids) ?
+                json_decode($this->record->mol_ids, true) :
+                $this->record->mol_ids;
+
+            // If not a valid JSON array, try to parse as comma-separated for backwards compatibility
+            if (! is_array($mol_identifiers)) {
+                $mol_identifiers = explode(',', $this->record->mol_ids);
+            }
+
             $molecules = Molecule::whereIn('identifier', $mol_identifiers)->get();
             foreach ($molecules as $molecule) {
-
                 $this->record->molecules()->attach($molecule);
             }
         }
@@ -178,7 +206,7 @@ class CreateReport extends CreateRecord
 
     protected function getCreateFormAction(): Action
     {
-        if (! $this->data['is_change']) {
+        if ($this->data['report_category'] !== ReportCategory::UPDATE->value) {
             return parent::getCreateFormAction();
         }
 
@@ -188,7 +216,7 @@ class CreateReport extends CreateRecord
                 return getChangesToDisplayModal($this->data);
             })
             ->modalHidden(function () {
-                return ! $this->data['is_change'];
+                return $this->data['report_category'] !== ReportCategory::UPDATE->value;
             })
             ->action(function () {
                 $this->closeActionModal();

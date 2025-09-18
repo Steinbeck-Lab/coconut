@@ -3,10 +3,13 @@
 name: Deploy Coconut docs to Pages
 
 on:
-  # Runs on pushes targeting the `main` branch. Change this to `master` if you're
-  # using the `master` branch as the default branch.
   push:
-    branches: [development]
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - 'package*.json'
+      - '.github/workflows/docs-deploy.yml'  # Fixed filename
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:

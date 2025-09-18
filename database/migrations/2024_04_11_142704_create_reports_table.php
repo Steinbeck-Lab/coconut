@@ -21,6 +21,7 @@ return new class extends Migration
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->longText('comment')->nullable();
             $table->foreignId('user_id');
+            $table->boolean('is_change')->nullable();
             $table->timestamps();
         });
 

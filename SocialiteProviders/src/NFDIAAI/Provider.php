@@ -51,16 +51,18 @@ class Provider extends AbstractProvider
      */
     protected function mapUserToObject(array $user)
     {
-        if (! isset($user['id']) || empty($user['id'])) {
-            throw new InvalidArgumentException('The user data is invalid: a unique "id" is required.');
+        if (! isset($user['voperson_id']) || empty($user['voperson_id'])) {
+            throw new InvalidArgumentException(
+                'The user data is invalid: a unique "id" is required. User Data: '.json_encode($user)
+            );
         }
 
         return (new User)->setRaw($user)->map([
-            'id' => $user['id'],
-            'nickname' => $user['username'],
+            'id' => $user['voperson_id'],
+            'nickname' => $user['given_name'],
             'name' => $user['name'],
             'email' => $user['email'],
-            'avatar' => $user['avatar'],
+            'avatar' => isset($user['avatar']) ? $user['avatar'] : null,
         ]);
     }
 }

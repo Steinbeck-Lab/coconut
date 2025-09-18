@@ -3,6 +3,7 @@
     mode: @entangle('mode'),
     searchType: 'exact',
     smiles: @entangle('smiles'),
+    currentSmiles: '',  // New state for current SMILES
     type: @entangle('type'),
     draggedFile: null,
     recentSearches: JSON.parse(localStorage.getItem('recentSearches') || '[]'),
@@ -56,6 +57,16 @@
     loadSearch(search) {
         this.type = search.type;
         window.editor.setSmiles(search.q);
+    },
+    loadSmilesIntoEditor() {
+        try {
+            window.editor.setSmiles(this.currentSmiles);
+        } catch(e) {
+            console.error('Invalid SMILES:', e);
+            // Revert to last valid SMILES if invalid
+            this.currentSmiles = window.editor.getSmiles();
+            alert('Invalid SMILES string');
+        }
     }
 }">
     <div x-init="$watch('isOpen', value => {
@@ -69,13 +80,11 @@
             }, 100);
         }
     });">
-        <div x-show="isOpen" x-cloak class="fixed z-20 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
-            aria-modal="true">
+        <div x-show="isOpen" x-cloak class="fixed z-20 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <div class="flex items-center justify-center min-h-screen text-center px-8">
                 <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                <div
-                    class="z-20 inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:w-full sm:p-6">
+                <div class="z-20 inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:w-full sm:p-6">
                     <div class="sm:flex sm:items-start">
                         <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
                             <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
@@ -83,8 +92,23 @@
                             </h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div class="my-4">
-                                    <div id="structureSearchEditor" class="border mb-3"
-                                        style="height: 400px; width: 100%">
+                                    <div id="structureSearchEditor" class="border mb-3" style="height: 400px; width: 100%">
+                                    </div>
+                                    <!-- New SMILES display field -->
+                                    <div class="mb-3">
+                                        <label for="smiles-string" class="block text-sm font-medium text-gray-700">SMILES String</label>
+                                        <div class="mt-1 flex rounded-md shadow-sm">
+                                            <input type="text" 
+                                                   id="smiles-string" 
+                                                   x-model="currentSmiles" 
+                                                   class="block w-full rounded-l-md border-r-0 border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" 
+                                                   placeholder="Enter SMILES string to load into the Editor">
+                                            <button 
+                                                @click="loadSmilesIntoEditor()"
+                                                class="relative -ml-px inline-flex items-center space-x-2 rounded-r-md border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                                Load
+                                            </button>
+                                        </div>
                                     </div>
                                     <div class="py-3">
                                         <div x-on:dragover.prevent="draggedFile = null"

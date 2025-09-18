@@ -28,7 +28,7 @@ class MoleculeDepict2d extends Component
     #[Computed]
     public function source()
     {
-        return env('CM_PUBLIC_API').'depict/2D?smiles='.urlencode($this->smiles).'&height='.$this->height.'&width='.$this->width;
+        return env('CM_PUBLIC_API').'depict/2D?smiles='.urlencode($this->smiles).'&height='.$this->height.'&width='.$this->width.'&toolkit='.$this->toolkit.'&CIP='.$this->CIP;
     }
 
     #[Computed]

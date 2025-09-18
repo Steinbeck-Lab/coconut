@@ -6,6 +6,7 @@ use App\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class Entry extends Model implements Auditable
@@ -13,6 +14,10 @@ class Entry extends Model implements Auditable
     use HasFactory;
     use HasUUID;
     use \OwenIt\Auditing\Auditable;
+
+    protected $casts = [
+        'meta_data' => 'array',
+    ];
 
     /**
      * The attributes that are mass assignable.
@@ -36,6 +41,8 @@ class Entry extends Model implements Auditable
         'has_stereocenters',
         'is_invalid',
         'cm_data',
+        'submission_type',
+        'meta_data',
     ];
 
     /**
@@ -52,5 +59,18 @@ class Entry extends Model implements Auditable
     public function molecule(): BelongsTo
     {
         return $this->belongsTo(Molecule::class, 'molecule_id');
+    }
+
+    /**
+     * Get all of the reports for this entry.
+     */
+    public function reports(): MorphToMany
+    {
+        return $this->morphToMany(Report::class, 'reportable');
+    }
+
+    public function transformAudit(array $data): array
+    {
+        return changeAudit($data);
     }
 }
