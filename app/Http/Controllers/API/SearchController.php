@@ -20,7 +20,7 @@ class SearchController extends Controller
             'query' => 'nullable|string|max:1000',
             'type' => ['nullable', 'string', Rule::in(['text', 'smiles', 'inchi', 'inchikey', 'substructure', 'exact', 'similarity', 'tags', 'filters'])],
             'limit' => 'nullable|integer|min:1|max:100',
-            'offset' => 'nullable|integer|min:1|max:100',
+            'offset' => 'nullable|integer|min:0|max:100',
             'page' => 'nullable|integer|min:1',
             'sort' => ['nullable', 'string', Rule::in(['recent', 'relevance'])],
             'tagType' => 'nullable|string|max:100|regex:/^[a-zA-Z_]+$/',
