@@ -9,6 +9,7 @@ use App\Models\Organism;
 use Illuminate\Database\QueryException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SearchMolecule
 {
@@ -376,5 +377,48 @@ class SearchMolecule
         } else {
             return new LengthAwarePaginator([], 0, $this->size, $this->page);
         }
+    }
+
+    /**
+     * Handle exceptions by returning a user-friendly error response.
+     */
+    private function handleException(QueryException $exception)
+    {
+        $message = $exception->getMessage();
+
+        // Log the exception for debugging
+        Log::error('SearchMolecule query exception', [
+            'query' => $this->query,
+            'type' => $this->type,
+            'exception_message' => $message,
+            'exception_code' => $exception->getCode(),
+        ]);
+
+        if (str_contains(strtolower($message), 'sqlstate[42p01]')) {
+            Log::error('It appears that the molecules table is not indexed. To enable search, please index molecules table and generate corresponding fingerprints.');
+
+            return [
+                'error' => true,
+                'message' => 'Indexing issue. Plese report this to info.COCONUT@uni-jena.de',
+                'results' => [],
+                'total' => 0,
+            ];
+        }
+
+        if (str_contains(strtolower($message), 'sqlstate[22000]')) {
+            return [
+                'error' => true,
+                'message' => 'Error processing the molecule.',
+                'results' => [],
+                'total' => 0,
+            ];
+        }
+
+        return [
+            'error' => true,
+            'message' => 'An error occurred while searching. Please try again.',
+            'results' => [],
+            'total' => 0,
+        ];
     }
 }

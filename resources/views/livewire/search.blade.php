@@ -289,6 +289,16 @@
             </button>
         </div>
     </div>
+    
+    {{-- Error Messages --}}
+    @if (session()->has('error'))
+        <div class="mx-auto px-4 py-4 sm:px-6 lg:max-w-7xl lg:px-8">
+            <div class="rounded-md bg-red-50 p-4">
+                <p class="text-sm text-red-700">{{ session('error') }}</p>
+            </div>
+        </div>
+    @endif
+    
     @if ($molecules && count($molecules) > 0)
         <div class="mx-auto px-4 py-8 sm:px-6 sm:py-8 lg:max-w-7xl lg:px-8">
             <div class="p-4 w-full">
@@ -447,7 +457,7 @@
                 <img class="w-full rounded-md" alt="loading" src="/img/loading.gif" />
             </div>
         </div>
-    @else
+    @elseif($query && !session()->has('error'))
         <div class="text-center pt-10 mt-10">
             <svg class="w-12 h-12 mx-auto" viewBox="0 0 78 78" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clip-path="url(#clip0_1_2)">
@@ -517,8 +527,8 @@
                     </clipPath>
                 </defs>
             </svg>
-            <h3 class="mt-2 text-sm font-semibold text-gray-900">No results</h3>
-            <p class="mt-1 text-sm text-gray-500">Please contact us below to report any issues.</p>
+            <h3 class="mt-2 text-sm font-semibold text-gray-900">No results found</h3>
+            <p class="mt-1 text-sm text-gray-500">Try adjusting your search criteria or contact us if you believe this is an error.</p>
             <div class="mt-6">
                 <a target="_blank" href="https://cheminf.uni-jena.de/"
                     class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">

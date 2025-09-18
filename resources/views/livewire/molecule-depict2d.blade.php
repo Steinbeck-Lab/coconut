@@ -59,7 +59,7 @@
         x-init="
             let urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('type') && urlParams.get('type') == 'substructure' && urlParams.has('q')) {
-                highlightParam = '&highlight=' + urlParams.get('q');
+                highlightParam = '&highlight=' + encodeURIComponent(urlParams.get('q'));
             }
         "
         :src="'{{ $this->source }}&toolkit=' + toolkit + '&CIP=true&unicolor=false' + highlightParam" 
