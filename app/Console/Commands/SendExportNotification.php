@@ -36,25 +36,25 @@ class SendExportNotification extends Command
             try {
                 $backupStats = json_decode($this->option('stats'), true);
                 if (json_last_error() !== JSON_ERROR_NONE) {
-                    $this->warn('Warning: Could not parse backup stats JSON: ' . json_last_error_msg());
+                    $this->warn('Warning: Could not parse backup stats JSON: '.json_last_error_msg());
                 }
 
                 // Validate operation type
-                if (!isset($backupStats['backup_type'])) {
+                if (! isset($backupStats['backup_type'])) {
                     $this->warn('Warning: backup_type not specified in stats');
-                } elseif (!in_array($backupStats['backup_type'], ['Private Daily Backup', 'Monthly Export'])) {
-                    $this->warn('Warning: Invalid backup_type: ' . $backupStats['backup_type']);
+                } elseif (! in_array($backupStats['backup_type'], ['Private Daily Backup', 'Monthly Export'])) {
+                    $this->warn('Warning: Invalid backup_type: '.$backupStats['backup_type']);
                 }
 
                 // Add download note for monthly exports
                 if (isset($backupStats['backup_type']) && $backupStats['backup_type'] === 'Monthly Export') {
                     $backupStats['download_info'] = [
                         'note' => 'Monthly exports include both private backups and public download files.',
-                        'access' => 'Public download files are available at paths starting with "prod/downloads/"'
+                        'access' => 'Public download files are available at paths starting with "prod/downloads/"',
                     ];
                 }
             } catch (\Exception $e) {
-                $this->warn('Warning: Error parsing backup stats: ' . $e->getMessage());
+                $this->warn('Warning: Error parsing backup stats: '.$e->getMessage());
             }
         }
 
@@ -73,11 +73,12 @@ class SendExportNotification extends Command
                     $backupStats
                 ));
             } catch (\Exception $e) {
-                $this->error("Failed to send email to: $recipient. Error: " . $e->getMessage());
+                $this->error("Failed to send email to: $recipient. Error: ".$e->getMessage());
             }
         }
 
         $this->info('Export notification email queued successfully!');
+
         return 0;
     }
 }
