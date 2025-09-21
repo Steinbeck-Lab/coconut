@@ -146,7 +146,7 @@ class SearchMolecule
                           FROM molecules 
                           WHERE standard_inchi LIKE ? 
                           LIMIT ? OFFSET ?';
-                $params = ['%'.$this->query.'%', $this->size, $offset];
+                $params = ['%' . $this->query . '%', $this->size, $offset];
                 break;
 
             case 'inchikey':
@@ -155,7 +155,7 @@ class SearchMolecule
                           FROM molecules 
                           WHERE standard_inchi_key LIKE ? 
                           LIMIT ? OFFSET ?';
-                $params = ['%'.$this->query.'%', $this->size, $offset];
+                $params = ['%' . $this->query . '%', $this->size, $offset];
                 break;
 
             case 'exact':
@@ -180,7 +180,7 @@ class SearchMolecule
                               FROM molecules 
                               WHERE ("identifier"::TEXT ILIKE ?) 
                               LIMIT ? OFFSET ?';
-                $params = ['%'.$this->query.'%', $this->size, $offset];
+                $params = ['%' . $this->query . '%', $this->size, $offset];
                 break;
 
             case 'filters':
@@ -201,7 +201,15 @@ class SearchMolecule
         if ($this->tagType == 'dataSource') {
             $this->collection = Collection::where('title', $this->query)->first();
             if ($this->collection) {
-                return $this->collection->molecules()->where('active', true)->where('is_parent', false)->orderBy('annotation_level', 'desc')->paginate($this->size);
+                return $this->collection->molecules()
+                    ->where('active', true)
+                    ->where(function ($query) {
+                        $query->where('is_parent', false)
+                            ->orWhere(function ($subQuery) {
+                                $subQuery->where('is_parent', true)
+                                    ->where('has_variants', false);
+                            });
+                    })->paginate($this->size);
             } else {
                 return [];
             }
@@ -209,7 +217,7 @@ class SearchMolecule
             $query_organisms = array_map('strtolower', array_map('trim', explode(',', $this->query)));
             $this->organisms = Organism::where(function ($query) use ($query_organisms) {
                 foreach ($query_organisms as $name) {
-                    $query->orWhereRaw('name ILIKE ?', ['%'.$name.'%']);
+                    $query->orWhereRaw('name ILIKE ?', ['%' . $name . '%']);
                 }
             })->get();
             $organismIds = $this->organisms->pluck('id');
@@ -221,8 +229,8 @@ class SearchMolecule
             $query_citations = array_map('strtolower', array_map('trim', explode(',', $this->query)));
             $this->citations = Citation::where(function ($query) use ($query_citations) {
                 foreach ($query_citations as $name) {
-                    $query->orWhereRaw('doi ILIKE ?', ['%'.$name.'%'])
-                        ->orWhereRaw('title ILIKE ?', ['%'.$name.'%']);
+                    $query->orWhereRaw('doi ILIKE ?', ['%' . $name . '%'])
+                        ->orWhereRaw('title ILIKE ?', ['%' . $name . '%']);
                 }
             })->get();
             $citationIds = $this->citations->pluck('id');
@@ -280,7 +288,7 @@ class SearchMolecule
                 } else {
                     $filterValue = str_replace('+', ' ', $filterValue);
                     $sql .= "(LOWER(REGEXP_REPLACE({$filterMap[$filterKey]}, '\\s+', '-', 'g'))::TEXT ILIKE ?)";
-                    $params[] = '%'.$filterValue.'%';
+                    $params[] = '%' . $filterValue . '%';
                 }
             }
 
@@ -320,16 +328,23 @@ class SearchMolecule
                 END
             LIMIT ? OFFSET ?';
 
-            $searchPattern = '%'.$this->query.'%';
+            $searchPattern = '%' . $this->query . '%';
             $exactPattern = $this->query;
 
             return [
                 'sql' => $sql,
                 'params' => [
-                    $searchPattern, $searchPattern, $searchPattern,  // WHERE clause
-                    $exactPattern, $exactPattern, $exactPattern,    // Exact matches in ORDER BY
-                    $searchPattern, $searchPattern, $searchPattern,  // Pattern matches in ORDER BY
-                    $this->size, $offset,
+                    $searchPattern,
+                    $searchPattern,
+                    $searchPattern,  // WHERE clause
+                    $exactPattern,
+                    $exactPattern,
+                    $exactPattern,    // Exact matches in ORDER BY
+                    $searchPattern,
+                    $searchPattern,
+                    $searchPattern,  // Pattern matches in ORDER BY
+                    $this->size,
+                    $offset,
                 ],
             ];
         } else {
@@ -357,7 +372,7 @@ class SearchMolecule
         $ids_array = collect($hits)->pluck('id')->toArray();
 
         if (! empty($ids_array)) {
-            $placeholders = str_repeat('?,', count($ids_array) - 1).'?';
+            $placeholders = str_repeat('?,', count($ids_array) - 1) . '?';
 
             $sql = "
             SELECT identifier, canonical_smiles, annotation_level, name, iupac_name, organism_count, citation_count, geo_count, collection_count
