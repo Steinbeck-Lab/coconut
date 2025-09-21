@@ -3,7 +3,9 @@
 namespace App\Livewire;
 
 use App\Actions\Coconut\SearchMolecule;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Url;
@@ -89,13 +91,25 @@ class Search extends Component
     public function render(SearchMolecule $search)
     {
         try {
-            $this->query = urldecode($this->query);
+            // $this->query = urldecode($this->query);
 
             $cacheKey = 'search.'.md5($this->query.$this->size.$this->type.$this->sort.$this->tagType.$this->page);
 
-            $results = Cache::remember($cacheKey, now()->addDay(), function () use ($search) {
-                return $search->query($this->query, $this->size, $this->type, $this->sort, $this->tagType, $this->page);
-            });
+            $results = $search->query($this->query, $this->size, $this->type, $this->sort, $this->tagType, $this->page);
+
+            // Check if the results contain an error
+            if (is_array($results) && isset($results['error']) && $results['error'] === true) {
+                // Clear any cached error results
+                Cache::forget($cacheKey);
+                session()->flash('error', $results['message']);
+
+                return view('livewire.search', [
+                    'molecules' => [],
+                ]);
+            }
+
+            // Only cache successful results
+            Cache::put($cacheKey, $results, now()->addDay());
 
             $this->collection = $results[1];
             $this->organisms = $results[2];
@@ -104,22 +118,29 @@ class Search extends Component
                 'molecules' => $results[0],
             ]);
         } catch (QueryException $exception) {
-            $message = $exception->getMessage();
-            if (str_contains(strtolower($message), strtolower('SQLSTATE[42P01]'))) {
-                return response()->json(
-                    [
-                        'message' => 'It appears that the molecules table is not indexed. To enable search, please index molecules table and generate corresponding fingerprints.',
-                    ],
-                    500
-                );
-            }
+            // Handle any unexpected QueryExceptions that might bypass SearchMolecule error handling
+            Log::error('Livewire Search QueryException', [
+                'query' => $this->query,
+                'exception_message' => $exception->getMessage(),
+            ]);
 
-            return response()->json(
-                [
-                    'message' => $message,
-                ],
-                500
-            );
+            session()->flash('error', 'An error occurred while searching. Please try again.');
+
+            return view('livewire.search', [
+                'molecules' => [],
+            ]);
+        } catch (\Exception $exception) {
+            // Handle any other unexpected exceptions
+            Log::error('Livewire Search Exception', [
+                'query' => $this->query,
+                'exception_message' => $exception->getMessage(),
+            ]);
+
+            session()->flash('error', 'An unexpected error occurred. Please try again.');
+
+            return view('livewire.search', [
+                'molecules' => [],
+            ]);
         }
     }
 }

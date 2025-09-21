@@ -134,17 +134,13 @@ class MoleculeResource extends Resource
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if ($data['type'] && $data['type'] == 'substructure' && $data['smiles']) {
-                            $statement = "SELECT id, m, 
-                                tanimoto_sml(morganbv_fp(mol_from_smiles('{$data['smiles']}')::mol), morganbv_fp(m::mol)) AS similarity 
+                            $sql = 'SELECT id, m, 
+                                tanimoto_sml(morganbv_fp(mol_from_smiles(?)::mol), morganbv_fp(m::mol)) AS similarity 
                             FROM mols 
-                            WHERE m@> mol_from_smiles('{$data['smiles']}')::mol 
-                            ORDER BY similarity DESC";
+                            WHERE m@> mol_from_smiles(?)::mol 
+                            ORDER BY similarity DESC';
 
-                            $expression = DB::raw($statement);
-
-                            $string = $expression->getValue(DB::connection()->getQueryGrammar());
-
-                            $hits = DB::select($string);
+                            $hits = DB::select($sql, [$data['smiles'], $data['smiles']]);
 
                             $ids_array = collect($hits)->pluck('id')->toArray();
 

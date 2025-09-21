@@ -220,8 +220,8 @@ class RemoveDuplicates extends Command
                 DB::table('collection_molecule')
                     ->where('molecule_id', $entryId)
                     ->update([
-                        'url' => DB::raw("CONCAT(url, '|', '{$duplicateEntry->url}')"),
-                        'reference' => DB::raw("CONCAT(reference, '|', '{$duplicateEntry->reference}')"),
+                        'url' => $existingEntry->url.'|'.$duplicateEntry->url,
+                        'reference' => $existingEntry->reference.'|'.$duplicateEntry->reference,
                     ]);
 
                 DB::table('collection_molecule')
