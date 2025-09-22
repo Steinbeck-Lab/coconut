@@ -201,7 +201,15 @@ class SearchMolecule
         if ($this->tagType == 'dataSource') {
             $this->collection = Collection::where('title', $this->query)->first();
             if ($this->collection) {
-                return $this->collection->molecules()->where('active', true)->where('is_parent', false)->orderBy('annotation_level', 'desc')->paginate($this->size);
+                return $this->collection->molecules()
+                    ->where('active', true)
+                    ->where(function ($query) {
+                        $query->where('is_parent', false)
+                            ->orWhere(function ($subQuery) {
+                                $subQuery->where('is_parent', true)
+                                    ->where('has_variants', false);
+                            });
+                    })->orderBy('annotation_level', 'DESC')->paginate($this->size);
             } else {
                 return [];
             }
@@ -326,10 +334,17 @@ class SearchMolecule
             return [
                 'sql' => $sql,
                 'params' => [
-                    $searchPattern, $searchPattern, $searchPattern,  // WHERE clause
-                    $exactPattern, $exactPattern, $exactPattern,    // Exact matches in ORDER BY
-                    $searchPattern, $searchPattern, $searchPattern,  // Pattern matches in ORDER BY
-                    $this->size, $offset,
+                    $searchPattern,
+                    $searchPattern,
+                    $searchPattern,  // WHERE clause
+                    $exactPattern,
+                    $exactPattern,
+                    $exactPattern,    // Exact matches in ORDER BY
+                    $searchPattern,
+                    $searchPattern,
+                    $searchPattern,  // Pattern matches in ORDER BY
+                    $this->size,
+                    $offset,
                 ],
             ];
         } else {
