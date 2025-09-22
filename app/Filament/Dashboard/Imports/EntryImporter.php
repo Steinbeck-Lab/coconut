@@ -19,6 +19,7 @@ class EntryImporter extends Importer
             ImportColumn::make('canonical_smiles'),
             ImportColumn::make('reference_id'),
             ImportColumn::make('name'),
+            ImportColumn::make('synonyms'),
             ImportColumn::make('doi'),
             ImportColumn::make('link'),
             ImportColumn::make('organism'),
@@ -69,6 +70,9 @@ class EntryImporter extends Importer
         // Convert flattened data to structured JSON for meta_data
         $this->record->meta_data = $this->reconstructMetaData();
 
+        // Process synonyms and store them in the synonyms field
+        $this->record->synonyms = $this->processSynonyms($this->data['synonyms'] ?? '');
+
         // Set default values
         $this->record->submission_type = 'csv';
         $this->record->status = 'SUBMITTED';
@@ -84,6 +88,7 @@ class EntryImporter extends Importer
                 'canonical_smiles' => $this->data['canonical_smiles'] ?? '',
                 'reference_id' => $this->data['reference_id'] ?? '',
                 'name' => $this->data['name'] ?? '',
+                'synonyms' => $this->processSynonyms($this->data['synonyms'] ?? ''),
                 'link' => $this->data['link'] ?? '',
                 'mol_filename' => $this->data['mol_filename'] ?? '',
                 'structural_comments' => $this->data['structural_comments'] ?? '',
@@ -196,6 +201,23 @@ class EntryImporter extends Importer
         }
 
         return array_map('trim', explode($separator, $data));
+    }
+
+    /**
+     * Process pipe-separated synonyms into an array
+     */
+    private function processSynonyms(string $synonymsData): array
+    {
+        if (empty($synonymsData)) {
+            return [];
+        }
+
+        return array_filter(
+            array_map('trim', explode('|', $synonymsData)),
+            function ($synonym) {
+                return ! empty($synonym);
+            }
+        );
     }
 
     public function getJobQueue(): ?string
