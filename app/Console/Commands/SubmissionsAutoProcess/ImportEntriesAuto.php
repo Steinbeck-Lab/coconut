@@ -110,7 +110,7 @@ class ImportEntriesAuto extends Command
             $placeholders = str_repeat('?,', count($idChunk) - 1).'?';
 
             $entries = DB::select(
-                "SELECT id, status, has_stereocenters, collection_id, link, reference_id, mol_filename, structural_comments, cm_data, molecule_id FROM entries WHERE id IN ({$placeholders})",
+                "SELECT id, status, has_stereocenters, collection_id, link, reference_id, mol_filename, structural_comments, cm_data, molecule_id, synonyms FROM entries WHERE id IN ({$placeholders})",
                 $idChunk
             );
 
@@ -234,6 +234,7 @@ class ImportEntriesAuto extends Command
     public function processEntryMoleculeAuto($entry, &$auditRecords): void
     {
         $molecule = null;
+        $entry_synonyms = json_decode($entry->synonyms, true);
         if ($entry->has_stereocenters) {
             $data = $this->getRepresentations($entry, 'parent');
             // Pass parent molecule properties to findOrCreateMolecule
@@ -296,6 +297,29 @@ class ImportEntriesAuto extends Command
                 ],
                 null,
                 false,
+                $auditRecords
+            );
+        }
+
+        // Add new synonyms from entry to the molecule
+        if ($entry_synonyms) {
+            $existing_synonyms = property_exists($molecule, 'synonyms') && $molecule->synonyms !== null
+                ? json_decode($molecule->synonyms, true)
+                : [];
+            $merged_synonyms = array_unique(array_merge($entry_synonyms, $existing_synonyms));
+
+            // Update using raw query since $molecule is stdClass
+            DB::update(
+                'UPDATE molecules SET synonyms = ?, updated_at = NOW() WHERE id = ?',
+                [json_encode($merged_synonyms), $molecule->id]
+            );
+
+            $this->addAuditRecord(
+                'App\\Models\\Molecule',
+                $molecule->id,
+                'updated',
+                ['synonyms' => $existing_synonyms],
+                ['synonyms' => json_encode($merged_synonyms)],
                 $auditRecords
             );
         }
