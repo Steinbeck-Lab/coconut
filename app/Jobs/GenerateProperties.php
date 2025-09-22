@@ -26,7 +26,7 @@ class GenerateProperties implements ShouldQueue
     /**
      * The number of seconds the job can run before timing out.
      */
-    public $timeout = 120;
+    public $timeout = 1200;
 
     /**
      * Create a new job instance.
@@ -59,7 +59,7 @@ class GenerateProperties implements ShouldQueue
             $API_URL = env('API_URL', 'https://api.cheminf.studio/latest/');
             $ENDPOINT = $API_URL.'chem/descriptors?smiles='.urlencode($canonical_smiles).'&format=json&toolkit=rdkit';
 
-            $response = Http::timeout(45)->get($ENDPOINT);
+            $response = Http::timeout(1200)->get($ENDPOINT);
             if ($response->successful()) {
                 $descriptors = $response->json();
                 $descriptors['standard_inchi'] = $this->molecule->standard_inchi;

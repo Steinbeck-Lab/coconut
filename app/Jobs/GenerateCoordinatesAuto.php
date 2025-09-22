@@ -29,7 +29,7 @@ class GenerateCoordinatesAuto implements ShouldQueue
      *
      * @var int
      */
-    public $timeout = 120;
+    public $timeout = 1200;
 
     /**
      * Create a new job instance.
@@ -119,7 +119,7 @@ class GenerateCoordinatesAuto implements ShouldQueue
 
         while ($attempt < $maxRetries) {
             try {
-                $response = Http::timeout(45)->get($endpoint);
+                $response = Http::timeout(1200)->get($endpoint);
 
                 if ($response->successful()) {
                     return $response->body();
