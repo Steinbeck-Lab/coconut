@@ -17,6 +17,7 @@ class Entry extends Model implements Auditable
 
     protected $casts = [
         'meta_data' => 'array',
+        'synonyms' => 'array',
     ];
 
     /**
@@ -33,6 +34,7 @@ class Entry extends Model implements Auditable
         'organism_part',
         'coconut_id',
         'mol_filename',
+        'synonyms',
         'status',
         'errors',
         'standardized_canonical_smiles',
