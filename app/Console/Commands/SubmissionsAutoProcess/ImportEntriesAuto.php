@@ -318,7 +318,7 @@ class ImportEntriesAuto extends Command
                 'App\\Models\\Molecule',
                 $molecule->id,
                 'updated',
-                ['synonyms' => $existing_synonyms],
+                ['synonyms' => json_encode($existing_synonyms)],
                 ['synonyms' => json_encode($merged_synonyms)],
                 $auditRecords
             );
