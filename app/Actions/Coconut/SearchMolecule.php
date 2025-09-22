@@ -209,7 +209,7 @@ class SearchMolecule
                                 $subQuery->where('is_parent', true)
                                     ->where('has_variants', false);
                             });
-                    })->paginate($this->size);
+                    })->orderBy('annotation_level', 'DESC')->paginate($this->size);
             } else {
                 return [];
             }
