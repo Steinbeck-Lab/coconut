@@ -114,20 +114,19 @@ The number of molecules in collection-wise downloads may differ from counts show
 
 | Context | Count Example | Inclusion Criteria |
 |---------|---------------|-------------------|
-| Search pages | 12,759 | Active molecules excluding parents |
-| Downloads | 14,494 | Active molecules including parentless parents |
+| Search pages | 16,073 | Unique molecules from the Collection |
+| Downloads | 14,495 | Active molecules including varinatless parents |
 
 This difference is demonstrated by the following SQL queries:
 
 ```sql
 -- Search count (active + not parent)
-SELECT count(*)
-FROM molecules m
-JOIN collection_molecule cm ON m.id = cm.molecule_id
-JOIN collections c ON cm.collection_id = c.id
-WHERE c.title = 'Australian natural products' 
-  AND m.active=true 
-  AND m.is_parent=false;
+SELECT id 
+FROM molecules 
+WHERE id IN (
+   SELECT DISTINCT molecule_id 
+   FROM entries 
+   WHERE collection_id=55);
   
 -- Download count (active + not parent OR parent without variants)
 SELECT count(*)
