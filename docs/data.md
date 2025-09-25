@@ -121,7 +121,7 @@ This difference is demonstrated by the following SQL queries:
 
 ```sql
 -- Search count (active + not parent)
-SELECT id 
+SELECT count(*) 
 FROM molecules 
 WHERE id IN (
    SELECT DISTINCT molecule_id 
