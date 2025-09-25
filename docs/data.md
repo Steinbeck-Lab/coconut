@@ -115,7 +115,7 @@ The number of molecules in collection-wise downloads may differ from counts show
 | Context | Count Example | Inclusion Criteria |
 |---------|---------------|-------------------|
 | Search pages | 16,073 | Unique molecules from the Collection |
-| Downloads | 14,495 | Active molecules including varinatless parents |
+| Downloads | 14,495 | Active molecules including variantless parents |
 
 This difference is demonstrated by the following SQL queries:
 
