@@ -51,7 +51,7 @@
                                 <td colspan="2" class="px-4 py-2 text-sm text-center text-gray-500">
                                     <livewire:molecule-depict2d :height="300" :molecule="$mol" :smiles="$entry->canonical_smiles"
                                         :name="$mol->name" :identifier="$mol->identifier" :options="false" lazy="on-load" />
-                                    {{$entry->canonical_smiles ?? '-'}}
+                                    <span class="break-all">{{$entry->canonical_smiles ?? '-'}}</span>
                                 </td>
                             </tr>
                             <tr>
