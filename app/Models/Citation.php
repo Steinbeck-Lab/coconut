@@ -70,9 +70,10 @@ class Citation extends Model implements Auditable
                         ->disabled(),
                     TextInput::make('doi')
                         ->label('DOI')
+                        ->placeholder('Leave empty to manually enter other citation details')
                         ->live(onBlur: true)
                         ->afterStateUpdated(function ($set, $state) {
-                            if (doiRegxMatch($state)) {
+                            if ($state && doiRegxMatch($state)) {
                                 $set('failMessage', 'Fetching');
                                 $citationDetails = fetchDOICitation($state);
                                 if ($citationDetails) {
@@ -83,8 +84,10 @@ class Citation extends Model implements Auditable
                                 } else {
                                     $set('failMessage', 'No citation found. Please fill in the details manually');
                                 }
-                            } else {
+                            } elseif ($state && ! doiRegxMatch($state)) {
                                 $set('failMessage', 'Invalid DOI');
+                            } else {
+                                $set('failMessage', '');
                             }
                         })
                         ->helperText(function ($get) {
@@ -94,17 +97,16 @@ class Citation extends Model implements Auditable
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg> ');
-                            } elseif ($get('failMessage') != 'Success') {
+                            } elseif ($get('failMessage') != 'Success' && $get('failMessage') != '') {
                                 return new HtmlString('<span style="color:red">'.$get('failMessage').'</span>');
                             } else {
                                 return null;
                             }
                         })
-                        ->required()
                         ->unique()
                         ->rules([
                             fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
-                                if ($get('failMessage') != 'Success') {
+                                if ($value && $get('failMessage') != 'Success' && $get('failMessage') != '') {
                                     $fail($get('failMessage'));
                                 }
                             },
@@ -117,16 +119,18 @@ class Citation extends Model implements Auditable
             Section::make()
                 ->schema([
                     TextInput::make('title')
+                        ->required(function ($get) {
+                            return empty($get('doi'));
+                        })
+                        ->rules([
+                            fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                                if (empty($get('doi')) && empty($value)) {
+                                    $fail('Title is required when DOI is not provided.');
+                                }
+                            },
+                        ])
                         ->disabled(function ($get, string $operation) {
-                            if ($operation = 'edit' || $get('failMessage') == 'No citation found. Please fill in the details manually') {
-                                return false;
-                            } else {
-                                return true;
-                            }
-                        }),
-                    TextInput::make('authors')
-                        ->disabled(function ($get, string $operation) {
-                            if ($operation = 'edit' || $get('failMessage') == 'No citation found. Please fill in the details manually') {
+                            if ($operation == 'edit' || $get('failMessage') == 'No citation found. Please fill in the details manually' || empty($get('doi'))) {
                                 return false;
                             } else {
                                 return true;
@@ -134,8 +138,26 @@ class Citation extends Model implements Auditable
                         }),
                     Textarea::make('citation_text')
                         ->label('Citation text / URL')
+                        ->required(function ($get) {
+                            return empty($get('doi'));
+                        })
+                        ->rules([
+                            fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                                if (empty($get('doi')) && empty($value)) {
+                                    $fail('Citation text is required when DOI is not provided.');
+                                }
+                            },
+                        ])
                         ->disabled(function ($get, string $operation) {
-                            if ($operation = 'edit' || $get('failMessage') == 'No citation found. Please fill in the details manually') {
+                            if ($operation == 'edit' || $get('failMessage') == 'No citation found. Please fill in the details manually' || empty($get('doi'))) {
+                                return false;
+                            } else {
+                                return true;
+                            }
+                        }),
+                    TextInput::make('authors')
+                        ->disabled(function ($get, string $operation) {
+                            if ($operation == 'edit' || $get('failMessage') == 'No citation found. Please fill in the details manually' || empty($get('doi'))) {
                                 return false;
                             } else {
                                 return true;

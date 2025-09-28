@@ -231,7 +231,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         foreach ($geo_locations as $geo_location) {
             $geolocationModel = GeoLocation::firstOrCreate(['name' => $geo_location]);
             $locationsNames = array_key_exists($i, $locations) ? $locations[$i] : '';
-            $molecule->geoLocations()->syncWithoutDetaching([$geolocationModel->id => ['locations' => $locationsNames]]);
+            $molecule->geo_locations()->syncWithoutDetaching([$geolocationModel->id => ['locations' => $locationsNames]]);
             $i = $i + 1;
         }
     }

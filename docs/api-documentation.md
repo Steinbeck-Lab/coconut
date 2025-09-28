@@ -315,3 +315,168 @@ Update molecule properties.
 ::: warning Note
 General users cannot perform this. Special access privileges and vetting are done by the Scientific Advisory Board before anyone can be granted permission to perform this operation. For any queries, please contact: info.COCONUT@uni-jena.de 
 :::
+
+## Reports Endpoints
+
+### Search
+
+Search for reports with various filtering, sorting, and pagination options.
+
+**URL:** `/api/reports/search`  
+**Method:** `POST`  
+**Content-Type:** `application/json`
+
+#### Basic Example
+
+```json
+{
+  "search": {
+    "filters": [
+      {
+        "field": "title",
+        "operator": "like",
+        "value": "%molecule%"
+      }
+    ],
+    "sorts": [
+      {
+        "field": "title",
+        "direction": "desc"
+      }
+    ],
+    "page": 1,
+    "limit": 10
+  }
+}
+```
+
+
+### Create
+
+Create a new report.
+
+**URL:** `/api/reports`  
+**Method:** `POST`  
+**Content-Type:** `application/json`
+
+#### Request
+
+```json
+{
+  "mutate": [
+    {
+      "operation": "create",
+      "attributes": {
+        "title": "Isolation of Berberine from Berberis vulgaris",
+        "evidence": "The compound was isolated from the root bark extract using column chromatography and structure confirmed by NMR and MS analysis.",
+        "comment": "This alkaloid has shown significant antimicrobial activity against gram-positive bacteria.",
+        "suggested_changes": {
+          "new_molecule_data": {
+            "canonical_smiles": "COc1ccc2cc3[n+](cc2c1OC)CCc1cc2c(cc1-3)OCO2",
+            "reference_id": "ID if it has one",
+            "name": "Berberine",
+            "link": "https://pubchem.ncbi.nlm.nih.gov/compound/2353",
+            "mol_filename": "berberine.mol",
+            "structural_comments": "Quaternary isoquinoline alkaloid with a tetracyclic skeleton",
+            "references": [
+              {
+                "doi": "10.1021/np50123a002",
+                "organisms": [
+                  {
+                    "name": "Berberis vulgaris",
+                    "parts": ["root", "bark", "rhizome"],
+                    "locations": [
+                      { "name": "Eastern Europe", "ecosystems": ["temperate forest", "woodland"] },
+                      { "name": "Western Asia", "ecosystems": ["mountain slopes", "rocky terrain"] }
+                    ]
+                  },
+                  {
+                    "name": "Hydrastis canadensis",
+                    "parts": ["rhizome", "roots"],
+                    "locations": [
+                      { "name": "Eastern North America", "ecosystems": ["deciduous forest", "shaded woodland"] }
+                    ]
+                  }
+                ]
+              },
+              {
+                "doi": "10.1016/j.jep.2019.112124",
+                "organisms": [
+                  {
+                    "name": "Coptis chinensis",
+                    "parts": ["rhizome", "roots"],
+                    "locations": [
+                      { "name": "Southern China", "ecosystems": ["mountain forests", "hillsides"] },
+                      { "name": "Eastern Asia", "ecosystems": ["humid forest", "river valleys"] }
+                    ]
+                  },
+                  {
+                    "name": "Phellodendron amurense",
+                    "parts": ["bark", "stem"],
+                    "locations": [{ "name": "Northeast Asia", "ecosystems": ["deciduous forest", "mixed forest"] }]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "relations": []
+    }
+  ]
+}
+```
+::: info Note: *Only one molecule per submission.*
+Required fileds: 
+  - **Title** 
+  - **canonical_smiles** (inside new_molecule_data)
+  - **doi** (inside references array)
+:::
+
+
+### Update
+::: warning Note
+General users cannot perform this. Special access privileges and vetting are done by the Scientific Advisory Board before anyone can be granted permission to perform this operation. For any queries, please contact: info.COCONUT@uni-jena.de 
+:::
+Update an existing report.
+
+**URL:** `/api/reports/{id}`  
+**Method:** `PATCH`  
+**Content-Type:** `application/json`
+
+#### Request
+
+```json
+{
+    "mutate": [
+        {
+            "operation": "update",
+            "key": 43,
+            "attributes": {"title": "new name"}
+        }
+    ]
+}
+```
+
+
+### Delete
+
+::: warning Note
+General users cannot perform this. Special access privileges and vetting are done by the Scientific Advisory Board before anyone can be granted permission to perform this operation. For any queries, please contact: info.COCONUT@uni-jena.de 
+:::
+
+Permanently delete a report.
+
+**URL:** `/api/reports`  
+**Method:** `DELETE`
+
+#### Request
+
+```json
+{
+  "resources": [
+    42,
+    43
+  ]
+}
+```

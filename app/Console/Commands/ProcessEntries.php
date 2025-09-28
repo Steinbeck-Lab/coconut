@@ -54,7 +54,7 @@ class ProcessEntries extends Command
                     'collection_id' => $collection->id,
                 ]);
             })->name('Process Entries '.$collectionId['collection_id'])
-                ->allowFailures(false)
+                ->allowFailures()
                 ->onConnection('redis')
                 ->onQueue('default')
                 ->dispatch();

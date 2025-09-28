@@ -27,18 +27,19 @@ class Report extends Model implements Auditable
         'report_type',
         'title',
         'evidence',
-        'url',
-        'mol_id_csv',
+        'doi',
+        'mol_ids',
         'status',
         'comment',
         'user_id',
         'suggested_changes',
-        'is_change',
-        'doi',
+        'report_category',
+        'assigned_to',
     ];
 
     protected $casts = [
         'suggested_changes' => 'array',
+        'mol_ids' => 'array',
     ];
 
     /**
@@ -70,10 +71,18 @@ class Report extends Model implements Auditable
         return $this->morphedByMany(Organism::class, 'reportable');
     }
 
-    // public function geoLocations(): MorphToMany
-    // {
-    //     return $this->morphedByMany(Organism::class, 'reportable');
-    // }
+    public function geo_locations(): MorphToMany
+    {
+        return $this->morphedByMany(GeoLocation::class, 'reportable');
+    }
+
+    /**
+     * Get all of the entries that are assigned this report.
+     */
+    public function entries(): MorphToMany
+    {
+        return $this->morphedByMany(Entry::class, 'reportable');
+    }
 
     /**
      * Get all of the users that are assigned this report.

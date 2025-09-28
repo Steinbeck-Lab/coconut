@@ -3,10 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Models\Molecule;
-use DB;
 use Illuminate\Console\Command;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use OwenIt\Auditing\Events\AuditCustom;
 
@@ -93,7 +94,7 @@ class DedupeFixCollectionSourceLinks extends Command
                         $reference = null;
 
                         // Get the source URL and reference for the molecule
-                        $entries = DB::select("SELECT link, reference_id FROM entries WHERE collection_id = {$collection_molecule->collection_id} and molecule_id = {$collection_molecule->molecule_id};");
+                        $entries = DB::select('SELECT link, reference_id FROM entries WHERE collection_id = ? and molecule_id = ?;', [$collection_molecule->collection_id, $collection_molecule->molecule_id]);
 
                         foreach ($entries as $index => $entry) {
                             // dd($index, $entry);
@@ -333,7 +334,7 @@ class DedupeFixCollectionSourceLinks extends Command
                 }
             });
         } catch (\Exception $e) {
-            \Log::error('Error in updateBatch: '.$e->getMessage(), [
+            Log::error('Error in updateBatch: '.$e->getMessage(), [
                 'exception' => $e,
                 'data_count' => count($data),
             ]);

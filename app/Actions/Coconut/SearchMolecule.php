@@ -6,8 +6,10 @@ use App\Models\Citation;
 use App\Models\Collection;
 use App\Models\Molecule;
 use App\Models\Organism;
+use Illuminate\Database\QueryException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SearchMolecule
 {
@@ -67,21 +69,21 @@ class SearchMolecule
             if ($queryType == 'tags') {
                 $results = $this->buildTagsStatement($offset);
             } elseif ($queryType == 'filters') {
-                $statement = $this->buildStatement($queryType, $offset, $filterMap);
-                if ($statement) {
-                    $results = $this->executeQuery($statement);
+                $statementData = $this->buildStatement($queryType, $offset, $filterMap);
+                if ($statementData) {
+                    $results = $this->executeQuery($statementData);
                 }
             } else {
-                $statement = $this->buildStatement($queryType, $offset, $filterMap);
-                if ($statement) {
-                    $results = $this->executeQuery($statement);
+                $statementData = $this->buildStatement($queryType, $offset, $filterMap);
+                if ($statementData) {
+                    $results = $this->executeQuery($statementData);
                 }
             }
 
             return [$results,  $this->collection, $this->organisms, $this->citations];
         } catch (QueryException $exception) {
-
-            return $this->handleException($exception);
+            // Re-throw the exception to be handled by the controller
+            throw $exception;
         }
     }
 
@@ -123,67 +125,72 @@ class SearchMolecule
      */
     private function buildStatement($queryType, $offset, $filterMap)
     {
-        $statement = null;
+        $sql = null;
+        $params = [];
 
         switch ($queryType) {
             case 'smiles':
             case 'substructure':
-                $statement = "SELECT id, m, 
-                    tanimoto_sml(morganbv_fp(mol_from_smiles('{$this->query}')::mol), morganbv_fp(m::mol)) AS similarity, 
+                $sql = 'SELECT id, m, 
+                    tanimoto_sml(morganbv_fp(mol_from_smiles(?)::mol), morganbv_fp(m::mol)) AS similarity, 
                     COUNT(*) OVER () AS count 
                 FROM mols 
-                WHERE m@> mol_from_smiles('{$this->query}')::mol 
+                WHERE m@> mol_from_smiles(?)::mol 
                 ORDER BY similarity DESC 
-                LIMIT {$this->size} OFFSET {$offset}";
+                LIMIT ? OFFSET ?';
+                $params = [$this->query, $this->query, $this->size, $offset];
                 break;
 
             case 'inchi':
-                $statement = "SELECT id, COUNT(*) OVER () 
+                $sql = 'SELECT id, COUNT(*) OVER () AS count
                           FROM molecules 
-                          WHERE standard_inchi LIKE '%{$this->query}%' 
-                          LIMIT {$this->size} OFFSET {$offset}";
+                          WHERE standard_inchi LIKE ? 
+                          LIMIT ? OFFSET ?';
+                $params = ['%'.$this->query.'%', $this->size, $offset];
                 break;
 
             case 'inchikey':
             case 'parttialinchikey':
-                $statement = "SELECT id, COUNT(*) OVER () 
+                $sql = 'SELECT id, COUNT(*) OVER () AS count
                           FROM molecules 
-                          WHERE standard_inchi_key LIKE '%{$this->query}%' 
-                          LIMIT {$this->size} OFFSET {$offset}";
+                          WHERE standard_inchi_key LIKE ? 
+                          LIMIT ? OFFSET ?';
+                $params = ['%'.$this->query.'%', $this->size, $offset];
                 break;
 
             case 'exact':
-                $statement = "SELECT id, COUNT(*) OVER () 
+                $sql = 'SELECT id, COUNT(*) OVER () AS count
                           FROM mols 
-                          WHERE m@='{$this->query}' 
-                          LIMIT {$this->size} OFFSET {$offset}";
+                          WHERE m@=? 
+                          LIMIT ? OFFSET ?';
+                $params = [$this->query, $this->size, $offset];
                 break;
 
             case 'similarity':
-                $statement = "SELECT id, COUNT(*) OVER () 
+                $sql = 'SELECT id, COUNT(*) OVER () AS count
                           FROM fps 
-                          WHERE mfp2%morganbv_fp('{$this->query}') 
-                          ORDER BY morganbv_fp(mol_from_smiles('{$this->query}'))<%>mfp2 
-                          LIMIT {$this->size} OFFSET {$offset}";
+                          WHERE mfp2%morganbv_fp(?) 
+                          ORDER BY morganbv_fp(mol_from_smiles(?))<%>mfp2 
+                          LIMIT ? OFFSET ?';
+                $params = [$this->query, $this->query, $this->size, $offset];
                 break;
 
             case 'identifier':
-                $statement = "SELECT id, COUNT(*) OVER () 
+                $sql = 'SELECT id, COUNT(*) OVER () AS count
                               FROM molecules 
-                              WHERE (\"identifier\"::TEXT ILIKE '%{$this->query}%') 
-                              LIMIT {$this->size} OFFSET {$offset}";
+                              WHERE ("identifier"::TEXT ILIKE ?) 
+                              LIMIT ? OFFSET ?';
+                $params = ['%'.$this->query.'%', $this->size, $offset];
                 break;
 
             case 'filters':
-                $statement = $this->buildFiltersStatement($filterMap);
-                break;
+                return $this->buildFiltersStatement($filterMap);
 
             default:
-                $statement = $this->buildDefaultStatement($offset);
-                break;
+                return $this->buildDefaultStatement($offset);
         }
 
-        return $statement;
+        return ['sql' => $sql, 'params' => $params];
     }
 
     /**
@@ -194,7 +201,15 @@ class SearchMolecule
         if ($this->tagType == 'dataSource') {
             $this->collection = Collection::where('title', $this->query)->first();
             if ($this->collection) {
-                return $this->collection->molecules()->where('active', true)->where('is_parent', false)->orderBy('annotation_level', 'desc')->paginate($this->size);
+                return $this->collection->molecules()
+                    ->where('active', true)
+                    ->where(function ($query) {
+                        $query->where('is_parent', false)
+                            ->orWhere(function ($subQuery) {
+                                $subQuery->where('is_parent', true)
+                                    ->where('has_variants', false);
+                            });
+                    })->orderBy('annotation_level', 'DESC')->paginate($this->size);
             } else {
                 return [];
             }
@@ -234,47 +249,56 @@ class SearchMolecule
     private function buildFiltersStatement($filterMap)
     {
         $orConditions = explode('OR', $this->query);
-        $statement = 'SELECT properties.molecule_id as id, COUNT(*) OVER () 
+        $sql = 'SELECT properties.molecule_id as id, COUNT(*) OVER () AS count
                   FROM properties 
                   INNER JOIN molecules ON properties.molecule_id = molecules.id 
                   WHERE molecules.active = TRUE 
                   AND NOT (molecules.is_parent = TRUE AND molecules.has_variants = TRUE) 
                   AND ';
+        $params = [];
 
         foreach ($orConditions as $outerIndex => $orCondition) {
             if ($outerIndex > 0) {
-                $statement .= ' OR ';
+                $sql .= ' OR ';
             }
 
             $andConditions = explode(' ', trim($orCondition));
-            $statement .= '(';
+            $sql .= '(';
 
             foreach ($andConditions as $innerIndex => $andCondition) {
                 if ($innerIndex > 0) {
-                    $statement .= ' AND ';
+                    $sql .= ' AND ';
                 }
 
                 [$filterKey, $filterValue] = explode(':', $andCondition);
 
                 if (str_contains($filterValue, '..')) {
                     [$start, $end] = explode('..', $filterValue);
-                    $statement .= "({$filterMap[$filterKey]} BETWEEN {$start} AND {$end})";
+                    $sql .= "({$filterMap[$filterKey]} BETWEEN ? AND ?)";
+                    $params[] = $start;
+                    $params[] = $end;
                 } elseif (in_array($filterValue, ['true', 'false'])) {
-                    $statement .= "({$filterMap[$filterKey]} = {$filterValue})";
+                    $sql .= "({$filterMap[$filterKey]} = ?)";
+                    $params[] = $filterValue === 'true';
                 } elseif (str_contains($filterValue, '|')) {
                     $dbFilters = explode('|', $filterValue);
                     $dbs = explode('+', $dbFilters[0]);
-                    $statement .= "({$filterMap[$filterKey]} @> '[\"".implode('","', $dbs)."\"]')";
+                    $sql .= "({$filterMap[$filterKey]} @> ?)";
+                    $params[] = json_encode($dbs);
                 } else {
                     $filterValue = str_replace('+', ' ', $filterValue);
-                    $statement .= "(LOWER(REGEXP_REPLACE({$filterMap[$filterKey]}, '\\s+', '-', 'g'))::TEXT ILIKE '%{$filterValue}%')";
+                    $sql .= "(LOWER(REGEXP_REPLACE({$filterMap[$filterKey]}, '\\s+', '-', 'g'))::TEXT ILIKE ?)";
+                    $params[] = '%'.$filterValue.'%';
                 }
             }
 
-            $statement .= ')';
+            $sql .= ')';
         }
 
-        return "{$statement} LIMIT {$this->size}";
+        $sql .= ' LIMIT ?';
+        $params[] = $this->size;
+
+        return ['sql' => $sql, 'params' => $params];
     }
 
     /**
@@ -283,91 +307,133 @@ class SearchMolecule
     private function buildDefaultStatement($offset)
     {
         if ($this->query) {
-            $this->query = str_replace("'", "''", $this->query);
-
-            return "
-            SELECT id, COUNT(*) OVER () 
+            $sql = '
+            SELECT id, COUNT(*) OVER () AS count
             FROM molecules 
             WHERE 
-                ((\"name\"::TEXT ILIKE '%{$this->query}%') 
-                OR (\"synonyms\"::TEXT ILIKE '%{$this->query}%') 
-                OR (\"identifier\"::TEXT ILIKE '%{$this->query}%')) 
+                (("name"::TEXT ILIKE ?) 
+                OR ("synonyms"::TEXT ILIKE ?) 
+                OR ("identifier"::TEXT ILIKE ?)) 
                 AND is_parent = FALSE 
                 AND active = TRUE
             ORDER BY 
                 CASE 
-                    WHEN \"name\"::TEXT ILIKE '{$this->query}' THEN 1 
-                    WHEN \"synonyms\"::TEXT ILIKE '{$this->query}' THEN 2 
-                    WHEN \"identifier\"::TEXT ILIKE '{$this->query}' THEN 3 
-                    WHEN \"name\"::TEXT ILIKE '%{$this->query}%' THEN 4 
-                    WHEN \"synonyms\"::TEXT ILIKE '%{$this->query}%' THEN 5 
-                    WHEN \"identifier\"::TEXT ILIKE '%{$this->query}%' THEN 6 
+                    WHEN "name"::TEXT ILIKE ? THEN 1 
+                    WHEN "synonyms"::TEXT ILIKE ? THEN 2 
+                    WHEN "identifier"::TEXT ILIKE ? THEN 3 
+                    WHEN "name"::TEXT ILIKE ? THEN 4 
+                    WHEN "synonyms"::TEXT ILIKE ? THEN 5 
+                    WHEN "identifier"::TEXT ILIKE ? THEN 6 
                     ELSE 7
                 END
-            LIMIT {$this->size} OFFSET {$offset}";
+            LIMIT ? OFFSET ?';
+
+            $searchPattern = '%'.$this->query.'%';
+            $exactPattern = $this->query;
+
+            return [
+                'sql' => $sql,
+                'params' => [
+                    $searchPattern,
+                    $searchPattern,
+                    $searchPattern,  // WHERE clause
+                    $exactPattern,
+                    $exactPattern,
+                    $exactPattern,    // Exact matches in ORDER BY
+                    $searchPattern,
+                    $searchPattern,
+                    $searchPattern,  // Pattern matches in ORDER BY
+                    $this->size,
+                    $offset,
+                ],
+            ];
         } else {
-            return "SELECT id, COUNT(*) OVER () 
-                FROM molecules 
-                WHERE active = TRUE AND NOT (is_parent = TRUE AND has_variants = TRUE)
-                ORDER BY annotation_level DESC 
-                LIMIT {$this->size} OFFSET {$offset}";
+            return [
+                'sql' => 'SELECT id, COUNT(*) OVER () AS count
+                    FROM molecules 
+                    WHERE active = TRUE AND NOT (is_parent = TRUE AND has_variants = TRUE)
+                    ORDER BY annotation_level DESC 
+                    LIMIT ? OFFSET ?',
+                'params' => [$this->size, $offset],
+            ];
         }
     }
 
     /**
      * Execute the given SQL statement and return the results.
      */
-    private function executeQuery($statement)
+    private function executeQuery($statementData)
     {
-        $expression = DB::raw($statement);
-        $string = $expression->getValue(DB::connection()->getQueryGrammar());
-        $hits = DB::select($string);
+        // Execute parameterized query
+        $hits = DB::select($statementData['sql'], $statementData['params']);
+
         $count = count($hits) > 0 ? $hits[0]->count : 0;
 
         $ids_array = collect($hits)->pluck('id')->toArray();
-        $ids = implode(',', $ids_array);
 
-        if ($ids != '') {
+        if (! empty($ids_array)) {
+            $placeholders = str_repeat('?,', count($ids_array) - 1).'?';
 
-            $statement = "
+            $sql = "
             SELECT identifier, canonical_smiles, annotation_level, name, iupac_name, organism_count, citation_count, geo_count, collection_count
             FROM molecules
-            WHERE id = ANY (array[{$ids}]) AND active = TRUE AND NOT (is_parent = TRUE AND has_variants = TRUE)
-            ORDER BY array_position(array[{$ids}], id);
-            ";
+            WHERE id = ANY (array[{$placeholders}]::bigint[]) AND active = TRUE AND NOT (is_parent = TRUE AND has_variants = TRUE)
+            ORDER BY array_position(array[{$placeholders}]::bigint[], id)";
+
+            $params = array_merge($ids_array, $ids_array);
 
             if ($this->sort == 'recent') {
-                $statement .= ' ORDER BY created_at DESC';
+                $sql .= ' ORDER BY created_at DESC';
             }
-            $expression = DB::raw($statement);
-            $string = $expression->getValue(DB::connection()->getQueryGrammar());
 
-            return new LengthAwarePaginator(DB::select($string), $count, $this->size, $this->page);
+            $results = DB::select($sql, $params);
+
+            return new LengthAwarePaginator($results, $count, $this->size, $this->page);
         } else {
             return new LengthAwarePaginator([], 0, $this->size, $this->page);
         }
     }
 
     /**
-     * Handle exceptions by returning a proper JSON response.
+     * Handle exceptions by returning a user-friendly error response.
      */
     private function handleException(QueryException $exception)
     {
         $message = $exception->getMessage();
+
+        // Log the exception for debugging
+        Log::error('SearchMolecule query exception', [
+            'query' => $this->query,
+            'type' => $this->type,
+            'exception_message' => $message,
+            'exception_code' => $exception->getCode(),
+        ]);
+
         if (str_contains(strtolower($message), 'sqlstate[42p01]')) {
-            return response()->json(
-                [
-                    'message' => 'It appears that the molecules table is not indexed. To enable search, please index molecules table and generate corresponding fingerprints.',
-                ],
-                500
-            );
+            Log::error('It appears that the molecules table is not indexed. To enable search, please index molecules table and generate corresponding fingerprints.');
+
+            return [
+                'error' => true,
+                'message' => 'Indexing issue. Plese report this to info.COCONUT@uni-jena.de',
+                'results' => [],
+                'total' => 0,
+            ];
         }
 
-        return response()->json(
-            [
-                'message' => $message,
-            ],
-            500
-        );
+        if (str_contains(strtolower($message), 'sqlstate[22000]')) {
+            return [
+                'error' => true,
+                'message' => 'Error processing the molecule.',
+                'results' => [],
+                'total' => 0,
+            ];
+        }
+
+        return [
+            'error' => true,
+            'message' => 'An error occurred while searching. Please try again.',
+            'results' => [],
+            'total' => 0,
+        ];
     }
 }

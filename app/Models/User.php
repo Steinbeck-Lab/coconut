@@ -101,6 +101,20 @@ class User extends Authenticatable implements Auditable, FilamentUser
     }
 
     /**
+     * Get the user's full name attribute.
+     * This ensures Filament always gets a proper name even if the name field is null.
+     */
+    public function getNameAttribute(): string
+    {
+        // If name is already set, use it; otherwise, combine first_name and last_name
+        if (! empty($this->attributes['name'])) {
+            return $this->attributes['name'];
+        }
+
+        return trim(($this->first_name ?? '').' '.($this->last_name ?? '')) ?: 'Unknown User';
+    }
+
+    /**
      * Check if user can access a particular panel.
      */
     public function canAccessPanel(Panel $panel): bool

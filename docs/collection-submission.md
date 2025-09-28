@@ -40,6 +40,8 @@ After creating an empty collection, an **"Entries"** pane becomes available at t
      - **reference_id:** Reference ID as reported in a source database/dataset.
      - **name:** IUPAC name/trivial name as reported in the original publication or source.
        > **Example:** [9-fluoro-11-hydroxy-17-(2-hydroxyacetyl)-10,13,16-trimethyl-3-oxo-6,7,8,11,12,14,15,16-octahydrocyclopenta[a]phenanthren-17-yl] pentanoate
+     - **synonyms:** Alternative names or synonyms for the compound, separated by pipe (|) characters.
+       > **Example:** Aspirin|Acetylsalicylic acid|2-Acetoxybenzoic acid
      - **doi:** DOI of the original publication where the molecule is first reported.
        > **Example:** doi.org/10.1021/ci5003697
      - **link:** Database link of the molecule.

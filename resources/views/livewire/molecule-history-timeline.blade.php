@@ -42,11 +42,13 @@
                             @foreach ($audit['affected_columns'] as $column_name => $column_values)
                             <div class="flex justify-between gap-x-4">
                                 <div class="py-0.5 text-xs leading-5 text-gray-500">
-                                    <div @click="
-                                                    drawerOpen = true; 
-                                                    event = '{{ $audit['event'] }}';
-                                                    column = '{{ $column_name }}';
-                                                    drawerContent = {{ json_encode($column_values, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) }}"
+                                    <div 
+                                        @click="
+                                            drawerOpen = true; 
+                                            event = '{{ $audit['event'] }}';
+                                            column = '{{ $column_name }}';
+                                            drawerContent = JSON.parse($el.dataset.content)"
+                                        data-content="{{ e(json_encode($column_values, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE)) }}"
                                         class="hover:cursor-pointer hover:text-blue-500 font-medium text-sm text-gray-900">
                                         {{ Str::of($column_name)->camel()->replace('_', ' ')->replaceMatches('/[A-Z]/', ' $0')->title() }}
                                     </div>

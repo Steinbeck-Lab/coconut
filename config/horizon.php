@@ -180,7 +180,7 @@ return [
     */
 
     'defaults' => [
-        'supervisor-1' => [
+        'supervisor-concurrent' => [
             'connection' => 'redis',
             'queue' => ['default', 'batches-table'],
             'balance' => 'auto',
@@ -193,26 +193,82 @@ return [
             'timeout' => 6000,
             'nice' => 0,
         ],
+        'supervisor-import' => [
+            'connection' => 'redis',
+            'queue' => ['import'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 1,
+            'maxTime' => 0,
+            'maxJobs' => 50,      // Restart every 50 jobs for memory management
+            'memory' => 128,      // Higher memory for complex molecular operations
+            'tries' => 0,
+            'timeout' => 3600,       // No timeout for import jobs
+            'nice' => 0,
+        ],
+        'supervisor-sequential' => [
+            'connection' => 'redis',
+            'queue' => ['sequential'],
+            'maxProcesses' => 1,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 128,
+            'tries' => 1,
+            'timeout' => 6000,
+            'nice' => 0,
+        ],
     ],
 
     'environments' => [
         'production' => [
-            'supervisor-1' => [
-                'maxProcesses' => 10,
+            'supervisor-concurrent' => [
+                'maxProcesses' => 10,         // Reduced to focus resources on import
+                'maxJobs' => 50,             // Add memory management
+                'memory' => 256,             // Increase for better performance
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
-                'maxTime' => 0,
-                'maxJobs' => 0,
-                'memory' => 128,
+            ],
+            'supervisor-import' => [
+                'maxProcesses' => 12,       // High concurrency for imports
+                'balanceMaxShift' => 2,      // Faster scaling for import bursts
+                'balanceCooldown' => 5,      // Slightly longer cooldown for stability
+            ],
+            'supervisor-sequential' => [
+                // Inherits all settings from defaults
             ],
         ],
-
+        'development' => [
+            'supervisor-concurrent' => [
+                'maxProcesses' => 10,         // Reduced to focus resources on import
+                'maxJobs' => 50,             // Add memory management
+                'memory' => 256,             // Increase for better performance
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'supervisor-import' => [
+                'maxProcesses' => 12,       // High concurrency for imports
+                'balanceMaxShift' => 2,      // Faster scaling for import bursts
+                'balanceCooldown' => 5,      // Slightly longer cooldown for stability
+            ],
+            'supervisor-sequential' => [
+                // Inherits all settings from defaults
+            ],
+        ],
         'local' => [
-            'supervisor-1' => [
-                'maxProcesses' => 10,
-                'maxTime' => 0,
-                'maxJobs' => 0,
-                'memory' => 128,
+            'supervisor-concurrent' => [
+                'maxProcesses' => 10,          // Minimal for essential tasks only
+                'maxJobs' => 50,
+                'memory' => 256,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
+            ],
+            'supervisor-import' => [
+                'maxProcesses' => 20,         // Maximum for import (utilize all 10 cores efficiently)
+                'balanceMaxShift' => 3,       // Faster scaling for import bursts
+                'balanceCooldown' => 3,       // Quicker response to load changes
+            ],
+            'supervisor-sequential' => [
+                // Inherits all settings from defaults
             ],
         ],
     ],

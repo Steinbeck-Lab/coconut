@@ -36,6 +36,31 @@
                         </div>
                     </div>
                     @endif
+                    
+                    @if ($this->isCurationIncomplete)
+                    <div class="rounded-md m-2 bg-yellow-50 p-4 -mb-5">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-yellow-800">CURATION STATUS: <b>INCOMPLETE</b></h3>
+                                <p class="text-yellow-800 text-md font-bold">This compound is still undergoing curation processes.</p>
+                                <div class="mt-2 text-sm text-yellow-700">
+                                    <p class="mb-2">The following curation steps are incomplete:</p>
+                                    <ul role="list" class="list-disc space-y-1 pl-5">
+                                        @foreach ($this->incompleteSteps as $step)
+                                        <li>{{ $step }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                    
                     <div class="lg:py-10 py-5 mx-auto max-w-3xl px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-7xl lg:px-8">
                         <div class="flex items-center space-x-5">
                             <div>
@@ -51,7 +76,7 @@
                         <div class="mt-6 flex flex-shrink-0 md:mt-0">
                             @auth
                             @if(auth()->user()->roles->isNotEmpty())
-                            <a href="/dashboard/molecules/{{ $molecule->id }}/edit" target="_blank"  class="inline-flex items-center px-4 py-2 border border-secondary-dark rounded-md shadow-sm text-sm font-medium text-white bg-secondary-dark hover:bg-green-700">
+                            <a href="/dashboard/molecules/{{ $molecule->id }}/edit" target="_blank" class="inline-flex items-center px-4 py-2 border border-secondary-dark rounded-md shadow-sm text-sm font-medium text-white bg-secondary-dark hover:bg-green-700">
                                 <svg class="-ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                 </svg>
@@ -155,13 +180,13 @@
                     <div
                         class="mx-auto mt-8 grid max-w-3xl grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3 px-4">
                         <section class="space-y-6 lg:col-span-2 lg:col-start-1 order-2 lg:order-1">
-                            @if ($molecule->organisms && count($molecule->organisms) > 0)
+                            @if ($sortedOrganisms && count($sortedOrganisms) > 0)
                             <section>
                                 <div class="bg-white border shadow sm:rounded-lg" x-data="{ showAll: false, searchTerm: '' }">
                                     <div class="px-4 py-5 sm:px-6">
                                         <h2 id="applicant-information-title"
                                             class="text-lg font-medium leading-6 text-gray-900">
-                                            Organisms ({{ count($molecule->organisms) }})
+                                            Organisms ({{ count($sortedOrganisms) }})
                                         </h2>
                                     </div>
                                     <div class="border-t border-gray-200">
@@ -173,7 +198,7 @@
                                                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-secondary-dark focus:ring-secondary-dark sm:text-sm" />
                                             </div>
                                             <ul role="list" class="mt-2 leading-8">
-                                                @foreach ($molecule->organisms as $index => $organism)
+                                                @foreach ($sortedOrganisms as $index => $organism)
                                                 @if ($organism != '')
                                                 <li class="inline"
                                                     x-show="(showAll || {{ $index }} < 10) && (searchTerm === '' || '{{ strtolower($organism->name) }}'.includes(searchTerm.toLowerCase()))">
@@ -210,7 +235,7 @@
                                                 @endif
                                                 @endforeach
                                             </ul>
-                                            @if (count($molecule->organisms) > 10)
+                                            @if (count($sortedOrganisms) > 10)
                                             <div class="mt-4">
                                                 <button @click="showAll = true" x-show="!showAll"
                                                     class="text-base font-semibold leading-7 text-secondary-dark text-sm">
@@ -458,8 +483,7 @@
                                 <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
                                     <div class="divide-y divide-gray-200">
                                         <div class="px-4 py-5 sm:px-6">
-                                            <h2 id="notes-title" class="text-lg font-medium text-gray-900">
-                                                Chemical
+                                            <h2 id="notes-title" class="text-lg font-medium text-gray-900">Chemical
                                                 classification
                                             </h2>
                                         </div>
@@ -578,7 +602,7 @@
                                                 <div x-data="{ showAllCitations: false }">
                                                     <div class="not-prose grid grid-cols-1 gap-6 sm:grid-cols-2">
                                                         @foreach ($molecule->citations as $index => $citation)
-                                                        @if ($citation->title != '')
+                                                        @if ($citation->doi != '' || $citation->citation_text != '')
                                                         <div class="group relative rounded-xl border border-slate-200"
                                                             x-show="showAllCitations || {{ $index }} < 6">
                                                             <div
@@ -673,53 +697,72 @@
                                                                             class="rounded-xl"></span>{{ $citation->authors }}
                                                                     </a>
                                                                 </h2>
-                                                                <h2
-                                                                    class="mt-2 font-display text-base text-slate-900">
-                                                                    <a target="_blank"
-                                                                        href="https://doi.org/{{ $citation->doi }}">
-                                                                        <span
-                                                                            class="rounded-xl"></span>DOI: {{ $citation->doi }}
-                                                                    </a>
-                                                                    <span class="ml-3 mr-4">
-                                                                        <livewire:copy-button
-                                                                            text-to-copy="{{ $citation->doi }}" />
-                                                                    </span>
-                                                                </h2>
-                                                                <h2
-                                                                    class="mt-2 font-display text-base text-slate-900">
-                                                                    <a target="_blank"
-                                                                        href="https://www.lens.org/lens/search/scholar/list?q=ids.doi:{{ $citation->doi }}">
-                                                                        <span
-                                                                            class="rounded-xl"></span>Lens.org <svg xmlns="http://www.w3.org/2000/svg"
-                                                                            fill="none"
-                                                                            viewBox="0 0 24 24"
-                                                                            stroke-width="1.5"
-                                                                            stroke="currentColor"
-                                                                            class="size-4 inline">
-                                                                            <path
-                                                                                stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25">
-                                                                            </path>
-                                                                        </svg>
-                                                                    </a>
-                                                                    <span x-data="{ tooltip: false }"
-                                                                        x-on:mouseover="tooltip = true"
-                                                                        x-on:mouseleave="tooltip = false"
-                                                                        class="h-5 w-5 cursor-pointer inline">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                                            class="h-5 w-5 inline" fill="none"
-                                                                            viewBox="0 0 24 24" stroke="currentColor">
-                                                                            <path stroke-linecap="round"
-                                                                                stroke-linejoin="round" stroke-width="2"
-                                                                                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                        </svg>
-                                                                        <div x-show="tooltip"
-                                                                            class="text-sm text-white absolute bg-green-400 rounded-lg p-2 transform -translate-y-8 translate-x-8 z-10">
-                                                                            The Lens serves all the patents and scholarly work in the world as a free, open and secure digital public good, with user privacy a paramount focus.
-                                                                        </div>
-                                                                    </span>
-                                                                </h2>
+                                                                @if ($citation->doi and $citation->doi != '')
+                                                                    <h2
+                                                                        class="mt-2 font-display text-base text-slate-900">
+                                                                        <a target="_blank"
+                                                                            href="https://doi.org/{{ $citation->doi }}">
+                                                                            <span
+                                                                                class="rounded-xl"></span>DOI: {{ $citation->doi }}
+                                                                        </a>
+                                                                        <span class="ml-3 mr-4">
+                                                                            <livewire:copy-button
+                                                                                text-to-copy="{{ $citation->doi }}" />
+                                                                        </span>
+                                                                    </h2>
+                                                                    <h2
+                                                                        class="mt-2 font-display text-base text-slate-900">
+                                                                        <a target="_blank"
+                                                                            href="https://www.lens.org/lens/search/scholar/list?q=ids.doi:{{ $citation->doi }}">
+                                                                            <span
+                                                                                class="rounded-xl"></span>Lens.org <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                fill="none"
+                                                                                viewBox="0 0 24 24"
+                                                                                stroke-width="1.5"
+                                                                                stroke="currentColor"
+                                                                                class="size-4 inline">
+                                                                                <path
+                                                                                    stroke-linecap="round"
+                                                                                    stroke-linejoin="round"
+                                                                                    d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25">
+                                                                                </path>
+                                                                            </svg>
+                                                                        </a>
+                                                                        <span x-data="{ tooltip: false }"
+                                                                            x-on:mouseover="tooltip = true"
+                                                                            x-on:mouseleave="tooltip = false"
+                                                                            class="h-5 w-5 cursor-pointer inline">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                class="h-5 w-5 inline" fill="none"
+                                                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                                                <path stroke-linecap="round"
+                                                                                    stroke-linejoin="round" stroke-width="2"
+                                                                                    d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                            </svg>
+                                                                            <div x-show="tooltip"
+                                                                                class="text-sm text-white absolute bg-green-400 rounded-lg p-2 transform -translate-y-8 translate-x-8 z-10">
+                                                                                The Lens serves all the patents and scholarly work in the world as a free, open and secure digital public good, with user privacy a paramount focus.
+                                                                            </div>
+                                                                        </span>
+                                                                    </h2>
+                                                                @endif
+                                                                @if ($citation->citation_text and $citation->citation_text != '')
+                                                                    <h2 class="mt-2 font-display text-base text-slate-900">
+                                                                        @php
+                                                                            $isUrl = filter_var($citation->citation_text, FILTER_VALIDATE_URL);
+                                                                        @endphp
+                                                                        @if ($isUrl)
+                                                                            <a target="_blank" href="{{ $citation->citation_text }}" class="inline-flex items-center px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold rounded-lg shadow-sm transition-colors duration-150">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                                                                </svg>
+                                                                                Reference URL
+                                                                            </a>
+                                                                        @else
+                                                                            <span class="rounded-xl">Note: {{ $citation->citation_text }}</span>
+                                                                        @endif
+                                                                    </h2>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                         @endif
@@ -1135,31 +1178,163 @@
                             @endif
                         </section>
                         <section class="space-y-6 lg:col-span-1 lg:col-start-3 order-1 lg:order-2">
-                            <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg bg-white mb-2 mx-2">
-                                <livewire:molecule-depict2d :height="300" :molecule="$molecule" :smiles="$molecule->canonical_smiles"
-                                    :name="$molecule->name" :identifier="$molecule->identifier" :options="true" lazy="on-load">
-                            </div>
-                            <div class="mx-2">
-                                <livewire:molecule-depict3d :height="300" :molecule="$molecule" :smiles="$molecule->canonical_smiles"
-                                    lazy="on-load">
-                            </div>
-                            <dl class="mt-5 flex w-full mx-2">
-                                <div class="md:text-left">
-                                    <dd class="mt-1"><a
-                                            class="text-base font-semibold text-text-dark hover:text-slate-600"
-                                            href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=report"
-                                            target="_blank">Report
-                                            this compound <span aria-hidden="true">→</span></a></dd>
-                                    <dd class="mt-1"><a
-                                            class="text-base font-semibold text-text-dark hover:text-slate-600"
-                                            href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=change"
-                                            target="_blank">Request
-                                            changes to this page <span aria-hidden="true">→</span></a></dd>
+                            @if ($molecule->structures)
+                                <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg bg-white mb-2 mx-2">
+                                    <livewire:molecule-depict2d :height="300" :molecule="$molecule" :smiles="$molecule->canonical_smiles"
+                                        :name="$molecule->name" :identifier="$molecule->identifier" :options="true" lazy="on-load">
                                 </div>
-                            </dl>
-                            <div class="mx-2">
-                                <livewire:molecule-history-timeline :mol="$molecule" lazy="on-load" />
+                                <div class="mx-2">
+                                    <livewire:molecule-depict3d :height="300" :molecule="$molecule" :smiles="$molecule->canonical_smiles"
+                                        lazy="on-load">
+                                </div>
+                            
+                            <!-- Contributors Section -->
+                            @php
+                                $contributors = $this->getContributors();
+                            @endphp
+                            @if($contributors->count() > 0)
+                            <div class="mx-2 mb-6">
+                                <div class="bg-white">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <h3 class="text-lg font-medium text-gray-900">
+                                            Contributors
+                                        </h3>
+                                        <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                                            {{ $contributors->count() }}
+                                        </span>
+                                    </div>
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($contributors->take(8) as $contributor)
+                                        <div class="relative group">
+                                            @if(isset($contributor->is_system) && $contributor->is_system)
+                                                @if($contributor->profile_photo_url)
+                                                    <!-- COCONUT Curator with profile photo -->
+                                                    <div class="relative">
+                                                        <img class="h-8 w-8 rounded-full border-2 border-white shadow-sm hover:scale-110 transition-transform cursor-pointer" 
+                                                             src="{{ $contributor->profile_photo_url }}" 
+                                                             alt="{{ $contributor->name }}"
+                                                             title="{{ $contributor->name }}">
+                                                        <!-- Verification badge overlay -->
+                                                        <div class="absolute -bottom-1 -right-1 h-3 w-3 rounded-full bg-blue-600 border border-white flex items-center justify-center">
+                                                            <svg class="h-2 w-2 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    <!-- COCONUT Curator system icon -->
+                                                    <div class="h-8 w-8 rounded-full bg-blue-100 border-2 border-white shadow-sm hover:scale-110 transition-transform cursor-pointer flex items-center justify-center"
+                                                         title="{{ $contributor->name }}">
+                                                        <svg class="h-6 w-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                        </svg>
+                                                    </div>
+                                                @endif
+                                            @elseif($contributor->profile_photo_url)
+                                                <img class="h-8 w-8 rounded-full border-2 border-white shadow-sm hover:scale-110 transition-transform cursor-pointer" 
+                                                     src="{{ $contributor->profile_photo_url }}" 
+                                                     alt="{{ $contributor->name }}"
+                                                     title="{{ $contributor->name }}">
+                                            @else
+                                                <div class="h-8 w-8 rounded-full bg-gray-300 border-2 border-white shadow-sm hover:scale-110 transition-transform cursor-pointer flex items-center justify-center"
+                                                     title="{{ $contributor->name }}">
+                                                    <span class="text-xs font-medium text-gray-600">
+                                                        {{ strtoupper(substr($contributor->name, 0, 1)) }}
+                                                    </span>
+                                                </div>
+                                            @endif
+                                            <!-- Tooltip -->
+                                            <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                                {{ $contributor->name }}
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                        @if($contributors->count() > 8)
+                                        <div class="h-8 w-8 rounded-full bg-gray-100 border-2 border-white shadow-sm flex items-center justify-center">
+                                            <span class="text-xs font-medium text-gray-600">
+                                                +{{ $contributors->count() - 8 }}
+                                            </span>
+                                        </div>
+                                        @endif
+                                    </div>
+                                    @if($contributors->count() > 8)
+                                    <details class="mt-3">
+                                        <summary class="text-sm text-gray-600 cursor-pointer hover:text-gray-800">
+                                            View all {{ $contributors->count() }} contributors
+                                        </summary>
+                                        <div class="mt-2 space-y-1">
+                                            @foreach($contributors as $contributor)
+                                            <div class="flex items-center text-sm text-gray-600">
+                                                @if(isset($contributor->is_system) && $contributor->is_system)
+                                                    @if($contributor->profile_photo_url)
+                                                        <!-- COCONUT Curator with profile photo -->
+                                                        <div class="relative mr-2">
+                                                            <img class="h-4 w-4 rounded-full" 
+                                                                 src="{{ $contributor->profile_photo_url }}" 
+                                                                 alt="{{ $contributor->name }}">
+                                                            <!-- Verification badge overlay -->
+                                                            <div class="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-blue-600 border border-white flex items-center justify-center">
+                                                                <svg class="h-1 w-1 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                                </svg>
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <!-- COCONUT Curator system icon -->
+                                                        <div class="h-4 w-4 rounded-full bg-blue-100 mr-2 flex items-center justify-center">
+                                                            <svg class="h-4 w-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                            </svg>
+                                                        </div>
+                                                    @endif
+                                                @elseif($contributor->profile_photo_url)
+                                                    <img class="h-4 w-4 rounded-full mr-2" 
+                                                         src="{{ $contributor->profile_photo_url }}" 
+                                                         alt="{{ $contributor->name }}">
+                                                @else
+                                                    <div class="h-4 w-4 rounded-full bg-gray-300 mr-2 flex items-center justify-center">
+                                                        <span class="text-xs font-medium text-gray-600">
+                                                            {{ strtoupper(substr($contributor->name, 0, 1)) }}
+                                                        </span>
+                                                    </div>
+                                                @endif
+                                                {{ $contributor->name }}
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </details>
+                                    @endif
+                                </div>
                             </div>
+                            @endif
+                            
+                                <dl class="mt-5 flex w-full mx-2">
+                                    <div class="md:text-left">
+                                        <dd class="mt-1"><a
+                                                class="text-base font-semibold text-text-dark hover:text-slate-600"
+                                                href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=report"
+                                                target="_blank">Report
+                                                this compound <span aria-hidden="true">→</span></a></dd>
+                                        <dd class="mt-1"><a
+                                                class="text-base font-semibold text-text-dark hover:text-slate-600"
+                                                href="/dashboard/reports/create?compound_id={{ $molecule->identifier }}&type=change"
+                                                target="_blank">Request
+                                                changes to this page <span aria-hidden="true">→</span></a></dd>
+                                    </div>
+                                </dl>
+                                <div class="mx-2">
+                                    <livewire:molecule-history-timeline :mol="$molecule" lazy="on-load" />
+                                </div>
+                            @else
+                                <div class="border rounded-lg bg-white p-6 mb-2 mx-2 text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                                    <h3 class="mt-2 text-sm font-medium text-gray-900">Under process</h3>
+                                    <p class="mt-1 text-sm text-gray-500">The structural information for this molecule will be available soon.</p>
+                                </div>
+                            @endif
+                            
                         </section>
                     </div>
                 </div>

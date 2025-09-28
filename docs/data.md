@@ -25,6 +25,37 @@ A complete database dump containing the following tables:
 - taggables
 - tags
 
+#### Loading the PostgreSQL Dump with Docker
+
+To use the PostgreSQL dump file, follow these steps:
+
+1. **Prerequisites**
+   - Install [Docker](https://docs.docker.com/get-docker/)
+   - Download the COCONUT PostgreSQL dump file from [downloads page](https://coconut.naturalproducts.net/download)
+
+2. **Start a PostgreSQL Docker Container**
+   ```bash
+   docker run --name coconut-postgres -e POSTGRES_PASSWORD=yourpassword -e POSTGRES_USER=coconut -e POSTGRES_DB=coconut -p 5432:5432 -d postgres:15
+   ```
+
+3. **Load the Database Dump**
+   ```bash
+   # For text format SQL dumps
+   docker exec -i coconut-postgres psql -U coconut -d coconut < /path/to/coconut_dump.sql
+   ```
+
+4. **Verify the Data Load**
+   ```bash
+   docker exec -it coconut-postgres psql -U coconut -d coconut -c "SELECT count(*) FROM molecules;"
+   ```
+
+5. **Connect to the Database**
+   - Host: localhost
+   - Port: 5432
+   - Database: coconut
+   - Username: coconut
+   - Password: yourpassword
+
 ### CSV Format Files
 
 Two CSV formatted files are available:
@@ -42,6 +73,8 @@ Contains essential molecular information including:
 #### 2. Full Format
 - Includes all columns from the Lite format
 - Additional data: organisms, collections, DOIs, synonyms, CAS registry numbers
+
+
 
 ### [SDF](https://en.wikipedia.org/wiki/Chemical_table_file#SDF) (Structure-Data File) Format
 

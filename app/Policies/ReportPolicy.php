@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\ReportStatus;
 use App\Models\Report;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -42,8 +43,9 @@ class ReportPolicy
      */
     public function update(User $user, Report $report): bool
     {
-        // First, check if report is in a final state - if so, no updates allowed
-        if ($report->status == 'approved' || $report->status == 'rejected') {
+        if (($user->can('update_report') && (($report->assigned_to == null || $report->assigned_to == $user->id) && ($report->status != ReportStatus::APPROVED->value) && ($report->status != ReportStatus::REJECTED->value))) || ($user->id == $report->user_id && $report->status == null)) {
+            return true;
+        } else {
             return false;
         }
 

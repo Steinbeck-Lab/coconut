@@ -33,7 +33,10 @@ class DashWidgetsRefresh extends Command
 
         // Create the cache for all DashboardStats widgets
         Cache::flexible('stats.collections', [172800, 259200], function () {
-            return DB::table('collections')->selectRaw('count(*)')->get()[0]->count;
+            return DB::table('collections')
+                ->selectRaw('count(*) as count')
+                ->where('status', 'PUBLISHED')
+                ->get()[0]->count;
         });
         $this->info('Cache for collections refreshed.');
 
@@ -79,6 +82,37 @@ class DashWidgetsRefresh extends Command
         });
         $this->info('Cache for molecules refreshed.');
 
+        // New statistics cache entries
+        Cache::flexible('stats.organisms.with_iri', [172800, 259200], function () {
+            return DB::table('organisms')->selectRaw('COUNT(DISTINCT(slug))')->whereNotNull('iri')->get()[0]->count;
+        });
+        $this->info('Cache for organisms with IRI refreshed.');
+
+        Cache::flexible('stats.molecules.with_organisms', [172800, 259200], function () {
+            return DB::table('molecule_organism')->selectRaw('count(DISTINCT(molecule_id))')->get()[0]->count;
+        });
+        $this->info('Cache for molecules with organisms refreshed.');
+
+        Cache::flexible('stats.molecules.with_citations', [172800, 259200], function () {
+            return DB::table('citables')->selectRaw('count(DISTINCT(citable_id))')->where('citable_type', 'App\Models\Molecule')->get()[0]->count;
+        });
+        $this->info('Cache for molecules with citations refreshed.');
+
+        Cache::flexible('stats.geo_locations.distinct', [172800, 259200], function () {
+            return DB::table('geo_locations')->selectRaw('count(DISTINCT name)')->get()[0]->count;
+        });
+        $this->info('Cache for distinct geo locations refreshed.');
+
+        Cache::flexible('stats.molecules.with_geolocations', [172800, 259200], function () {
+            return DB::table('geo_location_molecule')->selectRaw('count(DISTINCT(molecule_id))')->get()[0]->count;
+        });
+        $this->info('Cache for molecules with geo locations refreshed.');
+
+        Cache::flexible('stats.molecules.revoked', [172800, 259200], function () {
+            return DB::table('molecules')->selectRaw('count(*)')->where('status', 'REVOKED')->get()[0]->count;
+        });
+        $this->info('Cache for revoked molecules refreshed.');
+
         // Create the cache for all Collection widgets
 
         $this->info('Processing collection wiget counts');
@@ -87,7 +121,7 @@ class DashWidgetsRefresh extends Command
         foreach ($collection_ids as $collection) {
             $this->info('Processing collection '.$collection->id);
 
-            $entries = DB::select("SELECT doi, organism, geo_location FROM entries WHERE collection_id = {$collection->id};");
+            $entries = DB::select('SELECT doi, organism, geo_location FROM entries WHERE collection_id = ?', [$collection->id]);
 
             $dois = [];
             $organisms = [];
@@ -114,15 +148,31 @@ class DashWidgetsRefresh extends Command
             $unique_organisms_count = count(array_unique($organisms));
             $unique_geo_locations_count = count(array_unique($geo_locations));
 
-            $total_entries = DB::select("SELECT count(*) FROM entries WHERE collection_id = {$collection->id};");
-            $successful_entries = DB::select("SELECT count(*) FROM entries WHERE collection_id = {$collection->id} AND status = 'PASSED';");
-            $failed_entries = DB::select("SELECT count(*) FROM entries WHERE collection_id = {$collection->id} AND status = 'REJECTED';");
-            $molecules_count = DB::select("SELECT count(*) FROM collection_molecule WHERE collection_id = {$collection->id};");
+            $total_entries = DB::select('SELECT count(*) as count FROM entries WHERE collection_id = ?', [$collection->id]);
+            $successful_entries = DB::select("SELECT count(*) as count FROM entries WHERE collection_id = ? AND status = 'PASSED'", [$collection->id]);
+            $failed_entries = DB::select("SELECT count(*) as count FROM entries WHERE collection_id = ? AND status = 'REJECTED'", [$collection->id]);
+            $molecules_count = DB::select('SELECT count(*) as count FROM collection_molecule WHERE collection_id = ?', [$collection->id]);
 
             DB::statement(
-                "UPDATE collections
-            SET (total_entries, successful_entries, failed_entries, molecules_count, citations_count, organisms_count, geo_count) = ({$total_entries[0]->count}, {$successful_entries[0]->count}, {$failed_entries[0]->count}, {$molecules_count[0]->count}, {$unique_dois_count}, {$unique_organisms_count}, {$unique_geo_locations_count})
-            WHERE id = {$collection->id};"
+                'UPDATE collections
+                SET total_entries = ?, 
+                    successful_entries = ?, 
+                    failed_entries = ?, 
+                    molecules_count = ?, 
+                    citations_count = ?, 
+                    organisms_count = ?, 
+                    geo_count = ?
+                WHERE id = ?',
+                [
+                    $total_entries[0]->count,
+                    $successful_entries[0]->count,
+                    $failed_entries[0]->count,
+                    $molecules_count[0]->count,
+                    $unique_dois_count,
+                    $unique_organisms_count,
+                    $unique_geo_locations_count,
+                    $collection->id,
+                ]
             );
         }
 

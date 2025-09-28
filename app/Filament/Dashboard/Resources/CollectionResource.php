@@ -11,6 +11,7 @@ use App\Filament\Dashboard\Resources\CollectionResource\Widgets\EntriesOverview;
 use App\Livewire\ShowJobStatus;
 use App\Models\Collection;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Livewire;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -18,14 +19,12 @@ use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
-use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class CollectionResource extends Resource
@@ -45,15 +44,23 @@ class CollectionResource extends Resource
         return $form
             ->schema(
                 [
-                    Livewire::make(ShowJobStatus::class),
-
+                    // Livewire::make(ShowJobStatus::class),
+                    Grid::make()
+                        ->schema([
+                            Select::make('status')
+                                ->options(getCollectionStatuses())
+                                ->default(function (?Model $record) {
+                                    return $record->status ?? 'DRAFT';
+                                })
+                                ->required()
+                                ->hidden(function (?Model $record) {
+                                    return auth()->user()->cannot('update', $record);
+                                }),
+                        ])->columns(4),
                     Section::make('Database details')
                         ->description('Provide details of the database and link to the resource.')
                         ->schema([
-                            TextInput::make('title')->live()
-                                ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))
-                                ),
-                            TextInput::make('slug'),
+                            TextInput::make('title'),
                             Textarea::make('description'),
                             TextInput::make('url'),
                         ]),
