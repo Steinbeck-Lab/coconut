@@ -281,6 +281,9 @@ class ReportResource extends Resource
                                 ])
                                 ->size('xl'),
                         ])
+                            // ->hidden(function (Get $get) {
+                            //     return $get('report_type') != 'molecule';
+                            // })
                             ->verticalAlignment(VerticalAlignment::End)
                             ->columnStart(4),
                     ])
@@ -795,7 +798,7 @@ class ReportResource extends Resource
                     ->searchable(),
                 Textarea::make('mol_ids')
                     ->label('Molecules')
-                    ->placeholder('Enter the Identifiers')
+                    ->placeholder('Enter the Identifiers separated by commas')
                     ->required(function (Get $get) {
                         if ($get('report_type') == 'molecule') {
                             return true;
@@ -1297,38 +1300,136 @@ class ReportResource extends Resource
                 $suggested_changes['curator'] = $formData['suggested_changes']['curator'];
                 $record['suggested_changes'] = $suggested_changes;
 
-                $record->save();
+                $status = ReportStatus::APPROVED->value;
+                $curator_number = 2;
+            } else {
+                $status = ReportStatus::PENDING_APPROVAL->value;
+                $curator_number = 1;
+            }
+        } else {
+            // In case of reporting a synthetic molecule, Deactivate Molecules
+            if ($record['status'] == 'pending_approval' || $record['status'] == 'pending_rejection') {
+                if ($record['report_type'] == 'molecule') {
+                    $molecule_ids = json_decode($record['mol_ids'], true);
+                    if (! is_array($molecule_ids)) {
+                        $molecule_ids = explode(',', $record['mol_ids']); // Fallback for compatibility
+                    }
+                    $molecules = Molecule::whereIn('identifier', $molecule_ids)->get();
+                    foreach ($molecules as $mol) {
+                        $mol->active = false;
+                        $mol->status = 'REVOKED';
+                        $mol->comment = prepareComment($data['reason'] ?? '');
+                        $mol->save();
+                    }
+                }
+                $status = ReportStatus::APPROVED->value;
+                $curator_number = 2;
+            } else {
+                $status = 'pending_approval';
+                $curator_number = 1;
             }
         }
-        $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
-    }
 
-    public static function saveChangesToReport(Report $record, array $data): void
-    {
-        $temp = [];
-        $temp['title'] = $data['title'];
-        $temp['evidence'] = $data['evidence'];
-        $temp['doi'] = $data['doi'];
-        $temp['mol_id_csv'] = $data['mol_id_csv'];
-        $temp['comment'] = $data['comment'];
-        $temp['suggested_changes']['new_molecule_data']['canonical_smiles'] = $data['canonical_smiles'];
-        $temp['suggested_changes']['new_molecule_data']['reference_id'] = $data['reference_id'];
-        $temp['suggested_changes']['new_molecule_data']['name'] = $data['name'];
-        $temp['suggested_changes']['new_molecule_data']['link'] = $data['link'] ?? null;
-        $temp['suggested_changes']['new_molecule_data']['mol_filename'] = $data['mol_filename'] ?? null;
-        $temp['suggested_changes']['new_molecule_data']['structural_comments'] = $data['structural_comments'] ?? null;
-        $temp['suggested_changes']['new_molecule_data']['references'] = $data['references'] ?? [];
+        // Check if curator is already assigned
+        $pivot = ReportUser::where('report_id', $record->id)
+            ->where('user_id', auth()->id())
+            ->where('curator_number', $curator_number)
+            ->first();
 
+        // If not assigned yet, assign curator based on report status
+        if (! $pivot) {
+            if ($record['status'] == ReportStatus::SUBMITTED->value) {
+                // For first approval, automatically assign current user as curator 1
+                $record->curators()->wherePivot('curator_number', 1)->detach();
+                $record->curators()->attach(auth()->id(), [
+                    'curator_number' => 1,
+                    'status' => $status,
+                    'comment' => $data['reason'],
+                ]);
+                // ReportAssigned::dispatch($record, auth()->id());
+            } elseif ($record['status'] == 'pending_approval' || $record['status'] == 'pending_rejection') {
+                // For second approval, automatically assign current user as curator 2
+                $record->curators()->wherePivot('curator_number', 2)->detach();
+                $record->curators()->attach(auth()->id(), [
+                    'curator_number' => 2,
+                    'status' => $status,
+                    'comment' => $data['reason'],
+                ]);
+                // ReportAssigned::dispatch($record, auth()->id());
+            }
+        } else {
+            // Update existing pivot record
+            $pivot->status = $status;
+            $pivot->comment = $data['reason'];
+            $pivot->save();
+        }
+        $record['status'] = $status;
         $record->save();
-        $record->update($temp);
         $record->refresh();
+        ReportStatusChanged::dispatch($record);
+
+        // Show appropriate notification based on action
+        if ($status == ReportStatus::PENDING_APPROVAL->value) {
+            Notification::make()
+                ->title('Report approved for first review')
+                ->body('The report has been approved in first review and is now pending final approval.')
+                ->success()
+                ->send();
+        } elseif ($status == ReportStatus::APPROVED->value) {
+            Notification::make()
+                ->title('Report fully approved')
+                ->body('The report has been fully approved.')
+                ->success()
+                ->send();
+        }
+        $livewire->redirect(ReportResource::getUrl('index'));
     }
 
     public static function rejectReport(array $data, Report $record, $livewire): void
     {
-        $record['status'] = 'rejected';
-        $record['comment'] = $data['reason'];
-        $record['assigned_to'] = auth()->id();
+        $status = '';
+        $curator_number = '';
+        if ($record['status'] == ReportStatus::PENDING_APPROVAL->value || $record['status'] == ReportStatus::PENDING_REJECTION->value) {
+            $status = ReportStatus::REJECTED->value;
+            $curator_number = 2;
+        } else {
+            $status = ReportStatus::PENDING_REJECTION->value;
+            $curator_number = 1;
+        }
+        // Check if curator is already assigned
+        $pivot = ReportUser::where('report_id', $record->id)
+            ->where('user_id', auth()->id())
+            ->where('curator_number', $curator_number)
+            ->first();
+
+        // If not assigned yet, assign curator based on report status
+        if (! $pivot) {
+            if ($record['status'] == ReportStatus::SUBMITTED->value) {
+                // For first rejection, automatically assign current user as curator 1
+                $record->curators()->wherePivot('curator_number', 1)->detach();
+                $record->curators()->attach(auth()->id(), [
+                    'curator_number' => 1,
+                    'status' => $status,
+                    'comment' => $data['reason'],
+                ]);
+                // ReportAssigned::dispatch($record, auth()->id());
+            } elseif ($record['status'] == ReportStatus::PENDING_APPROVAL->value || $record['status'] == ReportStatus::PENDING_REJECTION->value) {
+                // For second rejection, automatically assign current user as curator 2
+                $record->curators()->wherePivot('curator_number', 2)->detach();
+                $record->curators()->attach(auth()->id(), [
+                    'curator_number' => 2,
+                    'status' => $status,
+                    'comment' => $data['reason'],
+                ]);
+                // ReportAssigned::dispatch($record, auth()->id());
+            }
+        } else {
+            // Update existing pivot record
+            $pivot->status = $status;
+            $pivot->comment = $data['reason'];
+            $pivot->save();
+        }
+        $record['status'] = $status;
         $record->save();
 
         ReportStatusChanged::dispatch($record);
