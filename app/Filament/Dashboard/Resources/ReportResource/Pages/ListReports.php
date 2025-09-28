@@ -2,6 +2,7 @@
 
 namespace App\Filament\Dashboard\Resources\ReportResource\Pages;
 
+use App\Enums\ReportStatus;
 use App\Filament\Dashboard\Resources\ReportResource;
 use App\Models\Report;
 use Archilex\AdvancedTables\AdvancedTables;
@@ -26,37 +27,37 @@ class ListReports extends ListRecords
     {
         $presetViews = [
             'on going' => PresetView::make()
-                ->modifyQueryUsing(fn ($query) => $query->whereIn('status', ['submitted', 'pending_approval', 'pending_rejection']))
+                ->modifyQueryUsing(fn ($query) => $query->whereIn('status', [ReportStatus::SUBMITTED->value, ReportStatus::PENDING_APPROVAL->value, ReportStatus::PENDING_REJECTION->value]))
                 ->favorite()
                 ->badge(function () {
                     if (auth()->user()->roles()->exists()) {
-                        return Report::query()->whereIn('status', ['submitted', 'pending_approval', 'pending_rejection'])->count();
+                        return Report::query()->whereIn('status', [ReportStatus::SUBMITTED->value, ReportStatus::PENDING_APPROVAL->value, ReportStatus::PENDING_REJECTION->value])->count();
                     }
 
-                    return Report::query()->where('user_id', auth()->id())->whereIn('status', ['submitted', 'pending_approval', 'pending_rejection'])->count();
+                    return Report::query()->where('user_id', auth()->id())->whereIn('status', [ReportStatus::SUBMITTED->value, ReportStatus::PENDING_APPROVAL->value, ReportStatus::PENDING_REJECTION->value])->count();
                 })
                 ->preserveAll()
                 ->default(),
             'approved' => PresetView::make()
-                ->modifyQueryUsing(fn ($query) => $query->where('status', 'approved'))
+                ->modifyQueryUsing(fn ($query) => $query->where('status', ReportStatus::APPROVED->value))
                 ->favorite()
                 ->badge(function () {
                     if (auth()->user()->roles()->exists()) {
-                        return Report::query()->where('status', 'approved')->count();
+                        return Report::query()->where('status', ReportStatus::APPROVED->value)->count();
                     }
 
-                    return Report::query()->where('user_id', auth()->id())->where('status', 'approved')->count();
+                    return Report::query()->where('user_id', auth()->id())->where('status', ReportStatus::APPROVED->value)->count();
                 })
                 ->preserveAll(),
             'rejected' => PresetView::make()
-                ->modifyQueryUsing(fn ($query) => $query->where('status', 'rejected'))
+                ->modifyQueryUsing(fn ($query) => $query->where('status', ReportStatus::REJECTED->value))
                 ->favorite()
                 ->badge(function () {
                     if (auth()->user()->roles()->exists()) {
-                        return Report::query()->where('status', 'rejected')->count();
+                        return Report::query()->where('status', ReportStatus::REJECTED->value)->count();
                     }
 
-                    return Report::query()->where('user_id', auth()->id())->where('status', 'rejected')->count();
+                    return Report::query()->where('user_id', auth()->id())->where('status', ReportStatus::REJECTED->value)->count();
                 })
                 ->preserveAll(),
         ];
@@ -70,14 +71,14 @@ class ListReports extends ListRecords
                             $q->whereHas('curators', function ($curatorQuery) {
                                 $curatorQuery->where('report_user.user_id', auth()->id())
                                     ->where('report_user.curator_number', 1);
-                            })->where('status', 'submitted');
+                            })->where('status', ReportStatus::SUBMITTED->value);
                         });
 
                         // Case 2: Reports waiting for second curator review and:
                         // - current user is assigned as curator 2, OR
                         // - current user is not the first curator and no curator 2 is assigned yet
                         $subquery->orWhere(function ($q) {
-                            $q->whereIn('status', ['pending_approval', 'pending_rejection'])
+                            $q->whereIn('status', [ReportStatus::PENDING_APPROVAL->value, ReportStatus::PENDING_REJECTION->value])
                                 ->where(function ($innerQuery) {
                                     // Current user is already assigned as curator 2
                                     $innerQuery->whereHas('curators', function ($curatorQuery) {
@@ -98,14 +99,14 @@ class ListReports extends ListRecords
                                 $q->whereHas('curators', function ($curatorQuery) {
                                     $curatorQuery->where('report_user.user_id', auth()->id())
                                         ->where('report_user.curator_number', 1);
-                                })->where('status', 'submitted');
+                                })->where('status', ReportStatus::SUBMITTED->value);
                             });
 
                             // Case 2: Reports waiting for second curator review and:
                             // - current user is assigned as curator 2, OR
                             // - current user is not the first curator and no curator 2 is assigned yet
                             $subquery->orWhere(function ($q) {
-                                $q->whereIn('status', ['pending_approval', 'pending_rejection'])
+                                $q->whereIn('status', [ReportStatus::PENDING_APPROVAL->value, ReportStatus::PENDING_REJECTION->value])
                                     ->where(function ($innerQuery) {
                                         // Current user is already assigned as curator 2
                                         $innerQuery->whereHas('curators', function ($curatorQuery) {
