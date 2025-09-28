@@ -59,6 +59,9 @@
 <body>
     <x-banner />
     <x-impersonate::banner style='light' />
+    
+    <x-dev-banner />
+    
     <div class="font-sans text-gray-900 antialiased">
         <div class="bg-white">
             <livewire:header />
