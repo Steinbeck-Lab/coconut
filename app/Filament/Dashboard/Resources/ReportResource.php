@@ -873,8 +873,7 @@ class ReportResource extends Resource
                 true => 'bg-teal-50 dark:bg-gray-800',
                 default => null,
             })
-            ->recordUrl(fn (Report $record): string => 
-                auth()->user()->can('update', $record) 
+            ->recordUrl(fn (Report $record): string => auth()->user()->can('update', $record)
                     ? static::getUrl('edit', ['record' => $record->id])
                     : static::getUrl('view', ['record' => $record->id])
             )
