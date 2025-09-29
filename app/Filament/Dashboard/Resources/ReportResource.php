@@ -796,7 +796,7 @@ class ReportResource extends Resource
                         }
                     })
                     ->searchable(),
-                Textarea::make('mol_ids')
+                TagsInput::make('mol_ids')
                     ->label('Molecules')
                     ->placeholder('Enter the Identifiers separated by commas')
                     ->required(function (Get $get) {
