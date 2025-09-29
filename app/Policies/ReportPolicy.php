@@ -43,7 +43,7 @@ class ReportPolicy
      */
     public function update(User $user, Report $report): bool
     {
-        if (($user->can('update_report') && (($report->assigned_to == null || $report->assigned_to == $user->id) && ($report->status != ReportStatus::APPROVED->value) && ($report->status != ReportStatus::REJECTED->value))) || ($user->id == $report->user_id && $report->status == null)) {
+        if (($user->can('update_report') && ( ($report->status != ReportStatus::APPROVED->value) && ($report->status != ReportStatus::REJECTED->value))) || ($user->id == $report->user_id && $report->status == null)) {
             return true;
         } else {
             return false;
@@ -52,7 +52,7 @@ class ReportPolicy
         // Allow users with update_report permission in these cases:
         if ($user->can('update_report')) {
             // Case 1: Report is submitted
-            if ($report->status == 'submitted') {
+            if ($report->status == ReportStatus::SUBMITTED->value) {
                 // Allow if no curator 1 is assigned yet
                 if (! $report->curators()->wherePivot('curator_number', 1)->exists()) {
                     return true;
@@ -65,7 +65,7 @@ class ReportPolicy
             }
 
             // Case 2: Report is pending approval/rejection
-            if ($report->status == 'pending_approval' || $report->status == 'pending_rejection') {
+            if ($report->status == ReportStatus::PENDING_APPROVAL->value || $report->status == ReportStatus::PENDING_REJECTION->value) {
                 // Get the first curator ID
                 $firstCuratorId = $report->curators()->wherePivot('curator_number', 1)->first()?->id;
 
