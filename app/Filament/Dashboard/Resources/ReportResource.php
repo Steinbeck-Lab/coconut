@@ -1233,7 +1233,7 @@ class ReportResource extends Resource
                 $record->curators()->attach(auth()->id(), [
                     'curator_number' => 1,
                     'status' => $status,
-                    'comment' => $data['reason'],
+                    'comment' => $data['reason'] ?? '',
                 ]);
                 // ReportAssigned::dispatch($record, auth()->id());
             } elseif ($record['status'] == ReportStatus::PENDING_APPROVAL->value || $record['status'] == ReportStatus::PENDING_REJECTION->value) {
@@ -1242,14 +1242,14 @@ class ReportResource extends Resource
                 $record->curators()->attach(auth()->id(), [
                     'curator_number' => 2,
                     'status' => $status,
-                    'comment' => $data['reason'],
+                    'comment' => $data['reason'] ?? '',
                 ]);
                 // ReportAssigned::dispatch($record, auth()->id());
             }
         } else {
             // Update existing pivot record
             $pivot->status = $status;
-            $pivot->comment = $data['reason'];
+            $pivot->comment = $data['reason'] ?? '';
             $pivot->save();
         }
         $record['status'] = $status;
