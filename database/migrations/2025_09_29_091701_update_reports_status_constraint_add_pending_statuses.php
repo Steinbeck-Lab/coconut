@@ -25,6 +25,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // First, update any records with PENDING_APPROVAL or PENDING_REJECTION to SUBMITTED
+        // to make them compatible with the old constraint
+        DB::statement("UPDATE reports SET status = 'SUBMITTED' WHERE status IN ('PENDING_APPROVAL', 'PENDING_REJECTION')");
+        
         // Drop the current constraint
         DB::statement('ALTER TABLE reports DROP CONSTRAINT IF EXISTS check_status');
         
