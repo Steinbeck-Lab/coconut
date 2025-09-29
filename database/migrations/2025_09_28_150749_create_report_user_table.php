@@ -1,45 +1,30 @@
 <?php
 
-namespace App\Console\Commands;
-
+use App\Enums\ReportStatus;
 use App\Models\Report;
-use Illuminate\Console\Command;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
-class ReportsTransferAssignmentsToPivotTable extends Command
+return new class extends Migration
 {
     /**
-     * The name and signature of the console command.
-     *
-     * @var string
+     * Run the migrations.
      */
-    protected $signature = 'reports:transfer-to-pivot';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Transfer comment and assigned_to from reports table to report_user pivot table';
-
-    /**
-     * Execute the console command.
-     *
-     * @return int
-     */
-    public function handle()
+    public function up(): void
     {
-        $this->info('Starting data transfer...');
+        Schema::create('report_user', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('report_id');
+            $table->foreignId('user_id');
+            $table->integer('curator_number');
+            $table->enum('status', [ReportStatus::PENDING_APPROVAL->value, ReportStatus::PENDING_REJECTION->value, ReportStatus::APPROVED->value, ReportStatus::REJECTED->value])->nullable();
+            $table->longText('comment')->nullable();
+            $table->timestamps();
+        });
 
         $reports = Report::all();
-
-        // pending status fix
-        $reports->each(function ($report) {
-            if ($report->status == 'pending') {
-                $report->status = 'submitted';
-                $report->save();
-            }
-        });
 
         // fix for reports with is_change set to true but nothing in suggested_changes
         $reports->each(function ($report) {
@@ -54,23 +39,16 @@ class ReportsTransferAssignmentsToPivotTable extends Command
             return $report->assigned_to !== null;
         });
 
-        $this->info("Found {$reports->count()} reports with assigned approvers.");
-
-        $bar = $this->output->createProgressBar($reports->count());
-        $bar->start();
-
-        $transferred = 0;
-
         foreach ($reports as $report) {
             // Create new record in pivot table with matching timestamps
 
-            if ($report->status == 'approved' || $report->status == 'rejected') {
+            if ($report->status == ReportStatus::APPROVED->value || $report->status == ReportStatus::REJECTED->value) {
                 DB::table('report_user')->insert([
                     'report_id' => $report->id,
                     'user_id' => $report->assigned_to,
                     'comment' => $report->comment,
                     'curator_number' => 1, // Set curator_number to 1
-                    'status' => $report->status == 'approved' ? 'pending_approval' : 'pending_rejection', // This is a dummy row as old approved or rejected reports have only one curator
+                    'status' => $report->status == ReportStatus::APPROVED->value ? ReportStatus::PENDING_APPROVAL->value : ReportStatus::PENDING_REJECTION->value, // This is a dummy row as old approved or rejected reports have only one curator
                     'created_at' => $report->created_at,
                     'updated_at' => $report->updated_at,
                 ]);
@@ -79,7 +57,7 @@ class ReportsTransferAssignmentsToPivotTable extends Command
                     'user_id' => $report->assigned_to,
                     'comment' => $report->comment,
                     'curator_number' => 2, // Set curator_number to 2
-                    'status' => $report->status, // Use the status from reports table
+                    'status' => $report->status == ReportStatus::APPROVED->value ? ReportStatus::APPROVED->value : ReportStatus::REJECTED->value, // Use the status from reports table
                     'created_at' => $report->created_at,
                     'updated_at' => $report->updated_at,
                 ]);
@@ -94,13 +72,15 @@ class ReportsTransferAssignmentsToPivotTable extends Command
                     'updated_at' => $report->updated_at,
                 ]);
             }
-            $transferred++;
-
-            $bar->advance();
         }
-
-        $bar->finish();
-        $this->newLine();
-        $this->info("Successfully transferred data for $transferred reports.");
     }
-}
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        // Drop the pivot table
+        Schema::dropIfExists('report_user');
+    }
+};
