@@ -38,30 +38,44 @@ class CollectionList extends Component
     public function render()
     {
         $search = $this->query;
+        // $search = strtolower($this->query ?? '');
         $query = Collection::query()
             ->where('status', 'PUBLISHED')
             ->where(function ($query) use ($search) {
-                $query->whereRaw('LOWER(title) LIKE ?', ['%'.strtolower($search).'%'])
-                    ->orWhereRaw('LOWER(description) LIKE ?', ['%'.strtolower($search).'%']);
+                $query->whereRaw('LOWER(title) ILIKE ?', ['%'.$search.'%'])
+                    ->orWhereRaw('LOWER(description) ILIKE ?', ['%'.$search.'%']);
             });
 
-        // Apply search-based ordering only when there's a search query
+        // When searching, prioritize relevance first, then apply user sorting as secondary
         if (! empty($search)) {
-            $query->orderByRaw('title LIKE ? DESC', [$search.'%'])
-                ->orderByRaw('description LIKE ? DESC', [$search.'%']);
-        }
+            $query->orderByRaw('title ILIKE ? DESC', [$search.'%'])
+                ->orderByRaw('description ILIKE ? DESC', [$search.'%']);
 
-        // Apply user-selected sorting
-        switch ($this->sort) {
-            case 'title':
-                $query->orderBy('title', 'asc');
-                break;
-            case 'created_at':
-                $query->orderBy('created_at', 'desc');
-                break;
-            default:
-                $query->orderBy('title', 'asc');
-                break;
+            // Apply user sorting as secondary criteria for items with same relevance
+            switch ($this->sort) {
+                case 'title':
+                    $query->orderBy('title', 'asc');
+                    break;
+                case 'created_at':
+                    $query->orderBy('created_at', 'desc');
+                    break;
+                default:
+                    $query->orderBy('title', 'asc');
+                    break;
+            }
+        } else {
+            // When not searching, apply only user-selected sorting
+            switch ($this->sort) {
+                case 'title':
+                    $query->orderBy('title', 'asc');
+                    break;
+                case 'created_at':
+                    $query->orderBy('created_at', 'desc');
+                    break;
+                default:
+                    $query->orderBy('title', 'asc');
+                    break;
+            }
         }
 
         $collections = $query->paginate($this->size);
