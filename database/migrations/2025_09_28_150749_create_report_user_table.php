@@ -73,6 +73,11 @@ return new class extends Migration
                 ]);
             }
         }
+
+        // Drop the assigned_to column from reports table
+        Schema::table('reports', function (Blueprint $table) {
+            $table->dropColumn('assigned_to');
+        });
     }
 
     /**
