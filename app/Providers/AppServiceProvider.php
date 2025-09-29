@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Listeners\ReportEventSubscriber;
 use App\Models\Citation;
 use App\Models\Collection;
 use App\Models\GeoLocation;
@@ -75,8 +74,6 @@ class AppServiceProvider extends ServiceProvider
                     'dev',
                 ]));
         });
-
-        // Event::subscribe(ReportEventSubscriber::class);
 
         FilamentAsset::register([
             Js::make('coconut-js', Vite::asset('resources/js/app.js'))->module(),

@@ -90,8 +90,6 @@ class ReportPolicy
         if ($user->id == $report->user_id && $report->status == null) {
             return true;
         }
-
-        return false;
     }
 
     /**

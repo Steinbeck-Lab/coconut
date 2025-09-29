@@ -281,9 +281,6 @@ class ReportResource extends Resource
                                 ])
                                 ->size('xl'),
                         ])
-                            // ->hidden(function (Get $get) {
-                            //     return $get('report_type') != 'molecule';
-                            // })
                             ->verticalAlignment(VerticalAlignment::End)
                             ->columnStart(4),
                     ])
