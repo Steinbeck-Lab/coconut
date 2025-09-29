@@ -40,29 +40,23 @@ class ListReports extends ListRecords
                 ->default(),
             'approved' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where('status', ReportStatus::APPROVED->value))
-                ->modifyQueryUsing(fn ($query) => $query->where('status', ReportStatus::APPROVED->value))
                 ->favorite()
                 ->badge(function () {
                     if (auth()->user()->roles()->exists()) {
                         return Report::query()->where('status', ReportStatus::APPROVED->value)->count();
-                        return Report::query()->where('status', ReportStatus::APPROVED->value)->count();
                     }
 
-                    return Report::query()->where('user_id', auth()->id())->where('status', ReportStatus::APPROVED->value)->count();
                     return Report::query()->where('user_id', auth()->id())->where('status', ReportStatus::APPROVED->value)->count();
                 })
                 ->preserveAll(),
             'rejected' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where('status', ReportStatus::REJECTED->value))
-                ->modifyQueryUsing(fn ($query) => $query->where('status', ReportStatus::REJECTED->value))
                 ->favorite()
                 ->badge(function () {
                     if (auth()->user()->roles()->exists()) {
                         return Report::query()->where('status', ReportStatus::REJECTED->value)->count();
-                        return Report::query()->where('status', ReportStatus::REJECTED->value)->count();
                     }
 
-                    return Report::query()->where('user_id', auth()->id())->where('status', ReportStatus::REJECTED->value)->count();
                     return Report::query()->where('user_id', auth()->id())->where('status', ReportStatus::REJECTED->value)->count();
                 })
                 ->preserveAll(),
