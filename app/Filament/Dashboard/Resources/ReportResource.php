@@ -222,7 +222,7 @@ class ReportResource extends Resource
                                 ->form([
                                     Radio::make('curator')
                                         ->label(function ($record) {
-                                            if ($record->status == 'submitted') {
+                                            if ($record->status == ReportStatus::SUBMITTED->value) {
                                                 return 'Assign Curator 1';
                                             } else {
                                                 return 'Assign Curator 2';
@@ -842,11 +842,10 @@ class ReportResource extends Resource
                     ->formatStateUsing(fn (Report $record): HtmlString => new HtmlString(
                         '<b>'.$record->title.'</b>'.
                             ' <br> <i>Type: </i>'.
-                            ($record->is_change
-                                ? '<span class="font-medium">Change</span>'
-                                : '<span class=" font-medium">Report</span>'
-                            )
+                         '<span class="font-medium">'.$record->report_category.'</span>'
                     )),
+                TextColumn::make('user.name')
+                    ->label('Reported By'),
                 // Curator assignment column
                 Tables\Columns\TextColumn::make('assigned_curator')
                     ->label('Assigned To')
