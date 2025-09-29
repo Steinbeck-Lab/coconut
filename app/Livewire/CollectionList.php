@@ -20,7 +20,7 @@ class CollectionList extends Component
     public $size = 20;
 
     #[Url()]
-    public $sort = null;
+    public $sort = 'created_at';
 
     #[Url()]
     public $page = null;
@@ -30,18 +30,41 @@ class CollectionList extends Component
         $this->resetPage();
     }
 
+    public function updatingSort()
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
         $search = $this->query;
-        $collections = Collection::query()
+        $query = Collection::query()
             ->where('status', 'PUBLISHED')
             ->where(function ($query) use ($search) {
                 $query->whereRaw('LOWER(title) LIKE ?', ['%'.strtolower($search).'%'])
                     ->orWhereRaw('LOWER(description) LIKE ?', ['%'.strtolower($search).'%']);
-            })
-            ->orderByRaw('title LIKE ? DESC', [$search.'%'])
-            ->orderByRaw('description LIKE ? DESC', [$search.'%'])
-            ->paginate($this->size);
+            });
+
+        // Apply search-based ordering only when there's a search query
+        if (! empty($search)) {
+            $query->orderByRaw('title LIKE ? DESC', [$search.'%'])
+                ->orderByRaw('description LIKE ? DESC', [$search.'%']);
+        }
+
+        // Apply user-selected sorting
+        switch ($this->sort) {
+            case 'title':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'created_at':
+                $query->orderBy('created_at', 'desc');
+                break;
+            default:
+                $query->orderBy('title', 'asc');
+                break;
+        }
+
+        $collections = $query->paginate($this->size);
 
         return view('livewire.collection-list', ['collections' => $collections]);
     }
