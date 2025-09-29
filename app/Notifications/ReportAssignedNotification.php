@@ -2,13 +2,13 @@
 
 namespace App\Notifications;
 
-use App\Events\ReportStatusChanged;
+use App\Events\ReportAssigned;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ReportStatusChangedNotification extends Notification implements ShouldQueue
+class ReportAssignedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -17,12 +17,9 @@ class ReportStatusChangedNotification extends Notification implements ShouldQueu
      */
     public $event;
 
-    public $mail_to;
-
-    public function __construct(ReportStatusChanged $event, string $mail_to)
+    public function __construct(ReportAssigned $event)
     {
         $this->event = $event;
-        $this->mail_to = $mail_to;
     }
 
     /**
@@ -40,18 +37,11 @@ class ReportStatusChangedNotification extends Notification implements ShouldQueu
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $url = url(env('APP_URL').'/dashboard/reports/'.$this->event->report->id.'?activeRelationManager=3');
-
-        $subject_prefix = '';
-        if ($this->mail_to == 'owner') {
-            $subject_prefix = 'Coconut: Status changed for your Report: ';
-        } else {
-            $subject_prefix = 'Coconut: Status changed for the Report: ';
-        }
+        $url = url(env('APP_URL').'/dashboard/reports/'.$this->event->report->id.'/edit');
 
         return (new MailMessage)
-            ->subject($subject_prefix.$this->event->report->title)
-            ->markdown('mail.report.statuschanged', ['url' => $url, 'event' => $this->event, 'user' => $notifiable, 'mail_to' => $this->mail_to]);
+            ->subject('Coconut: A Report is assigned to you: '.$this->event->report->title)
+            ->markdown('mail.report.assigned', ['url' => $url, 'event' => $this->event, 'curator' => $notifiable]);
     }
 
     /**

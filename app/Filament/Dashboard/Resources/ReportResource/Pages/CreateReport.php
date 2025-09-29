@@ -82,7 +82,7 @@ class CreateReport extends CreateRecord
             array_push($this->data['citations'], $id);
             $this->data['report_type'] = 'citation';
         } elseif ($request->has('compound_id')) {
-            $this->data['mol_ids'] = json_encode([$request->compound_id]); // Store as JSON array
+            $this->data['mol_ids'] = [$request->compound_id]; // Store as array for TagsInput
             $this->data['report_type'] = 'molecule';
         } elseif ($request->has('organism_id')) {
             $citation = Organism::where('id', $request->organism_id)->get();
@@ -185,14 +185,14 @@ class CreateReport extends CreateRecord
     protected function afterCreate(): void
     {
         if (! is_null($this->record->mol_ids)) {
-            // Handle JSON format
-            $mol_identifiers = is_string($this->record->mol_ids) ?
-                json_decode($this->record->mol_ids, true) :
-                $this->record->mol_ids;
+            // Handle array format from TagsInput (model casting ensures it's already an array)
+            $mol_identifiers = $this->record->mol_ids;
 
-            // If not a valid JSON array, try to parse as comma-separated for backwards compatibility
+            // Ensure it's an array (fallback for any legacy data)
             if (! is_array($mol_identifiers)) {
-                $mol_identifiers = explode(',', $this->record->mol_ids);
+                $mol_identifiers = is_string($mol_identifiers) ?
+                    (json_decode($mol_identifiers, true) ?: explode(',', $mol_identifiers)) :
+                    [$mol_identifiers];
             }
 
             $molecules = Molecule::whereIn('identifier', $mol_identifiers)->get();

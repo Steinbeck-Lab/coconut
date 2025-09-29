@@ -4,6 +4,8 @@ namespace App\Filament\Dashboard\Resources;
 
 use App\Enums\ReportCategory;
 use App\Enums\ReportStatus;
+use App\Events\ReportAssigned;
+use App\Events\ReportStatusChanged;
 use App\Filament\Dashboard\Resources\ReportResource\Pages;
 use App\Filament\Dashboard\Resources\ReportResource\RelationManagers;
 use App\Models\Citation;
@@ -12,6 +14,7 @@ use App\Models\GeoLocation;
 use App\Models\Molecule;
 use App\Models\Organism;
 use App\Models\Report;
+use App\Models\ReportUser;
 use App\Models\User;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
 use Closure;
@@ -29,13 +32,14 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\VerticalAlignment;
 use Filament\Tables;
-use Filament\Tables\Actions\Action as TableAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
@@ -143,7 +147,7 @@ class ReportResource extends Resource
                                 ->requiresConfirmation(function ($record, $livewire) {
 
                                     // For new molecule reports, validate before showing confirmation
-                                    if ($record['report_category'] === 'new_molecule') {
+                                    if ($record['report_category'] === ReportCategory::SUBMISSION->value) {
                                         try {
                                             // Attempt to validate
                                             $livewire->validate();
@@ -157,8 +161,8 @@ class ReportResource extends Resource
                                         }
                                     }
 
-                                    // Only use the default confirmation modal when report_category is 'new_molecule'
-                                    return $record['report_category'] === 'new_molecule';
+                                    // Only use the default confirmation modal when report_category is 'SUBMISSION'
+                                    return $record['report_category'] === ReportCategory::SUBMISSION->value;
                                 })
                                 ->hidden(function (Get $get, string $operation) {
                                     return ! auth()->user()->roles()->exists() ||
@@ -168,17 +172,17 @@ class ReportResource extends Resource
                                 })
                                 ->action(function (array $data, Report $record, Molecule $molecule, $set, $livewire, $get): void {
                                     // Add this validation check before processing the approval
-                                    if ($record['report_category'] === 'new_molecule') {
+                                    if ($record['report_category'] === ReportCategory::SUBMISSION->value) {
                                         // Validate the form data
                                         $livewire->validate();
 
                                         // If validation passes, proceed with approval
                                         self::approveReport($data, $record, $molecule, $livewire);
-                                        $set('status', 'approved');
+                                        $set('status', ReportStatus::APPROVED->value);
                                     } else {
                                         // For other report types, proceed as normal
                                         self::approveReport($data, $record, $molecule, $livewire);
-                                        $set('status', 'approved');
+                                        $set('status', ReportStatus::APPROVED->value);
                                     }
                                 })
                                 ->modalSubmitAction(function () {
@@ -217,18 +221,50 @@ class ReportResource extends Resource
                                 })
                                 ->form([
                                     Radio::make('curator')
-                                        ->label('Choose a curator')
-                                        ->default(function ($record) {
-                                            return $record->assigned_to;
+                                        ->label(function ($record) {
+                                            if ($record->status == ReportStatus::SUBMITTED->value) {
+                                                return 'Assign Curator 1';
+                                            } else {
+                                                return 'Assign Curator 2';
+                                            }
                                         })
-                                        ->options(function () {
-                                            return $users = User::whereHas('roles')->pluck('name', 'id');
+                                        ->default(function ($record) {
+                                            if ($record->status == ReportStatus::SUBMITTED->value) {
+                                                $curator = $record->curators()->wherePivot('curator_number', 1)->first();
+                                            } else {
+                                                $curator = $record->curators()->wherePivot('curator_number', 2)->first();
+                                            }
+
+                                            return $curator?->id;
+                                        })
+                                        ->options(function (Report $record) {
+                                            // Get all users with curator roles
+                                            $curators = User::whereHas('roles')->pluck('name', 'id')->toArray();
+
+                                            // For pending reports, remove the first curator to allow other curators to be assigned
+                                            if ($record->status === ReportStatus::PENDING_APPROVAL->value || $record->status === ReportStatus::PENDING_REJECTION->value) {
+                                                $curator1 = $record->curators()->wherePivot('curator_number', 1)->first();
+                                                if ($curator1) {
+                                                    unset($curators[$curator1->id]);
+                                                }
+                                            }
+
+                                            return $curators;
                                         }),
                                 ])
                                 ->action(function (array $data, Report $record, $livewire): void {
-                                    $record['assigned_to'] = $data['curator'];
-                                    $record->save();
+                                    $curator_number = '';
+                                    if ($record->status == ReportStatus::SUBMITTED->value) {
+                                        $curator_number = 1;
+                                    } else {
+                                        $curator_number = 2;
+                                    }
+                                    $record->curators()->wherePivot('curator_number', $curator_number)->detach();
+                                    $record->curators()->attach($data['curator'], [
+                                        'curator_number' => $curator_number,
+                                    ]);
                                     $record->refresh();
+                                    ReportAssigned::dispatch($record, $data['curator']);
                                     if (auth()->id() == $data['curator']) {
                                         $livewire->redirect(ReportResource::getUrl('edit', ['record' => $record->id]));
                                     } else {
@@ -238,9 +274,10 @@ class ReportResource extends Resource
                                 ->modalHeading('')
                                 ->modalSubmitActionLabel('Assign')
                                 ->iconButton()
-                                ->icon('heroicon-m-user-group')
+                                ->icon('heroicon-o-user-plus')
                                 ->extraAttributes([
                                     'class' => 'ml-1 mr-0',
+                                    'title' => 'Assign Curator',
                                 ])
                                 ->size('xl'),
                         ])
@@ -254,7 +291,7 @@ class ReportResource extends Resource
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select what you want to report. Ex: Molecule, Citation, Collection, Organism.')
                     ->live()
                     ->options(function () {
-                        return getReportTypes();
+                        return getReportTypes(); // changeit with Enums?
                     })
                     ->hidden(function (string $operation, $get) {
                         return $operation != 'create' || $get('type') || $get('report_category') == ReportCategory::SUBMISSION->value;
@@ -281,6 +318,30 @@ class ReportResource extends Resource
                     ->hidden(function (Get $get) {
                         return $get('report_category') === ReportCategory::UPDATE->value || $get('report_category') === ReportCategory::SUBMISSION->value;
                     }),
+                TextInput::make('status')
+                    ->hidden(function (string $operation) {
+                        return $operation == 'create';
+                    })
+                    ->disabled(),
+                Textarea::make('curator_comment')
+                    ->label(function ($record) {
+                        if ($record->status == ReportStatus::PENDING_APPROVAL->value || $record->status == ReportStatus::PENDING_REJECTION->value) {
+                            return 'Curator 1 Comment';
+                        } elseif ($record->status == ReportStatus::APPROVED->value || $record->status == ReportStatus::REJECTED->value) {
+                            return 'Curator 2 Comment';
+                        }
+                    })
+                    ->hidden(function ($record) {
+                        if ($record?->status == ReportStatus::PENDING_APPROVAL->value || $record?->status == ReportStatus::PENDING_REJECTION->value) {
+                            $curator = $record->curators()->wherePivot('curator_number', 1)->first();
+
+                            return $curator?->pivot->comment ? false : true;
+                        }
+                        $curator = $record?->curators()->wherePivot('curator_number', 2)->first();
+
+                        return $curator?->pivot->comment ? false : true;
+                    })
+                    ->disabled(),
                 Tabs::make('suggested_changes')
                     ->tabs([
                         Tabs\Tab::make('compound_info_changes')
@@ -530,7 +591,7 @@ class ReportResource extends Resource
                                             ->label('Canonical SMILES')
                                             ->live(onBlur: true)
                                             ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                                                if ($get('report_category') == 'new_molecule' && $state) {
+                                                if ($get('report_category') == ReportCategory::SUBMISSION->value && $state) {
                                                     $currentTitle = $get('title');
                                                     $set('title', $currentTitle.' '.$state);
                                                 }
@@ -734,7 +795,7 @@ class ReportResource extends Resource
                     ->searchable(),
                 TagsInput::make('mol_ids')
                     ->label('Molecules')
-                    ->placeholder('Enter the Identifiers')
+                    ->placeholder('Enter the Identifiers separated by commas')
                     ->required(function (Get $get) {
                         if ($get('report_type') == 'molecule') {
                             return true;
@@ -775,68 +836,130 @@ class ReportResource extends Resource
             ->columns([
                 TextColumn::make('title')
                     ->wrap()
-                    ->searchable()
-                    ->description(
-                        fn (Report $record): string => $record->report_category === ReportCategory::SUBMISSION->value
-                            ? 'SMILES: '.Str::limit($record->suggested_changes['new_molecule_data']['canonical_smiles'], 50)
-                            : Str::of($record->evidence)->words(10)
-                    ),
+                    ->formatStateUsing(fn (Report $record): HtmlString => new HtmlString(
+                        '<b>'.$record->title.'</b>'.
+                            ' <br> <i>Type: </i>'.
+                         '<span class="font-medium">'.$record->report_category.'</span>'
+                    )),
+                TextColumn::make('user.name')
+                    ->label('Reported By'),
+                // Curator assignment column
+                Tables\Columns\TextColumn::make('assigned_curator')
+                    ->label('Assigned To')
+                    ->state(function (Report $record): ?string {
+                        if ($record->status === ReportStatus::SUBMITTED->value) {
+                            $curator = $record->curators()->wherePivot('curator_number', 1)->first();
 
-                TextColumn::make('report_category')
-                    ->label('Type')
-                    ->badge()
-                    ->color(fn (Report $record): string => match ($record->report_category) {
-                        ReportCategory::UPDATE->value => 'warning',
-                        ReportCategory::SUBMISSION->value => 'success',
-                        default => 'gray'
+                            return $curator ? $curator->name : '';
+                        } elseif ($record->status === ReportStatus::PENDING_APPROVAL->value || $record->status === ReportStatus::PENDING_REJECTION->value) {
+                            $curator = $record->curators()->wherePivot('curator_number', 2)->first();
+
+                            return $curator ? $curator->name : '';
+                        } elseif ($record->status === ReportStatus::APPROVED->value || $record->status === ReportStatus::REJECTED->value) {
+                            $curator = $record->curators()->wherePivot('curator_number', 2)->first();
+
+                            return $curator ? $curator->name : '';
+                        }
+
+                        return 'N/A';
                     })
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        ReportCategory::SUBMISSION->value => 'Submission',
-                        ReportCategory::REVOKE->value => 'Revoke',
-                        ReportCategory::UPDATE->value => 'Update',
-                        default => str_replace('_', ' ', ucfirst($state))
-                    }),
-
-                TextColumn::make('curator.name')
                     ->searchable()
-                    ->placeholder('Choose a curator')
-                    ->action(
-                        TableAction::make('select')
-                            ->label('')
-                            ->form([
-                                Radio::make('curator')
-                                    ->label('Choose a curator')
-                                    ->default(function ($record) {
-                                        return $record->assigned_to;
-                                    })
-                                    ->options(function () {
-                                        return $users = User::whereHas('roles')->pluck('name', 'id');
-                                    }),
-                            ])
-                            ->action(function (array $data, Report $record): void {
-                                $record->assigned_to = $data['curator'];
-                                $record->save();
-                                $record->refresh();
-                            })
-                            ->modalSubmitActionLabel('Assign')
-                            ->modalHidden(fn (Report $record): bool => ! auth()->user()->roles()->exists() ||
-                                $record['status'] == ReportStatus::APPROVED->value ||
-                                $record['status'] == ReportStatus::REJECTED->value),
-                    ),
-
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(),
+                    ->sortable(),
             ])
+            ->recordClasses(fn (Model $record) => match ($record->is_change) {
+                true => 'bg-teal-50 dark:bg-gray-800',
+                default => null,
+            })
+            ->recordUrl(fn (Report $record): string => auth()->user()->can('update', $record)
+                    ? static::getUrl('edit', ['record' => $record->id])
+                    : static::getUrl('view', ['record' => $record->id])
+            )
             ->defaultSort('created_at', 'desc')
             ->filters([
                 AdvancedFilter::make()
                     ->includeColumns(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\ViewAction::make(),
+                Tables\Actions\Action::make('assign_curator')
+                    ->label('')
+                    ->size('xl')
+                    ->icon('heroicon-o-user-plus')
+                    ->form([
+                        Radio::make('curator')
+                            ->label(function (Report $record) {
+                                if ($record->status === ReportStatus::SUBMITTED->value) {
+                                    return 'Assign Curator 1';
+                                } elseif ($record->status === ReportStatus::PENDING_APPROVAL->value || $record->status === ReportStatus::PENDING_REJECTION->value) {
+                                    return 'Assign Curator 2';
+                                }
+
+                                return 'Assign Curator';
+                            })
+                            ->options(function (Report $record) {
+                                // Get all users with curator roles
+                                $curators = User::whereHas('roles')->pluck('name', 'id')->toArray();
+
+                                // For pending reports, filter out the first curator to enforce four-eyes principle
+                                if ($record->status === ReportStatus::PENDING_APPROVAL->value || $record->status === ReportStatus::PENDING_REJECTION->value) {
+                                    $curator1 = $record->curators()->wherePivot('curator_number', 1)->first();
+                                    if ($curator1) {
+                                        unset($curators[$curator1->id]);
+                                    }
+                                }
+
+                                return $curators;
+                            })
+                            ->default(function (Report $record) {
+                                // Pre-select current curator if assigned
+                                if ($record->status === ReportStatus::SUBMITTED->value) {
+                                    $curator = $record->curators()->wherePivot('curator_number', 1)->first();
+
+                                    return $curator?->id;
+                                } elseif ($record->status === ReportStatus::PENDING_APPROVAL->value || $record->status === ReportStatus::PENDING_REJECTION->value) {
+                                    $curator = $record->curators()->wherePivot('curator_number', 2)->first();
+
+                                    return $curator?->id;
+                                }
+
+                                return null;
+                            })
+                            ->required(),
+                    ])
+                    ->action(function (array $data, Report $record): void {
+                        $curatorNumber = 1; // Default
+
+                        if ($record->status === ReportStatus::PENDING_APPROVAL->value || $record->status === ReportStatus::PENDING_REJECTION->value) {
+                            $curatorNumber = 2;
+                        }
+
+                        // Remove any existing curator for this position
+                        $record->curators()->wherePivot('curator_number', $curatorNumber)->detach();
+
+                        // Assign the new curator
+                        $record->curators()->attach($data['curator'], [
+                            'curator_number' => $curatorNumber,
+                        ]);
+
+                        // Dispatch event
+                        ReportAssigned::dispatch($record, $data['curator']);
+                    })
+                    ->modalHeading(function (Report $record) {
+                        if ($record->status === ReportStatus::SUBMITTED->value) {
+                            return 'Assign Curator 1';
+                        } elseif ($record->status === ReportStatus::PENDING_APPROVAL->value || $record->status === ReportStatus::PENDING_REJECTION->value) {
+                            return 'Assign Curator 2';
+                        }
+
+                        return 'Assign Curator';
+                    })
+                    ->modalSubmitActionLabel('Assign')
+                    ->hidden(function (Report $record): bool {
+                        // Hide for non-curators or approved/rejected reports
+                        return ! auth()->user()->roles()->exists() ||
+                            $record->status === ReportStatus::APPROVED->value ||
+                            $record->status === ReportStatus::REJECTED->value;
+                    }),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -931,184 +1054,287 @@ class ReportResource extends Resource
 
     public static function approveReport(array $data, Report $record, Molecule $molecule, $livewire): void
     {
+        $status = '';
+        $curator_number = '';
+
         if ($record['report_category'] === ReportCategory::SUBMISSION->value) {
-            $molecule_data = $record['suggested_changes']['new_molecule_data'];
+            if ($record['status'] == ReportStatus::PENDING_APPROVAL->value || $record['status'] == ReportStatus::PENDING_REJECTION->value) {
+                $molecule_data = $record['suggested_changes']['new_molecule_data'];
 
-            // Create new entry
-            $new_entry = new Entry;
-            $new_entry->canonical_smiles = $molecule_data['canonical_smiles'];
-            $new_entry->reference_id = $molecule_data['reference_id'] ?? '';
-            $new_entry->name = $molecule_data['name'] ?? '';
-            $new_entry->status = ReportStatus::SUBMITTED->value;
-            $new_entry->submission_type = 'json';
-            $new_entry->collection_id = 65; // Default collection ID
+                // Create new entry
+                $new_entry = new Entry;
+                $new_entry->canonical_smiles = $molecule_data['canonical_smiles'];
+                $new_entry->reference_id = $molecule_data['reference_id'] ?? '';
+                $new_entry->name = $molecule_data['name'] ?? '';
+                $new_entry->status = ReportStatus::SUBMITTED->value;
+                $new_entry->submission_type = 'json';
+                $new_entry->collection_id = 65; // Default collection ID
 
-            // Add optional fields if provided (with blank defaults)
-            $new_entry->link = $molecule_data['link'] ?? '';
-            $new_entry->mol_filename = $molecule_data['mol_filename'] ?? '';
-            $new_entry->structural_comments = $molecule_data['structural_comments'] ?? '';
+                // Add optional fields if provided (with blank defaults)
+                $new_entry->link = $molecule_data['link'] ?? '';
+                $new_entry->mol_filename = $molecule_data['mol_filename'] ?? '';
+                $new_entry->structural_comments = $molecule_data['structural_comments'] ?? '';
 
-            // Initialize relationship fields with empty strings by default
-            $new_entry->doi = '';
-            $new_entry->organism = '';
-            $new_entry->organism_part = '';
-            $new_entry->geo_location = '';
-            $new_entry->location = '';
+                // Initialize relationship fields with empty strings by default
+                $new_entry->doi = '';
+                $new_entry->organism = '';
+                $new_entry->organism_part = '';
+                $new_entry->geo_location = '';
+                $new_entry->location = '';
 
-            // Process relationships data
-            $allDois = [];
-            $allOrganisms = [];
-            $allParts = [];
-            $allGeoLocations = [];
-            $allEcosystems = [];
+                // Process relationships data
+                $allDois = [];
+                $allOrganisms = [];
+                $allParts = [];
+                $allGeoLocations = [];
+                $allEcosystems = [];
 
-            if (! empty($molecule_data['references'])) {
-                // Process each reference
-                foreach ($molecule_data['references'] as $reference) {
-                    $doi = $reference['doi'] ?? '';
+                if (! empty($molecule_data['references'])) {
+                    // Process each reference
+                    foreach ($molecule_data['references'] as $reference) {
+                        $doi = $reference['doi'] ?? '';
 
-                    // If no organisms, still create an entry with blank values to maintain structure
-                    if (empty($reference['organisms'])) {
-                        $allDois[] = $doi;
-                        $allOrganisms[] = '';
-                        $allParts[] = '';
-                        $allGeoLocations[] = '';
-                        $allEcosystems[] = '';
-
-                        continue;
-                    }
-
-                    // Process each organism in the reference
-                    foreach ($reference['organisms'] as $organism) {
-                        // Add DOI and organism name (one-to-one relation)
-                        $allDois[] = $doi;
-                        $allOrganisms[] = $organism['name'] ?? '';
-
-                        // Process parts for this organism
-                        $orgParts = ! empty($organism['parts']) ? implode('|', $organism['parts']) : '';
-                        $allParts[] = $orgParts;
-
-                        // Process locations and ecosystems for this organism
-                        $orgLocations = [];
-                        $orgEcosystems = [];
-
-                        if (empty($organism['locations'])) {
-                            // No locations, add blanks but maintain structure
+                        // If no organisms, still create an entry with blank values to maintain structure
+                        if (empty($reference['organisms'])) {
+                            $allDois[] = $doi;
+                            $allOrganisms[] = '';
+                            $allParts[] = '';
                             $allGeoLocations[] = '';
                             $allEcosystems[] = '';
-                        } else {
-                            // Process each location in the organism
-                            foreach ($organism['locations'] as $location) {
-                                $orgLocations[] = $location['name'] ?? '';
 
-                                // Process ecosystems for this location
-                                $locEcosystems = ! empty($location['ecosystems']) ? implode(';', $location['ecosystems']) : '';
-                                $orgEcosystems[] = $locEcosystems;
-                            }
-
-                            // Format the geo locations and ecosystems with appropriate delimiters
-                            $allGeoLocations[] = implode('|', $orgLocations);
-                            $allEcosystems[] = implode('|', $orgEcosystems);
+                            continue;
                         }
+
+                        // Process each organism in the reference
+                        foreach ($reference['organisms'] as $organism) {
+                            // Add DOI and organism name (one-to-one relation)
+                            $allDois[] = $doi;
+                            $allOrganisms[] = $organism['name'] ?? '';
+
+                            // Process parts for this organism
+                            $orgParts = ! empty($organism['parts']) ? implode('|', $organism['parts']) : '';
+                            $allParts[] = $orgParts;
+
+                            // Process locations and ecosystems for this organism
+                            $orgLocations = [];
+                            $orgEcosystems = [];
+
+                            if (empty($organism['locations'])) {
+                                // No locations, add blanks but maintain structure
+                                $allGeoLocations[] = '';
+                                $allEcosystems[] = '';
+                            } else {
+                                // Process each location in the organism
+                                foreach ($organism['locations'] as $location) {
+                                    $orgLocations[] = $location['name'] ?? '';
+
+                                    // Process ecosystems for this location
+                                    $locEcosystems = ! empty($location['ecosystems']) ? implode(';', $location['ecosystems']) : '';
+                                    $orgEcosystems[] = $locEcosystems;
+                                }
+
+                                // Format the geo locations and ecosystems with appropriate delimiters
+                                $allGeoLocations[] = implode('|', $orgLocations);
+                                $allEcosystems[] = implode('|', $orgEcosystems);
+                            }
+                        }
+                    }
+
+                    // Only set relationship fields if there's actual data
+                    if (! empty($allDois)) {
+                        $new_entry->doi = implode('##', $allDois);
+                        $new_entry->organism = implode('##', $allOrganisms);
+                        $new_entry->organism_part = implode('##', $allParts);
+                        $new_entry->geo_location = implode('##', $allGeoLocations);
+                        $new_entry->location = implode('##', $allEcosystems);
                     }
                 }
 
-                // Only set relationship fields if there's actual data
-                if (! empty($allDois)) {
-                    $new_entry->doi = implode('##', $allDois);
-                    $new_entry->organism = implode('##', $allOrganisms);
-                    $new_entry->organism_part = implode('##', $allParts);
-                    $new_entry->geo_location = implode('##', $allGeoLocations);
-                    $new_entry->location = implode('##', $allEcosystems);
-                }
+                // Store the original JSON data in meta_data
+                $new_entry->meta_data = $record['suggested_changes'];
+
+                $new_entry->save();
+
+                $record['comment'] = prepareComment($data['reason'] ?? '');
+
+                // Associate the entry with the report
+                $record->entries()->attach($new_entry->id);
+
+                $status = ReportStatus::APPROVED->value;
+                $curator_number = 2;
+            } else {
+                $status = ReportStatus::PENDING_APPROVAL->value;
+                $curator_number = 1;
             }
-
-            // Store the original JSON data in meta_data
-            $new_entry->meta_data = $record['suggested_changes'];
-
-            $new_entry->save();
-
-            // Update report status
-            $record['status'] = ReportStatus::APPROVED->value;
-            $record['comment'] = prepareComment($data['reason'] ?? '');
-            $record['assigned_to'] = auth()->id();
-            $record->save();
-
-            // Associate the entry with the report
-            $record->entries()->attach($new_entry->id);
-
-            // Redirect to view page
-            $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
+            // $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
         } elseif ($record['report_category'] === ReportCategory::UPDATE->value) {
+            // This has to be here so as to log the audit changes properly between the 1st and 2nd approvals.
+            self::$overall_changes = getOverallChanges(self::$approved_changes);
+
             // In case of Changes
-            // Run SQL queries for the approved changes
-            self::runSQLQueries($record);
+            if ($record['status'] == ReportStatus::PENDING_APPROVAL->value || $record['status'] == ReportStatus::PENDING_REJECTION->value) {
+                // Run SQL queries for the approved changes
+                self::runSQLQueries($record);
 
-            $suggested_changes = $record['suggested_changes'];
+                $suggested_changes = $record['suggested_changes'];
+                $suggested_changes['curator']['approved_changes'] = self::$overall_changes;
+                $record['suggested_changes'] = $suggested_changes;
+                $record['comment'] = prepareComment($data['reason'] ?? '');
+                $record['status'] = ReportStatus::APPROVED->value;
+                $formData = copyChangesToCuratorJSON($record, $livewire->data);
+                $suggested_changes['curator'] = $formData['suggested_changes']['curator'];
+                $record['suggested_changes'] = $suggested_changes;
 
-            $suggested_changes['curator']['approved_changes'] = self::$overall_changes;
-            $record['suggested_changes'] = $suggested_changes;
-            $record['comment'] = prepareComment($data['reason'] ?? '');
-            $record['status'] = ReportStatus::APPROVED->value;
-            $formData = copyChangesToCuratorJSON($record, $livewire->data);
-            $suggested_changes['curator'] = $formData['suggested_changes']['curator'];
-            $record['suggested_changes'] = $suggested_changes;
-            $record['assigned_to'] = auth()->id();
-
-            $record->save();
+                $status = ReportStatus::APPROVED->value;
+                $curator_number = 2;
+            } else {
+                $status = ReportStatus::PENDING_APPROVAL->value;
+                $curator_number = 1;
+            }
         } else {
             // In case of reporting a synthetic molecule, Deactivate Molecules
-            if ($record['report_type'] == 'molecule') {
-                $molecule_ids = json_decode($record['mol_ids'], true);
-                if (! is_array($molecule_ids)) {
-                    $molecule_ids = explode(',', $record['mol_ids']); // Fallback for compatibility
+            if ($record['status'] == ReportStatus::PENDING_APPROVAL->value || $record['status'] == ReportStatus::PENDING_REJECTION->value) {
+                if ($record['report_type'] == 'molecule') {
+                    $molecule_ids = json_decode($record['mol_ids'], true);
+                    if (! is_array($molecule_ids)) {
+                        $molecule_ids = explode(',', $record['mol_ids']); // Fallback for compatibility
+                    }
+                    $molecules = Molecule::whereIn('identifier', $molecule_ids)->get();
+                    foreach ($molecules as $mol) {
+                        $mol->active = false;
+                        $mol->status = 'REVOKED';
+                        $mol->comment = prepareComment($data['reason'] ?? '');
+                        $mol->save();
+                    }
                 }
-                $molecule = Molecule::whereIn('identifier', $molecule_ids)->get();
-                foreach ($molecule as $mol) {
-                    $mol->active = false;
-                    $mol->status = 'REVOKED';
-                    $mol->comment = prepareComment($data['reason'] ?? '');
-                    $mol->save();
-                }
+                $status = ReportStatus::APPROVED->value;
+                $curator_number = 2;
+            } else {
+                $status = ReportStatus::PENDING_APPROVAL->value;
+                $curator_number = 1;
             }
-            $record['status'] = ReportStatus::APPROVED->value;
-            $record['comment'] = prepareComment($data['reason'] ?? '');
-            $record['assigned_to'] = auth()->id();
-            $record->save();
         }
 
-        $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
-    }
+        // Check if curator is already assigned
+        $pivot = ReportUser::where('report_id', $record->id)
+            ->where('user_id', auth()->id())
+            ->where('curator_number', $curator_number)
+            ->first();
 
-    public static function saveChangesToReport(Report $record, array $data): void
-    {
-        $temp = [];
-        $temp['title'] = $data['title'];
-        $temp['evidence'] = $data['evidence'];
-        $temp['doi'] = $data['doi'];
-        $temp['mol_id_csv'] = $data['mol_id_csv'];
-        $temp['comment'] = $data['comment'];
-        $temp['suggested_changes']['new_molecule_data']['canonical_smiles'] = $data['canonical_smiles'];
-        $temp['suggested_changes']['new_molecule_data']['reference_id'] = $data['reference_id'];
-        $temp['suggested_changes']['new_molecule_data']['name'] = $data['name'];
-        $temp['suggested_changes']['new_molecule_data']['link'] = $data['link'] ?? null;
-        $temp['suggested_changes']['new_molecule_data']['mol_filename'] = $data['mol_filename'] ?? null;
-        $temp['suggested_changes']['new_molecule_data']['structural_comments'] = $data['structural_comments'] ?? null;
-        $temp['suggested_changes']['new_molecule_data']['references'] = $data['references'] ?? [];
-
+        // If not assigned yet, assign curator based on report status
+        if (! $pivot) {
+            if ($record['status'] == ReportStatus::SUBMITTED->value) {
+                // For first approval, automatically assign current user as curator 1
+                $record->curators()->wherePivot('curator_number', 1)->detach();
+                $record->curators()->attach(auth()->id(), [
+                    'curator_number' => 1,
+                    'status' => $status,
+                    'comment' => $data['reason'] ?? '',
+                ]);
+                // ReportAssigned::dispatch($record, auth()->id());
+            } elseif ($record['status'] == ReportStatus::PENDING_APPROVAL->value || $record['status'] == ReportStatus::PENDING_REJECTION->value) {
+                // For second approval, automatically assign current user as curator 2
+                $record->curators()->wherePivot('curator_number', 2)->detach();
+                $record->curators()->attach(auth()->id(), [
+                    'curator_number' => 2,
+                    'status' => $status,
+                    'comment' => $data['reason'] ?? '',
+                ]);
+                // ReportAssigned::dispatch($record, auth()->id());
+            }
+        } else {
+            // Update existing pivot record
+            $pivot->status = $status;
+            $pivot->comment = $data['reason'] ?? '';
+            $pivot->save();
+        }
+        $record['status'] = $status;
         $record->save();
-        $record->update($temp);
         $record->refresh();
+        ReportStatusChanged::dispatch($record);
+
+        // Show appropriate notification based on action
+        if ($status == ReportStatus::PENDING_APPROVAL->value) {
+            Notification::make()
+                ->title('Report approved for first review')
+                ->body('The report has been approved in first review and is now pending final approval.')
+                ->success()
+                ->send();
+        } elseif ($status == ReportStatus::APPROVED->value) {
+            Notification::make()
+                ->title('Report fully approved')
+                ->body('The report has been fully approved.')
+                ->success()
+                ->send();
+        }
+        $livewire->redirect(ReportResource::getUrl('index'));
     }
 
     public static function rejectReport(array $data, Report $record, $livewire): void
     {
-        $record['status'] = ReportStatus::REJECTED->value;
-        $record['comment'] = $data['reason'];
-        $record['assigned_to'] = auth()->id();
+        $status = '';
+        $curator_number = '';
+        if ($record['status'] == ReportStatus::PENDING_APPROVAL->value || $record['status'] == ReportStatus::PENDING_REJECTION->value) {
+            $status = ReportStatus::REJECTED->value;
+            $curator_number = 2;
+        } else {
+            $status = ReportStatus::PENDING_REJECTION->value;
+            $curator_number = 1;
+        }
+        // Check if curator is already assigned
+        $pivot = ReportUser::where('report_id', $record->id)
+            ->where('user_id', auth()->id())
+            ->where('curator_number', $curator_number)
+            ->first();
+
+        // If not assigned yet, assign curator based on report status
+        if (! $pivot) {
+            if ($record['status'] == ReportStatus::SUBMITTED->value) {
+                // For first rejection, automatically assign current user as curator 1
+                $record->curators()->wherePivot('curator_number', 1)->detach();
+                $record->curators()->attach(auth()->id(), [
+                    'curator_number' => 1,
+                    'status' => $status,
+                    'comment' => $data['reason'],
+                ]);
+                // ReportAssigned::dispatch($record, auth()->id());
+            } elseif ($record['status'] == ReportStatus::PENDING_APPROVAL->value || $record['status'] == ReportStatus::PENDING_REJECTION->value) {
+                // For second rejection, automatically assign current user as curator 2
+                $record->curators()->wherePivot('curator_number', 2)->detach();
+                $record->curators()->attach(auth()->id(), [
+                    'curator_number' => 2,
+                    'status' => $status,
+                    'comment' => $data['reason'],
+                ]);
+                // ReportAssigned::dispatch($record, auth()->id());
+            }
+        } else {
+            // Update existing pivot record
+            $pivot->status = $status;
+            $pivot->comment = $data['reason'];
+            $pivot->save();
+        }
+        $record['status'] = $status;
         $record->save();
 
-        $livewire->redirect(ReportResource::getUrl('view', ['record' => $record->id]));
+        ReportStatusChanged::dispatch($record);
+
+        // Show appropriate notification based on action
+        if ($status == ReportStatus::PENDING_REJECTION->value) {
+            Notification::make()
+                ->title('Report rejected in first review')
+                ->body('The report has been rejected in first review and is now pending final rejection.')
+                ->warning()
+                ->send();
+        } elseif ($status == ReportStatus::REJECTED->value) {
+            Notification::make()
+                ->title('Report fully rejected')
+                ->body('The report has been rejected.')
+                ->danger()
+                ->send();
+        }
+
+        $livewire->redirect(ReportResource::getUrl('index'));
     }
 
     public static function runSQLQueries(Report $record): void
