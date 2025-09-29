@@ -3,6 +3,7 @@
 namespace App\Filament\Dashboard\Resources\ReportResource\Pages;
 
 use App\Enums\ReportCategory;
+use App\Enums\ReportStatus;
 use App\Filament\Dashboard\Resources\ReportResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
@@ -78,7 +79,7 @@ class EditReport extends EditRecord
         }
 
         $comment = '';
-        if ($this->record->status == 'pending_approval' || $this->record->status == 'pending_rejection') {
+        if ($this->record->status == ReportStatus::PENDING_APPROVAL->value || $this->record->status == ReportStatus::PENDING_REJECTION->value) {
             $curator = $this->record->curators()->wherePivot('curator_number', 1)->first();
             $comment = $curator?->pivot->comment;
         } else {

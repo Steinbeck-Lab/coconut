@@ -147,7 +147,7 @@ class ReportResource extends Resource
                                 ->requiresConfirmation(function ($record, $livewire) {
 
                                     // For new molecule reports, validate before showing confirmation
-                                    if ($record['report_category'] === 'new_molecule') {
+                                    if ($record['report_category'] === ReportCategory::SUBMISSION->value) {
                                         try {
                                             // Attempt to validate
                                             $livewire->validate();
@@ -161,8 +161,8 @@ class ReportResource extends Resource
                                         }
                                     }
 
-                                    // Only use the default confirmation modal when report_category is 'new_molecule'
-                                    return $record['report_category'] === 'new_molecule';
+                                    // Only use the default confirmation modal when report_category is 'SUBMISSION'
+                                    return $record['report_category'] === ReportCategory::SUBMISSION->value;
                                 })
                                 ->hidden(function (Get $get, string $operation) {
                                     return ! auth()->user()->roles()->exists() ||
