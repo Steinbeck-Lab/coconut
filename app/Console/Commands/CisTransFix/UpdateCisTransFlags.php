@@ -103,13 +103,39 @@ class UpdateCisTransFlags extends Command
 
     private function processBatch(array $updateMap): int
     {
+        if (empty($updateMap)) {
+            return 0;
+        }
+
         $ids = array_keys($updateMap);
         $existingIds = Entry::whereIn('id', $ids)->pluck('id')->toArray();
 
-        $updated = 0;
+        if (empty($existingIds)) {
+            return 0;
+        }
+
+        // Group IDs by their target value for efficient bulk updates
+        $trueIds = [];
+        $falseIds = [];
+
         foreach ($existingIds as $id) {
-            Entry::where('id', $id)->update(['is_cis_trans' => $updateMap[$id]]);
-            $updated++;
+            if ($updateMap[$id] === true) {
+                $trueIds[] = $id;
+            } else {
+                $falseIds[] = $id;
+            }
+        }
+
+        $updated = 0;
+
+        // Bulk update all entries that should be true
+        if (! empty($trueIds)) {
+            $updated += Entry::whereIn('id', $trueIds)->update(['is_cis_trans' => true]);
+        }
+
+        // Bulk update all entries that should be false
+        if (! empty($falseIds)) {
+            $updated += Entry::whereIn('id', $falseIds)->update(['is_cis_trans' => false]);
         }
 
         return $updated;
