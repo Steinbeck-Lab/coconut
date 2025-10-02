@@ -17,7 +17,7 @@ class PublishMoleculesAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:publish-molecules {collection_id : The ID of the collection to import}';
+    protected $signature = 'coconut:publish-molecules {collection_id? : The ID of the collection to import}';
 
     /**
      * The console command description.
@@ -33,21 +33,27 @@ class PublishMoleculesAuto extends Command
      */
     public function handle()
     {
-        $collection_id = $this->argument('collection_id');
+        $collection_id = $this->argument('collection_id') ?: null;
 
         $collection = Collection::find($collection_id);
 
         if (! $collection) {
+            Log::info(('Processing molecules for all collections as no specific collection ID was provided.'));
+            // Base query for draft molecules with published collections
+            $query = Molecule::where('status', 'DRAFT')
+                ->whereHas('collections', function ($query) {
+                    $query->where('status', 'PUBLISHED');
+                });
+        } elseif ($collection_id && $collection) {
+            Log::info("Processing molecules for collection: {$collection->name} (ID: {$collection_id})");
+            // Base query for draft molecules
+            $query = $collection->molecules()
+                ->where('status', 'DRAFT');
+        } else {
             Log::error("Collection with ID {$collection_id} not found.");
 
             return 1;
         }
-
-        Log::info("Processing molecules for collection: {$collection->name} (ID: {$collection_id})");
-
-        // Base query for draft molecules
-        $query = $collection->molecules()
-            ->where('status', 'DRAFT');
 
         // Get the count of molecules to be processed
         $count = $query->count();
@@ -83,23 +89,15 @@ class PublishMoleculesAuto extends Command
                 });
 
             Log::info("Successfully published {$count} molecules.");
-
             // Now assign identifiers to the published molecules
             Log::info('Starting identifier assignment for published molecules...');
-            $this->assignIdentifiers($collection_id);
-
-            // Only publish the collection if it was in DRAFT status
-            if ($collection->status == 'DRAFT') {
-                $collection->status = 'PUBLISHED';
-                $collection->save();
-                Log::info("Collection {$collection->name} (ID: {$collection_id}) has been published.");
-            }
         } else {
             Log::info('No molecules to process.');
             Log::info('Proceeding to assign identifiers for already published molecules...');
+        }
+        $this->assignIdentifiers($collection_id);
 
-            $this->assignIdentifiers($collection_id);
-
+        if ($collection) {
             // Only publish the collection if it was in DRAFT status
             if ($collection->status == 'DRAFT') {
                 $collection->status = 'PUBLISHED';
@@ -116,23 +114,36 @@ class PublishMoleculesAuto extends Command
      */
     private function assignIdentifiers($collection_id)
     {
-        Log::info("Assigning identifiers for collection ID: {$collection_id}");
-
         $batchSize = 10000;
         $startingIndex = $this->fetchLastIndex();
         $currentIndex = $startingIndex;
         Log::info("Starting index for identifier assignment: {$startingIndex}");
 
-        // Step 1: Assign identifiers to parent molecules (molecules without stereo information)
-        $parents = DB::table('molecules')
-            ->select('molecules.id')
-            ->distinct()
-            ->join('collection_molecule', 'collection_molecule.molecule_id', '=', 'molecules.id')
-            ->where('molecules.has_stereo', false)
-            ->whereNull('molecules.identifier')
-            ->whereIn('molecules.status', ['APPROVED', 'REVOKED']) // Filter for only published ones
-            ->where('collection_molecule.collection_id', $collection_id)
-            ->get();
+        if ($collection_id) {
+            Log::info("Assigning identifiers for collection ID: {$collection_id}");
+
+            // Step 1: Assign identifiers to parent molecules (molecules without stereo information)
+            $parents = DB::table('molecules')
+                ->select('molecules.id')
+                ->distinct()
+                ->join('collection_molecule', 'collection_molecule.molecule_id', '=', 'molecules.id')
+                ->where('molecules.has_stereo', false)
+                ->whereNull('molecules.identifier')
+                ->whereIn('molecules.status', ['APPROVED', 'REVOKED']) // Filter for only published ones
+                ->where('collection_molecule.collection_id', $collection_id)
+                ->get();
+        } else {
+            Log::info('Assigning identifiers for all published molecules across all collections...');
+
+            // Step 1: Assign identifiers to parent molecules (molecules without stereo information)
+            $parents = DB::table('molecules')
+                ->select('molecules.id')
+                ->distinct()
+                ->where('molecules.has_stereo', false)
+                ->whereNull('molecules.identifier')
+                ->whereIn('molecules.status', ['APPROVED', 'REVOKED']) // Filter for only published ones
+                ->get();
+        }
 
         if ($parents->count() > 0) {
             Log::info("Assigning identifiers to {$parents->count()} parent molecules...");
@@ -153,13 +164,20 @@ class PublishMoleculesAuto extends Command
 
         // Step 2: Handle stereo variants (molecules with stereo information)
 
-        // First, get distinct parent_ids from the current collection
-        $childMolecules = DB::table('molecules as m')
-            ->join('collection_molecule as cm', 'm.id', '=', 'cm.molecule_id')
-            ->where('cm.collection_id', $collection_id)
-            ->whereNull('m.identifier')
-            ->whereNotNull('m.parent_id');
-
+        // First, get distinct parent_ids
+        if ($collection_id) {
+            //  From the current collection
+            $childMolecules = DB::table('molecules as m')
+                ->join('collection_molecule as cm', 'm.id', '=', 'cm.molecule_id')
+                ->where('cm.collection_id', $collection_id)
+                ->whereNull('m.identifier')
+                ->whereNotNull('m.parent_id');
+        } else {
+            // From all collections
+            $childMolecules = DB::table('molecules as m')
+                ->whereNull('m.identifier')
+                ->whereNotNull('m.parent_id');
+        }
         $parentIds = $childMolecules->pluck('m.parent_id')->unique()->filter(function ($id) {
             return ! is_null($id);
         });
