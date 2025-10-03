@@ -266,14 +266,18 @@
     <div class="flex justify-between items-center mx-auto sm:px-6 lg:max-w-7xl lg:px-8">
         <div class="pl-4 flex items-center gap-4">
             <livewire:advanced-search />
-            <div class="flex items-center gap-2">
-                <label for="status-filter" class="text-sm font-medium text-gray-700">Status:</label>
+            <div class="relative">
                 <select id="status-filter" wire:model.live="status"
-                    class="block rounded-md border-gray-300 py-1.5 pl-3 pr-10 text-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500">
+                    class="appearance-none border border-gray-400 text-gray-600 px-4 py-2 pr-10 rounded-md font-medium focus:outline-none focus:border-gray-500 cursor-pointer">
                     <option value="all">All</option>
                     <option value="approved">Approved</option>
                     <option value="revoked">Revoked</option>
                 </select>
+                <!-- <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-600">
+                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                    </svg>
+                </div> -->
             </div>
         </div>
         <div class="flex pr-4">
