@@ -4,7 +4,6 @@ namespace App\Actions\Coconut;
 
 use App\Models\Citation;
 use App\Models\Collection;
-use App\Models\Entry;
 use App\Models\Molecule;
 use App\Models\Organism;
 use Illuminate\Database\QueryException;
@@ -203,7 +202,12 @@ class SearchMolecule
             $this->collection = Collection::where('title', $this->query)->first();
             if ($this->collection) {
                 return $this->collection->molecules()
-                    ->whereIn('molecules.id', Entry::where('collection_id', $this->collection->id)->distinct()->pluck('molecule_id'))
+                    ->whereIn('molecules.id', function ($query) {
+                        $query->select('molecule_id')
+                            ->from('entries')
+                            ->where('collection_id', $this->collection->id)
+                            ->distinct();
+                    })
                     ->orderBy('annotation_level', 'DESC')->paginate($this->size);
             } else {
                 return [];
