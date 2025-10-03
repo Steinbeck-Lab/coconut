@@ -25,6 +25,8 @@ class SearchMolecule
 
     public $type = null;
 
+    public $status = 'all';
+
     public $collection = null;
 
     public $organisms = null;
@@ -34,7 +36,7 @@ class SearchMolecule
     /**
      * Search based on given query.
      */
-    public function query($query, $size, $type, $sort, $tagType, $page)
+    public function query($query, $size, $type, $sort, $tagType, $page, $status = 'all')
     {
         $this->query = $query;
         $this->size = $size;
@@ -43,6 +45,7 @@ class SearchMolecule
         $this->sort = $sort;
         $this->tagType = $tagType;
         $this->page = $page;
+        $this->status = $status;
 
         try {
             set_time_limit(300);
@@ -121,12 +124,28 @@ class SearchMolecule
     }
 
     /**
+     * Apply status filter to SQL query.
+     * Only adds a filter when status is 'approved' or 'revoked'.
+     * When status is 'all', no filter is applied.
+     */
+    private function applyRawStatusFilter(&$sql)
+    {
+        if ($this->status === 'approved') {
+            $sql .= ' AND active = TRUE';
+        } elseif ($this->status === 'revoked') {
+            $sql .= ' AND active = FALSE';
+        }
+        // When status is 'all', no filter is needed
+    }
+
+    /**
      * Build the SQL statement based on the query type.
      */
     private function buildStatement($queryType, $offset, $filterMap)
     {
         $sql = null;
         $params = [];
+        $orderBy = null;
 
         switch ($queryType) {
             case 'smiles':
@@ -135,52 +154,49 @@ class SearchMolecule
                     tanimoto_sml(morganbv_fp(mol_from_smiles(?)::mol), morganbv_fp(m::mol)) AS similarity, 
                     COUNT(*) OVER () AS count 
                 FROM mols 
-                WHERE m@> mol_from_smiles(?)::mol 
-                ORDER BY similarity DESC 
-                LIMIT ? OFFSET ?';
-                $params = [$this->query, $this->query, $this->size, $offset];
+                WHERE m@> mol_from_smiles(?)::mol';
+                $orderBy = 'ORDER BY similarity DESC';
+                $params = [$this->query, $this->query];
                 break;
 
             case 'inchi':
                 $sql = 'SELECT id, COUNT(*) OVER () AS count
                           FROM molecules 
-                          WHERE standard_inchi LIKE ? 
-                          LIMIT ? OFFSET ?';
-                $params = ['%'.$this->query.'%', $this->size, $offset];
+                          WHERE standard_inchi LIKE ?';
+                $this->applyRawStatusFilter($sql);
+                $params = ['%'.$this->query.'%'];
                 break;
 
             case 'inchikey':
             case 'parttialinchikey':
                 $sql = 'SELECT id, COUNT(*) OVER () AS count
                           FROM molecules 
-                          WHERE standard_inchi_key LIKE ? 
-                          LIMIT ? OFFSET ?';
-                $params = ['%'.$this->query.'%', $this->size, $offset];
+                          WHERE standard_inchi_key LIKE ?';
+                $this->applyRawStatusFilter($sql);
+                $params = ['%'.$this->query.'%'];
                 break;
 
             case 'exact':
                 $sql = 'SELECT id, COUNT(*) OVER () AS count
                           FROM mols 
-                          WHERE m@=? 
-                          LIMIT ? OFFSET ?';
-                $params = [$this->query, $this->size, $offset];
+                          WHERE m@=?';
+                $params = [$this->query];
                 break;
 
             case 'similarity':
                 $sql = 'SELECT id, COUNT(*) OVER () AS count
                           FROM fps 
-                          WHERE mfp2%morganbv_fp(?) 
-                          ORDER BY morganbv_fp(mol_from_smiles(?))<%>mfp2 
-                          LIMIT ? OFFSET ?';
-                $params = [$this->query, $this->query, $this->size, $offset];
+                          WHERE mfp2%morganbv_fp(?)';
+                $orderBy = 'ORDER BY morganbv_fp(mol_from_smiles(?))<%>mfp2';
+                $params = [$this->query, $this->query];
                 break;
 
             case 'identifier':
                 $sql = 'SELECT id, COUNT(*) OVER () AS count
                               FROM molecules 
-                              WHERE ("identifier"::TEXT ILIKE ?) 
-                              LIMIT ? OFFSET ?';
-                $params = ['%'.$this->query.'%', $this->size, $offset];
+                              WHERE ("identifier"::TEXT ILIKE ?)';
+                $this->applyRawStatusFilter($sql);
+                $params = ['%'.$this->query.'%'];
                 break;
 
             case 'filters':
@@ -190,7 +206,31 @@ class SearchMolecule
                 return $this->buildDefaultStatement($offset);
         }
 
+        // Add ORDER BY if specified
+        if ($orderBy) {
+            $sql .= ' '.$orderBy;
+        }
+
+        // Add LIMIT and OFFSET at the end
+        $sql .= ' LIMIT ? OFFSET ?';
+        $params[] = $this->size;
+        $params[] = $offset;
+
         return ['sql' => $sql, 'params' => $params];
+    }
+
+    /**
+     * Apply status filter to Eloquent query.
+     */
+    private function applyStatusFilterToQuery($query)
+    {
+        if ($this->status === 'approved') {
+            $query->where('active', true);
+        } elseif ($this->status === 'revoked') {
+            $query->where('active', false);
+        }
+
+        return $query;
     }
 
     /**
@@ -201,14 +241,17 @@ class SearchMolecule
         if ($this->tagType == 'dataSource') {
             $this->collection = Collection::where('title', $this->query)->first();
             if ($this->collection) {
-                return $this->collection->molecules()
+                $query = $this->collection->molecules()
                     ->whereIn('molecules.id', function ($query) {
                         $query->select('molecule_id')
                             ->from('entries')
                             ->where('collection_id', $this->collection->id)
                             ->distinct();
-                    })
-                    ->orderBy('annotation_level', 'DESC')->paginate($this->size);
+                    });
+
+                $this->applyStatusFilterToQuery($query);
+
+                return $query->orderBy('annotation_level', 'DESC')->paginate($this->size);
             } else {
                 return [];
             }
@@ -221,9 +264,13 @@ class SearchMolecule
             })->get();
             $organismIds = $this->organisms->pluck('id');
 
-            return Molecule::whereHas('organisms', function ($query) use ($organismIds) {
+            $query = Molecule::whereHas('organisms', function ($query) use ($organismIds) {
                 $query->whereIn('organism_id', $organismIds);
-            })->where('active', true)->where('is_parent', false)->orderBy('annotation_level', 'DESC')->paginate($this->size);
+            });
+
+            $this->applyStatusFilterToQuery($query);
+
+            return $query->where('is_parent', false)->orderBy('annotation_level', 'DESC')->paginate($this->size);
         } elseif ($this->tagType == 'citations') {
             $query_citations = array_map('strtolower', array_map('trim', explode(',', $this->query)));
             $this->citations = Citation::where(function ($query) use ($query_citations) {
@@ -234,11 +281,19 @@ class SearchMolecule
             })->get();
             $citationIds = $this->citations->pluck('id');
 
-            return Molecule::whereHas('citations', function ($query) use ($citationIds) {
+            $query = Molecule::whereHas('citations', function ($query) use ($citationIds) {
                 $query->whereIn('citation_id', $citationIds);
-            })->where('active', true)->where('is_parent', false)->orderBy('annotation_level', 'DESC')->paginate($this->size);
+            });
+
+            $this->applyStatusFilterToQuery($query);
+
+            return $query->where('is_parent', false)->orderBy('annotation_level', 'DESC')->paginate($this->size);
         } else {
-            return Molecule::withAnyTags([$this->query], $this->tagType)->where('active', true)->where('is_parent', false)->paginate($this->size);
+            $query = Molecule::withAnyTags([$this->query], $this->tagType);
+
+            $this->applyStatusFilterToQuery($query);
+
+            return $query->where('is_parent', false)->paginate($this->size);
         }
     }
 
@@ -251,9 +306,15 @@ class SearchMolecule
         $sql = 'SELECT properties.molecule_id as id, COUNT(*) OVER () AS count
                   FROM properties 
                   INNER JOIN molecules ON properties.molecule_id = molecules.id 
-                  WHERE molecules.active = TRUE 
-                  AND NOT (molecules.is_parent = TRUE AND molecules.has_variants = TRUE) 
-                  AND ';
+                  WHERE NOT (molecules.is_parent = TRUE AND molecules.has_variants = TRUE)';
+
+        if ($this->status === 'approved') {
+            $sql .= ' AND molecules.active = TRUE';
+        } elseif ($this->status === 'revoked') {
+            $sql .= ' AND molecules.active = FALSE';
+        }
+
+        $sql .= ' AND ';
         $params = [];
 
         foreach ($orConditions as $outerIndex => $orCondition) {
@@ -294,8 +355,10 @@ class SearchMolecule
             $sql .= ')';
         }
 
-        $sql .= ' LIMIT ?';
+        // Add LIMIT and OFFSET at the end
+        $sql .= ' LIMIT ? OFFSET ?';
         $params[] = $this->size;
+        $params[] = (($this->page ?? 1) - 1) * $this->size;
 
         return ['sql' => $sql, 'params' => $params];
     }
@@ -305,6 +368,8 @@ class SearchMolecule
      */
     private function buildDefaultStatement($offset)
     {
+        $params = [];
+
         if ($this->query) {
             $sql = '
             SELECT id, COUNT(*) OVER () AS count
@@ -313,8 +378,21 @@ class SearchMolecule
                 (("name"::TEXT ILIKE ?) 
                 OR ("synonyms"::TEXT ILIKE ?) 
                 OR ("identifier"::TEXT ILIKE ?)) 
-                AND is_parent = FALSE 
-                AND active = TRUE
+                AND is_parent = FALSE';
+
+            $searchPattern = '%'.$this->query.'%';
+            $exactPattern = $this->query;
+
+            $params = [
+                $searchPattern,
+                $searchPattern,
+                $searchPattern,  // WHERE clause
+            ];
+
+            // Apply status filter
+            $this->applyRawStatusFilter($sql);
+
+            $sql .= '
             ORDER BY 
                 CASE 
                     WHEN "name"::TEXT ILIKE ? THEN 1 
@@ -324,38 +402,38 @@ class SearchMolecule
                     WHEN "synonyms"::TEXT ILIKE ? THEN 5 
                     WHEN "identifier"::TEXT ILIKE ? THEN 6 
                     ELSE 7
-                END
-            LIMIT ? OFFSET ?';
+                END';
 
-            $searchPattern = '%'.$this->query.'%';
-            $exactPattern = $this->query;
-
-            return [
-                'sql' => $sql,
-                'params' => [
-                    $searchPattern,
-                    $searchPattern,
-                    $searchPattern,  // WHERE clause
-                    $exactPattern,
-                    $exactPattern,
-                    $exactPattern,    // Exact matches in ORDER BY
-                    $searchPattern,
-                    $searchPattern,
-                    $searchPattern,  // Pattern matches in ORDER BY
-                    $this->size,
-                    $offset,
-                ],
-            ];
+            // Add ORDER BY params
+            $params = array_merge($params, [
+                $exactPattern,
+                $exactPattern,
+                $exactPattern,    // Exact matches in ORDER BY
+                $searchPattern,
+                $searchPattern,
+                $searchPattern,  // Pattern matches in ORDER BY
+            ]);
         } else {
-            return [
-                'sql' => 'SELECT id, COUNT(*) OVER () AS count
+            $sql = 'SELECT id, COUNT(*) OVER () AS count
                     FROM molecules 
-                    WHERE active = TRUE AND NOT (is_parent = TRUE AND has_variants = TRUE)
-                    ORDER BY annotation_level DESC 
-                    LIMIT ? OFFSET ?',
-                'params' => [$this->size, $offset],
-            ];
+                    WHERE (NOT (is_parent = TRUE AND has_variants = TRUE))';
+
+            // Apply status filter
+            $this->applyRawStatusFilter($sql);
+
+            $sql .= '
+                    ORDER BY annotation_level DESC';
         }
+
+        // Add LIMIT and OFFSET at the end
+        $sql .= ' LIMIT ? OFFSET ?';
+        $params[] = $this->size;
+        $params[] = $offset;
+
+        return [
+            'sql' => $sql,
+            'params' => $params,
+        ];
     }
 
     /**
@@ -376,8 +454,12 @@ class SearchMolecule
             $sql = "
             SELECT identifier, canonical_smiles, annotation_level, name, iupac_name, organism_count, citation_count, geo_count, collection_count
             FROM molecules
-            WHERE id = ANY (array[{$placeholders}]::bigint[]) AND active = TRUE AND NOT (is_parent = TRUE AND has_variants = TRUE)
-            ORDER BY array_position(array[{$placeholders}]::bigint[], id)";
+            WHERE id = ANY (array[{$placeholders}]::bigint[])";
+
+            $this->applyRawStatusFilter($sql);
+
+            $sql .= ' AND NOT (is_parent = TRUE AND has_variants = TRUE)
+            ORDER BY array_position(array[{$placeholders}]::bigint[], id)';
 
             $params = array_merge($ids_array, $ids_array);
 
