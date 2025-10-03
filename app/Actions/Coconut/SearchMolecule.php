@@ -262,10 +262,15 @@ class SearchMolecule
                     $query->orWhereRaw('name ILIKE ?', ['%'.$name.'%']);
                 }
             })->get();
-            $organismIds = $this->organisms->pluck('id');
 
-            $query = Molecule::whereHas('organisms', function ($query) use ($organismIds) {
-                $query->whereIn('organism_id', $organismIds);
+            $query = Molecule::whereHas('organisms', function ($query) use ($query_organisms) {
+                $query->whereIn('organism_id', function ($subQuery) use ($query_organisms) {
+                    $subQuery->select('id')->from('organisms')->where(function ($q) use ($query_organisms) {
+                        foreach ($query_organisms as $name) {
+                            $q->orWhereRaw('name ILIKE ?', ['%'.$name.'%']);
+                        }
+                    });
+                });
             });
 
             $this->applyStatusFilterToQuery($query);
@@ -279,10 +284,16 @@ class SearchMolecule
                         ->orWhereRaw('title ILIKE ?', ['%'.$name.'%']);
                 }
             })->get();
-            $citationIds = $this->citations->pluck('id');
 
-            $query = Molecule::whereHas('citations', function ($query) use ($citationIds) {
-                $query->whereIn('citation_id', $citationIds);
+            $query = Molecule::whereHas('citations', function ($query) use ($query_citations) {
+                $query->whereIn('citation_id', function ($subQuery) use ($query_citations) {
+                    $subQuery->select('id')->from('citations')->where(function ($q) use ($query_citations) {
+                        foreach ($query_citations as $name) {
+                            $q->orWhereRaw('doi ILIKE ?', ['%'.$name.'%'])
+                                ->orWhereRaw('title ILIKE ?', ['%'.$name.'%']);
+                        }
+                    });
+                });
             });
 
             $this->applyStatusFilterToQuery($query);
@@ -449,22 +460,29 @@ class SearchMolecule
         $ids_array = collect($hits)->pluck('id')->toArray();
 
         if (! empty($ids_array)) {
-            $placeholders = str_repeat('?,', count($ids_array) - 1).'?';
+            // Use CTE (Common Table Expression) to avoid parameter limit
+            $idsJson = json_encode($ids_array);
 
-            $sql = "
-            SELECT identifier, canonical_smiles, annotation_level, name, iupac_name, organism_count, citation_count, geo_count, collection_count
-            FROM molecules
-            WHERE id = ANY (array[{$placeholders}]::bigint[])";
+            $sql = '
+            WITH id_list AS (
+                SELECT value::bigint as id, row_number() OVER () as position
+                FROM json_array_elements_text(?::json)
+            )
+            SELECT m.identifier, m.canonical_smiles, m.annotation_level, m.name, m.iupac_name, 
+                   m.organism_count, m.citation_count, m.geo_count, m.collection_count
+            FROM molecules m
+            INNER JOIN id_list ON m.id = id_list.id
+            WHERE TRUE';
+
+            $params = [$idsJson];
 
             $this->applyRawStatusFilter($sql);
 
-            $sql .= ' AND NOT (is_parent = TRUE AND has_variants = TRUE)
-            ORDER BY array_position(array[{$placeholders}]::bigint[], id)';
-
-            $params = array_merge($ids_array, $ids_array);
+            $sql .= ' AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE)
+            ORDER BY id_list.position';
 
             if ($this->sort == 'recent') {
-                $sql .= ' ORDER BY created_at DESC';
+                $sql .= ', m.created_at DESC';
             }
 
             $results = DB::select($sql, $params);
