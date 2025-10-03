@@ -263,14 +263,11 @@ class SearchMolecule
                 }
             })->get();
 
-            $query = Molecule::whereHas('organisms', function ($query) use ($query_organisms) {
-                $query->whereIn('organism_id', function ($subQuery) use ($query_organisms) {
-                    $subQuery->select('id')->from('organisms')->where(function ($q) use ($query_organisms) {
-                        foreach ($query_organisms as $name) {
-                            $q->orWhereRaw('name ILIKE ?', ['%'.$name.'%']);
-                        }
-                    });
-                });
+            // Use JSON-based subquery to avoid parameter limits and duplicate queries
+            $organismIdsJson = json_encode($this->organisms->pluck('id')->toArray());
+
+            $query = Molecule::whereHas('organisms', function ($query) use ($organismIdsJson) {
+                $query->whereRaw('organism_id IN (SELECT value::bigint FROM json_array_elements_text(?::json))', [$organismIdsJson]);
             });
 
             $this->applyStatusFilterToQuery($query);
@@ -285,15 +282,11 @@ class SearchMolecule
                 }
             })->get();
 
-            $query = Molecule::whereHas('citations', function ($query) use ($query_citations) {
-                $query->whereIn('citation_id', function ($subQuery) use ($query_citations) {
-                    $subQuery->select('id')->from('citations')->where(function ($q) use ($query_citations) {
-                        foreach ($query_citations as $name) {
-                            $q->orWhereRaw('doi ILIKE ?', ['%'.$name.'%'])
-                                ->orWhereRaw('title ILIKE ?', ['%'.$name.'%']);
-                        }
-                    });
-                });
+            // Use JSON-based subquery to avoid parameter limits and duplicate queries
+            $citationIdsJson = json_encode($this->citations->pluck('id')->toArray());
+
+            $query = Molecule::whereHas('citations', function ($query) use ($citationIdsJson) {
+                $query->whereRaw('citation_id IN (SELECT value::bigint FROM json_array_elements_text(?::json))', [$citationIdsJson]);
             });
 
             $this->applyStatusFilterToQuery($query);
