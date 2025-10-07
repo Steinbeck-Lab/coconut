@@ -43,6 +43,9 @@ class Search extends Component
     #[Url(as: 'activeTab')]
     public $activeTab = 'molecules';
 
+    #[Url(as: 'status')]
+    public $status = 'all';
+
     public function placeholder()
     {
         return <<<'HTML'
@@ -83,6 +86,11 @@ class Search extends Component
         $this->tagType = null;
     }
 
+    public function updatedStatus()
+    {
+        $this->page = 1;
+    }
+
     public function search(SearchMolecule $search)
     {
         $this->render($search);
@@ -93,23 +101,27 @@ class Search extends Component
         try {
             // $this->query = urldecode($this->query);
 
-            $cacheKey = 'search.'.md5($this->query.$this->size.$this->type.$this->sort.$this->tagType.$this->page);
+            $cacheKey = 'search.'.md5($this->query.$this->size.$this->type.$this->sort.$this->tagType.$this->page.$this->status);
 
-            $results = $search->query($this->query, $this->size, $this->type, $this->sort, $this->tagType, $this->page);
+            // Check if results are cached
+            if (Cache::has($cacheKey)) {
+                $results = Cache::get($cacheKey);
+            } else {
+                $results = $search->query($this->query, $this->size, $this->type, $this->sort, $this->tagType, $this->page, $this->status);
 
-            // Check if the results contain an error
-            if (is_array($results) && isset($results['error']) && $results['error'] === true) {
-                // Clear any cached error results
-                Cache::forget($cacheKey);
-                session()->flash('error', $results['message']);
+                // Check if the results contain an error
+                if (is_array($results) && isset($results['error']) && $results['error'] === true) {
+                    // Don't cache error results
+                    session()->flash('error', $results['message']);
 
-                return view('livewire.search', [
-                    'molecules' => [],
-                ]);
+                    return view('livewire.search', [
+                        'molecules' => [],
+                    ]);
+                }
+
+                // Only cache successful results
+                Cache::put($cacheKey, $results, now()->addDay());
             }
-
-            // Only cache successful results
-            Cache::put($cacheKey, $results, now()->addDay());
 
             $this->collection = $results[1];
             $this->organisms = $results[2];
