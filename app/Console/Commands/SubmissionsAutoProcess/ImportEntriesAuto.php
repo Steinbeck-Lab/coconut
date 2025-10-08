@@ -366,6 +366,8 @@ class ImportEntriesAuto extends Command
                     if ($isParent) {
                         $insertData['is_parent'] = true;
                         $insertData['is_placeholder'] = true;
+                        $insertData['has_variants'] = false;
+                        $insertData['variants_count'] = 0;
                     }
 
                     $moleculeId = DB::table('molecules')->insertGetId($insertData);
@@ -422,6 +424,8 @@ class ImportEntriesAuto extends Command
             if ($isParent) {
                 $insertData['is_parent'] = true;
                 $insertData['is_placeholder'] = true;
+                $insertData['has_variants'] = false;
+                $insertData['variants_count'] = 0;
             }
 
             $moleculeId = DB::table('molecules')->insertGetId($insertData);
