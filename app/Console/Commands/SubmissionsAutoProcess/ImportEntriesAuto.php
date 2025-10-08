@@ -660,21 +660,46 @@ class ImportEntriesAuto extends Command
      */
     private function addAuditRecord($auditableType, $auditableId, $event, $oldValues, $newValues, &$auditRecords)
     {
-        $auditRecords[] = [
-            'user_type' => 'App\\Models\\User',
-            'user_id' => 11,
-            'event' => $event,
-            'auditable_type' => $auditableType,
-            'auditable_id' => $auditableId,
-            'old_values' => json_encode($oldValues),
-            'new_values' => json_encode($newValues),
-            'url' => null,
-            'ip_address' => null,
-            'user_agent' => null,
-            'tags' => null,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ];
+        // Filter out unchanged values
+        $filteredOldValues = [];
+        $filteredNewValues = [];
+
+        foreach ($oldValues as $key => $oldValue) {
+            $newValue = $newValues[$key] ?? null;
+
+            // Compare values (use loose comparison for type flexibility)
+            if ($oldValue != $newValue) {
+                $filteredOldValues[$key] = $oldValue;
+                $filteredNewValues[$key] = $newValue;
+            }
+        }
+
+        // Add any new keys that don't exist in oldValues
+        foreach ($newValues as $key => $newValue) {
+            if (! array_key_exists($key, $oldValues)) {
+                $filteredOldValues[$key] = null;
+                $filteredNewValues[$key] = $newValue;
+            }
+        }
+
+        // Only add audit record if there are actual changes
+        if (! empty($filteredOldValues) || ! empty($filteredNewValues)) {
+            $auditRecords[] = [
+                'user_type' => 'App\\Models\\User',
+                'user_id' => 11,
+                'event' => $event,
+                'auditable_type' => $auditableType,
+                'auditable_id' => $auditableId,
+                'old_values' => json_encode($filteredOldValues),
+                'new_values' => json_encode($filteredNewValues),
+                'url' => null,
+                'ip_address' => null,
+                'user_agent' => null,
+                'tags' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
     }
 
     /**
