@@ -9,6 +9,7 @@ use App\Events\ReportStatusChanged;
 use App\Filament\Dashboard\Resources\ReportResource\Pages;
 use App\Filament\Dashboard\Resources\ReportResource\RelationManagers;
 use App\Models\Citation;
+use App\Models\Collection;
 use App\Models\Entry;
 use App\Models\GeoLocation;
 use App\Models\Molecule;
@@ -787,6 +788,9 @@ class ReportResource extends Resource
                 Select::make('collections')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select the Collections you want to report. This will help our Curators in reviewing your report.')
                     ->relationship('collections', 'title')
+                    ->options(function () {
+                        return Collection::whereNotNull('title')->pluck('title', 'id');
+                    })
                     ->multiple()
                     ->preload()
                     ->required(function (Get $get) {
@@ -859,8 +863,7 @@ class ReportResource extends Resource
                         if ($operation == 'edit') {
                             return true;
                         }
-                    })
-                    ->searchable(),
+                    }),
                 TagsInput::make('mol_ids')
                     ->label('Molecules')
                     ->placeholder('Enter the Identifiers separated by commas')
