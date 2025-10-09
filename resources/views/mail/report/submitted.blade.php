@@ -25,7 +25,7 @@
             
             <!-- Details Section -->
             <div style="margin-bottom: 18px;  padding-bottom: 18px;">
-                    <div style="font-weight: 600; font-size: 18px; color: #6d4c41; margin-bottom: 12px; letter-spacing: 0.5px;">
+                    <div style=" color: #6d4c41; margin-bottom: 12px; font-weight: bold;">
                         Title: <span style="font-weight: 500; color: #555;">{{ $event->report->title }}</span>
                 </div>
             </div>
