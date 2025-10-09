@@ -3,9 +3,9 @@
 namespace App\Notifications;
 
 use App\Events\ReportAssigned;
+use App\Mail\ReportAssignedMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class ReportAssignedNotification extends Notification implements ShouldQueue
@@ -35,13 +35,12 @@ class ReportAssignedNotification extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail(object $notifiable)
     {
         $url = url(env('APP_URL').'/dashboard/reports/'.$this->event->report->id.'/edit');
 
-        return (new MailMessage)
-            ->subject('Coconut: A Report is assigned to you: '.$this->event->report->title)
-            ->markdown('mail.report.assigned', ['url' => $url, 'event' => $this->event, 'curator' => $notifiable]);
+        return (new ReportAssignedMail($this->event, $notifiable, 'curator', $url))
+            ->to($notifiable->email);
     }
 
     /**
