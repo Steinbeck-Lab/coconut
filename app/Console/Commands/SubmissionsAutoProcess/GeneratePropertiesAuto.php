@@ -4,10 +4,10 @@ namespace App\Console\Commands\SubmissionsAutoProcess;
 
 use App\Jobs\GeneratePropertiesBatch;
 use App\Models\Collection;
-use App\Models\Molecule;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -41,21 +41,21 @@ class GeneratePropertiesAuto extends Command
             return 1;
         }
 
-        $query = Molecule::select('molecules.id')
-            ->join('collection_molecule', 'collection_molecule.molecule_id', '=', 'molecules.id')
-            ->leftJoin('properties', 'properties.molecule_id', '=', 'molecules.id')
-            ->where('collection_molecule.collection_id', $collection_id)
-            ->where('molecules.active', true)
-            ->whereNull('properties.molecule_id')  // More efficient than doesntHave
-            ->orderBy('molecules.id');
+        // Use raw query to avoid ambiguous column issues
+        $sql = '
+        SELECT molecules.id
+        FROM molecules
+        INNER JOIN collection_molecule ON collection_molecule.molecule_id = molecules.id
+        LEFT JOIN properties ON properties.molecule_id = molecules.id
+        WHERE collection_molecule.collection_id = ?
+          AND molecules.active = true
+          AND properties.molecule_id IS NULL
+        ORDER BY molecules.id
+    ';
 
-        // Flag logic:
-        // --force: only when running standalone, picks up failed entries
-        // --trigger: triggers downstream, does NOT pick up failed entries
-        // --trigger-force: triggers downstream AND picks up failed entries
+        $moleculeIds = DB::select($sql, [$collection_id]);
 
-        // Count the total number of molecules to process
-        $totalCount = $query->count();
+        $totalCount = count($moleculeIds);
         if ($totalCount === 0) {
             Log::info("No molecules found that require property generation in collection {$collection_id}.");
 
@@ -64,16 +64,18 @@ class GeneratePropertiesAuto extends Command
 
         Log::info("Starting property generation for {$totalCount} molecules in collection {$collection_id}.");
 
-        // Use chunk to process large sets of molecules
-        $query->chunkById(1000, function ($molecules) use ($collection_id) {
-            $moleculeCount = count($molecules);
+        // Chunk the results manually
+        $chunks = array_chunk($moleculeIds, 1000);
+
+        foreach ($chunks as $chunk) {
+            $ids = array_map(fn ($row) => $row->id, $chunk);
+            $moleculeCount = count($ids);
+
             Log::info("Processing batch of {$moleculeCount} molecules for property generation in collection {$collection_id}");
 
-            // Prepare batch jobs
             $batchJobs = [];
-            $batchJobs[] = new GeneratePropertiesBatch($molecules->pluck('id')->toArray());
+            $batchJobs[] = new GeneratePropertiesBatch($ids);
 
-            // Dispatch as a batch
             Bus::batch($batchJobs)
                 ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
                     Log::error("Batch job failed for collection {$collection_id}: ".$e->getMessage());
@@ -83,7 +85,7 @@ class GeneratePropertiesAuto extends Command
                 ->onConnection('redis')
                 ->onQueue('default')
                 ->dispatch();
-        });
+        }
 
         $this->info("Property generation jobs dispatched for collection {$collection_id}!");
     }
