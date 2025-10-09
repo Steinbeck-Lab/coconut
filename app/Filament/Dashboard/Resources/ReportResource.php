@@ -817,8 +817,8 @@ class ReportResource extends Resource
                     })
                     ->rules([
                         'array',
-                        fn ($state): Closure => function (Closure $fail) use ($state) {
-                            foreach ($state as $tag) {
+                        fn (): Closure => function (string $attribute, $value, Closure $fail) {
+                            foreach ($value as $tag) {
                                 if (! DB::table('molecules')->where('identifier', $tag)->exists()) {
                                     $fail("The molecule identifier '{$tag}' is invalid.");
                                 }
