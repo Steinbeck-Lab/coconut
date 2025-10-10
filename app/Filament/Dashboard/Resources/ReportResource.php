@@ -947,7 +947,7 @@ class ReportResource extends Resource
                         return 'bg-blue-50 dark:bg-blue-800';
                     }
 
-                    return 'bg-red-50 dark:bg-green-800';
+                    return 'bg-red-50 dark:bg-red-800';
                 }
 
                 return null;
