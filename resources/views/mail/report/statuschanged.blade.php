@@ -18,7 +18,11 @@
 				@if ($mail_to == 'owner')
 					<p style="margin: 0; line-height: 1.6;">The status of your report has been changed. Please review the updated status and feel free to reach out if you have any questions.</p>
 				@else
-					<p style="margin: 0; line-height: 1.6;">The status of the report has been changed. Please review the updated status and take necessary actions.</p>
+					@if ($event->report->status === \App\Enums\ReportStatus::APPROVED->value || $event->report->status === \App\Enums\ReportStatus::REJECTED->value)
+						<p style="margin: 0; line-height: 1.6;">The status of the report has been changed. No further action is required.</p>
+					@else
+						<p style="margin: 0; line-height: 1.6;">The status of the report has been changed. Please review the updated status and take necessary actions.</p>
+					@endif
 				@endif
 			</div>
 			<!-- Details Section -->
