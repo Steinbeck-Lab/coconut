@@ -4,10 +4,10 @@ namespace App\Console\Commands\SubmissionsAutoProcess;
 
 use App\Jobs\GenerateCoordinatesBatch;
 use App\Models\Collection;
-use App\Models\Molecule;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -37,21 +37,22 @@ class GenerateCoordinatesAuto extends Command
 
             return 1;
         }
-        Log::info("Starting coordinate generation for molecules missing structures in collection ID: {$collection_id}");
-        // $query = Molecule::select('molecules.id')
-        //     ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
-        //     ->where('entries.collection_id', $collection_id)
-        //     ->doesntHave('structures')
-        //     ->where('molecules.active', true)
-        //     ->distinct();
 
-        $query = Molecule::select('molecules.id')
-            ->join('collection_molecule', 'collection_molecule.molecule_id', '=', 'molecules.id')
-            ->leftJoin('structures', 'structures.molecule_id', '=', 'molecules.id')
-            ->where('collection_molecule.collection_id', $collection_id)
-            ->where('molecules.active', true)
-            ->whereNull('structures.molecule_id')  // More efficient than doesntHave
-            ->orderBy('molecules.id');
+        Log::info("Starting coordinate generation for molecules missing structures in collection ID: {$collection_id}");
+
+        // Use raw query to avoid ambiguous column issues
+        $sql = '
+            SELECT molecules.id
+            FROM molecules
+            INNER JOIN collection_molecule ON collection_molecule.molecule_id = molecules.id
+            LEFT JOIN structures ON structures.molecule_id = molecules.id
+            WHERE collection_molecule.collection_id = ?
+              AND molecules.active = true
+              AND structures.molecule_id IS NULL
+            ORDER BY molecules.id
+        ';
+
+        $moleculeIds = DB::select($sql, [$collection_id]);
 
         // Flag logic:
         // --force: only when running standalone, picks up failed entries
@@ -64,8 +65,7 @@ class GenerateCoordinatesAuto extends Command
             // });
         }
 
-        // Count the total number of molecules to process
-        $totalCount = $query->count();
+        $totalCount = count($moleculeIds);
         if ($totalCount === 0) {
             Log::info("No molecules found that require coordinate generation in collection {$collection_id}.");
 
@@ -74,10 +74,12 @@ class GenerateCoordinatesAuto extends Command
 
         Log::info("Total molecules to process in collection {$collection_id}: {$totalCount}");
 
-        // Process molecules in chunks
-        $query->chunkById(1000, function ($molecules) use ($collection_id) {
-            $moleculeIds = $molecules->pluck('id')->toArray();
-            $batchSize = count($moleculeIds);
+        // Chunk the results manually
+        $chunks = array_chunk($moleculeIds, 1000);
+
+        foreach ($chunks as $chunk) {
+            $ids = array_map(fn ($row) => $row->id, $chunk);
+            $batchSize = count($ids);
 
             Log::info("Processing batch of {$batchSize} molecules for coordinate generation in collection {$collection_id}");
 
@@ -88,7 +90,7 @@ class GenerateCoordinatesAuto extends Command
 
             // Create and dispatch batch job
             $batchJobs = [];
-            $batchJobs[] = new GenerateCoordinatesBatch($moleculeIds);
+            $batchJobs[] = new GenerateCoordinatesBatch($ids);
 
             // Dispatch as a batch
             Bus::batch($batchJobs)
@@ -106,7 +108,7 @@ class GenerateCoordinatesAuto extends Command
                 ->onConnection('redis')
                 ->onQueue('default')
                 ->dispatch();
-        });
+        }
 
         Log::info("All coordinate generation jobs dispatched for collection {$collection_id}");
 
