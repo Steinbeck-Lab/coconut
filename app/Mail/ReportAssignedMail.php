@@ -28,7 +28,7 @@ class ReportAssignedMail extends Mailable
 
     public function build()
     {
-        $subject = 'Coconut: Report assigned to you';
+        $subject = 'Coconut: '.$this->event->report->report_category.' request assigned to you';
 
         return $this->subject($subject)
             ->view('mail.report.assigned');

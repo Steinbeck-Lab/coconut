@@ -4,18 +4,18 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>COCONUT Report Assigned</title>
+	<title>COCONUT {{ $event->report->report_category }} request Assigned</title>
 </head>
 <body style="font-family: Arial, Helvetica, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5;">
 	<div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
 		<div style="text-align: center; padding: 20px; background-color: #6d4c41; color: white;">
 			<img src="{{ asset('img/logo.png') }}" alt="COCONUT Database" style="max-width: 200px; margin: 0 auto; display: block;">
-			<h1 style="color: white; margin: 10px 0 0 0; font-size: 24px;">Report Assigned</h1>
+			<h1 style="color: white; margin: 10px 0 0 0; font-size: 24px;">{{ $event->report->report_category }} request Assigned</h1>
 		</div>
 		<div style="padding: 30px;">
 			<div style="font-size: 20px; font-weight: bold; margin-bottom: 20px; color: #555;">Hello {{ $curator->name }}!</div>
 			<div style="margin-bottom: 25px; color: #555;">
-				<p style="margin: 0; line-height: 1.6;">As a COCONUT curator, you have been assigned a report. Please review the report and leave your comments.</p>
+				<p style="margin: 0; line-height: 1.6;">As a COCONUT curator, you have been assigned a {{ $event->report->report_category }} request. Please review and leave your comments.</p>
 			</div>
 			<!-- Details Section -->
 			<div style="margin-bottom: 18px; padding-bottom: 18px;">

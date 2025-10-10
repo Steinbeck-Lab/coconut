@@ -19,7 +19,7 @@ class CreateReport extends CreateRecord
 
     protected $molecule;
 
-    protected $is_change = false;
+    protected $report_category = ReportCategory::SUBMISSION->value;
 
     protected $mol_ids = null;
 
@@ -59,16 +59,18 @@ class CreateReport extends CreateRecord
         $this->data['type'] = $request->type;
 
         if ($request->type == 'change') {
-            $this->data['is_change'] = true;
-            $this->is_change = true;
+            $this->data['report_category'] = ReportCategory::UPDATE->value;
+            $this->report_category = ReportCategory::UPDATE->value;
 
             $this->data['existing_geo_locations'] = $this->molecule->geo_locations->pluck('name')->toArray();
             $this->data['existing_synonyms'] = $this->molecule->synonyms;
             $this->data['existing_cas'] = array_values($this->molecule->cas ?? []);
             $this->data['existing_organisms'] = $this->molecule->organisms->pluck('name')->toArray();
             $this->data['existing_citations'] = $this->molecule->citations->where('title', '!=', null)->pluck('title')->toArray();
+        } elseif ($request->type == 'report') {
+            $this->data['report_category'] = ReportCategory::REVOKE->value;
         } else {
-            $this->data['is_change'] = false;
+            $this->data['report_category'] = ReportCategory::SUBMISSION->value;
         }
 
         if ($request->has('collection_uuid')) {
@@ -95,7 +97,7 @@ class CreateReport extends CreateRecord
     protected function afterValidate(): void
     {
         $this->mol_ids = $this->data['mol_ids'];
-        $this->is_change = $this->data['is_change'];
+        $this->report_category = $this->data['report_category'];
         $this->report_type = $this->data['report_type'];
         $this->evidence = $this->data['evidence'];
     }

@@ -910,7 +910,7 @@ class ReportResource extends Resource
                     ->formatStateUsing(fn (Report $record): HtmlString => new HtmlString(
                         '<b>'.$record->title.'</b>'.
                             ' <br> <i>Type: </i>'.
-                         '<span class="font-medium">'.$record->report_category.'</span>'
+                            '<span class="font-medium">'.$record->report_category.'</span>'
                     )),
                 TextColumn::make('user.name')
                     ->label('Reported By'),
@@ -937,11 +937,23 @@ class ReportResource extends Resource
                     ->searchable()
                     ->sortable(),
             ])
-            ->recordClasses(fn (Model $record) => match ($record->is_change) {
-                true => 'bg-teal-50 dark:bg-gray-800',
-                default => null,
+            ->recordClasses(function (Model $record) {
+                $user = filament()->auth()->user();
+
+                if ($user && $user->can('update', $record)) {
+                    if ($record->report_category === ReportCategory::UPDATE->value) {
+                        return 'bg-yellow-50 dark:bg-yellow-600';
+                    } elseif ($record->report_category === ReportCategory::SUBMISSION->value) {
+                        return 'bg-blue-50 dark:bg-blue-800';
+                    }
+
+                    return 'bg-red-50 dark:bg-red-800';
+                }
+
+                return null;
             })
-            ->recordUrl(fn (Report $record): string => auth()->user()->can('update', $record)
+            ->recordUrl(
+                fn (Report $record): string => auth()->user()->can('update', $record)
                     ? static::getUrl('edit', ['record' => $record->id])
                     : static::getUrl('view', ['record' => $record->id])
             )
@@ -1266,7 +1278,7 @@ class ReportResource extends Resource
             // In case of reporting a synthetic molecule, Deactivate Molecules
             if ($record['status'] == ReportStatus::PENDING_APPROVAL->value || $record['status'] == ReportStatus::PENDING_REJECTION->value) {
                 if ($record['report_type'] == 'molecule') {
-                    $molecule_ids = json_decode($record['mol_ids'], true);
+                    $molecule_ids = $record['mol_ids'];
                     if (! is_array($molecule_ids)) {
                         $molecule_ids = explode(',', $record['mol_ids']); // Fallback for compatibility
                     }

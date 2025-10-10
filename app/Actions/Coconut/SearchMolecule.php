@@ -130,9 +130,9 @@ class SearchMolecule
      */
     private function applyRawStatusFilter(&$sql)
     {
-        if ($this->status === 'approved') {
+        if ($this->status === 'APPROVED') {
             $sql .= ' AND active = TRUE';
-        } elseif ($this->status === 'revoked') {
+        } elseif ($this->status === 'REVOKED') {
             $sql .= ' AND active = FALSE';
         }
         // When status is 'all', no filter is needed

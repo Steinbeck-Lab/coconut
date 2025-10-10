@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Enums\ReportStatus;
 use App\Events\ReportAssigned;
 use App\Events\ReportStatusChanged;
 use App\Events\ReportSubmitted;
@@ -28,7 +29,7 @@ class ReportEventSubscriber
      */
     public function handleReportStatusChanged(ReportStatusChanged $event): void
     {
-        if ($event->report->status == 'approved' || $event->report->status == 'rejected') {
+        if ($event->report->status == ReportStatus::APPROVED->value || $event->report->status == ReportStatus::REJECTED->value) {
             $ReportOwner = User::find($event->report->user_id);
             $ReportOwner->notify(new ReportStatusChangedNotification($event, 'owner'));
         }

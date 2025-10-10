@@ -29,11 +29,10 @@ class ReportSubmittedMail extends Mailable
 
     public function build()
     {
-        $report_or_change = $this->event->report->is_change ? 'Change Request "' : 'Report "';
         $subject_prefix = $this->mail_to == 'owner' ? 'Coconut: Your ' : 'Coconut: A new ';
-        $subject_prefix .= $report_or_change;
+        $subject_prefix .= $this->event->report->report_category.' request is submitted: "';
 
-        return $this->subject($subject_prefix.$this->event->report->title.'" has been submitted.')
+        return $this->subject($subject_prefix.$this->event->report->title.'"')
             ->view('mail.report.submitted');
     }
 }

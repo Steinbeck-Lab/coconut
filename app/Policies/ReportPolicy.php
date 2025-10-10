@@ -43,12 +43,6 @@ class ReportPolicy
      */
     public function update(User $user, Report $report): bool
     {
-        if (($user->can('update_report') && (($report->status != ReportStatus::APPROVED->value) && ($report->status != ReportStatus::REJECTED->value))) || ($user->id == $report->user_id && $report->status == null)) {
-            return true;
-        } else {
-            return false;
-        }
-
         // Allow users with update_report permission in these cases:
         if ($user->can('update_report')) {
             // Case 1: Report is submitted
@@ -90,6 +84,8 @@ class ReportPolicy
         if ($user->id == $report->user_id && $report->status == null) {
             return true;
         }
+
+        return false;
     }
 
     /**
