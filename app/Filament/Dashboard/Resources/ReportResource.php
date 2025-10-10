@@ -1266,7 +1266,7 @@ class ReportResource extends Resource
             // In case of reporting a synthetic molecule, Deactivate Molecules
             if ($record['status'] == ReportStatus::PENDING_APPROVAL->value || $record['status'] == ReportStatus::PENDING_REJECTION->value) {
                 if ($record['report_type'] == 'molecule') {
-                    $molecule_ids = json_decode($record['mol_ids'], true);
+                    $molecule_ids = $record['mol_ids'];
                     if (! is_array($molecule_ids)) {
                         $molecule_ids = explode(',', $record['mol_ids']); // Fallback for compatibility
                     }
