@@ -113,14 +113,14 @@ class MapOrganismNamesToOGG extends Command
                     $ranks = rtrim($r_name['verification']['bestResult']['classificationRanks'] ?? '', '|') ?: null;
                     $paths = rtrim($r_name['verification']['bestResult']['classificationPath'] ?? '', '|') ?: null;
                     $ids = rtrim($r_name['verification']['bestResult']['classificationIds'] ?? '', '|') ?: null;
-                    
+
                     if ($ranks) {
                         $ranks = explode('|', $ranks);
                         $ranksLength = count($ranks);
                         if ($ranksLength > 1 && $paths && $ids) {
                             $pathsArray = explode('|', $paths);
                             $idsArray = explode('|', $ids);
-                            
+
                             if (count($pathsArray) >= $ranksLength && count($idsArray) >= $ranksLength) {
                                 $parentRank = $ranks[$ranksLength - 2];
                                 $parentName = $pathsArray[$ranksLength - 2];
