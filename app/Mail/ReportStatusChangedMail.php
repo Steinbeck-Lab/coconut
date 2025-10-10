@@ -28,7 +28,7 @@ class ReportStatusChangedMail extends Mailable
 
     public function build()
     {
-        $subject = 'Coconut: Report status changed to "'.$this->event->report->status.'"';
+        $subject = 'Coconut: Report status changed to "'.ucwords(strtolower(str_replace('_', ' ', $this->event->report->status)));
 
         return $this->subject($subject)
             ->view('mail.report.statuschanged');
