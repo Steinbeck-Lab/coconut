@@ -5,10 +5,10 @@ Uses RDKit for most descriptors and NP-score.
 Uses CDK (via JPype) for sugar detection, Murcko framework, and molecular formula.
 
 Input CSV format: id,canonical_smiles,identifier
-Output CSV format: id,atom_count,heavy_atom_count,...,molecular_formula
+Output TSV format: id,atom_count,heavy_atom_count,...,molecular_formula
 
 Usage:
-    python generate_descriptors.py input.csv --output-csv output.csv
+    python generate_properties.py input.csv --output-tsv output.tsv
 """
 
 import argparse
@@ -17,7 +17,7 @@ import math
 import os
 import pickle
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Any
 
 import pandas as pd
 import pystow
@@ -190,7 +190,7 @@ class DescriptorGenerator:
         except:
             return 0.0
     
-    def generate_descriptors(self, smiles: str) -> Dict[str, any]:
+    def generate_descriptors(self, smiles: str) -> Dict[str, Any]:
         """
         Generate molecular descriptors for a single SMILES string.
         
@@ -377,10 +377,10 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Example:
-  python generate_descriptors.py molecules.csv --output-csv descriptors.csv
+  python generate_properties.py molecules.csv --output-tsv descriptors.tsv
   
 Input CSV format: id,canonical_smiles,identifier
-Output CSV format: id,atom_count,heavy_atom_count,...,molecular_formula
+Output TSV format: id,atom_count,heavy_atom_count,...,molecular_formula
 
 Note: This script requires:
   - RDKit for most descriptors and NP-score
