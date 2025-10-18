@@ -80,7 +80,7 @@ class GenerateCoordinates extends Command
             Log::error('❌ Coordinates generation failed.');
         }
 
-        // $this->cleanupFiles([$tmpCsv, $json_file]);
+        $this->cleanupFiles([$tmpCsv, $json_file]);
         return $result;
     }
 
