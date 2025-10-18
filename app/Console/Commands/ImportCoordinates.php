@@ -21,7 +21,7 @@ class ImportCoordinates extends Command
      *
      * @var string
      */
-    protected $description = 'Imports 2D SDFs from a JSON file into Structures table';
+    protected $description = 'Imports 2D/3D SDFs from a JSON file into the Structures table';
 
     /**
      * Execute the console command.
@@ -36,9 +36,17 @@ class ImportCoordinates extends Command
         }
 
         $json = file_get_contents($file);
-        $json_data = json_decode($json, true);
         if ($json === false) {
-            exit('Error reading the JSON file');
+            Log::error('Error reading the JSON file');
+
+            return 1;
+        }
+
+        $json_data = json_decode($json, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            Log::error('Error decoding JSON: '.json_last_error_msg());
+
+            return 1;
         }
 
         $batchSize = 10000; // Number of molecules to process in each batch
