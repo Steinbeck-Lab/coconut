@@ -15,7 +15,7 @@ class GenerateCoordinates extends Command
      *
      * @var string
      */
-    protected $signature = 'coordinates:generate {collection_id?}';
+    protected $signature = 'coconut:generate-coordinates-auto {collection_id?}';
 
     /**
      * The console command description.
@@ -31,8 +31,9 @@ class GenerateCoordinates extends Command
     {
         $collectionId = $this->argument('collection_id');
 
-        $outputJson = 'coordinates'.($collectionId ? '_'.$collectionId : '').'.json';
         $scriptPath = app_path('Scripts/generate_coordinates.py');
+        $tmpCsv = storage_path('app/tmp/coordinates_input'.($collectionId ? '_'.$collectionId : '').'.csv');
+        $outputJson = 'coordinates'.($collectionId ? '_'.$collectionId : '').'.json';
 
         // Fetch data from DB and write to temp CSV
         Log::info('Fetching molecules from database...');
@@ -40,7 +41,7 @@ class GenerateCoordinates extends Command
         $query = '';
         $rows = [];
         if ($collectionId) {
-            $query = 'SELECT id, canonical_smiles, identifier FROM molecules m WHERE NOT EXISTS (SELECT 1 FROM structures s WHERE s.molecule_id = m.id) AND id in (SELECT DISTINCT molecule_id from collection_molecule where collection_id=?)';
+            $query = 'SELECT id, canonical_smiles, identifier FROM molecules m WHERE NOT EXISTS (SELECT 1 FROM structures s WHERE s.molecule_id = m.id) AND m.id in (SELECT DISTINCT molecule_id from collection_molecule where collection_id=?)';
             $rows = DB::select($query, [$collectionId]);
         } else {
             $query = 'SELECT id, canonical_smiles, identifier FROM molecules m WHERE NOT EXISTS (SELECT 1 FROM structures s WHERE s.molecule_id = m.id)';
@@ -53,7 +54,6 @@ class GenerateCoordinates extends Command
             return 0;
         }
 
-        $tmpCsv = storage_path('app/tmp/coordinates_input'.($collectionId ? '_'.$collectionId : '').'.csv');
         $handle = fopen($tmpCsv, 'w');
         // Write header
         fputcsv($handle, ['id', 'canonical_smiles', 'identifier']);
@@ -68,10 +68,10 @@ class GenerateCoordinates extends Command
         $json_file = storage_path('app/tmp/'.$outputJson);
         if ($result === 0 && file_exists($json_file)) {
             Log::info('Calling ImportCoordinates with generated output...');
-            $exitCode2d = $this->call('coconut:import-coordinates', [
+            $exitCode = $this->call('coconut:import-coordinates', [
                 'file' => 'app/tmp/'.$outputJson,
             ]);
-            if ($exitCode2d === 0) {
+            if ($exitCode === 0) {
                 Log::info('✅ ImportCoordinates completed successfully.');
             } else {
                 Log::error('❌ ImportCoordinates failed.');
@@ -81,6 +81,7 @@ class GenerateCoordinates extends Command
         }
 
         $this->cleanupFiles([$tmpCsv, $json_file]);
+
         return $result;
     }
 
