@@ -50,7 +50,7 @@ class ImportCoordinates extends Command
             $this->insertBatch($batch);
         }
 
-        Log::info('Annotation scores generated successfully.');
+        Log::info('Coordinates data imported successfully.');
     }
 
     /**

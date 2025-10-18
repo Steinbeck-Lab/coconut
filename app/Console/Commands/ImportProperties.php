@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Properties;
 use DB;
 use Illuminate\Console\Command;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class ImportProperties extends Command
 {
@@ -31,7 +31,7 @@ class ImportProperties extends Command
         $file = storage_path($this->argument('file'));
 
         if (! file_exists($file) || ! is_readable($file)) {
-            $this->error('File not found or not readable.');
+            Log::error('File not found or not readable.');
 
             return 1;
         }
@@ -57,9 +57,7 @@ class ImportProperties extends Command
                         }
                     } catch (\ValueError $e) {
                         Log::info('An error occurred: '.$e->getMessage());
-                        Log::info($rowCount++);
                     }
-                    $this->info("Inserted: $rowCount");
                 }
             }
             fclose($handle);
@@ -69,7 +67,7 @@ class ImportProperties extends Command
             }
         }
 
-        $this->info('Properties data imported successfully!');
+        Log::info('Properties data imported successfully!');
 
         return 0;
     }
