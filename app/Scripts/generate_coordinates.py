@@ -6,13 +6,13 @@ Input CSV format: id,canonical_smiles,identifier
 Output JSON format: {id: {smiles: ..., 2d: molblock, 3d: molblock}}
 
 Usage:
-    python fetch_3d_coordinates.py input.csv --output-json output.json
+    python generate_coordinates.py input.csv --output-json output.json
 """
 
 import argparse
 import json
 from pathlib import Path
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Any
 import os
 
 import pandas as pd
@@ -28,7 +28,7 @@ class CoordinateGenerator:
         """Initialize the generator with API defaults."""
         pass
     
-    def generate_3d_coordinates(self, smiles: str) -> Dict[str, any]:
+    def generate_3d_coordinates(self, smiles: str) -> Dict[str, Any]:
         """
         Generate 3D coordinates for a single SMILES string.
         
@@ -97,7 +97,7 @@ class CoordinateGenerator:
                 "error": f"Unexpected error: {str(e)}"
             }
     
-    def generate_2d_coordinates(self, smiles: str) -> Dict[str, any]:
+    def generate_2d_coordinates(self, smiles: str) -> Dict[str, Any]:
         """
         Generate 2D coordinates for a single SMILES string.
         
@@ -141,8 +141,8 @@ class CoordinateGenerator:
     def process_csv(
         self,
         input_csv: str,
-        output_json: str = "coordinates_3d.json"
-    ) -> pd.DataFrame:
+        output_json: str = "coordinates.json"
+    ) -> None:
         """
         Process a CSV file containing SMILES strings.
         Expected CSV format: id,canonical_smiles,identifier
@@ -177,10 +177,11 @@ class CoordinateGenerator:
         fail_count = 0
         skipped_count = 0
         total_to_process = len(df)
+        processed_count = 0
         
         print(f"\n🔄 Generating coordinates using RDKit...\n")
         
-        for idx, row in tqdm(df.iterrows(), total=len(df), desc="Processing"):
+        for _, row in tqdm(df.iterrows(), total=len(df), desc="Processing"):
             smiles = row['canonical_smiles']
             mol_id = str(row['id'])
             
@@ -229,8 +230,10 @@ class CoordinateGenerator:
             else:
                 fail_count += 1
             
+            processed_count += 1
+            
             # Save progress periodically (every 10 molecules)
-            if (idx + 1) % 10 == 0:
+            if processed_count % 10 == 0:
                 with open(output_json, 'w') as f:
                     json.dump(results_json, f, indent=2)
         
