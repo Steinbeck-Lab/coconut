@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Properties;
 use DB;
 use Illuminate\Console\Command;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class ImportProperties extends Command
 {
@@ -21,7 +21,7 @@ class ImportProperties extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Imports molecular properties from a TSV file into Properties table';
 
     /**
      * Execute the console command.
@@ -31,7 +31,7 @@ class ImportProperties extends Command
         $file = storage_path($this->argument('file'));
 
         if (! file_exists($file) || ! is_readable($file)) {
-            $this->error('File not found or not readable.');
+            Log::error('File not found or not readable.');
 
             return 1;
         }
@@ -57,9 +57,7 @@ class ImportProperties extends Command
                         }
                     } catch (\ValueError $e) {
                         Log::info('An error occurred: '.$e->getMessage());
-                        Log::info($rowCount++);
                     }
-                    $this->info("Inserted: $rowCount");
                 }
             }
             fclose($handle);
@@ -69,7 +67,7 @@ class ImportProperties extends Command
             }
         }
 
-        $this->info('Properties data imported successfully!');
+        Log::info('Properties data imported successfully!');
 
         return 0;
     }
@@ -105,7 +103,7 @@ class ImportProperties extends Command
                         'formal_charge' => str_replace('"', '', $row['formal_charge']),
                         'fractioncsp3' => str_replace('"', '', $row['fractioncsp3']),
                         'number_of_minimal_rings' => str_replace('"', '', $row['number_of_minimal_rings']),
-                        'van_der_waals_volume' => str_replace('"', '', $row['van_der_waals_volume']),
+                        'van_der_walls_volume' => str_replace('"', '', $row['van_der_waals_volume']),
                         'contains_linear_sugars' => str_replace('"', '', $row['linear_sugars']),
                         'contains_ring_sugars' => str_replace('"', '', $row['circular_sugars']),
                         'contains_sugar' => filter_var(str_replace('"', '', $row['linear_sugars']), FILTER_VALIDATE_BOOLEAN) || filter_var(str_replace('"', '', $row['circular_sugars']), FILTER_VALIDATE_BOOLEAN),
