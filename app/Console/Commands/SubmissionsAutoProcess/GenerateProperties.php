@@ -53,7 +53,7 @@ class GenerateProperties extends Command
             return 0;
         }
 
-        $tmpCsv = storage_path('app/tmp/properties_input'.($collectionId ? '_'.$collectionId : '').'.csv');
+        $tmpCsv = storage_path('app/public/properties_input'.($collectionId ? '_'.$collectionId : '').'.csv');
         $handle = fopen($tmpCsv, 'w');
         // Write header
         fputcsv($handle, ['id', 'canonical_smiles', 'identifier']);
@@ -65,11 +65,11 @@ class GenerateProperties extends Command
 
         $result = $this->runPythonProcessing($scriptPath, $tmpCsv, $outputTSV);
 
-        $tsv_file = storage_path('app/tmp/'.$outputTSV);
+        $tsv_file = storage_path('app/public/'.$outputTSV);
         if ($result === 0 && file_exists($tsv_file)) {
             Log::info('Calling ImportProperties with generated output...');
             $exitCode = $this->call('coconut:import-properties', [
-                'file' => 'app/tmp/'.$outputTSV,
+                'file' => 'app/public/'.$outputTSV,
             ]);
             if ($exitCode === 0) {
                 Log::info('✅ ImportProperties completed successfully.');

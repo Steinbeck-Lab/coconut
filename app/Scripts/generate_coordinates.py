@@ -271,7 +271,7 @@ Output JSON format: {id: {smiles: ..., 2d: ..., 3d: ...}}
         "input_csv",
         help="Path to input CSV file (format: id,canonical_smiles,identifier)"
     )
-    base_temp = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../storage/app/tmp')
+    base_temp = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../storage/app/public')
     os.makedirs(base_temp, exist_ok=True)
     parser.add_argument(
         "--output-json",

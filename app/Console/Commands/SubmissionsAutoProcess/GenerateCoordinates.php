@@ -32,7 +32,7 @@ class GenerateCoordinates extends Command
         $collectionId = $this->argument('collection_id');
 
         $scriptPath = app_path('Scripts/generate_coordinates.py');
-        $tmpCsv = storage_path('app/tmp/coordinates_input'.($collectionId ? '_'.$collectionId : '').'.csv');
+        $tmpCsv = storage_path('app/public/coordinates_input'.($collectionId ? '_'.$collectionId : '').'.csv');
         $outputJson = 'coordinates'.($collectionId ? '_'.$collectionId : '').'.json';
 
         // Fetch data from DB and write to temp CSV
@@ -65,11 +65,11 @@ class GenerateCoordinates extends Command
 
         $result = $this->runPythonProcessing($scriptPath, $tmpCsv, $outputJson);
 
-        $json_file = storage_path('app/tmp/'.$outputJson);
+        $json_file = storage_path('app/public/'.$outputJson);
         if ($result === 0 && file_exists($json_file)) {
             Log::info('Calling ImportCoordinates with generated output...');
             $exitCode = $this->call('coconut:import-coordinates', [
-                'file' => 'app/tmp/'.$outputJson,
+                'file' => 'app/public/'.$outputJson,
             ]);
             if ($exitCode === 0) {
                 Log::info('✅ ImportCoordinates completed successfully.');
