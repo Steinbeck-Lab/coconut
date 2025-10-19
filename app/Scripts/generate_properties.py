@@ -393,7 +393,7 @@ Note: This script requires:
         "input_csv",
         help="Path to input CSV file (format: id,canonical_smiles,identifier)"
     )
-    base_temp = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../storage/app/tmp')
+    base_temp = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../storage/app/public')
     os.makedirs(base_temp, exist_ok=True)
     parser.add_argument(
         "--output-tsv",
@@ -404,7 +404,7 @@ Note: This script requires:
     args = parser.parse_args()
 
     # Always force output_tsv to be in tmp folder
-    base_temp = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../storage/app/tmp')
+    base_temp = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../storage/app/public')
     os.makedirs(base_temp, exist_ok=True)
     output_tsv_filename = os.path.basename(args.output_tsv)
     args.output_tsv = os.path.join(base_temp, output_tsv_filename)
