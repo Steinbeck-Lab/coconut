@@ -264,8 +264,16 @@
         </div>
     </div>
     <div class="flex justify-between items-center mx-auto sm:px-6 lg:max-w-7xl lg:px-8">
-        <div class="pl-4">
+        <div class="pl-4 flex items-center gap-4">
             <livewire:advanced-search />
+            <div class="relative">
+                <select id="status-filter" wire:model.live="status"
+                    class="appearance-none border border-gray-400 text-gray-600 px-4 py-2 pr-10 rounded-md font-medium focus:outline-none focus:border-gray-500 cursor-pointer">
+                    <option value="all">All</option>
+                    <option value="approved">Approved</option>
+                    <option value="revoked">Revoked</option>
+                </select>
+            </div>
         </div>
         <div class="flex pr-4">
             <button @click="view = 'card'"

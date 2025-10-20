@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Properties;
 use DB;
 use Illuminate\Console\Command;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class ImportProperties extends Command
 {
@@ -21,7 +21,7 @@ class ImportProperties extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Imports molecular properties from a TSV file into Properties table';
 
     /**
      * Execute the console command.
@@ -31,7 +31,7 @@ class ImportProperties extends Command
         $file = storage_path($this->argument('file'));
 
         if (! file_exists($file) || ! is_readable($file)) {
-            $this->error('File not found or not readable.');
+            Log::error('File not found or not readable.');
 
             return 1;
         }
@@ -57,9 +57,7 @@ class ImportProperties extends Command
                         }
                     } catch (\ValueError $e) {
                         Log::info('An error occurred: '.$e->getMessage());
-                        Log::info($rowCount++);
                     }
-                    $this->info("Inserted: $rowCount");
                 }
             }
             fclose($handle);
@@ -69,7 +67,7 @@ class ImportProperties extends Command
             }
         }
 
-        $this->info('Properties data imported successfully!');
+        Log::info('Properties data imported successfully!');
 
         return 0;
     }
@@ -83,37 +81,45 @@ class ImportProperties extends Command
     {
         DB::transaction(function () use ($data) {
             foreach ($data as $row) {
-                Properties::updateorCreate(
-                    [
-                        'molecule_id' => $row['id'],
-                    ],
-                    [
-                        'total_atom_count' => str_replace('"', '', $row['atom_count']),
-                        'heavy_atom_count' => str_replace('"', '', $row['heavy_atom_count']),
-                        'molecular_weight' => str_replace('"', '', $row['molecular_weight']),
-                        'exact_molecular_weight' => str_replace('"', '', $row['exact_molecular_weight']),
-                        'alogp' => str_replace('"', '', $row['alogp']),
-                        'rotatable_bond_count' => str_replace('"', '', $row['rotatable_bond_count']),
-                        'topological_polar_surface_area' => str_replace('"', '', $row['topological_polar_surface_area']),
-                        'hydrogen_bond_acceptors' => str_replace('"', '', $row['hydrogen_bond_acceptors']),
-                        'hydrogen_bond_donors' => str_replace('"', '', $row['hydrogen_bond_donors']),
-                        'hydrogen_bond_acceptors_lipinski' => str_replace('"', '', $row['hydrogen_bond_acceptors_lipinski']),
-                        'hydrogen_bond_donors_lipinski' => str_replace('"', '', $row['hydrogen_bond_donors_lipinski']),
-                        'lipinski_rule_of_five_violations' => str_replace('"', '', $row['lipinski_rule_of_five_violations']),
-                        'aromatic_rings_count' => str_replace('"', '', $row['aromatic_rings_count']),
-                        'qed_drug_likeliness' => str_replace('"', '', $row['qed_drug_likeliness']),
-                        'formal_charge' => str_replace('"', '', $row['formal_charge']),
-                        'fractioncsp3' => str_replace('"', '', $row['fractioncsp3']),
-                        'number_of_minimal_rings' => str_replace('"', '', $row['number_of_minimal_rings']),
-                        'van_der_waals_volume' => str_replace('"', '', $row['van_der_waals_volume']),
-                        'contains_linear_sugars' => str_replace('"', '', $row['linear_sugars']),
-                        'contains_ring_sugars' => str_replace('"', '', $row['circular_sugars']),
-                        'contains_sugar' => filter_var(str_replace('"', '', $row['linear_sugars']), FILTER_VALIDATE_BOOLEAN) || filter_var(str_replace('"', '', $row['circular_sugars']), FILTER_VALIDATE_BOOLEAN),
-                        'murcko_framework' => str_replace('"', '', $row['murcko_framework']),
-                        'np_likeness' => str_replace('"', '', $row['nplikeness']),
-                        'molecular_formula' => str_replace('"', '', $row['molecular_formula']),
-                    ]
-                );
+                try {
+                    Properties::updateorCreate(
+                        [
+                            'molecule_id' => $row['id'],
+                        ],
+                        [
+                            'total_atom_count' => str_replace('"', '', $row['atom_count']),
+                            'heavy_atom_count' => str_replace('"', '', $row['heavy_atom_count']),
+                            'molecular_weight' => str_replace('"', '', $row['molecular_weight']),
+                            'exact_molecular_weight' => str_replace('"', '', $row['exact_molecular_weight']),
+                            'alogp' => str_replace('"', '', $row['alogp']),
+                            'rotatable_bond_count' => str_replace('"', '', $row['rotatable_bond_count']),
+                            'topological_polar_surface_area' => str_replace('"', '', $row['topological_polar_surface_area']),
+                            'hydrogen_bond_acceptors' => str_replace('"', '', $row['hydrogen_bond_acceptors']),
+                            'hydrogen_bond_donors' => str_replace('"', '', $row['hydrogen_bond_donors']),
+                            'hydrogen_bond_acceptors_lipinski' => str_replace('"', '', $row['hydrogen_bond_acceptors_lipinski']),
+                            'hydrogen_bond_donors_lipinski' => str_replace('"', '', $row['hydrogen_bond_donors_lipinski']),
+                            'lipinski_rule_of_five_violations' => str_replace('"', '', $row['lipinski_rule_of_five_violations']),
+                            'aromatic_rings_count' => str_replace('"', '', $row['aromatic_rings_count']),
+                            'qed_drug_likeliness' => str_replace('"', '', $row['qed_drug_likeliness']),
+                            'formal_charge' => str_replace('"', '', $row['formal_charge']),
+                            'fractioncsp3' => str_replace('"', '', $row['fractioncsp3']),
+                            'number_of_minimal_rings' => str_replace('"', '', $row['number_of_minimal_rings']),
+                            'van_der_walls_volume' => str_replace('"', '', $row['van_der_waals_volume']),
+                            'contains_linear_sugars' => str_replace('"', '', $row['linear_sugars']),
+                            'contains_ring_sugars' => str_replace('"', '', $row['circular_sugars']),
+                            'contains_sugar' => filter_var(str_replace('"', '', $row['linear_sugars']), FILTER_VALIDATE_BOOLEAN) || filter_var(str_replace('"', '', $row['circular_sugars']), FILTER_VALIDATE_BOOLEAN),
+                            'murcko_framework' => str_replace('"', '', $row['murcko_framework']),
+                            'np_likeness' => str_replace('"', '', $row['nplikeness']),
+                            'molecular_formula' => str_replace('"', '', $row['molecular_formula']),
+                        ]
+                    );
+
+                    // Update curation status for successful property import
+                    updateCurationStatus($row['id'], 'generate-properties', 'completed');
+                } catch (\Exception $e) {
+                    Log::error("Error importing properties for molecule {$row['id']}: ".$e->getMessage());
+                    updateCurationStatus($row['id'], 'generate-properties', 'failed', $e->getMessage());
+                }
             }
         });
     }

@@ -19,7 +19,7 @@ class CreateReport extends CreateRecord
 
     protected $molecule;
 
-    protected $is_change = false;
+    protected $report_category = ReportCategory::SUBMISSION->value;
 
     protected $mol_ids = null;
 
@@ -59,16 +59,18 @@ class CreateReport extends CreateRecord
         $this->data['type'] = $request->type;
 
         if ($request->type == 'change') {
-            $this->data['is_change'] = true;
-            $this->is_change = true;
+            $this->data['report_category'] = ReportCategory::UPDATE->value;
+            $this->report_category = ReportCategory::UPDATE->value;
 
             $this->data['existing_geo_locations'] = $this->molecule->geo_locations->pluck('name')->toArray();
             $this->data['existing_synonyms'] = $this->molecule->synonyms;
             $this->data['existing_cas'] = array_values($this->molecule->cas ?? []);
             $this->data['existing_organisms'] = $this->molecule->organisms->pluck('name')->toArray();
             $this->data['existing_citations'] = $this->molecule->citations->where('title', '!=', null)->pluck('title')->toArray();
+        } elseif ($request->type == 'report') {
+            $this->data['report_category'] = ReportCategory::REVOKE->value;
         } else {
-            $this->data['is_change'] = false;
+            $this->data['report_category'] = ReportCategory::SUBMISSION->value;
         }
 
         if ($request->has('collection_uuid')) {
@@ -82,7 +84,7 @@ class CreateReport extends CreateRecord
             array_push($this->data['citations'], $id);
             $this->data['report_type'] = 'citation';
         } elseif ($request->has('compound_id')) {
-            $this->data['mol_ids'] = json_encode([$request->compound_id]); // Store as JSON array
+            $this->data['mol_ids'] = [$request->compound_id]; // Store as array for TagsInput
             $this->data['report_type'] = 'molecule';
         } elseif ($request->has('organism_id')) {
             $citation = Organism::where('id', $request->organism_id)->get();
@@ -95,7 +97,7 @@ class CreateReport extends CreateRecord
     protected function afterValidate(): void
     {
         $this->mol_ids = $this->data['mol_ids'];
-        $this->is_change = $this->data['is_change'];
+        $this->report_category = $this->data['report_category'];
         $this->report_type = $this->data['report_type'];
         $this->evidence = $this->data['evidence'];
     }
@@ -185,14 +187,14 @@ class CreateReport extends CreateRecord
     protected function afterCreate(): void
     {
         if (! is_null($this->record->mol_ids)) {
-            // Handle JSON format
-            $mol_identifiers = is_string($this->record->mol_ids) ?
-                json_decode($this->record->mol_ids, true) :
-                $this->record->mol_ids;
+            // Handle array format from TagsInput (model casting ensures it's already an array)
+            $mol_identifiers = $this->record->mol_ids;
 
-            // If not a valid JSON array, try to parse as comma-separated for backwards compatibility
+            // Ensure it's an array (fallback for any legacy data)
             if (! is_array($mol_identifiers)) {
-                $mol_identifiers = explode(',', $this->record->mol_ids);
+                $mol_identifiers = is_string($mol_identifiers) ?
+                    (json_decode($mol_identifiers, true) ?: explode(',', $mol_identifiers)) :
+                    [$mol_identifiers];
             }
 
             $molecules = Molecule::whereIn('identifier', $mol_identifiers)->get();

@@ -6,6 +6,8 @@ enum ReportStatus: string
 {
     case SUBMITTED = 'SUBMITTED';
     case APPROVED = 'APPROVED';
+    case PENDING_APPROVAL = 'PENDING_APPROVAL';
+    case PENDING_REJECTION = 'PENDING_REJECTION';
     case REJECTED = 'REJECTED';
     case COMPLETED = 'COMPLETED';
     case INPROGRESS = 'INPROGRESS';

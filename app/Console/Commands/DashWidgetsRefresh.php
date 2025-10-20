@@ -149,7 +149,7 @@ class DashWidgetsRefresh extends Command
             $unique_geo_locations_count = count(array_unique($geo_locations));
 
             $total_entries = DB::select('SELECT count(*) as count FROM entries WHERE collection_id = ?', [$collection->id]);
-            $successful_entries = DB::select("SELECT count(*) as count FROM entries WHERE collection_id = ? AND status = 'PASSED'", [$collection->id]);
+            $successful_entries = DB::select("SELECT count(*) as count FROM entries WHERE collection_id = ? AND (status in ('PASSED','AUTOCURATION','IMPORTED'))", [$collection->id]);
             $failed_entries = DB::select("SELECT count(*) as count FROM entries WHERE collection_id = ? AND status = 'REJECTED'", [$collection->id]);
             $molecules_count = DB::select('SELECT count(*) as count FROM collection_molecule WHERE collection_id = ?', [$collection->id]);
 

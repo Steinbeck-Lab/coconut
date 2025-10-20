@@ -28,6 +28,14 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="flex items-center space-x-2">
+                            <label for="sort" class="text-sm font-medium text-gray-700">Sort by:</label>
+                            <select id="sort" wire:model.live="sort" 
+                                class="rounded-md border border-gray-300 bg-white py-2 pl-3 pr-8 text-sm text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500">
+                                <option value="title">Title (A-Z)</option>
+                                <option value="created_at">Newest First</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>

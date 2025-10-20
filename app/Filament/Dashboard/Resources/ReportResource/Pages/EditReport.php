@@ -3,6 +3,7 @@
 namespace App\Filament\Dashboard\Resources\ReportResource\Pages;
 
 use App\Enums\ReportCategory;
+use App\Enums\ReportStatus;
 use App\Filament\Dashboard\Resources\ReportResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
@@ -76,6 +77,16 @@ class EditReport extends EditRecord
 
             $data['new_citations'] = $curators_copy_changes['new_citations'];
         }
+
+        $comment = '';
+        if ($this->record->status == ReportStatus::PENDING_APPROVAL->value || $this->record->status == ReportStatus::PENDING_REJECTION->value) {
+            $curator = $this->record->curators()->wherePivot('curator_number', 1)->first();
+            $comment = $curator?->pivot->comment;
+        } else {
+            $curator = $this->record->curators()->wherePivot('curator_number', 2)->first();
+            $comment = $curator?->pivot->comment;
+        }
+        $data['curator_comment'] = $comment;
 
         return $data;
     }

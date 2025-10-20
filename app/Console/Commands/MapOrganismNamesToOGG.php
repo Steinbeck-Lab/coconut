@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Organism;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class MapOrganismNamesToOGG extends Command
 {
@@ -110,17 +110,25 @@ class MapOrganismNamesToOGG extends Command
             } elseif ($matchType == 'PartialFuzzy' || $matchType == 'PartialExact') {
                 $iri = $r_name['verification']['bestResult']['dataSourceTitleShort'];
                 if (isset($r_name['verification']['bestResult']['classificationRanks'])) {
-                    $ranks = rtrim($r_name['verification']['bestResult']['classificationRanks'], '|') ?? null;
-                    $paths = rtrim($r_name['verification']['bestResult']['classificationPath'], '|') ?? null;
-                    $ids = rtrim($r_name['verification']['bestResult']['classificationIds'], '|') ?? null;
-                    $ranks = explode('|', $ranks);
-                    $ranksLength = count($ranks);
-                    if ($ranksLength > 0) {
-                        $parentRank = $ranks[$ranksLength - 2];
-                        $parentName = $paths[$ranksLength - 2];
-                        $parentId = $ids[$ranksLength - 2];
-                        $this->updateOrganismModel($name, $iri.'['.$parentName.'|'.$parentId.']', $organism, $parentRank);
-                        $this->info("Mapped and updated: $name");
+                    $ranks = rtrim($r_name['verification']['bestResult']['classificationRanks'] ?? '', '|') ?: null;
+                    $paths = rtrim($r_name['verification']['bestResult']['classificationPath'] ?? '', '|') ?: null;
+                    $ids = rtrim($r_name['verification']['bestResult']['classificationIds'] ?? '', '|') ?: null;
+
+                    if ($ranks) {
+                        $ranks = explode('|', $ranks);
+                        $ranksLength = count($ranks);
+                        if ($ranksLength > 1 && $paths && $ids) {
+                            $pathsArray = explode('|', $paths);
+                            $idsArray = explode('|', $ids);
+
+                            if (count($pathsArray) >= $ranksLength && count($idsArray) >= $ranksLength) {
+                                $parentRank = $ranks[$ranksLength - 2];
+                                $parentName = $pathsArray[$ranksLength - 2];
+                                $parentId = $idsArray[$ranksLength - 2];
+                                $this->updateOrganismModel($name, $iri.'['.$parentName.'|'.$parentId.']', $organism, $parentRank);
+                                $this->info("Mapped and updated: $name");
+                            }
+                        }
                     }
                 }
             }

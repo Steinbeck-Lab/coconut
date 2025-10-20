@@ -51,6 +51,10 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \
     supervisor \
     unzip \
+    python3 \
+    python3-pip \
+    python3-venv \
+    openjdk-17-jre \
     && docker-php-ext-install \
     pdo_pgsql \
     pgsql \
@@ -69,6 +73,26 @@ RUN apt-get update && apt-get install -y \
     && echo "extension=imagick.so" > /usr/local/etc/php/conf.d/imagick.ini \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Set Java environment variables (architecture-agnostic)
+# Dynamically determine JAVA_HOME based on the system architecture
+RUN ARCH=$(dpkg --print-architecture) && \
+    ln -sf /usr/lib/jvm/java-17-openjdk-${ARCH} /usr/lib/jvm/java-17-openjdk
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+ENV PATH="$JAVA_HOME/bin:$PATH"
+
+# Create Python virtual environment and install packages
+RUN python3 -m venv /app/cc \
+    && /app/cc/bin/pip install --upgrade pip \
+    && /app/cc/bin/pip install \
+    rdkit==2025.9.1 \
+    pandas==2.3.3 \
+    tqdm==4.67.1 \
+    jpype1==1.6.0 \
+    pystow==0.7.11
+
+# Add Python venv to PATH
+ENV PATH="/app/cc/bin:$PATH"
 
 # Configure PHP - combine echo commands
 RUN { \

@@ -85,6 +85,10 @@ class DashboardPanelProvider extends PanelProvider
             ->renderHook(
                 'panels::body.end',
                 fn (): string => view('components.tawk-chat')
+            )
+            ->renderHook(
+                'panels::body.start',
+                fn (): string => view('components.dev-banner')->render()
             );
     }
 }

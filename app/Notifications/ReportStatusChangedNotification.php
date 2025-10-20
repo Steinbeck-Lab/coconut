@@ -3,9 +3,9 @@
 namespace App\Notifications;
 
 use App\Events\ReportStatusChanged;
+use App\Mail\ReportStatusChangedMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class ReportStatusChangedNotification extends Notification implements ShouldQueue
@@ -17,9 +17,12 @@ class ReportStatusChangedNotification extends Notification implements ShouldQueu
      */
     public $event;
 
-    public function __construct(ReportStatusChanged $event)
+    public $mail_to;
+
+    public function __construct(ReportStatusChanged $event, string $mail_to)
     {
         $this->event = $event;
+        $this->mail_to = $mail_to;
     }
 
     /**
@@ -35,13 +38,12 @@ class ReportStatusChangedNotification extends Notification implements ShouldQueu
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail(object $notifiable)
     {
         $url = url(env('APP_URL').'/dashboard/reports/'.$this->event->report->id.'?activeRelationManager=3');
 
-        return (new MailMessage)
-            ->subject('Coconut: Status changed for your Report: '.$this->event->report->title)
-            ->markdown('mail.report.statuschanged', ['url' => $url, 'event' => $this->event, 'user' => $notifiable]);
+        return (new ReportStatusChangedMail($this->event, $notifiable, $this->mail_to, $url))
+            ->to($notifiable->email);
     }
 
     /**

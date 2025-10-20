@@ -2,13 +2,13 @@
 
 namespace App\Notifications;
 
-use App\Events\ReportSubmitted;
-use App\Mail\ReportSubmittedMail;
+use App\Events\ReportAssigned;
+use App\Mail\ReportAssignedMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class ReportSubmittedNotification extends Notification implements ShouldQueue
+class ReportAssignedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -17,12 +17,9 @@ class ReportSubmittedNotification extends Notification implements ShouldQueue
      */
     public $event;
 
-    public $mail_to;
-
-    public function __construct(ReportSubmitted $event, string $mail_to)
+    public function __construct(ReportAssigned $event)
     {
         $this->event = $event;
-        $this->mail_to = $mail_to;
     }
 
     /**
@@ -40,9 +37,9 @@ class ReportSubmittedNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable)
     {
-        $url = url(env('APP_URL').'/dashboard/reports/'.$this->event->report->id);
+        $url = url(env('APP_URL').'/dashboard/reports/'.$this->event->report->id.'/edit');
 
-        return (new ReportSubmittedMail($this->event, $notifiable, $this->mail_to, $url))
+        return (new ReportAssignedMail($this->event, $notifiable, 'curator', $url))
             ->to($notifiable->email);
     }
 
