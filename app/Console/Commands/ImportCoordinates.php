@@ -70,14 +70,22 @@ class ImportCoordinates extends Command
     {
         DB::transaction(function () use ($data) {
             foreach ($data as $id => $molecule) {
-                $structure = Structure::firstOrNew(['molecule_id' => $id]);
-                if (is_null($structure['2d']) && isset($molecule['2d'])) {
-                    $structure['2d'] = json_encode($molecule['2d']);
+                try {
+                    $structure = Structure::firstOrNew(['molecule_id' => $id]);
+                    if (is_null($structure['2d']) && isset($molecule['2d'])) {
+                        $structure['2d'] = json_encode($molecule['2d']);
+                    }
+                    if (is_null($structure['3d']) && isset($molecule['3d'])) {
+                        $structure['3d'] = json_encode($molecule['3d']);
+                    }
+                    $structure->save();
+
+                    // Update curation status for successful coordinate import
+                    updateCurationStatus($id, 'generate-coordinates', 'completed');
+                } catch (\Exception $e) {
+                    Log::error("Error importing coordinates for molecule {$id}: ".$e->getMessage());
+                    updateCurationStatus($id, 'generate-coordinates', 'failed', $e->getMessage());
                 }
-                if (is_null($structure['3d']) && isset($molecule['3d'])) {
-                    $structure['3d'] = json_encode($molecule['3d']);
-                }
-                $structure->save();
             }
         });
     }
