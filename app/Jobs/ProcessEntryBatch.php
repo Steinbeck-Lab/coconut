@@ -150,7 +150,7 @@ class ProcessEntryBatch implements ShouldQueue
                 if (array_key_exists('standardized', $data)) {
                     $standardized_smiles = $data['standardized']['representations']['canonical_smiles'];
                     $molecular_formula = preg_split('#/#', $data['parent']['representations']['standard_inchi'])[1];
-                    $is_cis_trans = $data['standardized']['is_cis_trans'];
+                    $is_cis_trans = $data['standardized']['has_stereogenic_elements'];
                 }
                 if (array_key_exists('parent', $data)) {
                     $parent_canonical_smiles = $data['parent']['representations']['canonical_smiles'];
