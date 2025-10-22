@@ -118,6 +118,7 @@ class ProcessEntryBatch implements ShouldQueue
         $molecular_formula = null;
         $data = null;
         $has_stereocenters = false;
+        $is_cis_trans = false;
         $is_invalid = false;
         $error_code = -1;
         $API_URL = env('API_URL', 'https://api.cheminf.studio/latest/');
@@ -149,6 +150,7 @@ class ProcessEntryBatch implements ShouldQueue
                 if (array_key_exists('standardized', $data)) {
                     $standardized_smiles = $data['standardized']['representations']['canonical_smiles'];
                     $molecular_formula = preg_split('#/#', $data['parent']['representations']['standard_inchi'])[1];
+                    $is_cis_trans = $data['standardized']['is_cis_trans'];
                 }
                 if (array_key_exists('parent', $data)) {
                     $parent_canonical_smiles = $data['parent']['representations']['canonical_smiles'];
@@ -199,6 +201,7 @@ class ProcessEntryBatch implements ShouldQueue
         $entry->status = $status;
         $entry->cm_data = $data;
         $entry->has_stereocenters = $has_stereocenters;
+        $entry->is_cis_trans = $is_cis_trans;
         $entry->save();
     }
 
