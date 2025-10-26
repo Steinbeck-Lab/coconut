@@ -30,10 +30,13 @@ class ReportEventSubscriber
     public function handleReportStatusChanged(ReportStatusChanged $event): void
     {
         if ($event->report->status == ReportStatus::APPROVED->value || $event->report->status == ReportStatus::REJECTED->value) {
-            $ReportOwner = User::find($event->report->user_id);
-            $ReportOwner->notify(new ReportStatusChangedNotification($event, 'owner'));
+            // filter out notifications and mails to COCONUT Curator with id 11
+            if ($event->report->user_id != 11) {
+                $ReportOwner = User::find($event->report->user_id);
+                $ReportOwner->notify(new ReportStatusChangedNotification($event, 'owner'));
+            }
         }
-        $Curators = User::whereHas('roles')->get();
+        $Curators = User::whereHas('roles')->where('id', '!=', 11)->get();
         foreach ($Curators as $Curator) {
             $Curator->notify(new ReportStatusChangedNotification($event, 'curator'));
         }
@@ -41,10 +44,11 @@ class ReportEventSubscriber
 
     public function handleReportSubmitted(ReportSubmitted $event): void
     {
-        $ReportOwner = User::find($event->report->user_id);
-        $ReportOwner->notify(new ReportSubmittedNotification($event, 'owner'));
-
-        $Curators = User::whereHas('roles')->get();
+        if ($event->report->user_id != 11) {
+            $ReportOwner = User::find($event->report->user_id);
+            $ReportOwner->notify(new ReportSubmittedNotification($event, 'owner'));
+        }
+        $Curators = User::whereHas('roles')->where('id', '!=', 11)->get();
         foreach ($Curators as $Curator) {
             $Curator->notify(new ReportSubmittedNotification($event, 'curator'));
         }
@@ -52,10 +56,12 @@ class ReportEventSubscriber
 
     public function handleReportAssigned(ReportAssigned $event): void
     {
-        $curator = User::find($event->curator_id);
-        // Only proceed if curator exists
-        if ($curator) {
-            $curator->notify(new ReportAssignedNotification($event));
+        if ($event->report->user_id != 11) {
+            $curator = User::find($event->curator_id);
+            // Only proceed if curator exists
+            if ($curator) {
+                $curator->notify(new ReportAssignedNotification($event));
+            }
         }
     }
 
