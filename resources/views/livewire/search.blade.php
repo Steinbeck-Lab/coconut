@@ -269,9 +269,9 @@
             <div class="relative">
                 <select id="status-filter" wire:model.live="status"
                     class="appearance-none border border-gray-400 text-gray-600 px-4 py-2 pr-10 rounded-md font-medium focus:outline-none focus:border-gray-500 cursor-pointer">
-                    <option value="all">All</option>
-                    <option value="approved">Approved</option>
-                    <option value="revoked">Revoked</option>
+                    <option value="ALL">All</option>
+                    <option value="APPROVED">Approved</option>
+                    <option value="REVOKED">Revoked</option>
                 </select>
             </div>
         </div>

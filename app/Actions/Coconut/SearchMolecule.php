@@ -25,7 +25,7 @@ class SearchMolecule
 
     public $type = null;
 
-    public $status = 'all';
+    public $status = 'ALL';
 
     public $collection = null;
 
@@ -36,7 +36,7 @@ class SearchMolecule
     /**
      * Search based on given query.
      */
-    public function query($query, $size, $type, $sort, $tagType, $page, $status = 'all')
+    public function query($query, $size, $type, $sort, $tagType, $page, $status = 'ALL')
     {
         $this->query = $query;
         $this->size = $size;
@@ -125,8 +125,8 @@ class SearchMolecule
 
     /**
      * Apply status filter to SQL query.
-     * Only adds a filter when status is 'approved' or 'revoked'.
-     * When status is 'all', no filter is applied.
+     * Only adds a filter when status is 'APPROVED' or 'REVOKED'.
+     * When status is 'ALL', no filter is applied.
      */
     private function applyRawStatusFilter(&$sql)
     {
@@ -135,7 +135,7 @@ class SearchMolecule
         } elseif ($this->status === 'REVOKED') {
             $sql .= ' AND active = FALSE';
         }
-        // When status is 'all', no filter is needed
+        // When status is 'ALL', no filter is needed
     }
 
     /**
@@ -224,9 +224,9 @@ class SearchMolecule
      */
     private function applyStatusFilterToQuery($query)
     {
-        if ($this->status === 'approved') {
+        if ($this->status === 'APPROVED') {
             $query->where('active', true);
-        } elseif ($this->status === 'revoked') {
+        } elseif ($this->status === 'REVOKED') {
             $query->where('active', false);
         }
 
@@ -251,7 +251,7 @@ class SearchMolecule
 
                 $this->applyStatusFilterToQuery($query);
 
-                return $query->orderBy('annotation_level', 'DESC')->paginate($this->size);
+                return $query->orderBy('active', 'DESC')->orderBy('annotation_level', 'DESC')->paginate($this->size);
             } else {
                 return [];
             }
@@ -272,7 +272,7 @@ class SearchMolecule
 
             $this->applyStatusFilterToQuery($query);
 
-            return $query->where('is_parent', false)->orderBy('annotation_level', 'DESC')->paginate($this->size);
+            return $query->where('is_parent', false)->orderBy('active', 'DESC')->orderBy('annotation_level', 'DESC')->paginate($this->size);
         } elseif ($this->tagType == 'citations') {
             $query_citations = array_map('strtolower', array_map('trim', explode(',', $this->query)));
             $this->citations = Citation::where(function ($query) use ($query_citations) {
@@ -291,13 +291,13 @@ class SearchMolecule
 
             $this->applyStatusFilterToQuery($query);
 
-            return $query->where('is_parent', false)->orderBy('annotation_level', 'DESC')->paginate($this->size);
+            return $query->where('is_parent', false)->orderBy('active', 'DESC')->orderBy('annotation_level', 'DESC')->paginate($this->size);
         } else {
             $query = Molecule::withAnyTags([$this->query], $this->tagType);
 
             $this->applyStatusFilterToQuery($query);
 
-            return $query->where('is_parent', false)->paginate($this->size);
+            return $query->where('is_parent', false)->orderBy('active', 'DESC')->paginate($this->size);
         }
     }
 
@@ -312,9 +312,9 @@ class SearchMolecule
                   INNER JOIN molecules ON properties.molecule_id = molecules.id 
                   WHERE NOT (molecules.is_parent = TRUE AND molecules.has_variants = TRUE)';
 
-        if ($this->status === 'approved') {
+        if ($this->status === 'APPROVED') {
             $sql .= ' AND molecules.active = TRUE';
-        } elseif ($this->status === 'revoked') {
+        } elseif ($this->status === 'REVOKED') {
             $sql .= ' AND molecules.active = FALSE';
         }
 
@@ -398,6 +398,7 @@ class SearchMolecule
 
             $sql .= '
             ORDER BY 
+                active DESC,
                 CASE 
                     WHEN "name"::TEXT ILIKE ? THEN 1 
                     WHEN "synonyms"::TEXT ILIKE ? THEN 2 
@@ -426,7 +427,7 @@ class SearchMolecule
             $this->applyRawStatusFilter($sql);
 
             $sql .= '
-                    ORDER BY annotation_level DESC';
+                    ORDER BY active DESC, annotation_level DESC';
         }
 
         // Add LIMIT and OFFSET at the end
@@ -472,7 +473,7 @@ class SearchMolecule
             $this->applyRawStatusFilter($sql);
 
             $sql .= ' AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE)
-            ORDER BY id_list.position';
+            ORDER BY m.active DESC, id_list.position';
 
             if ($this->sort == 'recent') {
                 $sql .= ', m.created_at DESC';

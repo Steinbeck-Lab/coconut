@@ -44,7 +44,7 @@ class Search extends Component
     public $activeTab = 'molecules';
 
     #[Url(as: 'status')]
-    public $status = 'all';
+    public $status = 'ALL';
 
     public function placeholder()
     {
