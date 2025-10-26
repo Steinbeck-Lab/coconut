@@ -16,11 +16,10 @@ Docs related to this application are also provided to facilitate your internal d
 
 ## Deployment
  - **On to a VM:** Use the docker-compose.yml file
- - **On to GKE:** Use the helm charts
 
- ## Helm Chart
+ ## Helm Chart (Optional)
 
-COCONUT is packaged and published as [Helm](https://helm.sh/) for Kubernetes deployment, which makes the installation easy to define, install, and upgrade.
+COCONUT can be packaged and published as [Helm](https://helm.sh/) charts for container orchestration deployment, which makes the installation easy to define, install, and upgrade.
 You need to install Helm first to use the charts. Please refer to the Helm's [documentation](https://helm.sh/docs) to get started.
 
 The chart comes with following optional dependencies which you can opt to have in your deployment if you wish to:
@@ -63,8 +62,7 @@ For helping the users with automatic deployments, a CI/CD flow is provided in th
     - **Workflow Trigger:** The workflow is triggered by a push event to the `development` branch. This ensures that every time code is pushed to the `development` branch, the workflow is executed.
     - **The workflow is designed to:**
         >- **Build Docker Images**: It builds the latest Docker images for both the application and the Nginx server from the source code.
-        >- **Push Docker Images to Google Artifact Registry**: The built Docker images are pushed to the Google Artifact Registry.
-        >- **Deploy to GKE (Google Kubernetes Engine)**: The latest images are deployed to a GKE cluster, ensuring the development environment is up-to-date with the latest changes.
+        >- **Push Docker Images to Container Registry**: The built Docker images are pushed to a container registry for deployment.
  - **docs-deploy:**
     - **Workflow Trigger:** The workflow is triggered by a push event to the `development` branch. This ensures that every time code is pushed to the `development` branch, the workflow is executed.
         - **Pushes to the `development` branch**: Whenever code is pushed to the `development` branch, the workflow runs.
