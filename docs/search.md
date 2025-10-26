@@ -65,3 +65,17 @@ Find compounds with a similarity score **greater than or equal** to the specifie
 ### Molecular Descriptors and Structural Properties
 
 Leverage our advanced search feature to explore specific **molecular descriptors** that quantify physical and chemical characteristics. You can also focus your search within specific data sources compiled in our database.
+
+## Result Filtering
+
+### Curation Status Filter
+
+You can filter search results based on the curation status of compounds:
+
+- **All** (Default): Shows all compounds regardless of their curation status
+- **Approved**: Shows only compounds that have been reviewed and approved by curators
+- **Revoked**: Displays compounds that have been revoked or deprecated
+
+::: tip Default Filter
+By default, the search results show **All** compounds. You can use the status dropdown menu to filter and view only approved or revoked compounds as needed.
+:::
