@@ -40,7 +40,11 @@ class ReportSubmittedNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable)
     {
-        $url = url(env('APP_URL').'/dashboard/reports/'.$this->event->report->id);
+        if ($notifiable->can('update', $this->event->report)) {
+            $url = url(env('APP_URL').'/dashboard/reports/'.$this->event->report->id.'/edit');
+        } else {
+            $url = url(env('APP_URL').'/dashboard/reports/'.$this->event->report->id);
+        }
 
         return (new ReportSubmittedMail($this->event, $notifiable, $this->mail_to, $url))
             ->to($notifiable->email);
