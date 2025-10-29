@@ -104,18 +104,9 @@ class ReportResource extends Resource
                                         $set('title', 'New Molecule Submission');
                                     }
                                 } elseif ($state == ReportCategory::REVOKE->value) {
-                                    // Check if report_type is already selected
-                                    $reportType = $get('report_type');
-                                    if ($reportType) {
-                                        if ($compoundId) {
-                                            $set('title', 'Report issue with '.$reportType.': '.$compoundId);
-                                        } else {
-                                            $set('title', 'Report issue with '.$reportType);
-                                        }
-                                    } else {
-                                        // Generic title if report type not yet selected
-                                        $set('title', 'Report an issue');
-                                    }
+                                    // Don't auto-fill title for REVOKE category
+                                    // Let user enter their own title with placeholder as guide
+                                    $set('title', '');
                                 }
                             })
                             ->options(function ($operation) {
@@ -321,17 +312,8 @@ class ReportResource extends Resource
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select what you want to report. Ex: Molecule, Citation, Collection, Organism.')
                     ->live()
                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                        // Update title when report type changes (for REVOKE category)
-                        if ($get('report_category') == ReportCategory::REVOKE->value && $state) {
-                            $compoundId = request()->compound_id;
-                            $entityName = $state; // molecule, citation, collection, organism, etc.
-
-                            if ($compoundId) {
-                                $set('title', 'Report issue with '.$entityName.': '.$compoundId);
-                            } else {
-                                $set('title', 'Report issue with '.$entityName);
-                            }
-                        }
+                        // Don't auto-fill title for REVOKE category
+                        // Let user enter their own title with placeholder as guide
                     })
                     ->options(function () {
                         return getReportTypes(); // changeit with Enums?
@@ -341,6 +323,32 @@ class ReportResource extends Resource
                     }),
                 TextInput::make('title')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Title of the report. This is required.')
+                    ->placeholder(function ($get) {
+                        $category = $get('report_category');
+                        $compoundId = request()->compound_id;
+
+                        if ($category == ReportCategory::REVOKE->value) {
+                            if ($compoundId) {
+                                return 'e.g., '.$compoundId.' is not a natural product OR Structure incorrect OR Unusual valencies found';
+                            }
+
+                            return 'e.g., This compound is not a natural product OR Structure incorrect OR Unusual valencies found';
+                        }
+
+                        if ($category == ReportCategory::UPDATE->value) {
+                            if ($compoundId) {
+                                return 'e.g., Request changes to '.$compoundId;
+                            }
+
+                            return 'e.g., Request changes to molecule';
+                        }
+
+                        if ($category == ReportCategory::SUBMISSION->value) {
+                            return 'e.g., New Molecule Submission';
+                        }
+
+                        return '';
+                    })
                     ->default(function ($get, $operation) {
                         // Only set default on create operation
                         if ($operation !== 'create') {
@@ -364,13 +372,8 @@ class ReportResource extends Resource
                             if ($reportType) {
                                 if ($compoundId) {
                                     return 'Report issue with '.$reportType.': '.$compoundId;
-                                } else {
-                                    return 'Report issue with '.$reportType;
                                 }
                             }
-
-                            // Generic title when no report type selected
-                            return 'Report an issue';
                         }
 
                         return '';
@@ -897,6 +900,7 @@ class ReportResource extends Resource
                         },
                     ]),
                 Textarea::make('comment')
+                    ->label('Additional comments')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide your comments/observations on anything noteworthy in the Curation process.'),
             ])->columns(1);
     }

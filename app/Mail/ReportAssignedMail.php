@@ -28,9 +28,18 @@ class ReportAssignedMail extends Mailable
 
     public function build()
     {
-        $subject = 'Coconut: '.$this->event->report->report_category.' request assigned to you';
+        // Convert category to readable format
+        $categoryMap = [
+            'SUBMISSION' => 'Submission',
+            'REVOKE' => 'Revocation',
+            'UPDATE' => 'Update',
+        ];
+
+        $readableCategory = $categoryMap[$this->event->report->report_category] ?? ucfirst(strtolower($this->event->report->report_category));
+
+        $subject = 'COCONUT: '.$readableCategory.' Request Assigned to You - '.$this->event->report->title;
 
         return $this->subject($subject)
-            ->view('mail.report.assigned');
+            ->markdown('mail.report.assigned');
     }
 }

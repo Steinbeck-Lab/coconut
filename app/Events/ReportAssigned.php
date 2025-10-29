@@ -21,7 +21,8 @@ class ReportAssigned
 
     public function __construct(Report $report, $curator_id)
     {
-        $this->report = $report;
+        // Eager load the molecules relationship for email display
+        $this->report = $report->load('molecules');
         $this->curator_id = $curator_id;
     }
 

@@ -28,9 +28,30 @@ class ReportStatusChangedMail extends Mailable
 
     public function build()
     {
-        $subject = 'Coconut: '.$this->event->report->report_category.' request status changed to '.ucwords(strtolower(str_replace('_', ' ', $this->event->report->status)));
+        // Convert category to readable format
+        $categoryMap = [
+            'SUBMISSION' => 'Submission',
+            'REVOKE' => 'Revocation',
+            'UPDATE' => 'Update',
+        ];
+
+        $readableCategory = $categoryMap[$this->event->report->report_category] ?? ucfirst(strtolower($this->event->report->report_category));
+        $readableStatus = ucwords(strtolower(str_replace('_', ' ', $this->event->report->status)));
+
+        // Get the compound ID from molecules if available
+        $compoundId = null;
+        if ($this->event->report->molecules && $this->event->report->molecules->count() > 0) {
+            $compoundId = $this->event->report->molecules->first()->identifier;
+        }
+
+        // Format: "CNP0197482.3 - Revocation: Title (Status update: Pending Approval)"
+        if ($compoundId) {
+            $subject = $compoundId.' - '.$readableCategory.': '.$this->event->report->title.' (Status update: '.$readableStatus.')';
+        } else {
+            $subject = $readableCategory.': '.$this->event->report->title.' (Status update: '.$readableStatus.')';
+        }
 
         return $this->subject($subject)
-            ->view('mail.report.statuschanged');
+            ->markdown('mail.report.statuschanged');
     }
 }
