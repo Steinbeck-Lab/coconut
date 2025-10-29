@@ -29,7 +29,7 @@ _No compound information available_
 **Status:** {{ ucwords(strtolower(str_replace('_', ' ', $event->report->status))) }}
 
 @component('mail::button', ['url' => $url])
-View Report
+Review Report
 @endcomponent
 
 Thanks,<br>

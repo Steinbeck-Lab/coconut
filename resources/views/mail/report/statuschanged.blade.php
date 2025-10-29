@@ -8,12 +8,45 @@ Hello {{ $user->name }}!
 The status of your request has been changed. Our curator accepted your request and is waiting for a second curator approval before being accepted.
 
 No action is required at the moment from your end.
+
+@php
+    $curator = $event->report->curators->where('pivot.curator_number', 1)->first();
+    $curatorComment = $curator?->pivot->comment;
+@endphp
+
+@if ($curatorComment)
+## Curator's Comment
+{{ $curatorComment }}
+@endif
+
 @elseif ($event->report->status === \App\Enums\ReportStatus::APPROVED->value)
 Your request is now approved. Feel free to reach out if you have any questions.
 
 Please note it might take some time before our indexes and exports are updated.
+
+@php
+    $curator = $event->report->curators->where('pivot.curator_number', 2)->first();
+    $curatorComment = $curator?->pivot->comment;
+@endphp
+
+@if ($curatorComment)
+## Curator's Comment
+{{ $curatorComment }}
+@endif
+
 @elseif ($event->report->status === \App\Enums\ReportStatus::REJECTED->value)
 Your {{ strtolower($event->report->report_category) }} request has been rejected by one of our curators and is waiting for another review. No further action is required.
+
+@php
+    $curator = $event->report->curators->where('pivot.curator_number', 1)->first();
+    $curatorComment = $curator?->pivot->comment;
+@endphp
+
+@if ($curatorComment)
+## Curator's Comment
+{{ $curatorComment }}
+@endif
+
 @else
 The status of your {{ $event->report->report_category }} request has been changed. Please review the updated status and feel free to reach out if you have any questions.
 @endif
