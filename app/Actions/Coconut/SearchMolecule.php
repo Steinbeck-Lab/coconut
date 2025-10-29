@@ -130,9 +130,10 @@ class SearchMolecule
      */
     private function applyRawStatusFilter(&$sql)
     {
-        if ($this->status === 'APPROVED') {
+        $status = strtolower($this->status);
+        if ($status === 'approved') {
             $sql .= ' AND active = TRUE';
-        } elseif ($this->status === 'REVOKED') {
+        } elseif ($status === 'revoked') {
             $sql .= ' AND active = FALSE';
         }
         // When status is 'all', no filter is needed
@@ -164,6 +165,7 @@ class SearchMolecule
                           FROM molecules 
                           WHERE standard_inchi LIKE ?';
                 $this->applyRawStatusFilter($sql);
+                $orderBy = 'ORDER BY active DESC';
                 $params = ['%'.$this->query.'%'];
                 break;
 
@@ -173,6 +175,7 @@ class SearchMolecule
                           FROM molecules 
                           WHERE standard_inchi_key LIKE ?';
                 $this->applyRawStatusFilter($sql);
+                $orderBy = 'ORDER BY active DESC';
                 $params = ['%'.$this->query.'%'];
                 break;
 
@@ -196,6 +199,7 @@ class SearchMolecule
                               FROM molecules 
                               WHERE ("identifier"::TEXT ILIKE ?)';
                 $this->applyRawStatusFilter($sql);
+                $orderBy = 'ORDER BY active DESC';
                 $params = ['%'.$this->query.'%'];
                 break;
 
@@ -224,9 +228,10 @@ class SearchMolecule
      */
     private function applyStatusFilterToQuery($query)
     {
-        if ($this->status === 'approved') {
+        $status = strtolower($this->status);
+        if ($status === 'approved') {
             $query->where('active', true);
-        } elseif ($this->status === 'revoked') {
+        } elseif ($status === 'revoked') {
             $query->where('active', false);
         }
 
@@ -251,7 +256,7 @@ class SearchMolecule
 
                 $this->applyStatusFilterToQuery($query);
 
-                return $query->orderBy('annotation_level', 'DESC')->paginate($this->size);
+                return $query->orderBy('active', 'DESC')->orderBy('annotation_level', 'DESC')->paginate($this->size);
             } else {
                 return [];
             }
@@ -272,7 +277,7 @@ class SearchMolecule
 
             $this->applyStatusFilterToQuery($query);
 
-            return $query->where('is_parent', false)->orderBy('annotation_level', 'DESC')->paginate($this->size);
+            return $query->where('is_parent', false)->orderBy('active', 'DESC')->orderBy('annotation_level', 'DESC')->paginate($this->size);
         } elseif ($this->tagType == 'citations') {
             $query_citations = array_map('strtolower', array_map('trim', explode(',', $this->query)));
             $this->citations = Citation::where(function ($query) use ($query_citations) {
@@ -291,13 +296,13 @@ class SearchMolecule
 
             $this->applyStatusFilterToQuery($query);
 
-            return $query->where('is_parent', false)->orderBy('annotation_level', 'DESC')->paginate($this->size);
+            return $query->where('is_parent', false)->orderBy('active', 'DESC')->orderBy('annotation_level', 'DESC')->paginate($this->size);
         } else {
             $query = Molecule::withAnyTags([$this->query], $this->tagType);
 
             $this->applyStatusFilterToQuery($query);
 
-            return $query->where('is_parent', false)->paginate($this->size);
+            return $query->where('is_parent', false)->orderBy('active', 'DESC')->paginate($this->size);
         }
     }
 
@@ -307,14 +312,15 @@ class SearchMolecule
     private function buildFiltersStatement($filterMap)
     {
         $orConditions = explode('OR', $this->query);
-        $sql = 'SELECT properties.molecule_id as id, COUNT(*) OVER () AS count
+        $sql = 'SELECT properties.molecule_id as id, molecules.active, COUNT(*) OVER () AS count
                   FROM properties 
                   INNER JOIN molecules ON properties.molecule_id = molecules.id 
                   WHERE NOT (molecules.is_parent = TRUE AND molecules.has_variants = TRUE)';
 
-        if ($this->status === 'approved') {
+        $status = strtolower($this->status);
+        if ($status === 'approved') {
             $sql .= ' AND molecules.active = TRUE';
-        } elseif ($this->status === 'revoked') {
+        } elseif ($status === 'revoked') {
             $sql .= ' AND molecules.active = FALSE';
         }
 
@@ -359,6 +365,9 @@ class SearchMolecule
             $sql .= ')';
         }
 
+        // Add ORDER BY to prioritize active molecules
+        $sql .= ' ORDER BY molecules.active DESC';
+
         // Add LIMIT and OFFSET at the end
         $sql .= ' LIMIT ? OFFSET ?';
         $params[] = $this->size;
@@ -398,6 +407,7 @@ class SearchMolecule
 
             $sql .= '
             ORDER BY 
+                active DESC,
                 CASE 
                     WHEN "name"::TEXT ILIKE ? THEN 1 
                     WHEN "synonyms"::TEXT ILIKE ? THEN 2 
@@ -426,7 +436,7 @@ class SearchMolecule
             $this->applyRawStatusFilter($sql);
 
             $sql .= '
-                    ORDER BY annotation_level DESC';
+                    ORDER BY active DESC, annotation_level DESC';
         }
 
         // Add LIMIT and OFFSET at the end
