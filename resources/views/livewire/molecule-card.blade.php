@@ -2,8 +2,13 @@
     @if ($molecule && $molecule->identifier)
         <a href="{{ route('compound', $molecule->identifier) }}" wire:navigate>
             <div class="group flex flex-col overflow-hidden">
-                <div class="aspect-h-3 aspect-w-3 sm:aspect-none group-hover:opacity-75 h-56">
+                <div class="aspect-h-3 aspect-w-3 sm:aspect-none group-hover:opacity-75 h-56 relative">
                     <livewire:molecule-depict2d :name="$molecule->name" :smiles="$molecule->canonical_smiles">
+                    @if(isset($molecule->active) && !$molecule->active)
+                        <div class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded shadow-lg z-10">
+                            REVOKED
+                        </div>
+                    @endif
                 </div>
                 <div class="flex flex-1 border-t flex-col p-4 pb-2">
                     <div class="flex items-center">

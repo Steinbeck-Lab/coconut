@@ -95,29 +95,40 @@ class SearchMolecule
      */
     private function determineQueryType($query)
     {
-        $patterns = [
-            'inchi' => '/^((InChI=)?[^J][0-9BCOHNSOPrIFla+\-\(\)\\\\\/,pqbtmsih]{6,})$/i',
-            'inchikey' => '/^([0-9A-Z\-]{27})$/i',  // Modified to ensure exact length
-            'parttialinchikey' => '/^([A-Z]{14})$/i',
-            'smiles' => '/^([^J][0-9BCOHNSOPrIFla@+\-\[\]\(\)\\\\\/%=#$]{6,})$/i',
-        ];
-
+        // Check for CNP identifier first
         if (strpos($query, 'CNP') === 0) {
             return 'identifier';
         }
 
-        foreach ($patterns as $type => $pattern) {
-            if (preg_match($pattern, $query)) {
-                if ($type == 'inchi' && substr($query, 0, 6) == 'InChI=') {
-                    return 'inchi';
-                } elseif ($type == 'inchikey' && substr($query, 14, 1) == '-' && strlen($query) == 27) {
-                    return 'inchikey';
-                } elseif ($type == 'parttialinchikey' && strlen($query) == 14) {
-                    return 'parttialinchikey';
-                } elseif ($type == 'smiles') {
-                    return 'smiles';
-                }
-            }
+        // Check for InChI format
+        if (substr($query, 0, 6) == 'InChI=') {
+            return 'inchi';
+        }
+
+        // Check for InChIKey (27 characters with dash at position 14)
+        if (strlen($query) == 27 && substr($query, 14, 1) == '-' && preg_match('/^[A-Z0-9\-]+$/', $query)) {
+            return 'inchikey';
+        }
+
+        // Check for partial InChIKey (14 uppercase characters)
+        if (strlen($query) == 14 && preg_match('/^[A-Z]+$/', $query)) {
+            return 'parttialinchikey';
+        }
+
+        // Check for molecular formula (must match pattern and not contain SMILES-specific characters)
+        // Molecular formulas contain only element symbols and numbers (e.g., C6H12O6, H2O)
+        if (preg_match('/^([A-Z][a-z]?\d*)+$/', $query) && ! preg_match('/[()@\[\]\/\\\\=#\-+]/', $query)) {
+            return 'molecularformula';
+        }
+
+        // Check for SMILES (can contain special characters like @, [], (), etc.)
+        if (preg_match('/^([^J][0-9BCOHNSOPrIFla@+\-\[\]\(\)\\\\\/%=#$]{6,})$/i', $query)) {
+            return 'smiles';
+        }
+
+        // Check for general InChI pattern (without InChI= prefix)
+        if (preg_match('/^[^J][0-9BCOHNSOPrIFla+\-\(\)\\\\\/,pqbtmsih]{6,}$/i', $query)) {
+            return 'inchi';
         }
 
         return 'text';
@@ -128,13 +139,15 @@ class SearchMolecule
      * Only adds a filter when status is 'approved' or 'revoked'.
      * When status is 'all', no filter is applied.
      */
-    private function applyRawStatusFilter(&$sql)
+    private function applyRawStatusFilter(&$sql, $tablePrefix = '')
     {
         $status = strtolower($this->status);
+        $activeColumn = $tablePrefix ? "{$tablePrefix}.active" : 'active';
+
         if ($status === 'approved') {
-            $sql .= ' AND active = TRUE';
+            $sql .= " AND {$activeColumn} = TRUE";
         } elseif ($status === 'revoked') {
-            $sql .= ' AND active = FALSE';
+            $sql .= " AND {$activeColumn} = FALSE";
         }
         // When status is 'all', no filter is needed
     }
@@ -163,9 +176,10 @@ class SearchMolecule
             case 'inchi':
                 $sql = 'SELECT id, COUNT(*) OVER () AS count
                           FROM molecules 
-                          WHERE standard_inchi LIKE ?';
+                          WHERE standard_inchi LIKE ?
+                          AND NOT (is_parent = TRUE AND has_variants = TRUE)';
                 $this->applyRawStatusFilter($sql);
-                $orderBy = 'ORDER BY active DESC';
+                $orderBy = 'ORDER BY active DESC, annotation_level DESC';
                 $params = ['%'.$this->query.'%'];
                 break;
 
@@ -173,10 +187,22 @@ class SearchMolecule
             case 'parttialinchikey':
                 $sql = 'SELECT id, COUNT(*) OVER () AS count
                           FROM molecules 
-                          WHERE standard_inchi_key LIKE ?';
+                          WHERE standard_inchi_key LIKE ?
+                          AND NOT (is_parent = TRUE AND has_variants = TRUE)';
                 $this->applyRawStatusFilter($sql);
-                $orderBy = 'ORDER BY active DESC';
+                $orderBy = 'ORDER BY active DESC, annotation_level DESC';
                 $params = ['%'.$this->query.'%'];
+                break;
+
+            case 'molecularformula':
+                $sql = 'SELECT molecules.id, COUNT(*) OVER () AS count
+                          FROM molecules 
+                          INNER JOIN properties ON molecules.id = properties.molecule_id
+                          WHERE properties.molecular_formula = ?
+                          AND NOT (molecules.is_parent = TRUE AND molecules.has_variants = TRUE)';
+                $this->applyRawStatusFilter($sql, 'molecules');
+                $orderBy = 'ORDER BY molecules.active DESC, molecules.annotation_level DESC';
+                $params = [$this->query];
                 break;
 
             case 'exact':
@@ -197,9 +223,10 @@ class SearchMolecule
             case 'identifier':
                 $sql = 'SELECT id, COUNT(*) OVER () AS count
                               FROM molecules 
-                              WHERE ("identifier"::TEXT ILIKE ?)';
+                              WHERE ("identifier"::TEXT ILIKE ?)
+                              AND NOT (is_parent = TRUE AND has_variants = TRUE)';
                 $this->applyRawStatusFilter($sql);
-                $orderBy = 'ORDER BY active DESC';
+                $orderBy = 'ORDER BY active DESC, annotation_level DESC';
                 $params = ['%'.$this->query.'%'];
                 break;
 
@@ -472,17 +499,13 @@ class SearchMolecule
                 FROM json_array_elements_text(?::json)
             )
             SELECT m.identifier, m.canonical_smiles, m.annotation_level, m.name, m.iupac_name, 
-                   m.organism_count, m.citation_count, m.geo_count, m.collection_count
+                   m.organism_count, m.citation_count, m.geo_count, m.collection_count, m.active
             FROM molecules m
             INNER JOIN id_list ON m.id = id_list.id
-            WHERE TRUE';
+            WHERE NOT (m.is_parent = TRUE AND m.has_variants = TRUE)
+            ORDER BY id_list.position';
 
             $params = [$idsJson];
-
-            $this->applyRawStatusFilter($sql);
-
-            $sql .= ' AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE)
-            ORDER BY id_list.position';
 
             if ($this->sort == 'recent') {
                 $sql .= ', m.created_at DESC';
