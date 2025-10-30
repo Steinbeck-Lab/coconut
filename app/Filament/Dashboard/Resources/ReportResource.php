@@ -186,7 +186,7 @@ class ReportResource extends Resource
                                     return $record['report_category'] === ReportCategory::SUBMISSION->value;
                                 })
                                 ->hidden(function (Get $get, string $operation) {
-                                    return ! auth()->user()->roles()->exists() ||
+                                    return ! auth()->user()->isCurator() ||
                                         $get('status') == ReportStatus::REJECTED->value ||
                                         $get('status') == ReportStatus::APPROVED->value ||
                                         $operation != 'edit';
@@ -217,7 +217,7 @@ class ReportResource extends Resource
                                     Textarea::make('reason'),
                                 ])
                                 ->hidden(function (Get $get, string $operation) {
-                                    return ! auth()->user()->roles()->exists() ||
+                                    return ! auth()->user()->isCurator() ||
                                         $get('status') == ReportStatus::REJECTED->value ||
                                         $get('status') == ReportStatus::APPROVED->value ||
                                         $operation != 'edit';
@@ -235,7 +235,7 @@ class ReportResource extends Resource
                                 }),
                             Action::make('assign')
                                 ->hidden(function (Get $get, string $operation, ?Report $record) {
-                                    return ! (auth()->user()->roles()->exists() &&
+                                    return ! (auth()->user()->isCurator() &&
                                         ($operation == 'view' || $operation == 'edit') &&
                                         ($record->status != ReportStatus::APPROVED->value) &&
                                         ($record->status != ReportStatus::REJECTED->value));
@@ -422,7 +422,7 @@ class ReportResource extends Resource
                                             ->label('Approve')
                                             ->inline(false)
                                             ->hidden(function (string $operation) {
-                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                                return ! auth()->user()->isCurator() || $operation == 'create';
                                             })
                                             ->columnSpan(1),
                                         Select::make('existing_geo_locations')
@@ -459,7 +459,7 @@ class ReportResource extends Resource
                                             ->label('Approve')
                                             ->inline(false)
                                             ->hidden(function (string $operation) {
-                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                                return ! auth()->user()->isCurator() || $operation == 'create';
                                             })
                                             ->columnSpan(1),
                                         Select::make('existing_synonyms')
@@ -496,7 +496,7 @@ class ReportResource extends Resource
                                             ->label('Approve')
                                             ->inline(false)
                                             ->hidden(function (string $operation) {
-                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                                return ! auth()->user()->isCurator() || $operation == 'create';
                                             })
                                             ->columnSpan(1),
                                         Textarea::make('name')
@@ -518,7 +518,7 @@ class ReportResource extends Resource
                                             ->label('Approve')
                                             ->inline(false)
                                             ->hidden(function (string $operation) {
-                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                                return ! auth()->user()->isCurator() || $operation == 'create';
                                             })
                                             ->columnSpan(1),
                                         Select::make('existing_cas')
@@ -555,7 +555,7 @@ class ReportResource extends Resource
                                         Checkbox::make('approve_existing_organisms')
                                             ->label('Approve')
                                             ->hidden(function (string $operation) {
-                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                                return ! auth()->user()->isCurator() || $operation == 'create';
                                             })
                                             ->columnSpanFull(),
                                         Select::make('existing_organisms')
@@ -580,7 +580,7 @@ class ReportResource extends Resource
                                         Checkbox::make('approve_new_organism')
                                             ->label('Approve')
                                             ->hidden(function (string $operation) {
-                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                                return ! auth()->user()->isCurator() || $operation == 'create';
                                             })
                                             ->columnSpanFull(),
                                         Grid::make('new_organism')
@@ -604,7 +604,7 @@ class ReportResource extends Resource
                                         Checkbox::make('approve_existing_citations')
                                             ->label('Approve')
                                             ->hidden(function (string $operation) {
-                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                                return ! auth()->user()->isCurator() || $operation == 'create';
                                             })
                                             ->columnSpanFull(),
                                         Select::make('existing_citations')
@@ -628,7 +628,7 @@ class ReportResource extends Resource
                                         Checkbox::make('approve_new_citation')
                                             ->label('Approve')
                                             ->hidden(function (string $operation) {
-                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                                return ! auth()->user()->isCurator() || $operation == 'create';
                                             })
                                             ->columnSpanFull(),
                                         Grid::make('new_citation')
@@ -1042,7 +1042,7 @@ class ReportResource extends Resource
                     ->modalSubmitActionLabel('Assign')
                     ->hidden(function (Report $record): bool {
                         // Hide for non-curators or approved/rejected reports
-                        return ! auth()->user()->roles()->exists() ||
+                        return ! auth()->user()->isCurator() ||
                             $record->status === ReportStatus::APPROVED->value ||
                             $record->status === ReportStatus::REJECTED->value;
                     }),
@@ -1080,7 +1080,7 @@ class ReportResource extends Resource
     // Define the Eloquent query for retrieving records based on user roles
     public static function getEloquentQuery(): Builder
     {
-        if (! auth()->user()->roles()->exists()) {
+        if (! auth()->user()->isCurator()) {
             return parent::getEloquentQuery()->where('user_id', auth()->id());
         }
 

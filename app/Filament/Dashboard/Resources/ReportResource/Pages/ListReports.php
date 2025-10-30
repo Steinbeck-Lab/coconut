@@ -30,7 +30,7 @@ class ListReports extends ListRecords
                 ->modifyQueryUsing(fn ($query) => $query->whereIn('status', [ReportStatus::SUBMITTED->value, ReportStatus::PENDING_APPROVAL->value, ReportStatus::PENDING_REJECTION->value]))
                 ->favorite()
                 ->badge(function () {
-                    if (auth()->user()->roles()->exists()) {
+                    if (auth()->user()->isCurator()) {
                         return Report::query()->whereIn('status', [ReportStatus::SUBMITTED->value, ReportStatus::PENDING_APPROVAL->value, ReportStatus::PENDING_REJECTION->value])->count();
                     }
 
@@ -42,7 +42,7 @@ class ListReports extends ListRecords
                 ->modifyQueryUsing(fn ($query) => $query->where('status', ReportStatus::APPROVED->value))
                 ->favorite()
                 ->badge(function () {
-                    if (auth()->user()->roles()->exists()) {
+                    if (auth()->user()->isCurator()) {
                         return Report::query()->where('status', ReportStatus::APPROVED->value)->count();
                     }
 
@@ -53,7 +53,7 @@ class ListReports extends ListRecords
                 ->modifyQueryUsing(fn ($query) => $query->where('status', ReportStatus::REJECTED->value))
                 ->favorite()
                 ->badge(function () {
-                    if (auth()->user()->roles()->exists()) {
+                    if (auth()->user()->isCurator()) {
                         return Report::query()->where('status', ReportStatus::REJECTED->value)->count();
                     }
 
@@ -61,7 +61,7 @@ class ListReports extends ListRecords
                 })
                 ->preserveAll(),
         ];
-        if (auth()->user()->roles()->exists()) {
+        if (auth()->user()->isCurator()) {
             $presetViews['assigned to me'] = PresetView::make()
                 ->modifyQueryUsing(function ($query) {
                     // We want reports that are actionable by the current curator
