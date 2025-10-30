@@ -29,13 +29,19 @@ class ReportEventSubscriber
      */
     public function handleReportStatusChanged(ReportStatusChanged $event): void
     {
-        if ($event->report->status == ReportStatus::APPROVED->value || $event->report->status == ReportStatus::REJECTED->value) {
-            // filter out notifications and mails to COCONUT Curator with id 11
+        // Send email to report owner for APPROVED, REJECTED, PENDING_APPROVAL, and PENDING_REJECTION statuses
+        // Filter out notifications to COCONUT Curator with id 11
+        if ($event->report->status == ReportStatus::APPROVED->value ||
+            $event->report->status == ReportStatus::REJECTED->value ||
+            $event->report->status == ReportStatus::PENDING_APPROVAL->value ||
+            $event->report->status == ReportStatus::PENDING_REJECTION->value) {
             if ($event->report->user_id != 11) {
                 $ReportOwner = User::find($event->report->user_id);
                 $ReportOwner->notify(new ReportStatusChangedNotification($event, 'owner'));
             }
         }
+
+        // Notify curators about status changes (excluding COCONUT Curator with id 11)
         $Curators = User::whereHas('roles')->where('id', '!=', 11)->get();
         foreach ($Curators as $Curator) {
             $Curator->notify(new ReportStatusChangedNotification($event, 'curator'));

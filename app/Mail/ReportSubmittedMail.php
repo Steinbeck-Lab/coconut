@@ -29,10 +29,35 @@ class ReportSubmittedMail extends Mailable
 
     public function build()
     {
-        $subject_prefix = $this->mail_to == 'owner' ? 'Coconut: Your ' : 'Coconut: A new ';
-        $subject_prefix .= $this->event->report->report_category.' request is submitted: "';
+        // Convert category to readable format (REVOKE -> Revocation, SUBMISSION -> Submission, UPDATE -> Update)
+        $categoryMap = [
+            'SUBMISSION' => 'Submission',
+            'REVOKE' => 'Revocation',
+            'UPDATE' => 'Update',
+        ];
 
-        return $this->subject($subject_prefix.$this->event->report->title.'"')
-            ->view('mail.report.submitted');
+        $readableCategory = $categoryMap[$this->event->report->report_category] ?? ucfirst(strtolower($this->event->report->report_category));
+
+        if ($this->mail_to == 'owner') {
+            // For submitter/owner - simpler format
+            $subject = 'COCONUT: '.$readableCategory.' Request Received';
+        } else {
+            // For curators - format: "CNP0197482.3 - Revocation: Title"
+            $compoundId = null;
+
+            // Get the compound ID from molecules if available
+            if ($this->event->report->molecules && $this->event->report->molecules->count() > 0) {
+                $compoundId = $this->event->report->molecules->first()->identifier;
+            }
+
+            if ($compoundId) {
+                $subject = $compoundId.' - '.$readableCategory.': '.$this->event->report->title;
+            } else {
+                $subject = $readableCategory.': '.$this->event->report->title;
+            }
+        }
+
+        return $this->subject($subject)
+            ->markdown('mail.report.submitted');
     }
 }
