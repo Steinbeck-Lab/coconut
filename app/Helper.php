@@ -20,7 +20,8 @@ use OwenIt\Auditing\Events\AuditCustom;
  */
 function getCurators(bool $excludeCoconutCurator = false, string $returnType = 'collection')
 {
-    $query = User::whereHas('roles');
+    // Get users with curator, admin, or super_admin roles using Spatie's role system
+    $query = User::role(['curator']);
 
     if ($excludeCoconutCurator) {
         $query->where('id', '!=', 11);
