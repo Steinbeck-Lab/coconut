@@ -40,6 +40,7 @@ class ReportAssignedMail extends Mailable
         $subject = 'COCONUT: '.$readableCategory.' Request Assigned to You - '.$this->event->report->title;
 
         return $this->subject($subject)
-            ->markdown('mail.report.assigned');
+            ->markdown('mail.report.assigned')
+            ->with(['readableCategory' => $readableCategory]);
     }
 }

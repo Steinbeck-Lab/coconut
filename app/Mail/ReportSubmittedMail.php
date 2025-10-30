@@ -58,6 +58,7 @@ class ReportSubmittedMail extends Mailable
         }
 
         return $this->subject($subject)
-            ->markdown('mail.report.submitted');
+            ->markdown('mail.report.submitted')
+            ->with(['readableCategory' => $readableCategory]);
     }
 }

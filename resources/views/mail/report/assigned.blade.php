@@ -1,9 +1,7 @@
 @component('mail::message')
-# {{ $event->report->report_category }} Request Assigned
-
 Hello {{ $curator->name }}!
 
-As a COCONUT curator, you have been assigned a {{ $event->report->report_category }} request. Please review and leave your comments.
+As a COCONUT curator, you have been assigned a {{ $readableCategory }} request. Please review and leave your comments.
 
 ## Compound Details
 @if ($event->report->molecules && $event->report->molecules->count() > 0)

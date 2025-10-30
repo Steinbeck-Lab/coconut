@@ -1,6 +1,4 @@
 @component('mail::message')
-# {{ $event->report->report_category }} Request Submitted
-
 Hello {{ $user->name }}!
 
 @if ($mail_to == 'owner')
@@ -12,7 +10,7 @@ Thank you for your update request and for contributing to the curation process. 
 Thank you for your submission and for contributing to the curation process. It is pending review with our Curators. You will receive further updates via email.
 @endif
 @else
-A {{ $event->report->report_category }} request has been submitted. Please review and take necessary actions.
+A {{ $readableCategory }} request has been submitted. Please review and take necessary actions.
 @endif
 
 ## Compound Details

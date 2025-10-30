@@ -52,6 +52,7 @@ class ReportStatusChangedMail extends Mailable
         }
 
         return $this->subject($subject)
-            ->markdown('mail.report.statuschanged');
+            ->markdown('mail.report.statuschanged')
+            ->with(['readableCategory' => $readableCategory]);
     }
 }

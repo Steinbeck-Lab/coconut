@@ -1,6 +1,4 @@
 @component('mail::message')
-# {{ $event->report->report_category }} Request Status Changed
-
 Hello {{ $user->name }}!
 
 @if ($mail_to == 'owner')
@@ -35,7 +33,7 @@ Please note it might take some time before our indexes and exports are updated.
 @endif
 
 @elseif ($event->report->status === \App\Enums\ReportStatus::PENDING_REJECTION->value)
-Your {{ strtolower($event->report->report_category) }} request has been rejected by one of our curators and is waiting for another review before being confirmed.
+Your {{ strtolower($readableCategory) }} request has been rejected by one of our curators and is waiting for another review before being confirmed.
 
 @php
     $curator = $event->report->curators->where('pivot.curator_number', 1)->first();
@@ -61,13 +59,13 @@ Your request is now rejected. Feel free to reach out if you have any questions.
 @endif
 
 @else
-The status of your {{ $event->report->report_category }} request has been changed. Please review the updated status and feel free to reach out if you have any questions.
+The status of your {{ $readableCategory }} request has been changed. Please review the updated status and feel free to reach out if you have any questions.
 @endif
 @else
 @if ($event->report->status === \App\Enums\ReportStatus::APPROVED->value || $event->report->status === \App\Enums\ReportStatus::REJECTED->value)
-The status of the {{ $event->report->report_category }} request has been changed. No further action is required.
+The status of the {{ $readableCategory }} request has been changed. No further action is required.
 @else
-The status of the {{ $event->report->report_category }} request has been changed. Please review the updated status and take necessary actions.
+The status of the {{ $readableCategory }} request has been changed. Please review the updated status and take necessary actions.
 @endif
 @endif
 
