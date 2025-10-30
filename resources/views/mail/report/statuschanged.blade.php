@@ -34,11 +34,24 @@ Please note it might take some time before our indexes and exports are updated.
 {{ $curatorComment }}
 @endif
 
-@elseif ($event->report->status === \App\Enums\ReportStatus::REJECTED->value)
-Your {{ strtolower($event->report->report_category) }} request has been rejected by one of our curators and is waiting for another review. No further action is required.
+@elseif ($event->report->status === \App\Enums\ReportStatus::PENDING_REJECTION->value)
+Your {{ strtolower($event->report->report_category) }} request has been rejected by one of our curators and is waiting for another review before being confirmed.
 
 @php
     $curator = $event->report->curators->where('pivot.curator_number', 1)->first();
+    $curatorComment = $curator?->pivot->comment;
+@endphp
+
+@if ($curatorComment)
+## Curator's Comment
+{{ $curatorComment }}
+@endif
+
+@elseif ($event->report->status === \App\Enums\ReportStatus::REJECTED->value)
+Your request is now rejected. Feel free to reach out if you have any questions.
+
+@php
+    $curator = $event->report->curators->where('pivot.curator_number', 2)->first();
     $curatorComment = $curator?->pivot->comment;
 @endphp
 
