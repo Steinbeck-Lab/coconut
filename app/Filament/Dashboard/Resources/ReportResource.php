@@ -260,7 +260,7 @@ class ReportResource extends Resource
                                         })
                                         ->options(function (Report $record) {
                                             // Get all users with curator roles
-                                            $curators = User::whereHas('roles')->pluck('name', 'id')->toArray();
+                                            $curators = getCurators(returnType: 'array');
 
                                             // For pending reports, remove the first curator to allow other curators to be assigned
                                             if ($record->status === ReportStatus::PENDING_APPROVAL->value || $record->status === ReportStatus::PENDING_REJECTION->value) {
@@ -984,7 +984,7 @@ class ReportResource extends Resource
                             })
                             ->options(function (Report $record) {
                                 // Get all users with curator roles
-                                $curators = User::whereHas('roles')->pluck('name', 'id')->toArray();
+                                $curators = getCurators(returnType: 'array');
 
                                 // For pending reports, filter out the first curator to enforce four-eyes principle
                                 if ($record->status === ReportStatus::PENDING_APPROVAL->value || $record->status === ReportStatus::PENDING_REJECTION->value) {

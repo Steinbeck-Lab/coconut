@@ -30,7 +30,7 @@ class ReportEventSubscriber
     public function handleReportStatusChanged(ReportStatusChanged $event): void
     {
         // Get curators (excluding COCONUT Curator with id 11)
-        $Curators = User::whereHas('roles')->where('id', '!=', 11)->get();
+        $Curators = getCurators(excludeCoconutCurator: true);
         $curatorIds = $Curators->pluck('id')->toArray();
 
         // Send email to report owner for APPROVED, REJECTED, PENDING_APPROVAL, and PENDING_REJECTION statuses
@@ -53,7 +53,7 @@ class ReportEventSubscriber
 
     public function handleReportSubmitted(ReportSubmitted $event): void
     {
-        $Curators = User::whereHas('roles')->where('id', '!=', 11)->get();
+        $Curators = getCurators(excludeCoconutCurator: true);
         $curatorIds = $Curators->pluck('id')->toArray();
 
         if ($event->report->user_id != 11 && ! in_array($event->report->user_id, $curatorIds)) {

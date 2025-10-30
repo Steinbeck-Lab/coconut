@@ -4,7 +4,6 @@ namespace App\Listeners;
 
 use App\Events\PostPublishJobFailed;
 use App\Events\PrePublishJobFailed;
-use App\Models\User;
 use App\Notifications\PostPublishJobFailedNotification;
 use App\Notifications\PrePublishJobFailedNotification;
 use Filament\Notifications\Actions\Action;
@@ -33,7 +32,7 @@ class ImportPipelineEventSubscriber
         $timestamp = $event->errorDetails['timestamp'];
 
         // Get all users with admin roles (super_admin, admin, curator)
-        $adminUsers = User::whereHas('roles')->where('id', '!=', 11)->get();
+        $adminUsers = getCurators(excludeCoconutCurator: true);
 
         foreach ($adminUsers as $user) {
             // $user->notify(new PostPublishJobFailedNotification($event));
@@ -81,7 +80,7 @@ class ImportPipelineEventSubscriber
         }
 
         // Get all users with admin roles (super_admin, admin, curator)
-        $adminUsers = User::whereHas('roles')->where('id', '!=', 11)->get();
+        $adminUsers = getCurators(excludeCoconutCurator: true);
 
         foreach ($adminUsers as $user) {
             $user->notify(new PrePublishJobFailedNotification($event));

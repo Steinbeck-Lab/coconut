@@ -3,11 +3,35 @@
 use App\Events\PostPublishJobFailed;
 use App\Models\Citation;
 use App\Models\Molecule;
+use App\Models\User;
 use Filament\Forms\Components\KeyValue;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Events\AuditCustom;
+
+/**
+ * Get all curator users.
+ * This centralizes curator fetching logic that may change in the future.
+ *
+ * @param  bool  $excludeCoconutCurator  Whether to exclude COCONUT Curator (id: 11)
+ * @param  string  $returnType  Type of return: 'collection', 'array' (pluck name/id), or 'ids'
+ * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection|array
+ */
+function getCurators(bool $excludeCoconutCurator = false, string $returnType = 'collection')
+{
+    $query = User::whereHas('roles');
+
+    if ($excludeCoconutCurator) {
+        $query->where('id', '!=', 11);
+    }
+
+    return match ($returnType) {
+        'array' => $query->pluck('name', 'id')->toArray(),
+        'ids' => $query->pluck('id')->toArray(),
+        default => $query->get(),
+    };
+}
 
 function npScore($old_value)
 {
