@@ -110,7 +110,7 @@ class ImportEntriesAuto extends Command
             $placeholders = str_repeat('?,', count($idChunk) - 1).'?';
 
             $entries = DB::select(
-                "SELECT id, status, has_stereocenters, collection_id, link, reference_id, mol_filename, structural_comments, cm_data, molecule_id, synonyms FROM entries WHERE id IN ({$placeholders})",
+                "SELECT id, status, has_stereocenters, is_cis_trans, collection_id, link, reference_id, mol_filename, structural_comments, cm_data, molecule_id, synonyms FROM entries WHERE id IN ({$placeholders})",
                 $idChunk
             );
 
@@ -253,7 +253,9 @@ class ImportEntriesAuto extends Command
             $this->attachCollection($parent, $entry, $auditRecords);
 
             $data = $this->getRepresentations($entry, 'standardized');
-            if ($data['has_stereo_defined']) {
+
+            // Check both has_stereo_defined OR is_cis_trans flags to create variants even if stereocenters are not defined for cis/trans entries.
+            if ($data['has_stereo_defined'] || $entry->is_cis_trans) {
                 $molecule = $this->findOrCreateMolecule(
                     $data['canonical_smiles'],
                     $data['standard_inchi'],

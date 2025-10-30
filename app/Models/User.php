@@ -125,4 +125,13 @@ class User extends Authenticatable implements Auditable, FilamentUser
 
         return true;
     }
+
+    /**
+     * Check if the user has any curator/admin role.
+     * This centralizes role checking logic that may change in the future.
+     */
+    public function isCurator(): bool
+    {
+        return $this->roles()->exists();
+    }
 }
