@@ -621,9 +621,15 @@ class ImportEntriesReferencesAuto extends Command
 
             // Insert or update each relationship with collection and citation IDs using raw queries
             foreach ($ecosystem_ids as $pivot) {
-                // Check if molecule-organism relationship already exists
+                // With NULLS NOT DISTINCT unique constraint, use IS NOT DISTINCT FROM for NULL-safe comparisons
+                // IS NOT DISTINCT FROM treats NULL as equal to NULL (unlike = operator)
                 $existing = DB::selectOne(
-                    'SELECT * FROM molecule_organism WHERE molecule_id = ? AND organism_id = ? AND sample_location_id = ? AND geo_location_id = ? AND ecosystem_id = ?',
+                    'SELECT * FROM molecule_organism 
+                     WHERE molecule_id = ? 
+                     AND organism_id = ? 
+                     AND sample_location_id IS NOT DISTINCT FROM ?
+                     AND geo_location_id IS NOT DISTINCT FROM ?
+                     AND ecosystem_id IS NOT DISTINCT FROM ?',
                     [$molecule->id, $pivot[0], $pivot[1], $pivot[2], $pivot[3]]
                 );
 
@@ -665,8 +671,14 @@ class ImportEntriesReferencesAuto extends Command
                     } catch (QueryException $e) {
                         // Handle race condition - another process might have created it
                         usleep(50000); // 50ms
+                        // Re-check using the same NULL-safe query with IS NOT DISTINCT FROM
                         $existing = DB::selectOne(
-                            'SELECT * FROM molecule_organism WHERE molecule_id = ? AND organism_id = ? AND sample_location_id = ? AND geo_location_id = ? AND ecosystem_id = ?',
+                            'SELECT * FROM molecule_organism 
+                             WHERE molecule_id = ? 
+                             AND organism_id = ? 
+                             AND sample_location_id IS NOT DISTINCT FROM ?
+                             AND geo_location_id IS NOT DISTINCT FROM ?
+                             AND ecosystem_id IS NOT DISTINCT FROM ?',
                             [$molecule->id, $pivot[0], $pivot[1], $pivot[2], $pivot[3]]
                         );
                         if (! $existing) {
