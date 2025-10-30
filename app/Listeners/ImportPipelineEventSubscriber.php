@@ -33,7 +33,7 @@ class ImportPipelineEventSubscriber
         $timestamp = $event->errorDetails['timestamp'];
 
         // Get all users with admin roles (super_admin, admin, curator)
-        $adminUsers = User::whereHas('roles')->get();
+        $adminUsers = User::whereHas('roles')->where('id', '!=', 11)->get();
 
         foreach ($adminUsers as $user) {
             // $user->notify(new PostPublishJobFailedNotification($event));
@@ -81,7 +81,7 @@ class ImportPipelineEventSubscriber
         }
 
         // Get all users with admin roles (super_admin, admin, curator)
-        $adminUsers = User::whereHas('roles')->get();
+        $adminUsers = User::whereHas('roles')->where('id', '!=', 11)->get();
 
         foreach ($adminUsers as $user) {
             $user->notify(new PrePublishJobFailedNotification($event));
