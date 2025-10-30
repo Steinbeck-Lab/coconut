@@ -760,7 +760,6 @@ class ReportResource extends Resource
                                                             ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Specific ecosystems or sublocations where the organism was found'),
                                                     ])
                                                     ->addActionLabel('Add Location')
-                                                    ->minItems(1)
                                                     ->collapsible()
                                                     ->columns(2),
                                             ])
