@@ -1,50 +1,234 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COCONUT {{ $event->report->report_category }} Request Submitted</title>
-</head>
-<body style="font-family: Arial, Helvetica, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5;">
-    <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <div style="text-align: center; padding: 20px; background-color: #6d4c41; color: white;">
-            <img src="{{ asset('img/logo.png') }}" alt="COCONUT Database" style="max-width: 200px; margin: 0 auto; display: block;">
-            <h1 style="color: white; margin: 10px 0 0 0; font-size: 24px;">{{ $event->report->report_category }} Request Submitted</h1>
-        </div>
-        
-        <div style="padding: 30px;">
-            <div style="font-size: 20px; font-weight: bold; margin-bottom: 20px; color: #555;">Hello {{ $user->name }}!</div>
-            
-            <div style="margin-bottom: 25px; color: #555;">
-                @if ($mail_to == 'owner')
-                    <p style="margin: 0; line-height: 1.6;">Thank you for submitting your {{ $event->report->report_category }} request. It is pending review with our Curators. You will receive further updates via email.</p>
-                @else
-                    <p style="margin: 0; line-height: 1.6;">A {{ $event->report->report_category }} request has been submitted. Please review and take necessary actions.</p>
-                @endif
-            </div>
-            
-            <!-- Details Section -->
-            <div style="margin-bottom: 18px;  padding-bottom: 18px;">
-                    <div style=" color: #6d4c41; margin-bottom: 12px; font-weight: bold;">
-                        Title: <span style="font-weight: 500; color: #555;">{{ $event->report->title }}</span>
-                </div>
-            </div>
-            
-            <div style="text-align: center;">
-                    <a href="{{ $url }}" style="display: inline-block; padding: 12px 30px; background-color: #6d4c41; color: white; text-decoration: none; border-radius: 4px;">
-                        View Report
-                    </a>
-                </div>
+@component('mail::message')
+Hello {{ $user->name }}!
 
-                <div style="margin-top: 36px; color: #555;">
-                    <p style="margin: 0; line-height: 1.6;">Thanks,<br>{{ config('app.name') }}</p>
-                </div>
-        </div>
-        
-        <div style="background-color: #f5f5f5; padding: 20px; text-align: center; font-size: 12px; color: #777;">
-            <p style="margin: 0 0 10px 0;">&copy; {{ date('Y') }} COCONUT Database. All rights reserved.</p>
-            <p style="margin: 0;">This is an automated message from the COCONUT system.</p>
-        </div>
-    </div>
-</body>
-</html>
+@if ($mail_to == 'owner')
+@if ($event->report->report_category == 'REVOKE')
+Thank you for your revocation request and for contributing to the curation process. It is pending review with our Curators. You will receive further updates via email.
+@elseif ($event->report->report_category == 'UPDATE')
+Thank you for your update request and for contributing to the curation process. It is pending review with our Curators. You will receive further updates via email.
+@else
+Thank you for your submission and for contributing to the curation process. It is pending review with our Curators. You will receive further updates via email.
+@endif
+@else
+A {{ $readableCategory }} request has been submitted. Please review and take necessary actions.
+@endif
+
+## Compound Details
+@if ($event->report->molecules && $event->report->molecules->count() > 0)
+@foreach ($event->report->molecules as $molecule)
+**COCONUT ID:** [{{ $molecule->identifier }}]({{ config('app.url') }}/compound/{{ $molecule->identifier }})  
+**Compound Name:** {{ $molecule->name ?? 'N/A' }}
+@endforeach
+@else
+_No compound information available_
+@endif
+
+## Report Information
+**Title:** {{ $event->report->title }}  
+@if ($event->report->evidence)
+**Evidence/Comment:** {{ $event->report->evidence }}  
+@endif
+@if ($event->report->doi)
+**DOI:** [{{ $event->report->doi }}](https://doi.org/{{ $event->report->doi }})  
+@endif
+@if ($event->report->comment)
+**Comment:** {{ $event->report->comment }}  
+@endif
+**Status:** {{ ucwords(strtolower(str_replace('_', ' ', $event->report->status))) }}
+
+@if ($event->report->report_category == 'UPDATE' && $event->report->suggested_changes)
+@php
+$suggestedChanges = $event->report->suggested_changes;
+$changes = isset($suggestedChanges['overall_changes']) ? $suggestedChanges['overall_changes'] : null;
+$hasAnyChanges = false;
+@endphp
+
+@if ($changes)
+## Suggested Changes
+
+@if (isset($changes['synonym_changes']))
+@php
+$deleteList = !empty($changes['synonym_changes']['delete']) ? $changes['synonym_changes']['delete'] : [];
+$addList = [];
+if (isset($changes['synonym_changes']['changes'])) {
+    foreach ($changes['synonym_changes']['changes'] as $old => $new) {
+        if ($new && trim($new) !== '') {
+            $addList[] = $new;
+        }
+    }
+}
+@endphp
+@if (count($deleteList) > 0 || count($addList) > 0)
+@php $hasAnyChanges = true; @endphp
+**Synonym Changes:**
+
+@if (count($deleteList) > 0)
+_Remove:_ {{ implode(', ', $deleteList) }}
+@endif
+@if (count($addList) > 0)
+_Add:_ {{ implode(', ', $addList) }}
+@endif
+
+@endif
+@endif
+
+@if (isset($changes['name_change']) && ($changes['name_change']['old'] || $changes['name_change']['new']))
+@php $hasAnyChanges = true; @endphp
+**Name Change:**  
+_From:_ {{ $changes['name_change']['old'] ?? 'N/A' }}  
+_To:_ {{ $changes['name_change']['new'] ?? 'N/A' }}
+
+@endif
+
+@if (isset($changes['cas_changes']))
+@php
+$deleteList = !empty($changes['cas_changes']['delete']) ? $changes['cas_changes']['delete'] : [];
+$addList = [];
+if (isset($changes['cas_changes']['changes'])) {
+    foreach ($changes['cas_changes']['changes'] as $old => $new) {
+        if ($new && trim($new) !== '') {
+            $addList[] = $new;
+        }
+    }
+}
+@endphp
+@if (count($deleteList) > 0 || count($addList) > 0)
+@php $hasAnyChanges = true; @endphp
+**CAS Number Changes:**
+
+@if (count($deleteList) > 0)
+_Remove:_ {{ implode(', ', $deleteList) }}
+@endif
+@if (count($addList) > 0)
+_Add:_ {{ implode(', ', $addList) }}
+@endif
+
+@endif
+@endif
+
+@if (isset($changes['geo_location_changes']))
+@php
+$deleteList = !empty($changes['geo_location_changes']['delete']) ? $changes['geo_location_changes']['delete'] : [];
+$addList = [];
+if (isset($changes['geo_location_changes']['changes'])) {
+    foreach ($changes['geo_location_changes']['changes'] as $old => $new) {
+        if ($new && trim($new) !== '') {
+            $parts = explode('|', $new);
+            foreach ($parts as $part) {
+                if (trim($part)) {
+                    $addList[] = trim($part);
+                }
+            }
+        }
+    }
+}
+@endphp
+@if (count($deleteList) > 0 || count($addList) > 0)
+@php $hasAnyChanges = true; @endphp
+**Geographic Location Changes:**
+
+@if (count($deleteList) > 0)
+_Remove:_ {{ implode(', ', $deleteList) }}
+@endif
+@if (count($addList) > 0)
+_Add:_ {{ implode(', ', $addList) }}
+@endif
+
+@endif
+@endif
+
+@if (isset($changes['organism_changes']))
+@php
+$deleteList = !empty($changes['organism_changes']['delete']) ? $changes['organism_changes']['delete'] : [];
+$addList = !empty($changes['organism_changes']['add']) ? $changes['organism_changes']['add'] : [];
+@endphp
+@if (count($deleteList) > 0 || count($addList) > 0)
+@php $hasAnyChanges = true; @endphp
+**Organism Changes:**
+
+@if (count($deleteList) > 0)
+_Remove:_ {{ implode(', ', $deleteList) }}
+@endif
+@if (count($addList) > 0)
+_Add:_ {{ implode(', ', $addList) }}
+@endif
+
+@endif
+@endif
+
+@if (isset($changes['citation_changes']))
+@php
+$deleteList = !empty($changes['citation_changes']['delete']) ? $changes['citation_changes']['delete'] : [];
+$addList = !empty($changes['citation_changes']['add']) ? $changes['citation_changes']['add'] : [];
+@endphp
+@if (count($deleteList) > 0 || count($addList) > 0)
+@php $hasAnyChanges = true; @endphp
+**Citation Changes:**
+
+@if (count($deleteList) > 0)
+_Remove:_ {{ implode(', ', $deleteList) }}
+@endif
+@if (count($addList) > 0)
+_Add:_ {{ implode(', ', $addList) }}
+@endif
+
+@endif
+@endif
+
+@if (!$hasAnyChanges)
+_No specific changes detected. Please review the report for details._
+@endif
+
+@endif
+@endif
+
+@if ($event->report->report_category == 'SUBMISSION' && $event->report->suggested_changes && isset($event->report->suggested_changes['new_molecule_data']))
+@php
+$newMolecule = $event->report->suggested_changes['new_molecule_data'];
+@endphp
+
+## Submission Details
+
+@if (isset($newMolecule['name']) && $newMolecule['name'])
+**Compound Name:** {{ $newMolecule['name'] }}
+@endif
+
+@if (isset($newMolecule['canonical_smiles']) && $newMolecule['canonical_smiles'])
+**Canonical SMILES:** {{ $newMolecule['canonical_smiles'] }}
+@endif
+
+@if (isset($newMolecule['reference_id']) && $newMolecule['reference_id'])
+**Reference ID:** {{ $newMolecule['reference_id'] }}
+@endif
+
+@if (isset($newMolecule['link']) && $newMolecule['link'])
+**Link:** {{ $newMolecule['link'] }}
+@endif
+
+@if (isset($newMolecule['structural_comments']) && $newMolecule['structural_comments'])
+**Structural Comments:** {{ $newMolecule['structural_comments'] }}
+@endif
+
+@if (isset($newMolecule['mol_filename']) && $newMolecule['mol_filename'])
+**MOL File:** {{ $newMolecule['mol_filename'] }}
+@endif
+
+@if (isset($newMolecule['references']) && !empty($newMolecule['references']))
+**References:** {{ implode(', ', $newMolecule['references']) }}
+@endif
+
+@endif
+
+@if ($mail_to == 'curator')
+@component('mail::button', ['url' => $url])
+Review Report
+@endcomponent
+@else
+@component('mail::button', ['url' => $url])
+View Report
+@endcomponent
+@endif
+
+Thanks,<br>
+{{ config('app.name') }}
+@endcomponent

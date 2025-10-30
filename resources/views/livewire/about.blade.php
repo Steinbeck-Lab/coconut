@@ -195,9 +195,9 @@
                 <div class="mx-auto max-w-7xl px-6 lg:px-8">
                     <div class="grid grid-cols-1 items-center gap-x-8 gap-y-16 lg:grid-cols-2">
                         <div class="mx-auto w-full max-w-xl lg:mx-0">
-                            <h2 class="text-3xl font-bold tracking-tight text-gray-900">Powered by Google Cloud</h2>
+                            <h2 class="text-3xl font-bold tracking-tight text-gray-900">Supported by Google Cloud</h2>
                             <p class="mt-6 text-lg leading-8 text-gray-600 pr-10">
-                                COCONUT - cloud infrastructure is managed by Google Kubernetes Engine (GKE) and was made possible through support from the Google Cloud Research Credits program.
+                                COCONUT's development was supported by the Google Cloud Research Credits program, which helped us build and scale the platform.
                             </p>
                         </div>
                         <div class="mx-auto grid w-full max-w-xl grid-cols-1 items-center justify-center text-center gap-y-12 sm:gap-y-14 lg:mx-0 lg:max-w-none lg:pl-8">

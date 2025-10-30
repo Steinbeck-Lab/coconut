@@ -171,7 +171,7 @@ class MoleculeResource extends Resource
                             return $record['active'] ? 'Deactivate' : 'Activate';
                         })
                         ->hidden(function () {
-                            return ! auth()->user()->roles()->exists();
+                            return ! auth()->user()->isCurator();
                         })
                         ->form([
                             Textarea::make('reason')

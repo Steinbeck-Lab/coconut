@@ -29,11 +29,23 @@ class ReportEventSubscriber
      */
     public function handleReportStatusChanged(ReportStatusChanged $event): void
     {
-        if ($event->report->status == ReportStatus::APPROVED->value || $event->report->status == ReportStatus::REJECTED->value) {
-            $ReportOwner = User::find($event->report->user_id);
-            $ReportOwner->notify(new ReportStatusChangedNotification($event, 'owner'));
+        // Get curators (excluding COCONUT Curator with id 11)
+        $Curators = getCurators(excludeCoconutCurator: true);
+        $curatorIds = $Curators->pluck('id')->toArray();
+
+        // Send email to report owner for APPROVED, REJECTED, PENDING_APPROVAL, and PENDING_REJECTION statuses
+        // Filter out notifications to COCONUT Curator with id 11 and users who are curators
+        if ($event->report->status == ReportStatus::APPROVED->value ||
+            $event->report->status == ReportStatus::REJECTED->value ||
+            $event->report->status == ReportStatus::PENDING_APPROVAL->value ||
+            $event->report->status == ReportStatus::PENDING_REJECTION->value) {
+            if ($event->report->user_id != 11 && ! in_array($event->report->user_id, $curatorIds)) {
+                $ReportOwner = User::find($event->report->user_id);
+                $ReportOwner->notify(new ReportStatusChangedNotification($event, 'owner'));
+            }
         }
-        $Curators = User::whereHas('roles')->get();
+
+        // Notify curators about status changes
         foreach ($Curators as $Curator) {
             $Curator->notify(new ReportStatusChangedNotification($event, 'curator'));
         }
@@ -41,10 +53,13 @@ class ReportEventSubscriber
 
     public function handleReportSubmitted(ReportSubmitted $event): void
     {
-        $ReportOwner = User::find($event->report->user_id);
-        $ReportOwner->notify(new ReportSubmittedNotification($event, 'owner'));
+        $Curators = getCurators(excludeCoconutCurator: true);
+        $curatorIds = $Curators->pluck('id')->toArray();
 
-        $Curators = User::whereHas('roles')->get();
+        if ($event->report->user_id != 11 && ! in_array($event->report->user_id, $curatorIds)) {
+            $ReportOwner = User::find($event->report->user_id);
+            $ReportOwner->notify(new ReportSubmittedNotification($event, 'owner'));
+        }
         foreach ($Curators as $Curator) {
             $Curator->notify(new ReportSubmittedNotification($event, 'curator'));
         }
@@ -52,10 +67,12 @@ class ReportEventSubscriber
 
     public function handleReportAssigned(ReportAssigned $event): void
     {
-        $curator = User::find($event->curator_id);
-        // Only proceed if curator exists
-        if ($curator) {
-            $curator->notify(new ReportAssignedNotification($event));
+        if ($event->report->user_id != 11) {
+            $curator = User::find($event->curator_id);
+            // Only proceed if curator exists
+            if ($curator) {
+                $curator->notify(new ReportAssignedNotification($event));
+            }
         }
     }
 
