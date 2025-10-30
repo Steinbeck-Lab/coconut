@@ -32,7 +32,8 @@ class ReportEventSubscriber
         // Send email to report owner for APPROVED, REJECTED, and PENDING_APPROVAL statuses
         if ($event->report->status == ReportStatus::APPROVED->value ||
             $event->report->status == ReportStatus::REJECTED->value ||
-            $event->report->status == ReportStatus::PENDING_APPROVAL->value) {
+            $event->report->status == ReportStatus::PENDING_APPROVAL->value ||
+            $event->report->status == ReportStatus::PENDING_REJECTION->value) {
             $ReportOwner = User::find($event->report->user_id);
             $ReportOwner->notify(new ReportStatusChangedNotification($event, 'owner'));
         }
