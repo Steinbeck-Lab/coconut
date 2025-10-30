@@ -19,7 +19,8 @@ class ReportStatusChanged
 
     public function __construct(Report $report)
     {
-        $this->report = $report;
+        // Eager load the molecules and curators relationships for email display
+        $this->report = $report->load(['molecules', 'curators']);
     }
 
     /**
