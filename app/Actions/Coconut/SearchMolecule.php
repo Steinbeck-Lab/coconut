@@ -38,7 +38,14 @@ class SearchMolecule
      */
     public function query($query, $size, $type, $sort, $tagType, $page, $status = 'all')
     {
-        $this->query = $query;
+        // Decode the query to handle special characters like ® (%C2%AE)
+        // Check if the query contains URL-encoded characters before decoding
+        // to avoid double-decoding issues
+        if ($query && preg_match('/%[0-9A-F]{2}/i', $query)) {
+            $this->query = urldecode($query);
+        } else {
+            $this->query = $query;
+        }
         $this->size = $size;
         $this->type = $type;
 
