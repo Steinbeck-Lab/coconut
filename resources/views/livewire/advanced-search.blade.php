@@ -94,11 +94,11 @@
         </svg>&emsp;Advanced Search
     </button>
 
-    <div x-show="showModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75"
+    <div x-show="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-75"
         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" style="display: none;">
-        <div class="bg-white p-8 rounded-lg shadow-lg max-w-5xl w-full">
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-5xl w-full relative z-50">
             <h2 class="text-lg font-semibold mb-4">Advanced Search</h2>
             <p class="text-gray-600 mb-4">
                 Customize your search options here.
