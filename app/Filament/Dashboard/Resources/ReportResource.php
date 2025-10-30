@@ -104,18 +104,9 @@ class ReportResource extends Resource
                                         $set('title', 'New Molecule Submission');
                                     }
                                 } elseif ($state == ReportCategory::REVOKE->value) {
-                                    // Check if report_type is already selected
-                                    $reportType = $get('report_type');
-                                    if ($reportType) {
-                                        if ($compoundId) {
-                                            $set('title', 'Report issue with '.$reportType.': '.$compoundId);
-                                        } else {
-                                            $set('title', 'Report issue with '.$reportType);
-                                        }
-                                    } else {
-                                        // Generic title if report type not yet selected
-                                        $set('title', 'Report an issue');
-                                    }
+                                    // Don't auto-fill title for REVOKE category
+                                    // Let user enter their own title with placeholder as guide
+                                    $set('title', '');
                                 }
                             })
                             ->options(function ($operation) {
@@ -195,7 +186,7 @@ class ReportResource extends Resource
                                     return $record['report_category'] === ReportCategory::SUBMISSION->value;
                                 })
                                 ->hidden(function (Get $get, string $operation) {
-                                    return ! auth()->user()->roles()->exists() ||
+                                    return ! auth()->user()->isCurator() ||
                                         $get('status') == ReportStatus::REJECTED->value ||
                                         $get('status') == ReportStatus::APPROVED->value ||
                                         $operation != 'edit';
@@ -226,7 +217,7 @@ class ReportResource extends Resource
                                     Textarea::make('reason'),
                                 ])
                                 ->hidden(function (Get $get, string $operation) {
-                                    return ! auth()->user()->roles()->exists() ||
+                                    return ! auth()->user()->isCurator() ||
                                         $get('status') == ReportStatus::REJECTED->value ||
                                         $get('status') == ReportStatus::APPROVED->value ||
                                         $operation != 'edit';
@@ -244,7 +235,7 @@ class ReportResource extends Resource
                                 }),
                             Action::make('assign')
                                 ->hidden(function (Get $get, string $operation, ?Report $record) {
-                                    return ! (auth()->user()->roles()->exists() &&
+                                    return ! (auth()->user()->isCurator() &&
                                         ($operation == 'view' || $operation == 'edit') &&
                                         ($record->status != ReportStatus::APPROVED->value) &&
                                         ($record->status != ReportStatus::REJECTED->value));
@@ -269,7 +260,7 @@ class ReportResource extends Resource
                                         })
                                         ->options(function (Report $record) {
                                             // Get all users with curator roles
-                                            $curators = User::whereHas('roles')->pluck('name', 'id')->toArray();
+                                            $curators = getCurators(returnType: 'array');
 
                                             // For pending reports, remove the first curator to allow other curators to be assigned
                                             if ($record->status === ReportStatus::PENDING_APPROVAL->value || $record->status === ReportStatus::PENDING_REJECTION->value) {
@@ -321,17 +312,8 @@ class ReportResource extends Resource
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Select what you want to report. Ex: Molecule, Citation, Collection, Organism.')
                     ->live()
                     ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                        // Update title when report type changes (for REVOKE category)
-                        if ($get('report_category') == ReportCategory::REVOKE->value && $state) {
-                            $compoundId = request()->compound_id;
-                            $entityName = $state; // molecule, citation, collection, organism, etc.
-
-                            if ($compoundId) {
-                                $set('title', 'Report issue with '.$entityName.': '.$compoundId);
-                            } else {
-                                $set('title', 'Report issue with '.$entityName);
-                            }
-                        }
+                        // Don't auto-fill title for REVOKE category
+                        // Let user enter their own title with placeholder as guide
                     })
                     ->options(function () {
                         return getReportTypes(); // changeit with Enums?
@@ -341,6 +323,32 @@ class ReportResource extends Resource
                     }),
                 TextInput::make('title')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Title of the report. This is required.')
+                    ->placeholder(function ($get) {
+                        $category = $get('report_category');
+                        $compoundId = request()->compound_id;
+
+                        if ($category == ReportCategory::REVOKE->value) {
+                            if ($compoundId) {
+                                return 'e.g., '.$compoundId.' is not a natural product OR Structure incorrect OR Unusual valencies found';
+                            }
+
+                            return 'e.g., This compound is not a natural product OR Structure incorrect OR Unusual valencies found';
+                        }
+
+                        if ($category == ReportCategory::UPDATE->value) {
+                            if ($compoundId) {
+                                return 'e.g., Request changes to '.$compoundId;
+                            }
+
+                            return 'e.g., Request changes to molecule';
+                        }
+
+                        if ($category == ReportCategory::SUBMISSION->value) {
+                            return 'e.g., New Molecule Submission';
+                        }
+
+                        return '';
+                    })
                     ->default(function ($get, $operation) {
                         // Only set default on create operation
                         if ($operation !== 'create') {
@@ -364,13 +372,8 @@ class ReportResource extends Resource
                             if ($reportType) {
                                 if ($compoundId) {
                                     return 'Report issue with '.$reportType.': '.$compoundId;
-                                } else {
-                                    return 'Report issue with '.$reportType;
                                 }
                             }
-
-                            // Generic title when no report type selected
-                            return 'Report an issue';
                         }
 
                         return '';
@@ -419,7 +422,7 @@ class ReportResource extends Resource
                                             ->label('Approve')
                                             ->inline(false)
                                             ->hidden(function (string $operation) {
-                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                                return ! auth()->user()->isCurator() || $operation == 'create';
                                             })
                                             ->columnSpan(1),
                                         Select::make('existing_geo_locations')
@@ -456,7 +459,7 @@ class ReportResource extends Resource
                                             ->label('Approve')
                                             ->inline(false)
                                             ->hidden(function (string $operation) {
-                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                                return ! auth()->user()->isCurator() || $operation == 'create';
                                             })
                                             ->columnSpan(1),
                                         Select::make('existing_synonyms')
@@ -493,7 +496,7 @@ class ReportResource extends Resource
                                             ->label('Approve')
                                             ->inline(false)
                                             ->hidden(function (string $operation) {
-                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                                return ! auth()->user()->isCurator() || $operation == 'create';
                                             })
                                             ->columnSpan(1),
                                         Textarea::make('name')
@@ -515,7 +518,7 @@ class ReportResource extends Resource
                                             ->label('Approve')
                                             ->inline(false)
                                             ->hidden(function (string $operation) {
-                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                                return ! auth()->user()->isCurator() || $operation == 'create';
                                             })
                                             ->columnSpan(1),
                                         Select::make('existing_cas')
@@ -552,7 +555,7 @@ class ReportResource extends Resource
                                         Checkbox::make('approve_existing_organisms')
                                             ->label('Approve')
                                             ->hidden(function (string $operation) {
-                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                                return ! auth()->user()->isCurator() || $operation == 'create';
                                             })
                                             ->columnSpanFull(),
                                         Select::make('existing_organisms')
@@ -577,7 +580,7 @@ class ReportResource extends Resource
                                         Checkbox::make('approve_new_organism')
                                             ->label('Approve')
                                             ->hidden(function (string $operation) {
-                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                                return ! auth()->user()->isCurator() || $operation == 'create';
                                             })
                                             ->columnSpanFull(),
                                         Grid::make('new_organism')
@@ -601,7 +604,7 @@ class ReportResource extends Resource
                                         Checkbox::make('approve_existing_citations')
                                             ->label('Approve')
                                             ->hidden(function (string $operation) {
-                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                                return ! auth()->user()->isCurator() || $operation == 'create';
                                             })
                                             ->columnSpanFull(),
                                         Select::make('existing_citations')
@@ -625,7 +628,7 @@ class ReportResource extends Resource
                                         Checkbox::make('approve_new_citation')
                                             ->label('Approve')
                                             ->hidden(function (string $operation) {
-                                                return ! auth()->user()->roles()->exists() || $operation == 'create';
+                                                return ! auth()->user()->isCurator() || $operation == 'create';
                                             })
                                             ->columnSpanFull(),
                                         Grid::make('new_citation')
@@ -897,6 +900,7 @@ class ReportResource extends Resource
                         },
                     ]),
                 Textarea::make('comment')
+                    ->label('Additional comments')
                     ->hintIcon('heroicon-m-question-mark-circle', tooltip: 'Provide your comments/observations on anything noteworthy in the Curation process.'),
             ])->columns(1);
     }
@@ -980,7 +984,7 @@ class ReportResource extends Resource
                             })
                             ->options(function (Report $record) {
                                 // Get all users with curator roles
-                                $curators = User::whereHas('roles')->pluck('name', 'id')->toArray();
+                                $curators = getCurators(returnType: 'array');
 
                                 // For pending reports, filter out the first curator to enforce four-eyes principle
                                 if ($record->status === ReportStatus::PENDING_APPROVAL->value || $record->status === ReportStatus::PENDING_REJECTION->value) {
@@ -1038,7 +1042,7 @@ class ReportResource extends Resource
                     ->modalSubmitActionLabel('Assign')
                     ->hidden(function (Report $record): bool {
                         // Hide for non-curators or approved/rejected reports
-                        return ! auth()->user()->roles()->exists() ||
+                        return ! auth()->user()->isCurator() ||
                             $record->status === ReportStatus::APPROVED->value ||
                             $record->status === ReportStatus::REJECTED->value;
                     }),
@@ -1076,7 +1080,7 @@ class ReportResource extends Resource
     // Define the Eloquent query for retrieving records based on user roles
     public static function getEloquentQuery(): Builder
     {
-        if (! auth()->user()->roles()->exists()) {
+        if (! auth()->user()->isCurator()) {
             return parent::getEloquentQuery()->where('user_id', auth()->id());
         }
 
