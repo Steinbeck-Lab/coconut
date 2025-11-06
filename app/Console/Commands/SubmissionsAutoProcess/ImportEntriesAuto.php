@@ -235,7 +235,8 @@ class ImportEntriesAuto extends Command
     {
         $molecule = null;
         $entry_synonyms = json_decode($entry->synonyms, true);
-        if ($entry->has_stereocenters) {
+        $representations = $this->getRepresentations($entry, 'standardized');
+        if ($entry->has_stereocenters || $representations['has_stereo_defined'] || $entry->is_cis_trans) {
             $data = $this->getRepresentations($entry, 'parent');
             // Pass parent molecule properties to findOrCreateMolecule
             $parent = $this->findOrCreateMolecule(
@@ -348,13 +349,12 @@ class ImportEntriesAuto extends Command
     public function findOrCreateMolecule($canonical_smiles, $standard_inchi, $additionalFields = [], $parentToUpdate = null, $isParent = false, &$auditRecords = [])
     {
         // Use MD5 hash for index optimization, but still use actual values for comparison
-        $mol = DB::selectOne('SELECT * FROM molecules WHERE MD5(standard_inchi) = MD5(?) AND standard_inchi = ?', [$standard_inchi, $standard_inchi]);
-
+        $mol = DB::selectOne('SELECT * FROM molecules WHERE MD5(standard_inchi) = MD5(?) AND standard_inchi = ? AND (comment IS NULL OR comment NOT LIKE ?)', [$standard_inchi, $standard_inchi, '%processing error%']);
         if ($mol) {
             if ($mol->canonical_smiles != $canonical_smiles) {
                 $_mol = DB::selectOne(
-                    'SELECT * FROM molecules WHERE MD5(standard_inchi) = MD5(?) AND MD5(canonical_smiles) = MD5(?) AND standard_inchi = ? AND canonical_smiles = ?',
-                    [$standard_inchi, $canonical_smiles, $standard_inchi, $canonical_smiles]
+                    'SELECT * FROM molecules WHERE MD5(standard_inchi) = MD5(?) AND MD5(canonical_smiles) = MD5(?) AND standard_inchi = ? AND canonical_smiles = ? AND (comment IS NULL OR comment NOT LIKE ?)',
+                    [$standard_inchi, $canonical_smiles, $standard_inchi, $canonical_smiles, '%processing error%']
                 );
 
                 if (! $_mol) {
@@ -380,14 +380,14 @@ class ImportEntriesAuto extends Command
                             'App\\Models\\Molecule',
                             $parentToUpdate->id,
                             'updated',
-                            ['has_variants' => $parentToUpdate->has_variants, 'variants_count' => $parentToUpdate->variants_count],
-                            ['has_variants' => true, 'variants_count' => $parentToUpdate->variants_count + 1],
+                            ['has_variants' => $parentToUpdate->has_variants, 'variants_count' => $parentToUpdate->variants_count, 'is_parent' => $parentToUpdate->is_parent],
+                            ['has_variants' => true, 'variants_count' => $parentToUpdate->variants_count + 1, 'is_parent' => true],
                             $auditRecords
                         );
 
                         DB::update(
-                            'UPDATE molecules SET has_variants = ?, variants_count = variants_count + 1, updated_at = NOW() WHERE id = ?',
-                            [true, $parentToUpdate->id]
+                            'UPDATE molecules SET is_parent = ?, has_variants = ?, variants_count = variants_count + 1, updated_at = NOW() WHERE id = ?',
+                            [true, true, $parentToUpdate->id]
                         );
                     }
 
@@ -432,6 +432,22 @@ class ImportEntriesAuto extends Command
 
             $moleculeId = DB::table('molecules')->insertGetId($insertData);
             $mol = (object) array_merge(['id' => $moleculeId], $insertData);
+
+            if ($parentToUpdate) {
+                $this->addAuditRecord(
+                    'App\\Models\\Molecule',
+                    $parentToUpdate->id,
+                    'updated',
+                    ['has_variants' => $parentToUpdate->has_variants, 'variants_count' => $parentToUpdate->variants_count, 'is_parent' => $parentToUpdate->is_parent],
+                    ['has_variants' => true, 'variants_count' => $parentToUpdate->variants_count + 1, 'is_parent' => true],
+                    $auditRecords
+                );
+
+                DB::update(
+                    'UPDATE molecules SET is_parent = ?, has_variants = ?, variants_count = variants_count + 1, updated_at = NOW() WHERE id = ?',
+                    [true, true, $parentToUpdate->id]
+                );
+            }
         }
 
         return $mol;
