@@ -235,7 +235,8 @@ class ImportEntriesAuto extends Command
     {
         $molecule = null;
         $entry_synonyms = json_decode($entry->synonyms, true);
-        if ($entry->has_stereocenters) {
+        $representations = $this->getRepresentations($entry, 'standardized');
+        if ($entry->has_stereocenters || $representations['has_stereo_defined'] || $entry->is_cis_trans) {
             $data = $this->getRepresentations($entry, 'parent');
             // Pass parent molecule properties to findOrCreateMolecule
             $parent = $this->findOrCreateMolecule(
