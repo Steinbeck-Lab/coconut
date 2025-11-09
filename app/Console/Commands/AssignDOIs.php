@@ -32,7 +32,7 @@ class AssignDOIs extends Command
     {
         return DB::transaction(function () use ($assigner) {
             $collections = Collection::where([
-                ['is_public', true],
+                ['status', 'PUBLISHED'],
                 ['doi', null],
             ])->get();
 
