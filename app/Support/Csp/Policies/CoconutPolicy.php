@@ -22,7 +22,7 @@ class CoconutPolicy implements Preset
         $policy
             ->add(Directive::SCRIPT, Keyword::SELF)
             ->add(Directive::STYLE, Keyword::SELF)
-            ->add(Directive::FONT, 'data:')
+            ->add(Directive::FONT, Keyword::SELF, 'data:')
             ->add(Directive::CONNECT, Keyword::SELF);
 
         // Third-party services
@@ -49,7 +49,15 @@ class CoconutPolicy implements Preset
         $policy
             ->add(Directive::SCRIPT, 'http://localhost:*', 'https://localhost:*')
             ->add(Directive::STYLE, 'http://localhost:*', 'https://localhost:*')
+            ->add(Directive::FONT, 'http://localhost:*', 'https://localhost:*')
             ->add(Directive::CONNECT, 'ws://localhost:*', 'wss://localhost:*', 'http://localhost:*', 'https://localhost:*');
+
+        // Allow build assets from Coconut domains (production and dev)
+        $policy
+            ->add(Directive::FONT, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net')
+            ->add(Directive::STYLE, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net')
+            ->add(Directive::SCRIPT, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net')
+            ->add(Directive::IMG, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net');
 
         // Frame ancestors - Environment-based
         if (app()->environment('production')) {
@@ -95,6 +103,7 @@ class CoconutPolicy implements Preset
             ->add(Directive::CONNECT, env('DATACITE_WS_API', 'https://api.datacite.org/dois/'))
             ->add(Directive::CONNECT, env('NFDI_REDIRECT_URL', 'https://coconut.naturalproducts.net'))
             ->add(Directive::CONNECT, env('CM_PUBLIC_API', 'https://api.cheminf.studio'))
+            ->add(Directive::CONNECT, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net')
             ->add(Directive::CONNECT, '*.tawk.to')
             ->add(Directive::CONNECT, 'wss://*.tawk.to');
 
