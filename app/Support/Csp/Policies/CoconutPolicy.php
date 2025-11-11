@@ -1,0 +1,118 @@
+<?php
+
+namespace App\Support\Csp\Policies;
+
+use Spatie\Csp\Directive;
+use Spatie\Csp\Keyword;
+use Spatie\Csp\Policy;
+use Spatie\Csp\Preset;
+
+class CoconutPolicy implements Preset
+{
+    public function configure(Policy $policy): void
+    {
+        // Core security directives
+        $policy
+            ->add(Directive::BASE, Keyword::SELF)
+            ->add(Directive::DEFAULT, Keyword::SELF)
+            ->add(Directive::FORM_ACTION, Keyword::SELF)
+            ->add(Directive::OBJECT, Keyword::NONE);
+
+        // Basic asset sources
+        $policy
+            ->add(Directive::SCRIPT, Keyword::SELF)
+            ->add(Directive::STYLE, Keyword::SELF)
+            ->add(Directive::FONT, 'data:')
+            ->add(Directive::CONNECT, Keyword::SELF);
+
+        // Third-party services
+        $policy
+            ->add(Directive::STYLE, 'https://fonts.googleapis.com', 'https://unpkg.com')
+            ->add(Directive::SCRIPT, 'https://matomo.nfdi4chem.de', 'https://cdn.jsdelivr.net')
+            ->add(Directive::CONNECT, 'https://matomo.nfdi4chem.de');
+
+        // Add Coconut-specific external sources
+        $this->addCoconutSources($policy);
+
+        // Unified rules for all environments
+        $this->addUnifiedRules($policy);
+    }
+
+    private function addUnifiedRules(Policy $policy): void
+    {
+        // Allow inline scripts and styles (needed for Livewire, Filament)
+        $policy
+            ->add(Directive::SCRIPT, Keyword::UNSAFE_INLINE, Keyword::UNSAFE_EVAL)
+            ->add(Directive::STYLE, Keyword::UNSAFE_INLINE);
+
+        // Development server support (for local development with Vite)
+        $policy
+            ->add(Directive::SCRIPT, 'http://localhost:*', 'https://localhost:*')
+            ->add(Directive::STYLE, 'http://localhost:*', 'https://localhost:*')
+            ->add(Directive::CONNECT, 'ws://localhost:*', 'wss://localhost:*', 'http://localhost:*', 'https://localhost:*');
+
+        // Frame ancestors - Environment-based
+        if (app()->environment('production')) {
+            $policy->add(Directive::FRAME_ANCESTORS, Keyword::NONE);
+        } else {
+            $policy->add(Directive::FRAME_ANCESTORS, Keyword::SELF, 'localhost:*', '127.0.0.1:*');
+        }
+
+        // Production-only security enhancements
+        if (app()->environment('production')) {
+            $policy
+                ->add(Directive::UPGRADE_INSECURE_REQUESTS)
+                ->add(Directive::BLOCK_ALL_MIXED_CONTENT);
+        }
+    }
+
+    /**
+     * Add Coconut-specific external sources.
+     * For runtime-configurable sources, use config/csp.php with CSP_ADDITIONAL_* env variables.
+     */
+    private function addCoconutSources(Policy $policy): void
+    {
+        // Image sources
+        $policy
+            ->add(Directive::IMG, Keyword::SELF)
+            ->add(Directive::IMG, 'data:')
+            ->add(Directive::IMG, 'blob:')
+            ->add(Directive::IMG, 'https://ui-avatars.com')
+            ->add(Directive::IMG, '*.amazonaws.com')
+            ->add(Directive::IMG, '*.s3.amazonaws.com')
+            ->add(Directive::IMG, '*.s3.*.amazonaws.com')
+            ->add(Directive::IMG, 'https://s3.uni-jena.de')
+            ->add(Directive::IMG, 'https://www.nfdi4chem.de')
+            ->add(Directive::IMG, 'https://upload.wikimedia.org')
+            ->add(Directive::IMG, 'https://api.cheminf.studio')
+            ->add(Directive::IMG, 'https://coconut.naturalproducts.net');
+
+        // Connection sources - External APIs
+        $policy
+            ->add(Directive::CONNECT, env('AWS_ENDPOINT', 'https://s3.uni-jena.de'))
+            ->add(Directive::CONNECT, env('EUROPEPMC_WS_API', 'https://www.ebi.ac.uk/europepmc/webservices/rest/search'))
+            ->add(Directive::CONNECT, env('CROSSREF_WS_API', 'https://api.crossref.org/works/'))
+            ->add(Directive::CONNECT, env('DATACITE_WS_API', 'https://api.datacite.org/dois/'))
+            ->add(Directive::CONNECT, env('NFDI_REDIRECT_URL', 'https://coconut.naturalproducts.net'))
+            ->add(Directive::CONNECT, env('CM_PUBLIC_API', 'https://api.cheminf.studio'))
+            ->add(Directive::CONNECT, '*.tawk.to')
+            ->add(Directive::CONNECT, 'wss://*.tawk.to');
+
+        // Font sources
+        $policy
+            ->add(Directive::FONT, 'https://fonts.googleapis.com')
+            ->add(Directive::FONT, 'https://fonts.gstatic.com');
+
+        // Script sources - External JavaScript libraries
+        $policy
+            ->add(Directive::SCRIPT, '*.tawk.to')
+            ->add(Directive::SCRIPT, 'https://embed.tawk.to')
+            ->add(Directive::SCRIPT, '*.matomo.nfdi4chem.de');
+
+        // Frame sources
+        $policy
+            ->add(Directive::FRAME, Keyword::SELF)
+            ->add(Directive::FRAME, '*.tawk.to')
+            ->add(Directive::FRAME, 'https://embed.tawk.to');
+    }
+}
