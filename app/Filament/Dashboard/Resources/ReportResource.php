@@ -128,6 +128,63 @@ class ReportResource extends Resource
                             ->columnSpan(2),
 
                         Actions::make([
+                            Action::make('contactUser')
+                                ->label('Contact User')
+                                ->color('info')
+                                ->icon('heroicon-o-envelope')
+                                ->hidden(function (Get $get, string $operation, ?Report $record) {
+                                    if (! auth()->user()->isCurator() || $operation != 'edit' || ! $record) {
+                                        return true;
+                                    }
+
+                                    // Check if current user is assigned as curator for this report
+                                    $currentUserId = auth()->id();
+
+                                    // Check if user is curator 1 (for SUBMITTED status)
+                                    if ($record->status == \App\Enums\ReportStatus::SUBMITTED->value) {
+                                        $curator1 = $record->curators()->wherePivot('curator_number', 1)->first();
+
+                                        return $curator1?->id !== $currentUserId;
+                                    }
+
+                                    // Check if user is curator 2 (for PENDING_APPROVAL/PENDING_REJECTION status)
+                                    if ($record->status == \App\Enums\ReportStatus::PENDING_APPROVAL->value ||
+                                        $record->status == \App\Enums\ReportStatus::PENDING_REJECTION->value) {
+                                        $curator2 = $record->curators()->wherePivot('curator_number', 2)->first();
+
+                                        return $curator2?->id !== $currentUserId;
+                                    }
+
+                                    // Hide by default if status doesn't match any condition
+                                    return true;
+                                })
+                                ->form([
+                                    TextInput::make('user_email')
+                                        ->label('To')
+                                        ->default(function ($record) {
+                                            return $record->user->email;
+                                        })
+                                        ->disabled()
+                                        ->dehydrated(false),
+                                    Textarea::make('contact_message')
+                                        ->label('Message')
+                                        ->required()
+                                        ->rows(5)
+                                        ->placeholder('Enter your message to the user...')
+                                        ->helperText('This message will be sent to the report submitter via email.'),
+                                ])
+                                ->action(function (array $data, Report $record): void {
+                                    self::sendContactEmail($data, $record);
+
+                                    Notification::make()
+                                        ->title('Email sent successfully')
+                                        ->body('Your message has been sent to '.$record->user->email)
+                                        ->success()
+                                        ->send();
+                                })
+                                ->modalHeading('Contact User')
+                                ->modalSubmitActionLabel('Send Email')
+                                ->modalWidth('lg'),
                             Action::make('approve')
                                 ->form(function ($record, $livewire, $get) {
                                     if ($record['report_category'] === ReportCategory::UPDATE->value) {
@@ -1421,6 +1478,17 @@ class ReportResource extends Resource
         }
 
         $livewire->redirect(ReportResource::getUrl('index'));
+    }
+
+    public static function sendContactEmail(array $data, Report $record): void
+    {
+        // Send email to the report submitter
+        $user = $record->user;
+        $curator = auth()->user();
+
+        if ($user && $user->email && $curator) {
+            $user->notify(new \App\Notifications\ReportContactUserNotification($record, $data['contact_message'], $curator));
+        }
     }
 
     public static function runSQLQueries(Report $record): void
