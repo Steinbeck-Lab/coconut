@@ -43,6 +43,7 @@
         "socialiteproviders/manager": "^4.7",
         "spatie/laravel-backup": "^8.8.2",
         "spatie/laravel-cookie-consent": "^3.3.2",
+        "spatie/laravel-csp": "^3.21",
         "spatie/laravel-model-states": "^2.9",
         "spatie/laravel-permission": "^6.10.1",
         "spatie/schema-org": "^3.23",

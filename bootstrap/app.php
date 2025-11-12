@@ -15,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: 'api'
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->web(append: [
+            \Spatie\Csp\AddCspHeaders::class,
+        ]);
+        
         // $middleware->alias([
         //     'verified' => EnsureEmailOrPhoneIsVerified::class,
         // ]);

@@ -1,0 +1,147 @@
+<?php
+
+namespace App\Support\Csp\Policies;
+
+use Spatie\Csp\Directive;
+use Spatie\Csp\Keyword;
+use Spatie\Csp\Policy;
+use Spatie\Csp\Preset;
+
+class CoconutPolicy implements Preset
+{
+    public function configure(Policy $policy): void
+    {
+        // Core security directives
+        $policy
+            ->add(Directive::BASE, Keyword::SELF)
+            ->add(Directive::DEFAULT, Keyword::SELF)
+            ->add(Directive::OBJECT, Keyword::NONE);
+
+        // Form action - allow both dev and prod domains (HTTP and HTTPS)
+        $policy
+            ->add(Directive::FORM_ACTION, Keyword::SELF)
+            ->add(Directive::FORM_ACTION, 'https://dev.coconut.naturalproducts.net')
+            ->add(Directive::FORM_ACTION, 'http://dev.coconut.naturalproducts.net')
+            ->add(Directive::FORM_ACTION, 'https://coconut.naturalproducts.net')
+            ->add(Directive::FORM_ACTION, 'http://coconut.naturalproducts.net');
+
+        // Basic asset sources
+        $policy
+            ->add(Directive::SCRIPT, Keyword::SELF)
+            ->add(Directive::STYLE, Keyword::SELF)
+            ->add(Directive::FONT, Keyword::SELF, 'data:')
+            ->add(Directive::CONNECT, Keyword::SELF);
+
+        // Third-party services
+        $policy
+            ->add(Directive::STYLE, 'https://fonts.googleapis.com', 'https://unpkg.com')
+            ->add(Directive::SCRIPT, 'https://matomo.nfdi4chem.de', 'https://cdn.jsdelivr.net')
+            ->add(Directive::CONNECT, 'https://matomo.nfdi4chem.de');
+
+        // Add Coconut-specific external sources
+        $this->addCoconutSources($policy);
+
+        // Unified rules for all environments
+        $this->addUnifiedRules($policy);
+    }
+
+    private function addUnifiedRules(Policy $policy): void
+    {
+
+        // Development server support (for local development with Vite)
+        $policy
+            ->add(Directive::SCRIPT, 'http://localhost:*', 'https://localhost:*')
+            ->add(Directive::STYLE, 'http://localhost:*', 'https://localhost:*')
+            ->add(Directive::FONT, 'http://localhost:*', 'https://localhost:*')
+            ->add(Directive::CONNECT, 'ws://localhost:*', 'wss://localhost:*', 'http://localhost:*', 'https://localhost:*');
+
+        // CDN sources for external libraries (must be added after localhost)
+        $policy
+            ->add(Directive::STYLE, 'https://unpkg.com')
+            ->add(Directive::STYLE, 'https://cdnjs.cloudflare.com')
+            ->add(Directive::SCRIPT, 'https://cdn.jsdelivr.net')
+            ->add(Directive::SCRIPT, 'https://code.jquery.com')
+            ->add(Directive::SCRIPT, 'https://cdnjs.cloudflare.com');
+
+        // Allow build assets from Coconut domains (production and dev)
+        $policy
+            ->add(Directive::FONT, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net')
+            ->add(Directive::STYLE, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net')
+            ->add(Directive::SCRIPT, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net')
+            ->add(Directive::IMG, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net');
+
+
+
+        // Add required keywords last (needed for Livewire, Filament, Alpine.js)
+        $policy
+            ->add(Directive::SCRIPT, Keyword::UNSAFE_INLINE)
+            ->add(Directive::SCRIPT, Keyword::UNSAFE_EVAL)
+            ->add(Directive::STYLE, Keyword::UNSAFE_INLINE);
+
+        // Frame ancestors - allow self and localhost for development
+        $policy->add(Directive::FRAME_ANCESTORS, Keyword::SELF, 'localhost:*', '127.0.0.1:*');
+
+        // Security enhancements (can be enabled for production if needed)
+        // Uncomment for production:
+        // $policy->add(Directive::UPGRADE_INSECURE_REQUESTS);
+        // $policy->add(Directive::BLOCK_ALL_MIXED_CONTENT);
+    }
+
+    /**
+     * Add Coconut-specific external sources.
+     * For runtime-configurable sources, use config/csp.php with CSP_ADDITIONAL_* env variables.
+     */
+    private function addCoconutSources(Policy $policy): void
+    {
+        // Image sources
+        $policy
+            ->add(Directive::IMG, Keyword::SELF)
+            ->add(Directive::IMG, 'data:')
+            ->add(Directive::IMG, 'blob:')
+            ->add(Directive::IMG, 'https://ui-avatars.com')
+            ->add(Directive::IMG, '*.amazonaws.com')
+            ->add(Directive::IMG, '*.s3.amazonaws.com')
+            ->add(Directive::IMG, 'https://s3.uni-jena.de')
+            ->add(Directive::IMG, 'https://www.nfdi4chem.de')
+            ->add(Directive::IMG, 'https://upload.wikimedia.org')
+            ->add(Directive::IMG, 'https://api.cheminf.studio')
+            ->add(Directive::IMG, 'https://coconut.naturalproducts.net')
+            ->add(Directive::IMG, 'https://github.com')
+            ->add(Directive::IMG, 'https://raw.githubusercontent.com')
+            ->add(Directive::IMG, 'https://www.gstatic.com')
+            ->add(Directive::IMG, 'https://developers.google.com');
+
+        // Connection sources - External APIs
+        $policy
+            ->add(Directive::CONNECT, env('AWS_ENDPOINT', 'https://s3.uni-jena.de'))
+            ->add(Directive::CONNECT, env('EUROPEPMC_WS_API', 'https://www.ebi.ac.uk/europepmc/webservices/rest/search'))
+            ->add(Directive::CONNECT, env('CROSSREF_WS_API', 'https://api.crossref.org/works/'))
+            ->add(Directive::CONNECT, env('DATACITE_WS_API', 'https://api.datacite.org/dois/'))
+            ->add(Directive::CONNECT, env('NFDI_REDIRECT_URL', 'https://coconut.naturalproducts.net'))
+            ->add(Directive::CONNECT, env('CM_PUBLIC_API', 'https://api.cheminf.studio'))
+            ->add(Directive::CONNECT, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net')
+            ->add(Directive::CONNECT, '*.tawk.to')
+            ->add(Directive::CONNECT, 'wss://*.tawk.to');
+
+        // Font sources
+        $policy
+            ->add(Directive::FONT, 'https://fonts.googleapis.com')
+            ->add(Directive::FONT, 'https://fonts.gstatic.com');
+
+        // Script sources - External JavaScript libraries
+        $policy
+            ->add(Directive::SCRIPT, '*.tawk.to')
+            ->add(Directive::SCRIPT, 'https://embed.tawk.to')
+            ->add(Directive::SCRIPT, '*.matomo.nfdi4chem.de')
+            ->add(Directive::SCRIPT, 'https://dev.coconut.naturalproducts.net');
+
+        // Frame sources
+        $policy
+            ->add(Directive::FRAME, Keyword::SELF)
+            ->add(Directive::FRAME, '*.tawk.to')
+            ->add(Directive::FRAME, 'https://embed.tawk.to')
+            ->add(Directive::FRAME, 'https://coconut.naturalproducts.net')
+            ->add(Directive::FRAME, 'https://dev.coconut.naturalproducts.net')
+            ->add(Directive::FRAME, 'data:');
+    }
+}

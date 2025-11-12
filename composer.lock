@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "797d8f6af74d3c3f2e5787d8fb233b15",
+    "content-hash": "c26b0114460d439c23661505d77a1e4a",
     "packages": [
         {
             "name": "amphp/amp",
@@ -10593,6 +10593,91 @@
                 }
             ],
             "time": "2025-02-21T13:11:14+00:00"
+        },
+        {
+            "name": "spatie/laravel-csp",
+            "version": "3.21.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/laravel-csp.git",
+                "reference": "1c5a878dddc66283d80ff3bbe810c9dcda4ee919"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/laravel-csp/zipball/1c5a878dddc66283d80ff3bbe810c9dcda4ee919",
+                "reference": "1c5a878dddc66283d80ff3bbe810c9dcda4ee919",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/http": "^11.36.1|^12.0",
+                "illuminate/support": "^11.36.1|^12.0",
+                "php": "^8.3",
+                "spatie/laravel-package-tools": "^1.17"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.6",
+                "orchestra/testbench": "^9.9|^10.0",
+                "pestphp/pest": "^3.0",
+                "roave/security-advisories": "dev-master"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Spatie\\Csp\\CspServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\Csp\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Thomas Verhelst",
+                    "email": "tvke91@gmail.com",
+                    "homepage": "https://spatie.be",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "homepage": "https://spatie.be",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Sebastian De Deyne",
+                    "email": "sebastian@spatie.be",
+                    "homepage": "https://spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Add CSP headers to the responses of a Laravel app",
+            "homepage": "https://github.com/spatie/laravel-csp",
+            "keywords": [
+                "content-security-policy",
+                "csp",
+                "headers",
+                "laravel",
+                "laravel-csp",
+                "security",
+                "spatie"
+            ],
+            "support": {
+                "source": "https://github.com/spatie/laravel-csp/tree/3.21.0"
+            },
+            "funding": [
+                {
+                    "url": "https://spatie.be/open-source/support-us",
+                    "type": "custom"
+                }
+            ],
+            "time": "2025-10-16T07:20:44+00:00"
         },
         {
             "name": "spatie/laravel-ignition",
