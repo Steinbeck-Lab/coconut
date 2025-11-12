@@ -55,12 +55,19 @@ class CoconutPolicy implements Preset
             ->add(Directive::FONT, 'http://localhost:*', 'https://localhost:*')
             ->add(Directive::CONNECT, 'ws://localhost:*', 'wss://localhost:*', 'http://localhost:*', 'https://localhost:*');
 
+        // CDN sources for external libraries (must be added after localhost)
+        $policy
+            ->add(Directive::STYLE, 'https://unpkg.com')
+            ->add(Directive::SCRIPT, 'https://cdn.jsdelivr.net');
+
         // Allow build assets from Coconut domains (production and dev)
         $policy
             ->add(Directive::FONT, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net')
             ->add(Directive::STYLE, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net')
             ->add(Directive::SCRIPT, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net')
             ->add(Directive::IMG, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net');
+
+
 
         // Add required keywords last (needed for Livewire, Filament, Alpine.js)
         $policy
