@@ -16,6 +16,8 @@ class CoconutPolicy implements Preset
             ->add(Directive::BASE, Keyword::SELF)
             ->add(Directive::DEFAULT, Keyword::SELF)
             ->add(Directive::FORM_ACTION, Keyword::SELF)
+            ->add(Directive::FORM_ACTION, 'https://dev.coconut.naturalproducts.net')
+            ->add(Directive::FORM_ACTION, 'https://coconut.naturalproducts.net')
             ->add(Directive::OBJECT, Keyword::NONE);
 
         // Basic asset sources
@@ -94,7 +96,11 @@ class CoconutPolicy implements Preset
             ->add(Directive::IMG, 'https://www.nfdi4chem.de')
             ->add(Directive::IMG, 'https://upload.wikimedia.org')
             ->add(Directive::IMG, 'https://api.cheminf.studio')
-            ->add(Directive::IMG, 'https://coconut.naturalproducts.net');
+            ->add(Directive::IMG, 'https://coconut.naturalproducts.net')
+            ->add(Directive::IMG, 'https://github.com')
+            ->add(Directive::IMG, 'https://raw.githubusercontent.com')
+            ->add(Directive::IMG, 'https://www.gstatic.com')
+            ->add(Directive::IMG, 'https://developers.google.com');
 
         // Connection sources - External APIs
         $policy
@@ -124,6 +130,9 @@ class CoconutPolicy implements Preset
         $policy
             ->add(Directive::FRAME, Keyword::SELF)
             ->add(Directive::FRAME, '*.tawk.to')
-            ->add(Directive::FRAME, 'https://embed.tawk.to');
+            ->add(Directive::FRAME, 'https://embed.tawk.to')
+            ->add(Directive::FRAME, 'https://coconut.naturalproducts.net')
+            ->add(Directive::FRAME, 'https://dev.coconut.naturalproducts.net')
+            ->add(Directive::FRAME, 'data:');
     }
 }
