@@ -58,7 +58,10 @@ class CoconutPolicy implements Preset
         // CDN sources for external libraries (must be added after localhost)
         $policy
             ->add(Directive::STYLE, 'https://unpkg.com')
-            ->add(Directive::SCRIPT, 'https://cdn.jsdelivr.net');
+            ->add(Directive::STYLE, 'https://cdnjs.cloudflare.com')
+            ->add(Directive::SCRIPT, 'https://cdn.jsdelivr.net')
+            ->add(Directive::SCRIPT, 'https://code.jquery.com')
+            ->add(Directive::SCRIPT, 'https://cdnjs.cloudflare.com');
 
         // Allow build assets from Coconut domains (production and dev)
         $policy
