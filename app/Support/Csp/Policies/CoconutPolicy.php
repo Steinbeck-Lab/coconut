@@ -15,10 +15,13 @@ class CoconutPolicy implements Preset
         $policy
             ->add(Directive::BASE, Keyword::SELF)
             ->add(Directive::DEFAULT, Keyword::SELF)
+            ->add(Directive::OBJECT, Keyword::NONE);
+
+        // Form action - allow both dev and prod domains
+        $policy
             ->add(Directive::FORM_ACTION, Keyword::SELF)
             ->add(Directive::FORM_ACTION, 'https://dev.coconut.naturalproducts.net')
-            ->add(Directive::FORM_ACTION, 'https://coconut.naturalproducts.net')
-            ->add(Directive::OBJECT, Keyword::NONE);
+            ->add(Directive::FORM_ACTION, 'https://coconut.naturalproducts.net');
 
         // Basic asset sources
         $policy
@@ -63,19 +66,13 @@ class CoconutPolicy implements Preset
             ->add(Directive::SCRIPT, Keyword::UNSAFE_EVAL)
             ->add(Directive::STYLE, Keyword::UNSAFE_INLINE);
 
-        // Frame ancestors - Environment-based
-        if (app()->environment('production')) {
-            $policy->add(Directive::FRAME_ANCESTORS, Keyword::NONE);
-        } else {
-            $policy->add(Directive::FRAME_ANCESTORS, Keyword::SELF, 'localhost:*', '127.0.0.1:*');
-        }
+        // Frame ancestors - allow self and localhost for development
+        $policy->add(Directive::FRAME_ANCESTORS, Keyword::SELF, 'localhost:*', '127.0.0.1:*');
 
-        // Production-only security enhancements
-        if (app()->environment('production')) {
-            $policy
-                ->add(Directive::UPGRADE_INSECURE_REQUESTS)
-                ->add(Directive::BLOCK_ALL_MIXED_CONTENT);
-        }
+        // Security enhancements (can be enabled for production if needed)
+        // Uncomment for production:
+        // $policy->add(Directive::UPGRADE_INSECURE_REQUESTS);
+        // $policy->add(Directive::BLOCK_ALL_MIXED_CONTENT);
     }
 
     /**
