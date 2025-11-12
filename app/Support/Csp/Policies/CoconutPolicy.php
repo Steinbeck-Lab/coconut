@@ -40,10 +40,6 @@ class CoconutPolicy implements Preset
 
     private function addUnifiedRules(Policy $policy): void
     {
-        // Allow inline scripts and styles (needed for Livewire, Filament)
-        $policy
-            ->add(Directive::SCRIPT, Keyword::UNSAFE_INLINE, Keyword::UNSAFE_EVAL)
-            ->add(Directive::STYLE, Keyword::UNSAFE_INLINE);
 
         // Development server support (for local development with Vite)
         $policy
@@ -58,6 +54,12 @@ class CoconutPolicy implements Preset
             ->add(Directive::STYLE, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net')
             ->add(Directive::SCRIPT, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net')
             ->add(Directive::IMG, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net');
+
+        // Add required keywords last (needed for Livewire, Filament, Alpine.js)
+        $policy
+            ->add(Directive::SCRIPT, Keyword::UNSAFE_INLINE)
+            ->add(Directive::SCRIPT, Keyword::UNSAFE_EVAL)
+            ->add(Directive::STYLE, Keyword::UNSAFE_INLINE);
 
         // Frame ancestors - Environment-based
         if (app()->environment('production')) {
@@ -88,7 +90,6 @@ class CoconutPolicy implements Preset
             ->add(Directive::IMG, 'https://ui-avatars.com')
             ->add(Directive::IMG, '*.amazonaws.com')
             ->add(Directive::IMG, '*.s3.amazonaws.com')
-            ->add(Directive::IMG, '*.s3.*.amazonaws.com')
             ->add(Directive::IMG, 'https://s3.uni-jena.de')
             ->add(Directive::IMG, 'https://www.nfdi4chem.de')
             ->add(Directive::IMG, 'https://upload.wikimedia.org')
@@ -116,7 +117,8 @@ class CoconutPolicy implements Preset
         $policy
             ->add(Directive::SCRIPT, '*.tawk.to')
             ->add(Directive::SCRIPT, 'https://embed.tawk.to')
-            ->add(Directive::SCRIPT, '*.matomo.nfdi4chem.de');
+            ->add(Directive::SCRIPT, '*.matomo.nfdi4chem.de')
+            ->add(Directive::SCRIPT, 'https://dev.coconut.naturalproducts.net');
 
         // Frame sources
         $policy
