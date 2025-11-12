@@ -17,11 +17,13 @@ class CoconutPolicy implements Preset
             ->add(Directive::DEFAULT, Keyword::SELF)
             ->add(Directive::OBJECT, Keyword::NONE);
 
-        // Form action - allow both dev and prod domains
+        // Form action - allow both dev and prod domains (HTTP and HTTPS)
         $policy
             ->add(Directive::FORM_ACTION, Keyword::SELF)
             ->add(Directive::FORM_ACTION, 'https://dev.coconut.naturalproducts.net')
-            ->add(Directive::FORM_ACTION, 'https://coconut.naturalproducts.net');
+            ->add(Directive::FORM_ACTION, 'http://dev.coconut.naturalproducts.net')
+            ->add(Directive::FORM_ACTION, 'https://coconut.naturalproducts.net')
+            ->add(Directive::FORM_ACTION, 'http://coconut.naturalproducts.net');
 
         // Basic asset sources
         $policy
