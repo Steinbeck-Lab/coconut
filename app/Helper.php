@@ -11,6 +11,17 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Events\AuditCustom;
 
 /**
+ * Get the CSP nonce value for inline scripts and styles.
+ * This is used to allow specific inline scripts while blocking others.
+ *
+ * @return string The nonce value
+ */
+function csp_nonce(): string
+{
+    return app('csp-nonce');
+}
+
+/**
  * Get all curator users.
  * This centralizes curator fetching logic that may change in the future.
  *
@@ -77,7 +88,7 @@ function fetchDOICitation($doi)
     $citationResponse = null;
     $europemcUrl = env('EUROPEPMC_WS_API');
     $europemcParams = [
-        'query' => 'DOI:'.$doi,
+        'query' => 'DOI:' . $doi,
         'format' => 'json',
         'pageSize' => '1',
         'resulttype' => 'core',
@@ -89,13 +100,13 @@ function fetchDOICitation($doi)
         $citationResponse = formatCitationResponse($europemcResponse['resultList']['result'][0], 'europemc');
     } else {
         // fetch citation from CrossRef
-        $crossrefUrl = env('CROSSREF_WS_API').$doi;
+        $crossrefUrl = env('CROSSREF_WS_API') . $doi;
         $crossrefResponse = makeRequest($crossrefUrl);
         if ($crossrefResponse && isset($crossrefResponse['message'])) {
             $citationResponse = formatCitationResponse($crossrefResponse['message'], 'crossref');
         } else {
             // fetch citation from DataCite
-            $dataciteUrl = env('DATACITE_WS_API').$doi;
+            $dataciteUrl = env('DATACITE_WS_API') . $doi;
             $dataciteResponse = makeRequest($dataciteUrl);
             if ($dataciteResponse && isset($dataciteResponse['data'])) {
                 $citationResponse = formatCitationResponse($dataciteResponse['data'], 'datacite');
@@ -145,7 +156,7 @@ function formatCitationResponse($obj, $apiType)
                 $pageInfo = isset($obj['pageInfo']) ? $obj['pageInfo'] : '';
                 $formattedCitationRes['title'] = isset($obj['title']) ? $obj['title'] : '';
                 $formattedCitationRes['authors'] = isset($obj['authorString']) ? $obj['authorString'] : '';
-                $formattedCitationRes['citation_text'] = $journalTitle.' '.$yearofPublication.' '.$volume.' ( '.$issue.' ) '.$pageInfo;
+                $formattedCitationRes['citation_text'] = $journalTitle . ' ' . $yearofPublication . ' ' . $volume . ' ( ' . $issue . ' ) ' . $pageInfo;
                 $formattedCitationRes['doi'] = isset($obj['doi']) ? $obj['doi'] : '';
                 break;
             case 'datacite':
@@ -160,7 +171,7 @@ function formatCitationResponse($obj, $apiType)
                         return $author['name'];
                     }, $obj['attributes']['creators']));
                 }
-                $formattedCitationRes['citation_text'] = $journalTitle.' '.$yearofPublication;
+                $formattedCitationRes['citation_text'] = $journalTitle . ' ' . $yearofPublication;
                 $formattedCitationRes['doi'] = isset($obj['attributes']['doi']) ? $obj['attributes']['doi'] : '';
                 break;
             case 'crossref':
@@ -174,7 +185,7 @@ function formatCitationResponse($obj, $apiType)
                     $formattedCitationRes['authors'] = implode(', ', array_map(function ($author) {
                         $fullName = '';
                         if (isset($author['given'])) {
-                            $fullName .= $author['given'].' ';
+                            $fullName .= $author['given'] . ' ';
                         }
                         if (isset($author['family'])) {
                             $fullName .= $author['family'];
@@ -183,7 +194,7 @@ function formatCitationResponse($obj, $apiType)
                         return $fullName;
                     }, $obj['author']));
                 }
-                $formattedCitationRes['citation_text'] = $journalTitle.' '.$yearofPublication.' '.$volume.' ( '.$issue.' ) '.$pageInfo;
+                $formattedCitationRes['citation_text'] = $journalTitle . ' ' . $yearofPublication . ' ' . $volume . ' ( ' . $issue . ' ) ' . $pageInfo;
                 $formattedCitationRes['doi'] = isset($obj['DOI']) ? $obj['DOI'] : '';
                 break;
         }
@@ -238,12 +249,12 @@ function changeAudit(array $data): array
                     $value = is_array($value) ? $value : $value->toArray();
                     if (array_key_exists('name', $value)) {
                         if (array_key_exists('identifier', $value)) {
-                            $value['name'] = $value['name'].' (ID: '.$value['id'].')'.' (COCONUT ID: '.$value['identifier'].')';
+                            $value['name'] = $value['name'] . ' (ID: ' . $value['id'] . ')' . ' (COCONUT ID: ' . $value['identifier'] . ')';
                         } else {
-                            $value['name'] = $value['name'].' (ID: '.$value['id'].')';
+                            $value['name'] = $value['name'] . ' (ID: ' . $value['id'] . ')';
                         }
                     } else {
-                        $value['title'] = $value['title'].' (ID: '.$value['id'].')';
+                        $value['title'] = $value['title'] . ' (ID: ' . $value['id'] . ')';
                     }
                     $data[$key_type][$changed_model][$key] = array_intersect_key($value, $whitelist);
                 }
@@ -263,7 +274,7 @@ function flattenArray(array $array, $prefix = ''): array
 
     foreach ($array as $key => $value) {
         // Determine the new key based on whether a prefix exists
-        $newKey = $prefix === '' ? $key : $prefix.'.'.$key;
+        $newKey = $prefix === '' ? $key : $prefix . '.' . $key;
 
         // If the value is an array, flatten it recursively
         if (is_array($value)) {
@@ -614,7 +625,7 @@ function handleJobFailure(
 
     $logMessage = "{$jobShortName} job failed";
     if (! empty($logContext)) {
-        $logMessage .= ' for '.implode(', ', $logContext);
+        $logMessage .= ' for ' . implode(', ', $logContext);
     }
     $logMessage .= ": {$errorMessage}";
 

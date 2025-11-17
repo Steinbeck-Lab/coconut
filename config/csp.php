@@ -1,6 +1,7 @@
 <?php
 
 use App\Support\Csp\Policies\CoconutPolicy;
+
 // use Spatie\Csp\Directive;
 // use Spatie\Csp\Keyword;
 
@@ -9,7 +10,7 @@ return [
     /*
      * Presets will determine which CSP headers will be set. A valid CSP preset is
      * any class that implements `Spatie\Csp\Preset`
-     * 
+     *
      * The CoconutPolicy class automatically handles environment-specific rules:
      * - Development: Permissive for local development with Vite HMR
      * - Production: Strict security with additional protections
@@ -29,7 +30,7 @@ return [
     /*
      * These presets which will be put in a report-only policy. This is great for testing out
      * a new policy or changes to existing CSP policy without breaking anything.
-     * 
+     *
      * Enable report-only mode to test stricter policies:
      * You can duplicate CoconutPolicy with stricter rules for testing
      */

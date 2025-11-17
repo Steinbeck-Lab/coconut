@@ -30,7 +30,7 @@
 
 
     <!-- Matomo -->
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         var _paq = window._paq = window._paq || [];
         /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
         _paq.push(['trackPageView']);
@@ -75,7 +75,7 @@
     @livewireScripts
     @include('cookie-consent::index')
 </body>
-<script>
+<script nonce="{{ csp_nonce() }}">
     document.addEventListener('DOMContentLoaded', function() {
         function animateValue(element, start, end, duration) {
             let startTimestamp = null;

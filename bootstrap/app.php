@@ -18,7 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \Spatie\Csp\AddCspHeaders::class,
         ]);
-        
+
         // $middleware->alias([
         //     'verified' => EnsureEmailOrPhoneIsVerified::class,
         // ]);

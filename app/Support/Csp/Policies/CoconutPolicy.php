@@ -70,13 +70,11 @@ class CoconutPolicy implements Preset
             ->add(Directive::SCRIPT, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net')
             ->add(Directive::IMG, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net');
 
+        // Add nonce for inline scripts.This is automatically handled by spatie/laravel-csp when nonce_enabled is true
+        $policy->addNonceForDirective(Directive::SCRIPT);
 
-
-        // Add required keywords last (needed for Livewire, Filament, Alpine.js)
-        $policy
-            ->add(Directive::SCRIPT, Keyword::UNSAFE_INLINE)
-            ->add(Directive::SCRIPT, Keyword::UNSAFE_EVAL)
-            ->add(Directive::STYLE, Keyword::UNSAFE_INLINE);
+        // Keep unsafe-inline for styles temporarily (needed for Alpine.js inline styles and dynamic style attributes)
+        $policy->add(Directive::STYLE, Keyword::UNSAFE_INLINE);
 
         // Frame ancestors - allow self and localhost for development
         $policy->add(Directive::FRAME_ANCESTORS, Keyword::SELF, 'localhost:*', '127.0.0.1:*');

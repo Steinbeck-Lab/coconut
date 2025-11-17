@@ -43,7 +43,7 @@
         </div>
     </div>
 
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         document.addEventListener('DOMContentLoaded', function() {
             // Function to check if ChartZoom plugin is available
             function isChartZoomAvailable() {
