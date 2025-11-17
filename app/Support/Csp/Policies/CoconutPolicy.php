@@ -98,6 +98,7 @@ class CoconutPolicy implements Preset
             ->add(Directive::IMG, Keyword::SELF)
             ->add(Directive::IMG, 'data:')
             ->add(Directive::IMG, 'blob:')
+            ->add(Directive::IMG, ['http://localhost:*', 'https://localhost:*', 'http://127.0.0.1:*', 'https://127.0.0.1:*']) // Local development (depict service)
             ->add(Directive::IMG, 'https://ui-avatars.com')
             ->add(Directive::IMG, '*.amazonaws.com')
             ->add(Directive::IMG, '*.s3.amazonaws.com')

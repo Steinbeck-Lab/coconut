@@ -38,7 +38,7 @@
         (function() {
             var u = "//matomo.nfdi4chem.de/";
             _paq.push(['setTrackerUrl', u + 'matomo.php']);
-            _paq.push(['setSiteId', '3']);
+            _paq.push(['setSiteId', '8']);
             var d = document,
                 g = d.createElement('script'),
                 s = d.getElementsByTagName('script')[0];
