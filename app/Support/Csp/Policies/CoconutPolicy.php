@@ -6,6 +6,7 @@ use Spatie\Csp\Directive;
 use Spatie\Csp\Keyword;
 use Spatie\Csp\Policy;
 use Spatie\Csp\Preset;
+use Spatie\Csp\Value;
 
 class CoconutPolicy implements Preset
 {
@@ -36,7 +37,8 @@ class CoconutPolicy implements Preset
         $policy
             ->add(Directive::STYLE, 'https://fonts.googleapis.com', 'https://unpkg.com')
             ->add(Directive::SCRIPT, 'https://matomo.nfdi4chem.de', 'https://cdn.jsdelivr.net')
-            ->add(Directive::CONNECT, 'https://matomo.nfdi4chem.de');
+            ->add(Directive::CONNECT, 'https://matomo.nfdi4chem.de')
+            ->add(Directive::IMG, 'https://matomo.nfdi4chem.de');
 
         // Add Coconut-specific external sources
         $this->addCoconutSources($policy);
@@ -49,11 +51,12 @@ class CoconutPolicy implements Preset
     {
 
         // Development server support (for local development with Vite)
+        // Support both localhost, 127.0.0.1 (IPv4), and ::1 (IPv6)
         $policy
-            ->add(Directive::SCRIPT, 'http://localhost:*', 'https://localhost:*')
-            ->add(Directive::STYLE, 'http://localhost:*', 'https://localhost:*')
-            ->add(Directive::FONT, 'http://localhost:*', 'https://localhost:*')
-            ->add(Directive::CONNECT, 'ws://localhost:*', 'wss://localhost:*', 'http://localhost:*', 'https://localhost:*');
+            ->add(Directive::SCRIPT, ['http://localhost:*', 'https://localhost:*', 'http://127.0.0.1:*', 'https://127.0.0.1:*'])
+            ->add(Directive::STYLE, ['http://localhost:*', 'https://localhost:*', 'http://127.0.0.1:*', 'https://127.0.0.1:*'])
+            ->add(Directive::FONT, ['http://localhost:*', 'https://localhost:*', 'http://127.0.0.1:*', 'https://127.0.0.1:*'])
+            ->add(Directive::CONNECT, ['ws://localhost:*', 'wss://localhost:*', 'http://localhost:*', 'https://localhost:*', 'ws://127.0.0.1:*', 'wss://127.0.0.1:*', 'http://127.0.0.1:*', 'https://127.0.0.1:*']);
 
         // CDN sources for external libraries (must be added after localhost)
         $policy
@@ -75,14 +78,13 @@ class CoconutPolicy implements Preset
 
         // Keep unsafe-inline for styles temporarily (needed for Alpine.js inline styles and dynamic style attributes)
         $policy->add(Directive::STYLE, Keyword::UNSAFE_INLINE);
+        $policy->add(Directive::SCRIPT, Keyword::UNSAFE_EVAL);
 
         // Frame ancestors - allow self and localhost for development
-        $policy->add(Directive::FRAME_ANCESTORS, Keyword::SELF, 'localhost:*', '127.0.0.1:*');
+        $policy->add(Directive::FRAME_ANCESTORS, [Keyword::SELF, 'localhost:*', '127.0.0.1:*']);
 
-        // Security enhancements (can be enabled for production if needed)
-        // Uncomment for production:
-        // $policy->add(Directive::UPGRADE_INSECURE_REQUESTS);
-        // $policy->add(Directive::BLOCK_ALL_MIXED_CONTENT);
+        // Security enhancements - automatically upgrade HTTP to HTTPS
+        $policy->add(Directive::UPGRADE_INSECURE_REQUESTS, Value::NO_VALUE);
     }
 
     /**
@@ -121,7 +123,8 @@ class CoconutPolicy implements Preset
             ->add(Directive::CONNECT, '*.tawk.to')
             ->add(Directive::CONNECT, 'wss://*.tawk.to')
             ->add(Directive::CONNECT, 'https://cdn.jsdelivr.net')
-            ->add(Directive::CONNECT, 'https://cdnjs.cloudflare.com');
+            ->add(Directive::CONNECT, 'https://cdnjs.cloudflare.com')
+            ->add(Directive::CONNECT, 'http://matomo.nfdi4chem.de/');
 
         // Font sources
         $policy
@@ -132,7 +135,7 @@ class CoconutPolicy implements Preset
         $policy
             ->add(Directive::SCRIPT, '*.tawk.to')
             ->add(Directive::SCRIPT, 'https://embed.tawk.to')
-            ->add(Directive::SCRIPT, '*.matomo.nfdi4chem.de')
+            ->add(Directive::SCRIPT, '*.matomo.nfdi4chem.de/')
             ->add(Directive::SCRIPT, 'https://dev.coconut.naturalproducts.net');
 
         // Frame sources
