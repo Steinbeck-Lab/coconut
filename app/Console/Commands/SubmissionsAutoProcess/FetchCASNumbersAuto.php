@@ -51,10 +51,8 @@ class FetchCASNumbersAuto extends Command
                 return 1;
             }
             Log::info("Fetching CAS numbers for collection ID: {$collection_id}");
-            $this->info("Fetching CAS numbers for collection ID: {$collection_id}");
         } else {
             Log::info('Fetching CAS numbers for all molecules');
-            $this->info('Fetching CAS numbers for all molecules');
         }
 
         // Build query for molecules that need CAS numbers
@@ -75,19 +73,17 @@ class FetchCASNumbersAuto extends Command
         // Exclude molecules that have failed CAS fetch previously (unless retrying)
         $query->where(function ($q) {
             $q->whereNull('curation_status->fetch-cas->status')
-                ->orWhereNotIn('curation_status->fetch-cas->status', ['failed','completed']);
+                ->orWhereNotIn('curation_status->fetch-cas->status', ['failed', 'completed']);
         });
 
         $totalCount = $query->count();
         if ($totalCount === 0) {
             Log::info('No molecules found that need CAS number fetching.');
-            $this->info('No molecules found that need CAS number fetching.');
 
             return 0;
         }
 
         Log::info("Found {$totalCount} molecules that need CAS number fetching");
-        $this->info("Found {$totalCount} molecules that need CAS number fetching");
 
         $progressBar = $this->output->createProgressBar($totalCount);
         $progressBar->setFormat(' %current%/%max% molecules [%bar%] %percent%% %elapsed%/%estimated% %memory%');
@@ -101,7 +97,7 @@ class FetchCASNumbersAuto extends Command
         $query->chunkById($this->batchSize, function ($molecules) use ($progressBar, &$successCount, &$failCount, &$notFoundCount) {
             foreach ($molecules as $molecule) {
                 try {
-                    Log::info("Fetching CAS number for molecule {$molecule->id} (InChIKey: {$molecule->standard_inchi_key})");
+                    Log::info("Fetching CAS number for molecule {$molecule->id}");
 
                     $casNumber = $this->fetchCASFromAPI($molecule);
 
@@ -156,10 +152,6 @@ class FetchCASNumbersAuto extends Command
         $this->newLine();
 
         Log::info("CAS number fetch process completed. Success: {$successCount}, Not Found: {$notFoundCount}, Failed: {$failCount}");
-        $this->info('CAS number fetch process completed.');
-        $this->info("Success: {$successCount}");
-        $this->info("Not Found: {$notFoundCount}");
-        $this->info("Failed: {$failCount}");
 
         return 0;
     }
@@ -177,20 +169,20 @@ class FetchCASNumbersAuto extends Command
         ];
 
         foreach ($candidates as $candidate) {
-            $this->info("\n Searching CAS number using candidate: {$candidate}");
+            Log::info("Searching CAS number using candidate: {$candidate}");
             if (! $candidate) {
                 continue;
             }
 
             $casNumber = $this->fetchCASFromCommonChemistryAPI($candidate, 'search');
-            $this->info("Received CAS number: {$casNumber}");
+            Log::info("Received CAS number: {$casNumber}");
             if ($casNumber) {
                 //  Get the details using this CAS number.
                 $details = $this->fetchCASFromCommonChemistryAPI($casNumber, 'detail');
                 // Use the SMILE, InChI, InChIKey from details to verify if this is the correct molecule.
                 // First need to standardise the smiles using CMS pre-processing pipeline.
                 $isTheCorrectMolecule = $this->verifyMoleculeIdentity($molecule, $details);
-                $this->info(sprintf("Is the correct molecule: %s", $isTheCorrectMolecule ? 'yes' : 'no'));
+                Log::info(sprintf('Is the correct molecule: %s', $isTheCorrectMolecule ? 'yes' : 'no'));
 
                 if ($isTheCorrectMolecule) {
                     return $casNumber;
@@ -206,7 +198,6 @@ class FetchCASNumbersAuto extends Command
      */
     private function fetchCASFromCommonChemistryAPI(string $query, string $searchType = 'search')
     {
-        $this->info("Making {$searchType} request");
         if ($searchType === 'detail') {
             $url = "{$this->apiBaseUrl}/detail";
             $params = ['cas_rn' => $query];
@@ -235,8 +226,6 @@ class FetchCASNumbersAuto extends Command
             'common-chemistry-api',
             1, // 1 request per 2 seconds (30 requests per minute)
             function () use ($url, $params) {
-                Log::info("Making Common Chemistry API request: {$url}");
-
                 return $this->doActualRequest($url, $params);
             },
             2 // 2 seconds
@@ -244,7 +233,7 @@ class FetchCASNumbersAuto extends Command
 
         if ($response === false) {
             $waitTime = RateLimiter::availableIn('common-chemistry-api');
-            Log::warning("Common Chemistry API rate limited (wait: {$waitTime}s). Skipping request for: {$url}");
+            Log::warning("Common Chemistry API rate limited (wait: {$waitTime}s). Waiting and retrying request for: {$url}");
             sleep($waitTime);
             $response = $this->makeAPIRequest($url, $params);
         }
@@ -366,7 +355,7 @@ class FetchCASNumbersAuto extends Command
     private function verifyMoleculeIdentity(Molecule $originalMolecule, array $fetchedDetails): bool
     {
         $API_URL = env('API_URL', 'https://api.cheminf.studio/latest/');
-        $ENDPOINT = $API_URL.'chem/coconut/pre-processing?smiles='.urlencode($fetchedDetails['smile']? : $fetchedDetails['canonicalSmile']).'&_3d_mol=false&descriptors=false';
+        $ENDPOINT = $API_URL.'chem/coconut/pre-processing?smiles='.urlencode($fetchedDetails['smile'] ?: $fetchedDetails['canonicalSmile']).'&_3d_mol=false&descriptors=false';
 
         $standardized_smiles = null;
         try {
@@ -374,7 +363,6 @@ class FetchCASNumbersAuto extends Command
             if ($response->successful()) {
                 $data = $response->json();
                 if (array_key_exists('standardized', $data)) {
-                    $this->info("Standardized SMILES from fetched details: {$data['standardized']['representations']['canonical_smiles']}");
                     $standardized_smiles = $data['standardized']['representations']['canonical_smiles'];
                 }
             }
@@ -387,9 +375,6 @@ class FetchCASNumbersAuto extends Command
         if ($standardized_smiles === null) {
             return false;
         }
-
-        // $this->info("Standardized SMILES from fetched details: {$standardized_smiles}");
-        $this->info("Standardized SMILES from original molecule: {$originalMolecule->canonical_smiles}");
 
         return $standardized_smiles === $originalMolecule->canonical_smiles;
     }
