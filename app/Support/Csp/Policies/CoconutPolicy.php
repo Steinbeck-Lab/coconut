@@ -18,13 +18,11 @@ class CoconutPolicy implements Preset
             ->add(Directive::DEFAULT, Keyword::SELF)
             ->add(Directive::OBJECT, Keyword::NONE);
 
-        // Form action - allow both dev and prod domains (HTTP and HTTPS)
+        // Form action - allow both dev and prod domains (HTTPS only)
         $policy
             ->add(Directive::FORM_ACTION, Keyword::SELF)
             ->add(Directive::FORM_ACTION, 'https://dev.coconut.naturalproducts.net')
-            ->add(Directive::FORM_ACTION, 'http://dev.coconut.naturalproducts.net')
-            ->add(Directive::FORM_ACTION, 'https://coconut.naturalproducts.net')
-            ->add(Directive::FORM_ACTION, 'http://coconut.naturalproducts.net');
+            ->add(Directive::FORM_ACTION, 'https://coconut.naturalproducts.net');
 
         // Basic asset sources
         $policy
@@ -49,16 +47,23 @@ class CoconutPolicy implements Preset
 
     private function addUnifiedRules(Policy $policy): void
     {
-
         // Development server support (for local development with Vite)
-        // Support both localhost, 127.0.0.1 (IPv4), and ::1 (IPv6)
-        $policy
-            ->add(Directive::SCRIPT, ['http://localhost:*', 'https://localhost:*', 'http://127.0.0.1:*', 'https://127.0.0.1:*'])
-            ->add(Directive::STYLE, ['http://localhost:*', 'https://localhost:*', 'http://127.0.0.1:*', 'https://127.0.0.1:*'])
-            ->add(Directive::FONT, ['http://localhost:*', 'https://localhost:*', 'http://127.0.0.1:*', 'https://127.0.0.1:*'])
-            ->add(Directive::CONNECT, ['ws://localhost:*', 'wss://localhost:*', 'http://localhost:*', 'https://localhost:*', 'ws://127.0.0.1:*', 'wss://127.0.0.1:*', 'http://127.0.0.1:*', 'https://127.0.0.1:*']);
+        // Only add localhost sources in non-production environments
+        if (! app()->environment('production')) {
+            $policy
+                ->add(Directive::SCRIPT, ['http://localhost:*', 'https://localhost:*', 'http://127.0.0.1:*', 'https://127.0.0.1:*'])
+                ->add(Directive::STYLE, ['http://localhost:*', 'https://localhost:*', 'http://127.0.0.1:*', 'https://127.0.0.1:*'])
+                ->add(Directive::FONT, ['http://localhost:*', 'https://localhost:*', 'http://127.0.0.1:*', 'https://127.0.0.1:*'])
+                ->add(Directive::CONNECT, ['ws://localhost:*', 'wss://localhost:*', 'http://localhost:*', 'https://localhost:*', 'ws://127.0.0.1:*', 'wss://127.0.0.1:*', 'http://127.0.0.1:*', 'https://127.0.0.1:*']);
 
-        // CDN sources for external libraries (must be added after localhost)
+            // Frame ancestors - allow localhost for development
+            $policy->add(Directive::FRAME_ANCESTORS, [Keyword::SELF, 'localhost:*', '127.0.0.1:*']);
+        } else {
+            // Production only - strict frame ancestors
+            $policy->add(Directive::FRAME_ANCESTORS, Keyword::SELF);
+        }
+
+        // CDN sources for external libraries
         $policy
             ->add(Directive::STYLE, 'https://unpkg.com')
             ->add(Directive::STYLE, 'https://cdnjs.cloudflare.com')
@@ -80,9 +85,6 @@ class CoconutPolicy implements Preset
         $policy->add(Directive::STYLE, Keyword::UNSAFE_INLINE);
         $policy->add(Directive::SCRIPT, Keyword::UNSAFE_EVAL);
 
-        // Frame ancestors - allow self and localhost for development
-        $policy->add(Directive::FRAME_ANCESTORS, [Keyword::SELF, 'localhost:*', '127.0.0.1:*']);
-
         // Security enhancements - automatically upgrade HTTP to HTTPS
         $policy->add(Directive::UPGRADE_INSECURE_REQUESTS, Value::NO_VALUE);
     }
@@ -98,7 +100,6 @@ class CoconutPolicy implements Preset
             ->add(Directive::IMG, Keyword::SELF)
             ->add(Directive::IMG, 'data:')
             ->add(Directive::IMG, 'blob:')
-            ->add(Directive::IMG, ['http://localhost:*', 'https://localhost:*', 'http://127.0.0.1:*', 'https://127.0.0.1:*']) // Local development (depict service)
             ->add(Directive::IMG, 'https://ui-avatars.com')
             ->add(Directive::IMG, '*.amazonaws.com')
             ->add(Directive::IMG, '*.s3.amazonaws.com')
@@ -112,6 +113,11 @@ class CoconutPolicy implements Preset
             ->add(Directive::IMG, 'https://www.gstatic.com')
             ->add(Directive::IMG, 'https://developers.google.com');
 
+        // Local development image sources (depict service)
+        if (! app()->environment('production')) {
+            $policy->add(Directive::IMG, ['http://localhost:*', 'https://localhost:*', 'http://127.0.0.1:*', 'https://127.0.0.1:*']);
+        }
+
         // Connection sources - External APIs
         $policy
             ->add(Directive::CONNECT, env('AWS_ENDPOINT', 'https://s3.uni-jena.de'))
@@ -120,12 +126,13 @@ class CoconutPolicy implements Preset
             ->add(Directive::CONNECT, env('DATACITE_WS_API', 'https://api.datacite.org/dois/'))
             ->add(Directive::CONNECT, env('NFDI_REDIRECT_URL', 'https://coconut.naturalproducts.net'))
             ->add(Directive::CONNECT, env('CM_PUBLIC_API', 'https://api.cheminf.studio'))
-            ->add(Directive::CONNECT, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net')
+            ->add(Directive::CONNECT, 'https://coconut.naturalproducts.net')
+            ->add(Directive::CONNECT, 'https://dev.coconut.naturalproducts.net')
             ->add(Directive::CONNECT, '*.tawk.to')
             ->add(Directive::CONNECT, 'wss://*.tawk.to')
             ->add(Directive::CONNECT, 'https://cdn.jsdelivr.net')
             ->add(Directive::CONNECT, 'https://cdnjs.cloudflare.com')
-            ->add(Directive::CONNECT, 'http://matomo.nfdi4chem.de/');
+            ->add(Directive::CONNECT, 'http://matomo.nfdi4chem.de');
 
         // Font sources
         $policy
