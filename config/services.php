@@ -49,4 +49,8 @@ return [
         'redirect' => env('NFDI_REDIRECT_URL'),
     ],
 
+    'cheminf' => [
+        'api_url' => env('CM_PUBLIC_API', 'https://api.cheminf.studio/latest/'),
+    ],
+
 ];
