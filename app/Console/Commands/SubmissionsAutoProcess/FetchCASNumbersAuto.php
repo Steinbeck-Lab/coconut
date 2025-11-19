@@ -161,8 +161,8 @@ class FetchCASNumbersAuto extends Command
      */
     private function fetchCASFromAPI(Molecule $molecule): ?string
     {
-        // We only use the single /search endpoint on Common Chemistry.
-        // Try candidates in order: InChIKey, SMILES, name.
+        // Try candidates in order: InChIKey, SMILES.
+        // Common CAS Registry is doing an exact match on SMILES. Since SMILES of our molecules are standardized using CMS pre-processing pipeline, our canonical SMILES may not match theirs.
         $candidates = [
             'InChIKey='.$molecule->standard_inchi_key,
             $molecule->canonical_smiles,
@@ -179,7 +179,7 @@ class FetchCASNumbersAuto extends Command
             if ($casNumber) {
                 //  Get the details using this CAS number.
                 $details = $this->fetchCASFromCommonChemistryAPI($casNumber, 'detail');
-                // Use the SMILE, InChI, InChIKey from details to verify if this is the correct molecule.
+                // Use the SMILE (if not then use Canonical SMILE), InChI, InChIKey from details to verify if this is the correct molecule.
                 // First need to standardise the smiles using CMS pre-processing pipeline.
                 $isTheCorrectMolecule = $this->verifyMoleculeIdentity($molecule, $details);
                 Log::info(sprintf('Is the correct molecule: %s', $isTheCorrectMolecule ? 'yes' : 'no'));
@@ -354,7 +354,7 @@ class FetchCASNumbersAuto extends Command
      */
     private function verifyMoleculeIdentity(Molecule $originalMolecule, array $fetchedDetails): bool
     {
-        $API_URL = env('API_URL', 'https://api.cheminf.studio/latest/');
+        $API_URL = config('services.cheminf.internal_api_url');
         $ENDPOINT = $API_URL.'chem/coconut/pre-processing?smiles='.urlencode($fetchedDetails['smile'] ?: $fetchedDetails['canonicalSmile']).'&_3d_mol=false&descriptors=false';
 
         $standardized_smiles = null;
