@@ -43,7 +43,7 @@ class ReportContactUserNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable)
     {
-        $url = url(env('APP_URL').'/dashboard/reports/'.$this->report->id);
+        $url = url(config('app.url').'/dashboard/reports/'.$this->report->id);
 
         return (new ReportContactUserMail($this->report, $notifiable, $this->message, $this->curator, $url))
             ->to($notifiable->email);
