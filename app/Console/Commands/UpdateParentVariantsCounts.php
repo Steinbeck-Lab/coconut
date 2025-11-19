@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Molecule;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -44,8 +45,7 @@ class UpdateParentVariantsCounts extends Command
 
         // Update each parent molecule's variants_count and has_variants flag
         foreach ($variantCounts as $count) {
-            DB::table('molecules')
-                ->where('id', $count->parent_id)
+            Molecule::where('id', $count->parent_id)
                 ->update([
                     'variants_count' => $count->variant_count,
                     'has_variants' => true,
@@ -79,6 +79,5 @@ class UpdateParentVariantsCounts extends Command
         $this->info("Reset variants_count to 0 and has_variants to false for {$resetCount} parent molecules without variants.");
 
         $this->info('Update process completed successfully.');
-
     }
 }
