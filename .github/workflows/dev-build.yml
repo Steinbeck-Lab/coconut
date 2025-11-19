@@ -13,7 +13,7 @@ name : Development - Build COCONUT image and push to Docker Hub
 
 on:
   push:
-    branches: [development]
+    branches: [fix-access-env-variables]
 
 env:
   REPOSITORY_NAME: coconut
