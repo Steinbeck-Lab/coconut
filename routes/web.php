@@ -50,3 +50,16 @@ Route::get('compounds/{id}', MoleculeController::class)->name('compound');
 Route::get('collections/{id}', CollectionController::class)->name('collection');
 
 Route::get('/search', Search::class)->name('browse');
+
+Route::get('/_debug-headers', function (Request $request) {
+    return [
+        'config_app_url'    => config('app.url'),
+        'config_app_env'    => config('app.env'),
+        'request_scheme'    => $request->getScheme(),
+        'full_url'          => $request->fullUrl(),
+        'x_forwarded_proto' => $request->server('HTTP_X_FORWARDED_PROTO'),
+        'x_forwarded_host'  => $request->server('HTTP_X_FORWARDED_HOST'),
+        'x_forwarded_port'  => $request->server('HTTP_X_FORWARDED_PORT'),
+        'host'              => $request->getHost(),
+    ];
+});
