@@ -38,7 +38,7 @@ class SampleLocationsRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\Action::make('edit')
-                    ->url(fn (SampleLocation $record) => env('APP_URL').'/dashboard/sample-locations/'.$record->id.'/edit')
+                    ->url(fn (SampleLocation $record) => config('app.url').'/dashboard/sample-locations/'.$record->id.'/edit')
                     // ->color('info')
                     ->icon('heroicon-m-pencil-square'),
                 // Tables\Actions\EditAction::make(),

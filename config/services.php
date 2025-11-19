@@ -51,6 +51,17 @@ return [
 
     'cheminf' => [
         'api_url' => env('CM_PUBLIC_API', 'https://api.cheminf.studio/latest/'),
+        'internal_api_url' => env('API_URL', 'https://api.cheminf.studio/latest/'),
+    ],
+
+    'citation' => [
+        'europepmc_url' => env('EUROPEPMC_WS_API'),
+        'crossref_url' => env('CROSSREF_WS_API'),
+        'datacite_url' => env('DATACITE_WS_API'),
+    ],
+
+    'tawk' => [
+        'url' => env('TAWK_URL'),
     ],
 
 ];
