@@ -124,7 +124,7 @@ class Molecule extends Model implements Auditable
      */
     public function organisms(): BelongsToMany
     {
-        return $this->belongsToMany(Organism::class)->distinct('organism_id')->withTimestamps();
+        return $this->belongsToMany(Organism::class)->distinct('organism_id')->orderBy('organism_id')->withTimestamps();
     }
 
     /**
@@ -151,7 +151,8 @@ class Molecule extends Model implements Auditable
     {
         return $this->belongsToMany(SampleLocation::class, 'molecule_organism', 'molecule_id', 'sample_location_id')
             ->withTimestamps()
-            ->distinct('sample_location_id');
+            ->distinct('sample_location_id')
+            ->orderBy('sample_location_id');
     }
 
     /**
@@ -161,14 +162,16 @@ class Molecule extends Model implements Auditable
     {
         return $this->belongsToMany(GeoLocation::class, 'molecule_organism', 'molecule_id', 'geo_location_id')
             ->withTimestamps()
-            ->distinct('geo_location_id');
+            ->distinct('geo_location_id')
+            ->orderBy('geo_location_id');
     }
 
     public function ecosystems(): BelongsToMany
     {
         return $this->belongsToMany(Ecosystem::class, 'molecule_organism', 'molecule_id', 'ecosystem_id')
             ->withTimestamps()
-            ->distinct('ecosystem_id');
+            ->distinct('ecosystem_id')
+            ->orderBy('ecosystem_id');
     }
 
     /**
