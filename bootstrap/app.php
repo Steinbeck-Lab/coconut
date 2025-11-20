@@ -16,7 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         // Enable proxy handling (uses App\Http\Middleware\TrustProxies)
-        $middleware->trustProxies();
+        $middleware->replace(\Illuminate\Http\Middleware\TrustProxies::class, \App\Http\Middleware\TrustProxies::class);
 
         // Uncomment if/when you want this alias available
         // $middleware->alias([
