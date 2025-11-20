@@ -16,16 +16,17 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: 'api',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Trust all proxies and honor X-Forwarded-* headers so HTTPS is detected correctly
         $middleware->trustProxies(
             at: '*',
-            headers: Request::HEADER_X_FORWARDED_FOR
+            headers:
+                Request::HEADER_X_FORWARDED_FOR
                 | Request::HEADER_X_FORWARDED_HOST
                 | Request::HEADER_X_FORWARDED_PORT
                 | Request::HEADER_X_FORWARDED_PROTO
-                | Request::HEADER_X_FORWARDED_ALL
         );
 
-        // If you later want aliases etc., you can configure them here:
+        // Optional middleware aliases
         // $middleware->alias([
         //     'verified' => EnsureEmailOrPhoneIsVerified::class,
         // ]);
