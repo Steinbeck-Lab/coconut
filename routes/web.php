@@ -13,7 +13,6 @@ use App\Livewire\Search;
 use App\Livewire\Stats;
 use App\Livewire\Terms;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,7 +51,7 @@ Route::get('collections/{id}', CollectionController::class)->name('collection');
 
 Route::get('/search', Search::class)->name('browse');
 
-Route::get('/_debug-headers', function (Request $request) {
+Route::get('/_debug-headers', function (\Illuminate\Http\Request $request) {
     return [
         'config_app_url'    => config('app.url'),
         'config_app_env'    => config('app.env'),
