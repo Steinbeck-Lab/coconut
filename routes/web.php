@@ -13,6 +13,7 @@ use App\Livewire\Search;
 use App\Livewire\Stats;
 use App\Livewire\Terms;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Request;
 
 /*
 |--------------------------------------------------------------------------
