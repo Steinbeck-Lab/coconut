@@ -1,11 +1,11 @@
 <?php
 
 use App\Http\Middleware\EnsureEmailOrPhoneIsVerified;
+use App\Http\Middleware\TrustProxies;
 use BezhanSalleh\FilamentExceptions\FilamentExceptions;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,17 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: 'api',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Trust all proxies and honor X-Forwarded-* headers so HTTPS is detected correctly
-        $middleware->trustProxies(
-            at: '*',
-            headers:
-                Request::HEADER_X_FORWARDED_FOR
-                | Request::HEADER_X_FORWARDED_HOST
-                | Request::HEADER_X_FORWARDED_PORT
-                | Request::HEADER_X_FORWARDED_PROTO
-        );
+        // Register your own TrustProxies class as the proxy middleware
+        $middleware->use([
+            TrustProxies::class,
+        ]);
 
-        // Optional middleware aliases
+        // Optional aliases if you need them later
         // $middleware->alias([
         //     'verified' => EnsureEmailOrPhoneIsVerified::class,
         // ]);
@@ -37,3 +32,4 @@ return Application::configure(basePath: dirname(__DIR__))
         });
     })
     ->create();
+
