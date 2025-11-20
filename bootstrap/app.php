@@ -12,9 +12,13 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
-        apiPrefix: 'api'
+        apiPrefix: 'api',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Enable proxy handling (uses App\Http\Middleware\TrustProxies)
+        $middleware->trustProxies();
+
+        // Uncomment if/when you want this alias available
         // $middleware->alias([
         //     'verified' => EnsureEmailOrPhoneIsVerified::class,
         // ]);
@@ -23,4 +27,5 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->reportable(function (Throwable $e) {
             FilamentExceptions::report($e);
         });
-    })->create();
+    })
+    ->create();
