@@ -28,13 +28,13 @@ class MoleculeDepict2d extends Component
     #[Computed]
     public function source()
     {
-        return config('services.cheminf.api_url').'depict/2D?smiles='.urlencode($this->smiles).'&height='.$this->height.'&width='.$this->width.'&toolkit='.$this->toolkit.'&CIP='.$this->CIP;
+        return getDepictUrl($this->smiles, $this->height, $this->width, $this->toolkit, $this->CIP);
     }
 
     #[Computed]
     public function preview()
     {
-        return config('services.cheminf.api_url').'depict/2D?smiles='.urlencode($this->smiles);
+        return getDepictUrl($this->smiles);
     }
 
     public function downloadMolFile($toolkit)

@@ -638,3 +638,24 @@ function handleJobFailure(
         $batchId
     );
 }
+
+/**
+ * Generate a URL for 2D molecule depiction through the CMS proxy
+ *
+ * @param  string  $smiles  The SMILES string
+ * @param  int  $height  Image height (default: 300)
+ * @param  int  $width  Image width (default: 300)
+ * @param  string  $toolkit  Toolkit to use: cdk, rdkit, openbabel (default: cdk)
+ * @param  bool  $CIP  Whether to include CIP labels (default: true)
+ * @return string The proxy URL
+ */
+function getDepictUrl(string $smiles, int $height = 300, int $width = 300, string $toolkit = 'cdk', bool $CIP = true): string
+{
+    return route('cms.depict2d', [
+        'smiles' => $smiles,
+        'height' => $height,
+        'width' => $width,
+        'toolkit' => $toolkit,
+        'CIP' => $CIP ? 'true' : 'false',
+    ]);
+}

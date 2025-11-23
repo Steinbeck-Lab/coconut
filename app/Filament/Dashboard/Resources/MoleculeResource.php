@@ -90,7 +90,7 @@ class MoleculeResource extends Resource
                 ImageColumn::make('structure')->square()
                     ->label('Structure')
                     ->state(function ($record) {
-                        return config('services.cheminf.api_url').'depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=true&toolkit=cdk';
+                        return getDepictUrl($record->canonical_smiles, 300, 300, 'cdk', true);
                     })
                     ->width(200)
                     ->height(200)

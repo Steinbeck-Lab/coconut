@@ -34,7 +34,7 @@
         <meta property="og:type" content="website">
         <meta property="og:url" content="{{ url()->current() }}">
         <meta property="og:image"
-            content="{{ config('services.cheminf.api_url') . 'depict/2D?smiles=' . urlencode($molecule->canonical_smiles) . '&height=630&width=1200&toolkit=cdk' ?? asset('img/coconut-og-image.png') }}">
+            content="{{ getDepictUrl($molecule->canonical_smiles, 630, 1200, 'cdk', true) ?? asset('img/coconut-og-image.png') }}">
         <meta property="og:image:width" content="1200">
         <meta property="og:image:height" content="630">
         <meta property="og:site_name" content="{{ config('app.name', 'COCONUT') }}">
@@ -56,7 +56,7 @@
         and found in the collection{{ $molecule->collections->count() > 1 ? 's' : '' }}: 
         {{ implode(', ', $molecule->collections->pluck('title')->toArray()) }} @endif">
         <meta name="twitter:image"
-            content="{{ config('services.cheminf.api_url') . 'depict/2D?smiles=' . urlencode($molecule->canonical_smiles) . '&height=630&width=1200&toolkit=cdk' ?? asset('img/coconut-og-image.png') }}">
+            content="{{ getDepictUrl($molecule->canonical_smiles, 630, 1200, 'cdk', true) ?? asset('img/coconut-og-image.png') }}">
         <meta name="twitter:site" content="@coconutdatabase">
         <meta name="twitter:creator" content="@coconutdatabase">
 
