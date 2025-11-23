@@ -52,6 +52,8 @@ return [
     'cheminf' => [
         'api_url' => env('CM_PUBLIC_API', 'https://api.cheminf.studio/latest/'),
         'internal_api_url' => env('API_URL', 'https://api.cheminf.studio/latest/'),
+        'internal_token' => env('CMS_INTERNAL_AUTH_TOKEN'),
+        'rate_limit' => env('CMS_RATE_LIMIT', 200),
     ],
 
     'citation' => [
