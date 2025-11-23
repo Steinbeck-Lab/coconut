@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Enums\ReportStatus;
 use App\Events\PrePublishJobFailed;
 use App\Models\Entry;
+use App\Services\CmsClient;
 use Exception;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -13,7 +14,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class ProcessEntryBatch implements ShouldQueue
@@ -121,11 +121,16 @@ class ProcessEntryBatch implements ShouldQueue
         $is_cis_trans = false;
         $is_invalid = false;
         $error_code = -1;
-        $API_URL = config('services.cheminf.internal_api_url');
-        $ENDPOINT = $API_URL.'chem/coconut/pre-processing?smiles='.urlencode($canonical_smiles).'&_3d_mol=false&descriptors=false';
+
+        $cmsClient = app(CmsClient::class);
 
         try {
-            $response = Http::timeout(600)->get($ENDPOINT);
+            $response = $cmsClient->get('chem/coconut/pre-processing', [
+                'smiles' => $canonical_smiles,
+                '_3d_mol' => 'false',
+                'descriptors' => 'false',
+            ], false);
+
             if ($response->successful()) {
                 $data = $response->json();
                 if (array_key_exists('original', $data)) {
