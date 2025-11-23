@@ -346,7 +346,7 @@ class ImportEntriesReferencesAuto extends Command
             try {
                 // Use database-agnostic approach for citation attachment via citables table
                 foreach ($uniqueCitationIds as $citationId) {
-                    // Check if relationship already exists in citables table
+                    // Attach citation to molecule if not already attached
                     $exists = DB::selectOne(
                         'SELECT 1 FROM citables WHERE citation_id = ? AND citable_type = ? AND citable_id = ?',
                         [$citationId, 'App\\Models\\Molecule', $molecule->id]
@@ -358,6 +358,27 @@ class ImportEntriesReferencesAuto extends Command
                                 'citation_id' => $citationId,
                                 'citable_type' => 'App\\Models\\Molecule',
                                 'citable_id' => $molecule->id,
+                            ]);
+                        } catch (QueryException $e) {
+                            // Ignore if it's a duplicate key error (race condition)
+                            if (! str_contains($e->getMessage(), 'unique') && ! str_contains($e->getMessage(), 'duplicate')) {
+                                throw $e;
+                            }
+                        }
+                    }
+
+                    // Attach citation to collection if not already attached
+                    $exists = DB::selectOne(
+                        'SELECT 1 FROM citables WHERE citation_id = ? AND citable_type = ? AND citable_id = ?',
+                        [$citationId, 'App\\Models\\Collection', $entry->collection_id]
+                    );
+
+                    if (! $exists) {
+                        try {
+                            DB::table('citables')->insert([
+                                'citation_id' => $citationId,
+                                'citable_type' => 'App\\Models\\Collection',
+                                'citable_id' => $entry->collection_id,
                             ]);
                         } catch (QueryException $e) {
                             // Ignore if it's a duplicate key error (race condition)
