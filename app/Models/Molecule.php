@@ -303,7 +303,7 @@ class Molecule extends Model implements Auditable
 
             $moleculeSchema->identifier($this->identifier)
                 ->name($this->name)
-                ->url(env('APP_URL').'/compound/'.$this->identifier)
+                ->url(config('app.url').'/compound/'.$this->identifier)
                 ->inChI($this->standard_inchi)
                 ->inChIKey($this->standard_inchi_key)
                 ->iupacName($this->iupac_name)

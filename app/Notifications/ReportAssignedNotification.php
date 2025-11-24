@@ -37,7 +37,7 @@ class ReportAssignedNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable)
     {
-        $url = url(env('APP_URL').'/dashboard/reports/'.$this->event->report->id.'/edit');
+        $url = url(config('app.url').'/dashboard/reports/'.$this->event->report->id.'/edit');
 
         return (new ReportAssignedMail($this->event, $notifiable, 'curator', $url))
             ->to($notifiable->email);

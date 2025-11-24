@@ -71,7 +71,7 @@ class GenerateCoordinates extends Command
                 $canonical_smiles = $mol->canonical_smiles;
 
                 // Build endpoints.
-                $apiUrl = env('API_URL', 'https://api.cheminf.studio/latest/');
+                $apiUrl = config('services.cheminf.internal_api_url');
                 $d2Endpoint = $apiUrl.'convert/mol2D?smiles='.urlencode($canonical_smiles).'&toolkit=rdkit';
                 $d3Endpoint = $apiUrl.'convert/mol3D?smiles='.urlencode($canonical_smiles).'&toolkit=rdkit';
 
