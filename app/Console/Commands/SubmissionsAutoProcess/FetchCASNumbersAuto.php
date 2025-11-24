@@ -111,12 +111,14 @@ class FetchCASNumbersAuto extends Command
                         ]);
 
                         // Use central helper to update curation status
+                        // Uses global helper from app/helpers.php
                         updateCurationStatus($molecule->id, 'fetch-cas', 'completed', null);
 
                         Log::info("Successfully fetched CAS number {$casNumber} for molecule {$molecule->id}");
                         $successCount++;
                     } else {
                         // Mark as not found using central helper (mark completed so we don't keep retrying)
+                        // Uses global helper from app/helpers.php
                         updateCurationStatus($molecule->id, 'fetch-cas', 'completed', 'not_found');
 
                         Log::warning("No CAS number found for molecule {$molecule->id}");
