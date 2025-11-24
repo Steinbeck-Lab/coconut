@@ -31,8 +31,6 @@ class FetchCASNumbersAuto extends Command
      */
     private $batchSize = 100; // Number of molecules per batch
 
-    private $apiKey = '5dDnKcP3o1amAMT1aewvj5Bw9Qr5pVTb8AZ4DR3q';
-
     private $apiBaseUrl = 'https://commonchemistry.cas.org/api';
 
     /**
@@ -260,7 +258,7 @@ class FetchCASNumbersAuto extends Command
                 $response = Http::timeout(120)
                     ->connectTimeout(60)
                     ->withHeaders([
-                        'X-API-KEY' => $this->apiKey,
+                        'X-API-KEY' => config('services.cas.cas_key'),
                     ])
                     ->get($url, $params);
 

@@ -49,4 +49,8 @@ return [
         'redirect' => env('NFDI_REDIRECT_URL'),
     ],
 
+    'cas' => [
+        'cas_key' => env('CAS_KEY'),
+    ],
+
 ];
