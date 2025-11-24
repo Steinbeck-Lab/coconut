@@ -128,6 +128,72 @@ class ReportResource extends Resource
                             ->columnSpan(2),
 
                         Actions::make([
+                            Action::make('contactUser')
+                                ->label('Contact User')
+                                ->color('info')
+                                ->icon('heroicon-o-envelope')
+                                ->hidden(function (Get $get, string $operation, ?Report $record) {
+                                    if (! auth()->user()->isCurator() || $operation != 'edit' || ! $record) {
+                                        return true;
+                                    }
+
+                                    // Check if current user is assigned as curator for this report
+                                    $currentUserId = auth()->id();
+
+                                    // Check if user is curator 1 (for SUBMITTED status)
+                                    if ($record->status == \App\Enums\ReportStatus::SUBMITTED->value) {
+                                        $curator1 = $record->curators()->wherePivot('curator_number', 1)->first();
+
+                                        return $curator1?->id !== $currentUserId;
+                                    }
+
+                                    // Check if user is curator 2 (for PENDING_APPROVAL/PENDING_REJECTION status)
+                                    if ($record->status == \App\Enums\ReportStatus::PENDING_APPROVAL->value ||
+                                        $record->status == \App\Enums\ReportStatus::PENDING_REJECTION->value) {
+                                        $curator2 = $record->curators()->wherePivot('curator_number', 2)->first();
+
+                                        return $curator2?->id !== $currentUserId;
+                                    }
+
+                                    // Hide by default if status doesn't match any condition
+                                    return true;
+                                })
+                                ->url(function (Report $record): string {
+                                    $userEmail = $record->user->email;
+                                    $userName = $record->user->name;
+
+                                    // Get compound ID for subject
+                                    $compoundId = '';
+                                    if ($record->molecules && $record->molecules->count() > 0) {
+                                        $compoundId = $record->molecules->first()->identifier.' - ';
+                                    }
+
+                                    // Build subject line
+                                    $subject = $compoundId.': '.$record->title;
+
+                                    // Build body with report details
+                                    $reportUrl = env('APP_URL').'/dashboard/reports/'.$record->id;
+                                    $body = "Hello {$userName},\n\n";
+                                    $body .= "[Your message here]\n\n";
+                                    $body .= "---\n";
+                                    $body .= "Report Details:\n";
+                                    $body .= "Title: {$record->title}\n";
+                                    if ($record->molecules && $record->molecules->count() > 0) {
+                                        $molecule = $record->molecules->first();
+                                        $body .= "Compound: {$molecule->identifier}";
+                                        if ($molecule->name) {
+                                            $body .= " ({$molecule->name})";
+                                        }
+                                        $body .= "\n";
+                                    }
+                                    $body .= 'Status: '.ucwords(strtolower(str_replace('_', ' ', $record->status)))."\n";
+                                    $body .= "View Report: {$reportUrl}\n";
+
+                                    // Get CC email from mail config
+                                    $ccEmail = config('mail.from.address');
+
+                                    return 'mailto:'.rawurlencode($userEmail).'?cc='.rawurlencode($ccEmail).'&subject='.rawurlencode($subject).'&body='.rawurlencode($body);
+                                }, shouldOpenInNewTab: true),
                             Action::make('approve')
                                 ->form(function ($record, $livewire, $get) {
                                     if ($record['report_category'] === ReportCategory::UPDATE->value) {
