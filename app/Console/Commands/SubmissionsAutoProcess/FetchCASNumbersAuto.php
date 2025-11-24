@@ -178,7 +178,7 @@ class FetchCASNumbersAuto extends Command
                     continue;
                 }
                 // Use the SMILE (if not then use Canonical SMILE), InChI, InChIKey from details to verify if this is the correct molecule.
-                // First need to standardise the smiles using CMS pre-processing pipeline.
+                // First need to standardise the SMILES using CMS pre-processing pipeline.
                 $isTheCorrectMolecule = $this->verifyMoleculeIdentity($molecule, $details);
                 Log::info(sprintf('Is the correct molecule: %s', $isTheCorrectMolecule ? 'yes' : 'no'));
 
@@ -248,7 +248,7 @@ class FetchCASNumbersAuto extends Command
     /**
      * Make actual HTTP request
      */
-    private function doActualRequest(string $url, array $params)
+    private function doActualRequest(string $url, array $params): ?\Illuminate\Http\Client\Response
     {
         $maxRetries = 3;
         $baseDelay = 1.0;
@@ -322,9 +322,9 @@ class FetchCASNumbersAuto extends Command
     }
 
     /**
-     * Extract details (smile, inchi, inchiKey) from detail API response
+     * Extract details (smile, canonicalSmile, inchi, inchiKey) from detail API response
      *
-     * Response structure: {"smile": "...", "inchi": "...", "inchiKey": "...", ...}
+     * Response structure: {"smile": "...", "canonicalSmile": "...", "inchi": "...", "inchiKey": "...", ...}
      */
     private function extractDetailsFromResponse($response): ?array
     {
@@ -341,9 +341,9 @@ class FetchCASNumbersAuto extends Command
         // Extract smile, inchi, and inchiKey from the detail response
         return [
             'smile' => $data['smile'] ?? null,
-            'canonicalSmile' => $data['canonicalSmile'] ?? null,
+            'canonical_smiles' => $data['canonical_smiles'] ?? null,
             'inchi' => $data['inchi'] ?? null,
-            'inchiKey' => $data['inchiKey'] ?? null,
+            'inchikey' => $data['inchikey'] ?? null,
         ];
     }
 
@@ -353,7 +353,12 @@ class FetchCASNumbersAuto extends Command
     private function verifyMoleculeIdentity(Molecule $originalMolecule, array $fetchedDetails): bool
     {
         $API_URL = config('services.cheminf.internal_api_url');
-        $ENDPOINT = $API_URL.'chem/coconut/pre-processing?smiles='.urlencode($fetchedDetails['smile'] ?: $fetchedDetails['canonicalSmile']).'&_3d_mol=false&descriptors=false';
+        $smiles = $fetchedDetails['smile'] ?: $fetchedDetails['canonicalSmile'];
+        if (!$smiles) {
+            Log::warning("No SMILES data available for molecule verification", ['molecule_id' => $originalMolecule->id]);
+            return false;
+        }
+        $ENDPOINT = $API_URL.'chem/coconut/pre-processing?smiles='.urlencode($smiles).'&_3d_mol=false&descriptors=false';
 
         $standardized_smiles = null;
         try {
