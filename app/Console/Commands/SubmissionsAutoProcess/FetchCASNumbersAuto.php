@@ -173,8 +173,9 @@ class FetchCASNumbersAuto extends Command
             if ($casNumber) {
                 //  Get the details using this CAS number.
                 $details = $this->fetchCASFromCommonChemistryAPI($casNumber, 'detail');
-                if (!$details) {
+                if (! $details) {
                     Log::warning("Failed to fetch details for CAS number: {$casNumber}");
+
                     continue;
                 }
                 // Use the SMILE (if not then use Canonical SMILE), InChI, InChIKey from details to verify if this is the correct molecule.
@@ -354,8 +355,9 @@ class FetchCASNumbersAuto extends Command
     {
         $API_URL = config('services.cheminf.internal_api_url');
         $smiles = $fetchedDetails['smile'] ?: $fetchedDetails['canonicalSmile'];
-        if (!$smiles) {
-            Log::warning("No SMILES data available for molecule verification", ['molecule_id' => $originalMolecule->id]);
+        if (! $smiles) {
+            Log::warning('No SMILES data available for molecule verification', ['molecule_id' => $originalMolecule->id]);
+
             return false;
         }
         $ENDPOINT = $API_URL.'chem/coconut/pre-processing?smiles='.urlencode($smiles).'&_3d_mol=false&descriptors=false';
