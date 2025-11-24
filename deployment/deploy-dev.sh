@@ -195,7 +195,7 @@ deploy_cm_service() {
         
         # Force remove any orphaned CM containers
         echo "🧹 Cleaning up any orphaned CM containers..."
-        docker ps -a --filter "name=cm" --format "{{.ID}}" | xargs -r docker rm -f || true
+        docker ps -a --filter "name=^cm$" --format "{{.ID}}" | xargs -r docker rm -f || true
 
         # Start new CM container
         echo "🚀 Starting new CM container..."
