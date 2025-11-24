@@ -294,7 +294,7 @@ class ReportResource extends Resource
                                 }),
                             Action::make('viewCompoundPage')
                                 ->color('info')
-                                ->url(fn (string $operation, $record): string => $operation === 'create' ? env('APP_URL').'/compounds/'.request()->compound_id : env('APP_URL').'/compounds/'.$record->mol_ids)
+                                ->url(fn (string $operation, $record): string => $operation === 'create' ? config('app.url').'/compounds/'.request()->compound_id : config('app.url').'/compounds/'.$record->mol_ids)
                                 ->openUrlInNewTab()
                                 ->hidden(function (Get $get, string $operation) {
                                     return ! $get('type');

@@ -3,10 +3,11 @@
 set -e
 
 # Print timestamp at the start of the script
-echo "🚀 ==== Script started at: $(date '+%Y-%m-%d %H:%M:%S') ==== "
+echo "==== Script started at: $(date '+%Y-%m-%d %H:%M:%S') ==== "
 
 APP_IMAGE="nfdi4chem/coconut:dev-latest"
 WORKER_IMAGE="nfdi4chem/coconut:dev-latest"
+CM_IMAGE="nfdi4chem/cheminformatics-microservice:latest-lite"
 PROJECT_ROOT=$(dirname "$(dirname "$(realpath "$0")")")
 APP_COMPOSE_FILE="$PROJECT_ROOT/deployment/docker-compose.dev.yml"
 ENV_FILE="$PROJECT_ROOT/.env"
@@ -14,6 +15,7 @@ NEW_CONTAINER_ID=""
 BACKUP_DIR="./backups"
 BUILD=false
 DEPLOY=false
+DEPLOY_CM=false
 BACKUP=false
 
 # === Load environment ===
@@ -31,7 +33,7 @@ export COMPOSE_PROJECT_NAME=development
 
 # Utility functions
 log() {
-    echo "ℹ️  $1"
+    echo "$1"
 }
 
 error() {
@@ -58,7 +60,7 @@ check_requirements() {
 
 # Wait for new container to pass health check
 wait_for_health() {
-    echo "⏳ Waiting for new container to pass health check (up to 10 retries)..."
+    echo "Waiting for new container to pass health check (up to 10 retries)..."
     for i in {1..10}; do
         if check_container_health; then
             echo "✅ Container is healthy."
@@ -83,7 +85,7 @@ check_container_health() {
 # Remove old containers after successful deployment
 remove_old_containers() {
     local name_prefix=$1
-    echo "🧼 Removing old ${name_prefix} container(s)..."
+    echo "Removing old ${name_prefix} container(s)..."
 
     container_ids=$(docker ps -a --filter "name=${name_prefix}" --format "{{.ID}}")
     sorted_container_ids=$(echo "$container_ids" | xargs docker inspect --format='{{.Created}} {{.ID}}' | sort | awk '{print $2}')
@@ -120,12 +122,12 @@ cleanup() {
 
 # Check if app is responding
 check_app_health(){
-    echo "🏥 Checking application health..."
+    echo "Checking application health..."
     if docker compose -p "$COMPOSE_PROJECT_NAME" -f "$APP_COMPOSE_FILE" exec -T app curl -f http://localhost:8000/up > /dev/null 2>&1; then
         echo "✅ Application is healthy!"
     else
         echo "❌ Application health check failed"
-        echo "📋 Showing app logs:"
+        echo "Showing app logs:"
         docker compose -f "$APP_COMPOSE_FILE" logs app --tail=50
         exit 1
     fi
@@ -138,7 +140,7 @@ deploy_service() {
 
     # Pull the image and check if it's new
     if [ "$(docker pull "$APP_IMAGE" | grep -c "Status: Image is up to date")" -eq 0 ]; then
-        echo "📦 New image available for app and worker."
+        echo "New image available for app and worker."
 
        # Uncomment this line in production to create a backup before deployment
        # backup_database 
@@ -157,6 +159,68 @@ deploy_service() {
         echo "Application is available at: https://dev.coconut.naturalproducts.net/"
     else
         echo "✅ No update for app and worker. Skipping deployment."
+    fi
+    
+    # Deploy CM service after main deployment
+    echo "Checking CM service for updates..."
+    deploy_cm_service
+}
+
+# Deploy CM service if new image is available
+deploy_cm_service() {
+    echo "Starting CM service deployment..."
+    check_requirements
+
+    # Check if CM container is running
+    cm_running=$(docker compose -f "$APP_COMPOSE_FILE" ps cm --format "{{.Service}}" 2>/dev/null || echo "")
+    
+    # Pull the image and check if it's new
+    image_pull_result=$(docker pull "$CM_IMAGE")
+    new_image_available=$(echo "$image_pull_result" | grep -c "Status: Image is up to date")
+    
+    if [ "$new_image_available" -eq 0 ] || [ -z "$cm_running" ]; then
+        if [ "$new_image_available" -eq 0 ]; then
+            echo "New image available for CM service."
+        fi
+        
+        if [ -z "$cm_running" ]; then
+            echo "CM container is missing or not running."
+        fi
+
+        # Stop and remove existing CM container
+        echo "Stopping existing CM container..."
+        docker compose -f "$APP_COMPOSE_FILE" stop cm || true
+        docker compose -f "$APP_COMPOSE_FILE" rm -f cm || true
+        
+        # Force remove any orphaned CM containers
+        echo "Cleaning up any orphaned CM containers..."
+        docker ps -a --filter "name=^cm$" --format "{{.ID}}" | xargs -r docker rm -f || true
+
+        # Start new CM container
+        echo "Starting new CM container..."
+        docker compose -f "$APP_COMPOSE_FILE" up -d cm
+
+        # Wait for CM service to be healthy
+        echo "Waiting for CM service to be healthy..."
+        for i in {1..20}; do
+            if docker compose -f "$APP_COMPOSE_FILE" exec -T cm curl -f http://localhost:80/latest/chem/health >/dev/null 2>&1; then
+                echo "✅ CM service is healthy."
+                break
+            fi
+            echo "Retry $i/20: Waiting 30s for CM service..."
+            sleep 30
+        done
+        # After the loop, check if the service is healthy; if not, show logs and exit
+        if ! docker compose -f "$APP_COMPOSE_FILE" exec -T cm curl -f http://localhost:80/latest/chem/health >/dev/null 2>&1; then
+            echo "❌ CM service health check failed after 20 retries."
+            echo "Showing CM logs:"
+            docker compose -f "$APP_COMPOSE_FILE" logs cm --tail=50
+            exit 1
+        fi
+
+        echo "✅ CM service deployment completed successfully."
+    else
+        echo "✅ CM service is running and up to date. No deployment needed."
     fi
 }
 
@@ -186,7 +250,7 @@ backup_database() {
     mkdir -p "$BACKUP_DIR"
     local backup_file="$BACKUP_DIR/db_backup_$(date +%Y%m%d_%H%M%S).sql"
     
-    if docker compose -p "$COMPOSE_PROJECT_NAME" -f "$APP_COMPOSE_FILE"  exec -T pgsql \
+    if docker compose -p "$COMPOSE_PROJECT_NAME" -f "$APP_COMPOSE_FILE" exec -T pgsql \
         pg_dump -h localhost -U "${DB_USERNAME}" "${DB_DATABASE}" > "$backup_file" 2>/dev/null; then
         echo "Database backup created: $backup_file"
     else
@@ -211,9 +275,11 @@ run_migration_and_clear_cache() {
 # === Display Help ===
 display_help() {
     echo "Usage: $0 [OPTIONS]"
-    echo "\nOptions:"
+    echo ""
+    echo "Options:"
     echo "  --build           Build and deploy the application"
     echo "  --deploy          Perform zero-downtime deployment"
+    echo "  --deploy-cm       Deploy CM (cheminformatics-microservice) only"
     echo "  --backup          Create a database backup"
     echo "  --restart         Restart services"
     echo "  --help            Display this help message"
@@ -225,6 +291,7 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         --build) BUILD=true; shift ;;
         --deploy) DEPLOY=true; shift ;;
+        --deploy-cm) DEPLOY_CM=true; shift ;;
         --backup) BACKUP=true; shift ;;
         --restart) RESTART=true; shift ;;
         --help) HELP=true; shift ;;
@@ -236,6 +303,9 @@ done
 case true in
     $DEPLOY)
         deploy_service
+        ;;
+    $DEPLOY_CM)
+        deploy_cm_service
         ;;
     $BUILD)
         build_or_restart_services
@@ -250,8 +320,14 @@ case true in
         display_help
         ;;
     *)
-        echo "Skipping build and deploy step — please pass at least one argument: \n--build: Build and deploy the application \n--deploy: Perform zero-downtime deployment \n--backup: Create a database backup \n--restart: Restart services. If you are unsure, use the --help flag for guidance."
+        echo "Skipping build and deploy step — please pass at least one argument:"
+        echo "  --build: Build and deploy the application"
+        echo "  --deploy: Perform zero-downtime deployment"
+        echo "  --deploy-cm: Deploy CM service only"
+        echo "  --backup: Create a database backup"
+        echo "  --restart: Restart services"
+        echo "If you are unsure, use the --help flag for guidance."
         ;;
 esac
 
-echo "🚀 ==== Script ended at: $(date '+%Y-%m-%d %H:%M:%S') ==== "
+echo "==== Script ended at: $(date '+%Y-%m-%d %H:%M:%S') ==== "

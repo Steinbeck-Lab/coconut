@@ -14,7 +14,7 @@
                 </a>
             </p>
         </div>
-        <x-button href="{{env('APP_URL').'/dashboard/organisms/'.$row['id'].'/edit'}}" target="_blank" wire:navigate.hover>
+        <x-button href="{{config('app.url').'/dashboard/organisms/'.$row['id'].'/edit'}}" target="_blank" wire:navigate.hover>
             Edit
         </x-button>
     </div>

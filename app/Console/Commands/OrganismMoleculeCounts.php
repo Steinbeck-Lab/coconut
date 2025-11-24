@@ -27,24 +27,26 @@ class OrganismMoleculeCounts extends Command
     public function handle()
     {
         $this->info('Starting the update process...');
-        $i = 0;
+
+        // First, reset all organisms to 0
+        DB::table('organisms')->update(['molecule_count' => 0]);
+
+        $this->info('Getting molecule counts per organism...');
+
+        // Then update organisms that have molecules
         $moleculeCounts = DB::table('molecule_organism')
             ->select(DB::raw('organism_id as id, COUNT(molecule_id) as count'))
             ->groupBy('organism_id')
             ->orderBy('organism_id')
             ->get();
 
+        $this->info('Updating '.$moleculeCounts->count().' organisms with their molecule counts...');
+
         foreach ($moleculeCounts as $count) {
             DB::table('organisms')
                 ->where('id', $count->id)
                 ->update(['molecule_count' => $count->count]);
         }
-
-        $this->info('Updating the residual organisms.');
-
-        DB::table('organisms')
-            ->whereNotIn('id', $moleculeCounts->pluck('id'))
-            ->update(['molecule_count' => 0]);
 
         $this->info('Update process completed.');
     }

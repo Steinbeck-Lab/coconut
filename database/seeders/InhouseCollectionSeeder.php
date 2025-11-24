@@ -30,7 +30,6 @@ class InhouseCollectionSeeder extends Seeder
             'slug' => Str::slug($title, '-'),
             'description' => 'Collection of natural products (NPs) submitted by the community to the COCONUT database.',
             'status' => 'PUBLISHED',
-            'is_public' => true,
             'uuid' => Str::uuid(),
             'jobs_status' => 'COMPLETE',
             'identifier' => Str::slug($title, '-'),
