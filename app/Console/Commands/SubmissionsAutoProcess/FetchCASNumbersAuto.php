@@ -173,6 +173,10 @@ class FetchCASNumbersAuto extends Command
             if ($casNumber) {
                 //  Get the details using this CAS number.
                 $details = $this->fetchCASFromCommonChemistryAPI($casNumber, 'detail');
+                if (!$details) {
+                    Log::warning("Failed to fetch details for CAS number: {$casNumber}");
+                    continue;
+                }
                 // Use the SMILE (if not then use Canonical SMILE), InChI, InChIKey from details to verify if this is the correct molecule.
                 // First need to standardise the smiles using CMS pre-processing pipeline.
                 $isTheCorrectMolecule = $this->verifyMoleculeIdentity($molecule, $details);
