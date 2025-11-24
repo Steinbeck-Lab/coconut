@@ -66,7 +66,6 @@ class CoconutPolicy implements Preset
         // CDN sources for external libraries
         $policy
             ->add(Directive::STYLE, 'https://cdnjs.cloudflare.com')
-            ->add(Directive::SCRIPT, 'https://cdn.jsdelivr.net')
             ->add(Directive::SCRIPT, 'https://code.jquery.com')
             ->add(Directive::SCRIPT, 'https://cdnjs.cloudflare.com');
 
