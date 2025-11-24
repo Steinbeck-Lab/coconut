@@ -6,7 +6,7 @@
     </div>
 </div>
 
-<script>
+<script nonce="{{ csp_nonce() }}">
 function initHeatmap() {
     const data = JSON.parse(@js($collectionsData));
 

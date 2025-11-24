@@ -123,7 +123,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-<script>
+<script nonce="{{ csp_nonce() }}">
     function resetFilters() {
         // Show loading indicator
         showChartLoading();

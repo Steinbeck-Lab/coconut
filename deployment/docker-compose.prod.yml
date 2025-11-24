@@ -17,7 +17,7 @@ services:
       - 443:443   
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-  #    - /etc/ssl/coconut.naturalproducts.net/:/certs:ro
+      - /etc/ssl/coconut.naturalproducts.net/:/certs:ro
       - /etc/traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
 
   app:
@@ -32,9 +32,8 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.laravel.rule=Host(`coconut.naturalproducts.net`)
-#      - traefik.http.routers.laravel.entrypoints=websecure
-      - traefik.http.routers.laravel.entrypoints=web
-#      - traefik.http.routers.laravel.tls=true
+      - traefik.http.routers.laravel.entrypoints=websecure
+      - traefik.http.routers.laravel.tls=true
       - traefik.http.services.laravel.loadbalancer.server.port=8000
     networks:
       - coconut
