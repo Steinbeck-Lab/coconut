@@ -212,16 +212,16 @@ deploy_cm_service() {
             if docker compose -f "$APP_COMPOSE_FILE" exec -T cm curl -f http://localhost:80/latest/chem/health >/dev/null 2>&1; then
                 echo "✅ CM service is healthy."
                 break
-            else
-                echo "Retry $i/20: Waiting 30s for CM service..."
-                if [ $i -eq 20 ]; then
-                    echo "❌ CM service health check failed after 20 retries."
-                    echo "📋 Showing CM logs:"
-                    docker compose -f "$APP_COMPOSE_FILE" logs cm --tail=50
-                    exit 1
-                fi
-                sleep 30
             fi
+            
+            echo "Retry $i/20: Waiting 30s for CM service..."
+            if [ "$i" -eq 20 ]; then
+                echo "❌ CM service health check failed after 20 retries."
+                echo "📋 Showing CM logs:"
+                docker compose -f "$APP_COMPOSE_FILE" logs cm --tail=50
+                exit 1
+            fi
+            sleep 30
         done
 
         echo "✅ CM service deployment completed successfully."
