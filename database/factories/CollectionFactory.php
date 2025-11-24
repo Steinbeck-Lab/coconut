@@ -31,7 +31,6 @@ class CollectionFactory extends Factory
             'comments' => $this->faker->optional()->paragraph(),
             'url' => $this->faker->url(),
             'identifier' => $this->faker->optional()->sentence(),
-            'is_public' => $this->faker->boolean(),
             'license_id' => null,
             'photo' => $this->faker->optional()->imageUrl(),
             'owner_id' => null,

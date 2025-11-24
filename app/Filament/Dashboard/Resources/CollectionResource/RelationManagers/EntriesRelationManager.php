@@ -172,7 +172,6 @@ class EntriesRelationManager extends RelationManager
                     })
                     ->action(function () {
                         $this->ownerRecord->status = 'PUBLISHED';
-                        $this->ownerRecord->is_public = true;
                         $this->ownerRecord->molecules()->where('status', 'DRAFT')->update(['status' => 'APPROVED']);
                         $this->ownerRecord->save();
                     }),
