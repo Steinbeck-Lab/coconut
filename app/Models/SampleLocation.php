@@ -33,14 +33,16 @@ class SampleLocation extends Model implements Auditable
     {
         return $this->belongsToMany(Molecule::class, 'molecule_organism', 'sample_location_id', 'molecule_id')
             ->withTimestamps()
-            ->distinct('molecule_id');
+            ->distinct('molecule_id')
+            ->orderBy('molecule_id');
     }
 
     public function organisms(): BelongsToMany
     {
         return $this->belongsToMany(Organism::class, 'molecule_organism', 'sample_location_id', 'organism_id')
             ->withTimestamps()
-            ->distinct('organism_id');
+            ->distinct('organism_id')
+            ->orderBy('organism_id');
     }
 
     public function transformAudit(array $data): array
