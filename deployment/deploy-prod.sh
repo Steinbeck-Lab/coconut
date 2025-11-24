@@ -178,10 +178,14 @@ deploy_cm_service() {
     
     # Pull the image and check if it's new
     image_pull_result=$(docker pull "$CM_IMAGE")
-    new_image_available=$(echo "$image_pull_result" | grep -c "Status: Image is up to date" || echo "1")
+    if echo "$image_pull_result" | grep -q "Status: Image is up to date"; then
+        new_image_available=0
+    else
+        new_image_available=1
+    fi
     
-    if [ "$new_image_available" -eq 0 ] || [ -z "$cm_running" ]; then
-        if [ "$new_image_available" -eq 0 ]; then
+    if [ "$new_image_available" -eq 1 ] || [ -z "$cm_running" ]; then
+        if [ "$new_image_available" -eq 1 ]; then
             echo "📦 New image available for CM service."
         fi
         
