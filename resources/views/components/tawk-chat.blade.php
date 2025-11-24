@@ -1,4 +1,4 @@
-<script type="text/javascript">
+<script type="text/javascript" nonce="{{ csp_nonce() }}">
     var Tawk_API = Tawk_API || {},
         Tawk_LoadStart = new Date();
     (function() {

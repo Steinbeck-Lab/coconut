@@ -62,6 +62,8 @@ return [
 
     'tawk' => [
         'url' => env('TAWK_URL'),
+    'cas' => [
+        'cas_key' => env('CAS_KEY'),
     ],
 
 ];

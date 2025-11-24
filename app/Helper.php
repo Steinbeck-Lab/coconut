@@ -11,6 +11,17 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Events\AuditCustom;
 
 /**
+ * Get the CSP nonce value for inline scripts and styles.
+ * This is used to allow specific inline scripts while blocking others.
+ *
+ * @return string The nonce value
+ */
+function csp_nonce(): string
+{
+    return app('csp-nonce');
+}
+
+/**
  * Get all curator users.
  * This centralizes curator fetching logic that may change in the future.
  *
