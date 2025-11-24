@@ -194,7 +194,7 @@ class FetchCASNumbersAuto extends Command
     /**
      * Single search helper that queries the Common Chemistry /search endpoint.
      */
-    private function fetchCASFromCommonChemistryAPI(string $query, string $searchType = 'search')
+    private function fetchCASFromCommonChemistryAPI(string $query, string $searchType = 'search'): string|array|null
     {
         if ($searchType === 'detail') {
             $url = "{$this->apiBaseUrl}/detail";
