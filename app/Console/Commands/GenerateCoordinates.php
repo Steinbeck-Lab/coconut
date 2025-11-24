@@ -5,9 +5,9 @@ namespace App\Console\Commands;
 use App\Models\Collection;
 use App\Models\Molecule;
 use App\Models\Structure;
+use App\Services\CmsClient;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -63,21 +63,18 @@ class GenerateCoordinates extends Command
         $progressBar->start();
 
         // Process molecules in chunks using the static list of IDs.
-        $moleculeIds->chunk(10000)->each(function ($idsChunk) use ($progressBar) {
+        $cmsClient = app(CmsClient::class);
+
+        $moleculeIds->chunk(10000)->each(function ($idsChunk) use ($progressBar, $cmsClient) {
             $mols = Molecule::whereIn('id', $idsChunk)->select('id', 'canonical_smiles')->get();
             $data = [];
             foreach ($mols as $mol) {
                 $id = $mol->id;
                 $canonical_smiles = $mol->canonical_smiles;
 
-                // Build endpoints.
-                $apiUrl = env('API_URL', 'https://api.cheminf.studio/latest/');
-                $d2Endpoint = $apiUrl.'convert/mol2D?smiles='.urlencode($canonical_smiles).'&toolkit=rdkit';
-                $d3Endpoint = $apiUrl.'convert/mol3D?smiles='.urlencode($canonical_smiles).'&toolkit=rdkit';
-
                 // Fetch coordinates from API.
-                $d2 = $this->fetchFromApi($d2Endpoint, $canonical_smiles);
-                $d3 = $this->fetchFromApi($d3Endpoint, $canonical_smiles);
+                $d2 = $this->fetchFromApi($cmsClient, 'convert/mol2D', $canonical_smiles);
+                $d3 = $this->fetchFromApi($cmsClient, 'convert/mol3D', $canonical_smiles);
 
                 // Accumulate data for batch insertion.
                 $data[] = [
@@ -103,9 +100,9 @@ class GenerateCoordinates extends Command
     /**
      * Make an HTTP GET request with basic retry/backoff handling (e.g. 429 Too Many Requests).
      *
-     * @return mixed  (array|null) Returns the JSON-decoded response or null on failure.
+     * @return mixed  (string|null) Returns the response body or null on failure.
      */
-    private function fetchFromApi(string $endpoint, string $smiles)
+    private function fetchFromApi(CmsClient $cmsClient, string $endpoint, string $smiles)
     {
         $maxRetries = 3;
         $attempt = 0;
@@ -113,7 +110,10 @@ class GenerateCoordinates extends Command
 
         while ($attempt < $maxRetries) {
             try {
-                $response = Http::timeout(600)->get($endpoint);
+                $response = $cmsClient->get($endpoint, [
+                    'smiles' => $smiles,
+                    'toolkit' => 'rdkit',
+                ], false);
 
                 if ($response->successful()) {
                     return $response->body();

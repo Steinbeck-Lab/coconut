@@ -75,7 +75,7 @@ function doiRegxMatch($doi)
 function fetchDOICitation($doi)
 {
     $citationResponse = null;
-    $europemcUrl = env('EUROPEPMC_WS_API');
+    $europemcUrl = config('services.citation.europepmc_url');
     $europemcParams = [
         'query' => 'DOI:'.$doi,
         'format' => 'json',
@@ -89,13 +89,13 @@ function fetchDOICitation($doi)
         $citationResponse = formatCitationResponse($europemcResponse['resultList']['result'][0], 'europemc');
     } else {
         // fetch citation from CrossRef
-        $crossrefUrl = env('CROSSREF_WS_API').$doi;
+        $crossrefUrl = config('services.citation.crossref_url').$doi;
         $crossrefResponse = makeRequest($crossrefUrl);
         if ($crossrefResponse && isset($crossrefResponse['message'])) {
             $citationResponse = formatCitationResponse($crossrefResponse['message'], 'crossref');
         } else {
             // fetch citation from DataCite
-            $dataciteUrl = env('DATACITE_WS_API').$doi;
+            $dataciteUrl = config('services.citation.datacite_url').$doi;
             $dataciteResponse = makeRequest($dataciteUrl);
             if ($dataciteResponse && isset($dataciteResponse['data'])) {
                 $citationResponse = formatCitationResponse($dataciteResponse['data'], 'datacite');
@@ -637,4 +637,25 @@ function handleJobFailure(
         $eventData,
         $batchId
     );
+}
+
+/**
+ * Generate a URL for 2D molecule depiction through the CMS proxy
+ *
+ * @param  string  $smiles  The SMILES string
+ * @param  int  $height  Image height (default: 300)
+ * @param  int  $width  Image width (default: 300)
+ * @param  string  $toolkit  Toolkit to use: cdk, rdkit, openbabel (default: cdk)
+ * @param  bool  $CIP  Whether to include CIP labels (default: true)
+ * @return string The proxy URL
+ */
+function getDepictUrl(string $smiles, int $height = 300, int $width = 300, string $toolkit = 'cdk', bool $CIP = true): string
+{
+    return route('cms.depict2d', [
+        'smiles' => $smiles,
+        'height' => $height,
+        'width' => $width,
+        'toolkit' => $toolkit,
+        'CIP' => $CIP ? 'true' : 'false',
+    ]);
 }

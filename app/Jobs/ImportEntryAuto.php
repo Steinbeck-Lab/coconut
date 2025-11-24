@@ -363,7 +363,7 @@ class ImportEntryAuto implements ShouldBeUnique, ShouldQueue
                 $citationResponse = null;
                 if ($citation->wasRecentlyCreated || $citation->title == '') {
                     // fetch citation from EuropePMC
-                    $europemcUrl = env('EUROPEPMC_WS_API');
+                    $europemcUrl = config('services.citation.europepmc_url');
                     $europemcParams = [
                         'query' => 'DOI:'.$doi,
                         'format' => 'json',
@@ -377,14 +377,14 @@ class ImportEntryAuto implements ShouldBeUnique, ShouldQueue
                         $citationResponse = $this->formatCitationResponse($europemcResponse['resultList']['result'][0], 'europemc');
                     } else {
                         // fetch citation from CrossRef
-                        $crossrefUrl = env('CROSSREF_WS_API').$doi;
+                        $crossrefUrl = config('services.citation.crossref_url').$doi;
                         $response = $this->makeRequest($crossrefUrl);
                         $crossrefResponse = $response ? $response->json() : null;
                         if ($crossrefResponse && isset($crossrefResponse['message'])) {
                             $citationResponse = $this->formatCitationResponse($crossrefResponse['message'], 'crossref');
                         } else {
                             // fetch citation from DataCite
-                            $dataciteUrl = env('DATACITE_WS_API').$doi;
+                            $dataciteUrl = config('services.citation.datacite_url').$doi;
                             $response = $this->makeRequest($dataciteUrl);
                             $dataciteResponse = $response ? $response->json() : null;
                             if ($dataciteResponse && isset($dataciteResponse['data'])) {
