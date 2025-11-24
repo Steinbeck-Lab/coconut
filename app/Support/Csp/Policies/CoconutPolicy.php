@@ -76,7 +76,7 @@ class CoconutPolicy implements Preset
             ->add(Directive::SCRIPT, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net')
             ->add(Directive::IMG, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net');
 
-        // Add nonce for inline scripts.This is automatically handled by spatie/laravel-csp when nonce_enabled is true
+        // Add nonce for inline scripts. This is automatically handled by spatie/laravel-csp when nonce_enabled is true
         $policy->addNonce(Directive::SCRIPT);
 
         // Keep unsafe-inline for styles temporarily (needed for Alpine.js inline styles and dynamic style attributes)
