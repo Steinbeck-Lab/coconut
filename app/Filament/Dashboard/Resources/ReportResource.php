@@ -158,33 +158,42 @@ class ReportResource extends Resource
                                     // Hide by default if status doesn't match any condition
                                     return true;
                                 })
-                                ->form([
-                                    TextInput::make('user_email')
-                                        ->label('To')
-                                        ->default(function ($record) {
-                                            return $record->user->email;
-                                        })
-                                        ->disabled()
-                                        ->dehydrated(false),
-                                    Textarea::make('contact_message')
-                                        ->label('Message')
-                                        ->required()
-                                        ->rows(5)
-                                        ->placeholder('Enter your message to the user...')
-                                        ->helperText('This message will be sent to the report submitter via email.'),
-                                ])
-                                ->action(function (array $data, Report $record): void {
-                                    self::sendContactEmail($data, $record);
+                                ->url(function (Report $record): string {
+                                    $userEmail = $record->user->email;
+                                    $userName = $record->user->name;
 
-                                    Notification::make()
-                                        ->title('Email sent successfully')
-                                        ->body('Your message has been sent to '.$record->user->email)
-                                        ->success()
-                                        ->send();
-                                })
-                                ->modalHeading('Contact User')
-                                ->modalSubmitActionLabel('Send Email')
-                                ->modalWidth('lg'),
+                                    // Get compound ID for subject
+                                    $compoundId = '';
+                                    if ($record->molecules && $record->molecules->count() > 0) {
+                                        $compoundId = $record->molecules->first()->identifier.' - ';
+                                    }
+
+                                    // Build subject line
+                                    $subject = $compoundId.': '.$record->title;
+
+                                    // Build body with report details
+                                    $reportUrl = env('APP_URL').'/dashboard/reports/'.$record->id;
+                                    $body = "Hello {$userName},\n\n";
+                                    $body .= "[Your message here]\n\n";
+                                    $body .= "---\n";
+                                    $body .= "Report Details:\n";
+                                    $body .= "Title: {$record->title}\n";
+                                    if ($record->molecules && $record->molecules->count() > 0) {
+                                        $molecule = $record->molecules->first();
+                                        $body .= "Compound: {$molecule->identifier}";
+                                        if ($molecule->name) {
+                                            $body .= " ({$molecule->name})";
+                                        }
+                                        $body .= "\n";
+                                    }
+                                    $body .= 'Status: '.ucwords(strtolower(str_replace('_', ' ', $record->status)))."\n";
+                                    $body .= "View Report: {$reportUrl}\n";
+
+                                    // Get CC email from mail config
+                                    $ccEmail = config('mail.from.address');
+
+                                    return 'mailto:'.rawurlencode($userEmail).'?cc='.rawurlencode($ccEmail).'&subject='.rawurlencode($subject).'&body='.rawurlencode($body);
+                                }, shouldOpenInNewTab: true),
                             Action::make('approve')
                                 ->form(function ($record, $livewire, $get) {
                                     if ($record['report_category'] === ReportCategory::UPDATE->value) {
@@ -1478,17 +1487,6 @@ class ReportResource extends Resource
         }
 
         $livewire->redirect(ReportResource::getUrl('index'));
-    }
-
-    public static function sendContactEmail(array $data, Report $record): void
-    {
-        // Send email to the report submitter
-        $user = $record->user;
-        $curator = auth()->user();
-
-        if ($user && $user->email && $curator) {
-            $user->notify(new \App\Notifications\ReportContactUserNotification($record, $data['contact_message'], $curator));
-        }
     }
 
     public static function runSQLQueries(Report $record): void
