@@ -56,12 +56,6 @@ class FetchCASNumbersAuto extends Command
         // Build query for molecules that need CAS numbers
         $query = Molecule::query()
             ->where('active', true);
-        // ->where(function ($q) {
-        //     $q->whereNull('cas')
-        //         ->orWhere('cas', '[]')
-        //         ->orWhere('cas', '');
-        // });
-
         if ($collection_id) {
             $query->whereHas('entries', function ($q) use ($collection_id) {
                 $q->where('collection_id', $collection_id);
