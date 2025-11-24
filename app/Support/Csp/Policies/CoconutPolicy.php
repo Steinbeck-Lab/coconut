@@ -98,8 +98,6 @@ class CoconutPolicy implements Preset
             ->add(Directive::IMG, 'data:')
             ->add(Directive::IMG, 'blob:')
             ->add(Directive::IMG, 'https://ui-avatars.com')
-            ->add(Directive::IMG, '*.amazonaws.com')
-            ->add(Directive::IMG, '*.s3.amazonaws.com')
             ->add(Directive::IMG, 'https://s3.uni-jena.de')
             ->add(Directive::IMG, 'https://www.nfdi4chem.de')
             ->add(Directive::IMG, 'https://upload.wikimedia.org')
