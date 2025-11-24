@@ -41,9 +41,9 @@ class ReportStatusChangedNotification extends Notification implements ShouldQueu
     public function toMail(object $notifiable)
     {
         if ($notifiable->can('update', $this->event->report)) {
-            $url = url(env('APP_URL').'/dashboard/reports/'.$this->event->report->id.'/edit');
+            $url = url(config('app.url').'/dashboard/reports/'.$this->event->report->id.'/edit');
         } else {
-            $url = url(env('APP_URL').'/dashboard/reports/'.$this->event->report->id);
+            $url = url(config('app.url').'/dashboard/reports/'.$this->event->report->id);
         }
 
         return (new ReportStatusChangedMail($this->event, $notifiable, $this->mail_to, $url))
