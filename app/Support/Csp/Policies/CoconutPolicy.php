@@ -82,7 +82,6 @@ class CoconutPolicy implements Preset
         // Keep unsafe-inline for styles temporarily (needed for Alpine.js inline styles and dynamic style attributes)
         $policy->add(Directive::STYLE, Keyword::UNSAFE_INLINE);
         $policy->add(Directive::SCRIPT, Keyword::UNSAFE_EVAL);
-
         // Security enhancements - automatically upgrade HTTP to HTTPS
         $policy->add(Directive::UPGRADE_INSECURE_REQUESTS, Value::NO_VALUE);
     }
