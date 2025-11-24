@@ -1,4 +1,4 @@
-ervices:
+services:
   traefik:
     container_name: traefik
     restart: unless-stopped
