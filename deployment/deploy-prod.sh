@@ -7,13 +7,15 @@ echo "🚀 ==== Script started at: $(date '+%Y-%m-%d %H:%M:%S') ==== "
 
 APP_IMAGE="nfdi4chem/coconut:latest"
 WORKER_IMAGE="nfdi4chem/coconut:latest"
-PROJECT_ROOT=$(dirname "$(dirname "$(realpath "$0")")")
+CM_IMAGE="nfdi4chem/cheminformatics-microservice:latest-lite"
+PROJECT_ROOT=$(dirname "$(dirname "$(realpath "$0")")
 APP_COMPOSE_FILE="$PROJECT_ROOT/deployment/docker-compose.prod.yml"
 ENV_FILE="$PROJECT_ROOT/.env"
 NEW_CONTAINER_ID=""
 BACKUP_DIR="./backups"
 BUILD=false
 DEPLOY=false
+DEPLOY_CM=false
 BACKUP=false
 
 # === Load environment ===
@@ -159,6 +161,69 @@ deploy_service() {
     else
         echo "✅ No update for app and worker. Skipping deployment."
     fi
+    
+    # Deploy CM service after main deployment
+    echo ""
+    echo "🧪 Checking CM service for updates..."
+    deploy_cm_service
+}
+
+# Deploy CM service if new image is available
+deploy_cm_service() {
+    echo "Starting CM service deployment..."
+    check_requirements
+
+    # Check if CM container is running
+    cm_running=$(docker compose -f "$APP_COMPOSE_FILE" ps cm --format "{{.Service}}" 2>/dev/null || echo "")
+    
+    # Pull the image and check if it's new
+    image_pull_result=$(docker pull "$CM_IMAGE")
+    new_image_available=$(echo "$image_pull_result" | grep -c "Status: Image is up to date" || echo "1")
+    
+    if [ "$new_image_available" -eq 0 ] || [ -z "$cm_running" ]; then
+        if [ "$new_image_available" -eq 0 ]; then
+            echo "📦 New image available for CM service."
+        fi
+        
+        if [ -z "$cm_running" ]; then
+            echo "🔍 CM container is missing or not running."
+        fi
+
+        # Stop and remove existing CM container
+        echo "🛑 Stopping existing CM container..."
+        docker compose -f "$APP_COMPOSE_FILE" stop cm || true
+        docker compose -f "$APP_COMPOSE_FILE" rm -f cm || true
+        
+        # Force remove any orphaned CM containers
+        echo "🧹 Cleaning up any orphaned CM containers..."
+        docker ps -a --filter "name=cm" --format "{{.ID}}" | xargs -r docker rm -f || true
+
+        # Start new CM container
+        echo "🚀 Starting new CM container..."
+        docker compose -f "$APP_COMPOSE_FILE" up -d cm
+
+        # Wait for CM service to be healthy
+        echo "⏳ Waiting for CM service to be healthy..."
+        for i in {1..20}; do
+            if docker compose -f "$APP_COMPOSE_FILE" exec -T cm curl -f http://localhost:80/latest/chem/health >/dev/null 2>&1; then
+                echo "✅ CM service is healthy."
+                break
+            else
+                echo "Retry $i/20: Waiting 30s for CM service..."
+                if [ $i -eq 20 ]; then
+                    echo "❌ CM service health check failed after 20 retries."
+                    echo "📋 Showing CM logs:"
+                    docker compose -f "$APP_COMPOSE_FILE" logs cm --tail=50
+                    exit 1
+                fi
+                sleep 30
+            fi
+        done
+
+        echo "✅ CM service deployment completed successfully."
+    else
+        echo "✅ CM service is running and up to date. No deployment needed."
+    fi
 }
 
 build_or_restart_services() {
@@ -215,6 +280,7 @@ display_help() {
     echo "\nOptions:"
     echo "  --build           Build and deploy the application"
     echo "  --deploy          Perform zero-downtime deployment"
+    echo "  --deploy-cm       Deploy CM (cheminformatics-microservice) only"
     echo "  --backup          Create a database backup"
     echo "  --restart         Restart services"
     echo "  --help            Display this help message"
@@ -226,6 +292,7 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         --build) BUILD=true; shift ;;
         --deploy) DEPLOY=true; shift ;;
+        --deploy-cm) DEPLOY_CM=true; shift ;;
         --backup) BACKUP=true; shift ;;
         --restart) RESTART=true; shift ;;
         --help) HELP=true; shift ;;
@@ -237,6 +304,9 @@ done
 case true in
     $DEPLOY)
         deploy_service
+        ;;
+    $DEPLOY_CM)
+        deploy_cm_service
         ;;
     $BUILD)
         build_or_restart_services
@@ -251,7 +321,13 @@ case true in
         display_help
         ;;
     *)
-        echo "Skipping build and deploy step — please pass at least one argument: \n--build: Build and deploy the application \n--deploy: Perform zero-downtime deployment \n--backup: Create a database backup \n--restart: Restart services. If you are unsure, use the --help flag for guidance."
+        echo "Skipping build and deploy step — please pass at least one argument:"
+        echo "  --build: Build and deploy the application"
+        echo "  --deploy: Perform zero-downtime deployment"
+        echo "  --deploy-cm: Deploy CM service only"
+        echo "  --backup: Create a database backup"
+        echo "  --restart: Restart services"
+        echo "If you are unsure, use the --help flag for guidance."
         ;;
 esac
 
