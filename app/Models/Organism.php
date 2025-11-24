@@ -72,7 +72,6 @@ class Organism extends Model implements Auditable
 
     public function sampleLocations(): BelongsToMany
     {
-        // return $this->hasMany(SampleLocation::class);
         return $this->belongsToMany(SampleLocation::class, 'molecule_organism', 'organism_id', 'sample_location_id')
             ->withTimestamps()
             ->distinct('sample_location_id')
