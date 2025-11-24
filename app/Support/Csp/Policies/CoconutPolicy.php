@@ -140,7 +140,7 @@ class CoconutPolicy implements Preset
         $policy
             ->add(Directive::SCRIPT, '*.tawk.to')
             ->add(Directive::SCRIPT, 'https://embed.tawk.to')
-            ->add(Directive::SCRIPT, '*.matomo.nfdi4chem.de/')
+            ->add(Directive::SCRIPT, 'https://matomo.nfdi4chem.de/')
             ->add(Directive::SCRIPT, 'https://dev.coconut.naturalproducts.net');
 
         // Frame sources

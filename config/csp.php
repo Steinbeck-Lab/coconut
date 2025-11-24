@@ -11,10 +11,10 @@ return [
      * Presets will determine which CSP headers will be set. A valid CSP preset is
      * any class that implements `Spatie\Csp\Preset`
      *
-     * The CoconutPolicy class automatically handles environment-specific rules:
-     * - Development: Permissive for local development with Vite HMR
-     * - Production: Strict security with additional protections
-     * - Testing: Balanced policy for staging/testing environments
+     * The CoconutPolicy class applies a unified set of CSP rules across all environments.
+     * If environment-specific policies are needed, consider creating separate policy classes
+     * or updating CoconutPolicy to handle environment detection and rule selection.
+     *
      */
     'presets' => [
         CoconutPolicy::class,
