@@ -43,7 +43,7 @@ class PostPublishJobFailedNotification extends Notification implements ShouldQue
         $timestamp = $this->event->errorDetails['timestamp'];
 
         // Create a dashboard URL for admins to check logs
-        $dashboardUrl = url(env('APP_URL').'/dashboard');
+        $dashboardUrl = url(config('app.url').'/dashboard');
 
         $mailMessage = (new MailMessage)
             ->subject('Coconut: Post Publish Job Failed - '.$jobName)
