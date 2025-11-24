@@ -9,6 +9,7 @@ class TrustProxies extends Middleware
 {
     /**
      * The trusted proxies for this application.
+     * In Docker/containerized environments, trust all proxies
      *
      * @var array<int, string>|string|null
      */
@@ -16,6 +17,7 @@ class TrustProxies extends Middleware
 
     /**
      * The headers that should be used to detect proxies.
+     * Include all possible proxy headers for Docker/nginx/load balancer setups
      *
      * @var int
      */

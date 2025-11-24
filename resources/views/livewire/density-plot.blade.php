@@ -18,7 +18,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         const ctx = document.getElementById('myChart');
 
         // Data from Livewire/PHP

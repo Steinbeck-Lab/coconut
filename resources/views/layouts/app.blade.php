@@ -17,7 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/jsme@2017.2.26/jsme/jsme.nocache.min.js"></script>
 
     <!-- Matomo -->
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         var _paq = window._paq = window._paq || [];
         /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
         _paq.push(['trackPageView']);
@@ -25,7 +25,7 @@
         (function() {
             var u = "//matomo.nfdi4chem.de/";
             _paq.push(['setTrackerUrl', u + 'matomo.php']);
-            _paq.push(['setSiteId', '3']);
+            _paq.push(['setSiteId', '8']);
             var d = document,
                 g = d.createElement('script'),
                 s = d.getElementsByTagName('script')[0];

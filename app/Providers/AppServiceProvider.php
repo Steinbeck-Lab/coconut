@@ -35,7 +35,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Force HTTPS based on environment or FORCE_HTTPS setting
         if (App::environment('production') || App::environment('development')) {
+            URL::forceScheme('https');
+        }
+        
+        // Additional HTTPS enforcement for proxy environments
+        if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+            URL::forceScheme('https');
+        }
+        
+        // Force HTTPS when behind load balancer or reverse proxy
+        if (isset($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on') {
             URL::forceScheme('https');
         }
 
