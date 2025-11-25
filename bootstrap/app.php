@@ -6,6 +6,7 @@ use BezhanSalleh\FilamentExceptions\FilamentExceptions;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Spatie\Csp\AddCspHeaders;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,11 +18,17 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         // Register your own TrustProxies class as the proxy middleware
+        // Global middleware applied to everything
         $middleware->use([
             TrustProxies::class,
         ]);
 
-        // Optional aliases if you need them later
+        // Register CSP in the *web* middleware group
+        $middleware->group('web', [
+            AddCspHeaders::class,
+        ]);
+
+        // Optional aliases
         // $middleware->alias([
         //     'verified' => EnsureEmailOrPhoneIsVerified::class,
         // ]);
