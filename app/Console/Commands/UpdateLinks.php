@@ -7,31 +7,65 @@ use Illuminate\Support\Facades\DB;
 
 class UpdateLinks extends Command
 {
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
     protected $signature = 'coconut:update-links {collection_id} {old_link} {new_link}';
 
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
     protected $description = 'Update links for a given collection in entries and collection_molecule tables.';
 
+    /**
+     * Execute the console command.
+     *
+     * @return int|null
+     */
     public function handle()
     {
         $collectionId = $this->argument('collection_id');
         $oldPrefix = $this->argument('old_link');
         $newPrefix = $this->argument('new_link');
 
-        // Update entries table
-        $entriesUpdated = DB::table('entries')
-            ->where('collection_id', $collectionId)
-            ->where('link', 'like', $oldPrefix.'%')
-            ->update([
-                'link' => DB::raw("REPLACE(link, '$oldPrefix', '$newPrefix')"),
-            ]);
+        if (empty($collectionId) || empty($oldPrefix) || empty($newPrefix)) {
+            $this->error('Missing required arguments: collection_id, old_link, new_link');
+            $this->info('Usage: php artisan coconut:update-links {collection_id} {old_link} {new_link}');
 
-        // Update collection_molecule table
-        $moleculesUpdated = DB::table('collection_molecule')
-            ->where('collection_id', $collectionId)
-            ->where('url', 'like', $oldPrefix.'%')
-            ->update([
-                'url' => DB::raw("REPLACE(url, '$oldPrefix', '$newPrefix')"),
-            ]);
+            return 1;
+        }
+
+        $entriesUpdated = 0;
+        $moleculesUpdated = 0;
+        DB::beginTransaction();
+        try {
+            // Update entries table
+            $entriesUpdated = DB::table('entries')
+                ->where('collection_id', $collectionId)
+                ->where('link', 'like', $oldPrefix.'%')
+                ->update([
+                    'link' => DB::raw("REPLACE(link, '$oldPrefix', '$newPrefix')"),
+                ]);
+
+            // Update collection_molecule table
+            $moleculesUpdated = DB::table('collection_molecule')
+                ->where('collection_id', $collectionId)
+                ->where('url', 'like', $oldPrefix.'%')
+                ->update([
+                    'url' => DB::raw("REPLACE(url, '$oldPrefix', '$newPrefix')"),
+                ]);
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->error('Update failed: '.$e->getMessage());
+
+            return 1;
+        }
 
         $this->info("Updated $entriesUpdated entries and $moleculesUpdated collection_molecule records.");
     }
