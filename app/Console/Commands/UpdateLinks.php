@@ -44,20 +44,14 @@ class UpdateLinks extends Command
         DB::beginTransaction();
         try {
             // Update entries table
-            $entriesUpdated = DB::table('entries')
-                ->where('collection_id', $collectionId)
-                ->where('link', 'like', $oldPrefix.'%')
-                ->update([
-                    'link' => DB::raw("REPLACE(link, '$oldPrefix', '$newPrefix')"),
-                ]);
+            $entriesUpdated = DB::update(
+                'UPDATE entries SET link = REPLACE(link, ?, ?) WHERE collection_id = ? AND link LIKE ?', [$oldPrefix, $newPrefix, $collectionId, $oldPrefix.'%']
+            );
 
             // Update collection_molecule table
-            $moleculesUpdated = DB::table('collection_molecule')
-                ->where('collection_id', $collectionId)
-                ->where('url', 'like', $oldPrefix.'%')
-                ->update([
-                    'url' => DB::raw("REPLACE(url, '$oldPrefix', '$newPrefix')"),
-                ]);
+            $moleculesUpdated = DB::update(
+                'UPDATE collection_molecule SET url = REPLACE(url, ?, ?) WHERE collection_id = ? AND url LIKE ?', [$oldPrefix, $newPrefix, $collectionId, $oldPrefix.'%']
+            );
 
             DB::commit();
         } catch (\Exception $e) {
