@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Middleware\EnsureEmailOrPhoneIsVerified;
 use App\Http\Middleware\TrustProxies;
 use BezhanSalleh\FilamentExceptions\FilamentExceptions;
 use Illuminate\Foundation\Application;
