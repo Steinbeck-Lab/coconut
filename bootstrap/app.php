@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Middleware\EnsureEmailOrPhoneIsVerified;
 use App\Http\Middleware\TrustProxies;
 use BezhanSalleh\FilamentExceptions\FilamentExceptions;
 use Illuminate\Foundation\Application;
@@ -23,8 +22,8 @@ return Application::configure(basePath: dirname(__DIR__))
             TrustProxies::class,
         ]);
 
-        // Register CSP in the *web* middleware group
-        $middleware->group('web', [
+        // Append CSP to the *web* middleware group (don't replace the entire group)
+        $middleware->appendToGroup('web', [
             AddCspHeaders::class,
         ]);
 
