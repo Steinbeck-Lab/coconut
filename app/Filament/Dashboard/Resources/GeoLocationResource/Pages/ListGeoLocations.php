@@ -13,7 +13,7 @@ class ListGeoLocations extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            // CreateAction::make(), // Hidden per user request
         ];
     }
 }
