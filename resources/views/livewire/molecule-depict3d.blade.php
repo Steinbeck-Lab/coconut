@@ -26,7 +26,7 @@
             </button>
         </div>
     </div>
-    <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg mb-2 mt-2" x-show="src">
+    <div class="border border-gray-200 aspect-h-2 aspect-w-3 overflow-hidden rounded-xl mb-2 mt-2" x-show="src">
         <iframe x-bind:src="src" width="{{ $this->width }}" height="{{ $this->height }}"
             frameborder="0"></iframe>
     </div>

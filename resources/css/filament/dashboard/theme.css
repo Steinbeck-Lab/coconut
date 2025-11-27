@@ -1,5 +1,8 @@
-@import '/vendor/filament/filament/resources/css/theme.css';
-@import '/vendor/archilex/filament-filter-sets/resources/css/plugin.css';
-@import '/vendor/kenepa/banner/resources/css/index.css';
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+@import '../../../../vendor/archilex/filament-filter-sets/resources/dist/advanced-tables.css';
+@plugin "@tailwindcss/forms";
 
-@config 'tailwind.config.js';
+@source '../../../../app/Filament/Dashboard/**/*';
+@source '../../../../resources/views/filament/dashboard/**/*';
+@source '../../../../vendor/archilex/filament-filter-sets/resources/**/*.blade.php';
+@source '../../../../vendor/archilex/filament-filter-sets/src/**/*.php';
