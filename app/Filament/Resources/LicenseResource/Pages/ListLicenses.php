@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\LicenseResource\Pages;
 
+use Filament\Actions\CreateAction;
 use App\Filament\Resources\LicenseResource;
 use App\Filament\Resources\LicenseResource\Widgets\LicenseOverview;
 use Filament\Actions;
@@ -21,7 +22,7 @@ class ListLicenses extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            CreateAction::make(),
         ];
     }
 }
