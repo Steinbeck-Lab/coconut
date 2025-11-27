@@ -16,11 +16,14 @@ class OrganismsTable extends Field
 
     public function getTableData($record_name)
     {
-        return Organism::select('id', 'name', urldecode('iri'), 'molecule_count')
+        return Organism::select('id', 'name', 'iri', 'molecule_count')
             ->where('molecule_count', '>', 0)
             ->where(function ($q) use ($record_name) {
                 $arr = explode(' ', $record_name);
-                $sanitised_org_name = $arr[0].' '.$arr[1];
+                // Use genus + species if available, otherwise just genus
+                $sanitised_org_name = count($arr) > 1
+                    ? $arr[0].' '.$arr[1]
+                    : $arr[0];
                 $q->where([
                     ['name', '!=', $record_name],
                     ['name', 'ILIKE', '%'.$sanitised_org_name.'%'],
