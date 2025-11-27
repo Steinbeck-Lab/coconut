@@ -6,6 +6,7 @@ use App\Filament\Dashboard\Resources\GeoLocationResource\Pages\CreateGeoLocation
 use App\Filament\Dashboard\Resources\GeoLocationResource\Pages\EditGeoLocation;
 use App\Filament\Dashboard\Resources\GeoLocationResource\Pages\ListGeoLocations;
 use App\Filament\Dashboard\Resources\GeoLocationResource\Pages\ViewGeoLocation;
+use App\Filament\Dashboard\Resources\GeoLocationResource\RelationManagers\MoleculesRelationManager;
 use App\Filament\Dashboard\Resources\GeoLocationResource\Widgets\GeoLocationStats;
 use App\Models\GeoLocation;
 use Filament\Actions\BulkActionGroup;
@@ -39,25 +40,66 @@ class GeoLocationResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('flag')
+                    ->label('')
+                    ->formatStateUsing(fn ($state) => $state ?: '🌍')
+                    ->size('xl')
+                    ->alignCenter()
+                    ->width(60),
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->label('Location')
+                    ->searchable()
+                    ->sortable()
+                    ->description(fn ($record) => implode(' • ', array_filter([
+                        $record->county,
+                        $record->country,
+                    ])))
+                    ->wrap()
+                    ->weight('medium'),
+                TextColumn::make('country_code')
+                    ->label('Code')
+                    ->badge()
+                    ->color('gray')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('coordinates')
+                    ->label('Coordinates')
+                    ->formatStateUsing(fn ($record) => $record->latitude && $record->longitude
+                            ? sprintf('%.4f°, %.4f°', $record->latitude, $record->longitude)
+                            : '—'
+                    )
+                    ->icon('heroicon-m-map-pin')
+                    ->color('info')
+                    ->toggleable(),
+                TextColumn::make('molecules_count')
+                    ->label('Molecules')
+                    ->counts('molecules')
+                    ->sortable()
+                    ->badge()
+                    ->color('success')
+                    ->alignCenter(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Created')
+                    ->dateTime('M d, Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Updated')
+                    ->dateTime('M d, Y')
                     ->sortable()
+                    ->since()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('name', 'asc')
             ->filters([
                 //
             ])
+            ->recordUrl(fn ($record) => static::getUrl('view', ['record' => $record]))
             ->recordActions([
                 EditAction::make()
                     ->iconButton(),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
@@ -67,6 +109,7 @@ class GeoLocationResource extends Resource
     public static function getRelations(): array
     {
         return [
+            MoleculesRelationManager::class,
             AuditsRelationManager::class,
         ];
     }
