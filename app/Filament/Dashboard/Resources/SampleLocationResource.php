@@ -2,11 +2,21 @@
 
 namespace App\Filament\Dashboard\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\EditAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Dashboard\Resources\SampleLocationResource\Pages\ListSampleLocations;
+use App\Filament\Dashboard\Resources\SampleLocationResource\Pages\CreateSampleLocation;
+use App\Filament\Dashboard\Resources\SampleLocationResource\Pages\ViewSampleLocation;
+use App\Filament\Dashboard\Resources\SampleLocationResource\Pages\EditSampleLocation;
 use App\Filament\Dashboard\Resources\SampleLocationResource\Pages;
 use App\Filament\Dashboard\Resources\SampleLocationResource\RelationManagers\MoleculesRelationManager;
 use App\Models\SampleLocation;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -18,28 +28,28 @@ class SampleLocationResource extends Resource
 
     protected static bool $shouldRegisterNavigation = false;
 
-    protected static ?string $navigationGroup = 'Data';
+    protected static string | \UnitEnum | null $navigationGroup = 'Data';
 
     protected static ?int $navigationSort = 6;
 
-    protected static ?string $navigationIcon = 'heroicon-s-viewfinder-circle';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-s-viewfinder-circle';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
+        return $schema
+            ->components([
+                TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('iri')
+                TextInput::make('iri')
                     ->maxLength(255),
-                Forms\Components\Select::make('organism_id')
+                Select::make('organism_id')
                     ->relationship('organisms', 'name')
                     ->searchable()
                     ->required(),
-                Forms\Components\TextInput::make('collection_ids')
+                TextInput::make('collection_ids')
                     ->maxLength(255),
-                Forms\Components\TextInput::make('molecule_count')
+                TextInput::make('molecule_count')
                     ->numeric(),
                 // Forms\Components\TextInput::make('slug')
                 //     ->maxLength(255),
@@ -50,39 +60,39 @@ class SampleLocationResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('iri')
+                TextColumn::make('iri')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('organism_id')
+                TextColumn::make('organism_id')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('collection_ids')
+                TextColumn::make('collection_ids')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('molecule_count')
+                TextColumn::make('molecule_count')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('slug')
+                TextColumn::make('slug')
                     ->searchable(),
             ])
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make()
+                    ->iconButton(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -98,10 +108,10 @@ class SampleLocationResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListSampleLocations::route('/'),
-            'create' => Pages\CreateSampleLocation::route('/create'),
-            'view' => Pages\ViewSampleLocation::route('/{record}'),
-            'edit' => Pages\EditSampleLocation::route('/{record}/edit'),
+            'index' => ListSampleLocations::route('/'),
+            'create' => CreateSampleLocation::route('/create'),
+            'view' => ViewSampleLocation::route('/{record}'),
+            'edit' => EditSampleLocation::route('/{record}/edit'),
         ];
     }
 }

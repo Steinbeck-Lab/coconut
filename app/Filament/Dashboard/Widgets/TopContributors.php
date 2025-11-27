@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class TopContributors extends Widget
 {
-    protected static string $view = 'filament.dashboard.widgets.top-contributors';
+    protected string $view = 'filament.dashboard.widgets.top-contributors';
 
     protected static ?int $sort = 4;
 

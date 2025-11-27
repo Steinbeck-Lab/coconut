@@ -2,6 +2,20 @@
 
 namespace App\Filament\Dashboard\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\BulkAction;
+use Maatwebsite\Excel\Excel;
+use App\Filament\Dashboard\Resources\MoleculeResource\Pages\ListMolecules;
+use App\Filament\Dashboard\Resources\MoleculeResource\Pages\CreateMolecule;
+use App\Filament\Dashboard\Resources\MoleculeResource\Pages\EditMolecule;
+use App\Filament\Dashboard\Resources\MoleculeResource\Pages\ViewMolecule;
 use App\Filament\Dashboard\Resources\MoleculeResource\Pages;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\CitationsRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\CollectionsRelationManager;
@@ -18,12 +32,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
@@ -39,23 +49,23 @@ use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class MoleculeResource extends Resource
 {
-    protected static ?string $navigationGroup = 'Data';
+    protected static string | \UnitEnum | null $navigationGroup = 'Data';
 
     protected static ?string $model = Molecule::class;
 
     protected static ?int $navigationSort = 3;
 
-    protected static ?string $navigationIcon = 'heroicon-o-share';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-share';
 
     public static function customActionMethod()
     {
         // Custom logic here
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 TextInput::make('name'),
                 TextInput::make('identifier'),
                 TextInput::make('iupac_name')
@@ -96,34 +106,34 @@ class MoleculeResource extends Resource
                     ->height(200)
                     ->ring(5)
                     ->defaultImageUrl(url('/images/placeholder.png')),
-                Tables\Columns\TextColumn::make('id')->searchable()->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('identifier')->searchable()->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('name')->searchable()
+                TextColumn::make('id')->searchable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('identifier')->searchable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('name')->searchable()
                     ->formatStateUsing(
                         fn (Molecule $molecule): HtmlString => new HtmlString("<strong>ID:</strong> {$molecule->id}<br><strong>Identifier:</strong> {$molecule->identifier}<br><strong>Name:</strong> {$molecule->name}")
                     )
                     ->description(fn (Molecule $molecule) => $molecule->standard_inchi)
                     ->wrap(),
-                Tables\Columns\TextColumn::make('synonyms')
+                TextColumn::make('synonyms')
                     ->searchable()
                     ->wrap()
                     ->lineClamp(6)
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('properties.exact_molecular_weight')
+                TextColumn::make('properties.exact_molecular_weight')
                     ->label('Mol.Wt')
                     ->numeric()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('properties.np_likeness')
+                TextColumn::make('properties.np_likeness')
                     ->label('NP Likeness')
                     ->numeric()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('status'),
+                TextColumn::make('status'),
             ])
             ->filters([
                 AdvancedFilter::make()
                     ->includeColumns(),
                 Filter::make('structure')
-                    ->form([
+                    ->schema([
                         Select::make('type')
                             ->options([
                                 'substructure' => 'Sub Structure',
@@ -158,10 +168,10 @@ class MoleculeResource extends Resource
                         return $data['type'].':'.$data['smiles'];
                     }),
             ])
-            ->actions([
+            ->recordActions([
                 ActionGroup::make([
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
+                    ViewAction::make(),
+                    EditAction::make(),
                     Action::make('report')
                         ->action(function (Molecule $record) {
                             Redirect::to(ReportResource::getUrl('create').'?compound_id='.$record->identifier);
@@ -173,7 +183,7 @@ class MoleculeResource extends Resource
                         ->hidden(function () {
                             return ! auth()->user()->isCurator();
                         })
-                        ->form([
+                        ->schema([
                             Textarea::make('reason')
                                 ->required(function (Molecule $record) {
                                     return $record['active'];
@@ -184,11 +194,11 @@ class MoleculeResource extends Resource
                         }),
                 ]),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                     BulkAction::make('Active Status Change')
-                        ->form([
+                        ->schema([
                             Textarea::make('reason')
                                 ->required(),
                         ])
@@ -207,13 +217,13 @@ class MoleculeResource extends Resource
                         })
                         ->deselectRecordsAfterCompletion(),
                     ExportBulkAction::make()->exports([
-                        ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::XLSX)->label('XLSX')->queue(),
-                        ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::CSV)->label('CSV')->queue(),
+                        ExcelExport::make()->fromTable()->withWriterType(Excel::XLSX)->label('XLSX')->queue(),
+                        ExcelExport::make()->fromTable()->withWriterType(Excel::CSV)->label('CSV')->queue(),
                         // ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::TSV)->label('TSV')->queue(),
-                        ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::ODS)->label('ODS')->queue(),
-                        ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::XLS)->label('XLS')->queue(),
-                        ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::HTML)->label('HTML')->queue(),
-                        ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::MPDF)->label('MPDF')->queue(),
+                        ExcelExport::make()->fromTable()->withWriterType(Excel::ODS)->label('ODS')->queue(),
+                        ExcelExport::make()->fromTable()->withWriterType(Excel::XLS)->label('XLS')->queue(),
+                        ExcelExport::make()->fromTable()->withWriterType(Excel::HTML)->label('HTML')->queue(),
+                        ExcelExport::make()->fromTable()->withWriterType(Excel::MPDF)->label('MPDF')->queue(),
                         // ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::DOMPDF)->label('DOMPDF')->queue(),
                         // ExcelExport::make()->fromTable()->withWriterType(\Maatwebsite\Excel\Excel::TCPDF)->label('TCPDF')->queue(),
                     ])
@@ -240,10 +250,10 @@ class MoleculeResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListMolecules::route('/'),
-            'create' => Pages\CreateMolecule::route('/create'),
-            'edit' => Pages\EditMolecule::route('/{record}/edit'),
-            'view' => Pages\ViewMolecule::route('/{record}'),
+            'index' => ListMolecules::route('/'),
+            'create' => CreateMolecule::route('/create'),
+            'edit' => EditMolecule::route('/{record}/edit'),
+            'view' => ViewMolecule::route('/{record}'),
         ];
     }
 

@@ -2,12 +2,19 @@
 
 namespace App\Filament\Dashboard\Resources\ReportResource\RelationManagers;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Schemas\Components\Section;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Infolists\Components\ImageEntry;
-use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Infolist;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
@@ -17,60 +24,60 @@ class EntriesRelationManager extends RelationManager
 {
     protected static string $relationship = 'entries';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('reference_id')
+        return $schema
+            ->components([
+                TextInput::make('reference_id')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('canonical_smiles')
+                TextInput::make('canonical_smiles')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('name')
+                TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('doi')
+                TextInput::make('doi')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('link')
+                TextInput::make('link')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('organism')
+                TextInput::make('organism')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('organism_part')
+                TextInput::make('organism_part')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('mol_filename')
+                TextInput::make('mol_filename')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('molecular_formula')
+                TextInput::make('molecular_formula')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Textarea::make('structural_comments')
+                Textarea::make('structural_comments')
                     ->required(),
-                Forms\Components\TextInput::make('geo_location')
+                TextInput::make('geo_location')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('location')
+                TextInput::make('location')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Textarea::make('errors')
+                Textarea::make('errors')
                     ->required(),
-                Forms\Components\TextInput::make('standardized_canonical_smiles')
+                TextInput::make('standardized_canonical_smiles')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('parent_canonical_smiles')
+                TextInput::make('parent_canonical_smiles')
                     ->required()
                     ->maxLength(255),
             ]);
     }
 
-    public function infolist(Infolist $infolist): Infolist
+    public function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
+        return $schema
+            ->components([
 
                 Section::make()
                     ->schema([
@@ -134,21 +141,21 @@ class EntriesRelationManager extends RelationManager
                     ->height(200)
                     ->ring(5)
                     ->defaultImageUrl(url('/images/placeholder.png')),
-                Tables\Columns\TextColumn::make('reference_id')->searchable(),
-                Tables\Columns\TextColumn::make('status'),
+                TextColumn::make('reference_id')->searchable(),
+                TextColumn::make('status'),
             ])
             ->filters([
             ])
             ->headerActions([
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])->paginated([10, 25, 50, 100])
             ->extremePaginationLinks();

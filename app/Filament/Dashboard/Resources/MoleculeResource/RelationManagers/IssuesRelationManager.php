@@ -2,8 +2,18 @@
 
 namespace App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TextArea;
+use Filament\Forms\Components\Toggle;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\CreateAction;
+use Filament\Actions\AttachAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DetachAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DetachBulkAction;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -12,24 +22,24 @@ class IssuesRelationManager extends RelationManager
 {
     protected static string $relationship = 'issues';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('title')
+        return $schema
+            ->components([
+                TextInput::make('title')
                     ->required()
                     ->maxLength(255)
                     ->columnSpanFull(),
-                Forms\Components\TextArea::make('comment')
+                TextArea::make('comment')
                     ->required()
                     ->maxLength(255)
                     ->columnSpanFull(),
-                Forms\Components\Toggle::make('is_acive')
+                Toggle::make('is_acive')
                     ->label('Active')
                     ->hidden(function (string $operation) {
                         return $operation == 'create';
                     }),
-                Forms\Components\Toggle::make('is_resolved')
+                Toggle::make('is_resolved')
                     ->label('Resolved')
                     ->hidden(function (string $operation) {
                         return $operation == 'create';
@@ -42,16 +52,16 @@ class IssuesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('title')
             ->columns([
-                Tables\Columns\TextColumn::make('title'),
-                Tables\Columns\TextColumn::make('comment'),
-                Tables\Columns\TextColumn::make('is_active')
+                TextColumn::make('title'),
+                TextColumn::make('comment'),
+                TextColumn::make('is_active')
                     ->label('Active')
                     ->formatStateUsing(
                         function (string $state) {
                             return $state ? 'Yes' : 'No';
                         }
                     ),
-                Tables\Columns\TextColumn::make('is_resolved')
+                TextColumn::make('is_resolved')
                     ->label('Resolved')
                     ->formatStateUsing(
                         function (string $state) {
@@ -63,21 +73,21 @@ class IssuesRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
-                    ->mutateFormDataUsing(function (array $data): array {
+                CreateAction::make()
+                    ->mutateDataUsing(function (array $data): array {
                         $data['user_id'] = auth()->id();
 
                         return $data;
                     }),
-                Tables\Actions\AttachAction::make()->multiple(),
+                AttachAction::make()->multiple(),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DetachAction::make(),
+            ->recordActions([
+                EditAction::make(),
+                DetachAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DetachBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DetachBulkAction::make(),
                 ]),
             ]);
     }

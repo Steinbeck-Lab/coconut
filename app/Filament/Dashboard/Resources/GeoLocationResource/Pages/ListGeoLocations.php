@@ -2,6 +2,7 @@
 
 namespace App\Filament\Dashboard\Resources\GeoLocationResource\Pages;
 
+use Filament\Actions\CreateAction;
 use App\Filament\Dashboard\Resources\GeoLocationResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
@@ -13,7 +14,7 @@ class ListGeoLocations extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            CreateAction::make(),
         ];
     }
 }

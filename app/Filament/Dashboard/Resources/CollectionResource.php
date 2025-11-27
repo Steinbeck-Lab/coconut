@@ -2,6 +2,17 @@
 
 namespace App\Filament\Dashboard\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\EditAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Dashboard\Resources\CollectionResource\Pages\ListCollections;
+use App\Filament\Dashboard\Resources\CollectionResource\Pages\CreateCollection;
+use App\Filament\Dashboard\Resources\CollectionResource\Pages\EditCollection;
+use App\Filament\Dashboard\Resources\CollectionResource\Pages\ViewCollection;
 use App\Filament\Dashboard\Resources\CollectionResource\Pages;
 use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\CitationsRelationManager;
 use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\EntriesRelationManager;
@@ -11,14 +22,11 @@ use App\Filament\Dashboard\Resources\CollectionResource\Widgets\EntriesOverview;
 use App\Livewire\ShowJobStatus;
 use App\Models\Collection;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Livewire;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -31,18 +39,18 @@ class CollectionResource extends Resource
 {
     protected static ?string $model = Collection::class;
 
-    protected static ?string $navigationGroup = 'Data';
+    protected static string | \UnitEnum | null $navigationGroup = 'Data';
 
     protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationIcon = 'heroicon-o-swatch';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-swatch';
 
     protected static ?string $recordTitleAttribute = 'title';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema(
+        return $schema
+            ->components(
                 [
                     // Livewire::make(ShowJobStatus::class),
                     Grid::make()
@@ -99,20 +107,28 @@ class CollectionResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title')
-                    ->sortable()
-                    ->searchable()
-                    ->wrap(),
-                Tables\Columns\TextColumn::make('entries')
+                TextColumn::make('title')
+                    ->wrap()
+                    ->sortable(),
+                TextColumn::make('entries')
                     ->state(function (Model $record) {
                         return $record->total_entries.'/'.$record->failed_entries;
                     }),
-                Tables\Columns\TextColumn::make('molecules_count')->label('Molecules'),
-                Tables\Columns\TextColumn::make('citations_count')->label('Citations'),
-                Tables\Columns\TextColumn::make('organisms_count')->label('Organisms'),
-                Tables\Columns\TextColumn::make('geo_count')->label('Geo Locations'),
-                Tables\Columns\TextColumn::make('status')
+                TextColumn::make('molecules_count')
+                    ->label('Molecules')
+                    ->sortable(),
+                TextColumn::make('citations_count')
+                    ->label('Citations')
+                    ->sortable(),
+                TextColumn::make('organisms_count')
+                    ->label('Organisms')
+                    ->sortable(),
+                TextColumn::make('geo_count')
+                    ->label('Geo Locations')
+                    ->sortable(),
+                TextColumn::make('status')
                     ->badge()
+                    ->sortable()
                     ->color(fn (string $state): string => match ($state) {
                         'DRAFT' => 'info',
                         'REVIEW' => 'warning',
@@ -121,16 +137,14 @@ class CollectionResource extends Resource
                         'REJECTED' => 'danger',
                     }),
             ])
-            ->filters([
-                //
+            ->searchable(false)
+            ->recordActions([
+                EditAction::make()
+                    ->iconButton(),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->paginated([10, 25, 50, 100, 'all'])
@@ -152,10 +166,10 @@ class CollectionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCollections::route('/'),
-            'create' => Pages\CreateCollection::route('/create'),
-            'edit' => Pages\EditCollection::route('/{record}/edit'),
-            'view' => Pages\ViewCollection::route('/{record}'),
+            'index' => ListCollections::route('/'),
+            'create' => CreateCollection::route('/create'),
+            'edit' => EditCollection::route('/{record}/edit'),
+            'view' => ViewCollection::route('/{record}'),
         ];
     }
 

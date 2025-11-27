@@ -2,6 +2,7 @@
 
 namespace App\Filament\Dashboard\Resources\ReportResource\Pages;
 
+use Filament\Actions\CreateAction;
 use App\Enums\ReportStatus;
 use App\Filament\Dashboard\Resources\ReportResource;
 use App\Models\Report;
@@ -19,7 +20,7 @@ class ListReports extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            CreateAction::make(),
         ];
     }
 

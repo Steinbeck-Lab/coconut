@@ -2,10 +2,19 @@
 
 namespace App\Filament\Dashboard\Resources;
 
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Dashboard\Resources\EntryResource\Pages\ListEntries;
+use App\Filament\Dashboard\Resources\EntryResource\Pages\CreateEntry;
+use App\Filament\Dashboard\Resources\EntryResource\Pages\ViewEntry;
+use App\Filament\Dashboard\Resources\EntryResource\Pages\EditEntry;
+use Filament\Schemas\Schema;
+use Filament\Infolists\Components\TextEntry;
 use App\Filament\Dashboard\Resources\EntryResource\Pages;
 use App\Models\Entry;
 use Filament\Infolists;
-use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -16,7 +25,7 @@ class EntryResource extends Resource
 
     protected static bool $shouldRegisterNavigation = false;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function table(Table $table): Table
     {
@@ -27,13 +36,13 @@ class EntryResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -48,18 +57,18 @@ class EntryResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListEntries::route('/'),
-            'create' => Pages\CreateEntry::route('/create'),
-            'view' => Pages\ViewEntry::route('/{record}'),
-            'edit' => Pages\EditEntry::route('/{record}/edit'),
+            'index' => ListEntries::route('/'),
+            'create' => CreateEntry::route('/create'),
+            'view' => ViewEntry::route('/{record}'),
+            'edit' => EditEntry::route('/{record}/edit'),
         ];
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
-                Infolists\Components\TextEntry::make('indentifier'),
+        return $schema
+            ->components([
+                TextEntry::make('indentifier'),
             ]);
     }
 }

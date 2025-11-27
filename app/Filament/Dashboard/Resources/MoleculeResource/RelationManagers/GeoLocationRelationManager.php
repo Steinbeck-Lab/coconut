@@ -2,22 +2,28 @@
 
 namespace App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\AttachAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DetachAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DetachBulkAction;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
-use Filament\Tables\Actions\AttachAction;
 use Filament\Tables\Table;
 
 class GeoLocationRelationManager extends RelationManager
 {
     protected static string $relationship = 'geo_locations';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
+        return $schema
+            ->components([
+                TextInput::make('name')
                     ->required()
                     ->maxLength(255),
             ]);
@@ -28,32 +34,32 @@ class GeoLocationRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('locations'),
+                TextColumn::make('name'),
+                TextColumn::make('locations'),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make()
+                AttachAction::make()
                     ->preloadRecordSelect()
                     ->form(fn (AttachAction $action): array => [
                         $action->getRecordSelect(),
-                        Forms\Components\TextInput::make('locations'),
+                        TextInput::make('locations'),
                     ]),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
-                    ->form(function ($action) {
+            ->recordActions([
+                EditAction::make()
+                    ->schema(function ($action) {
                         return [
-                            Forms\Components\TextInput::make('locations'),
+                            TextInput::make('locations'),
                         ];
                     }),
-                Tables\Actions\DetachAction::make(),
+                DetachAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DetachBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DetachBulkAction::make(),
                 ]),
             ]);
     }

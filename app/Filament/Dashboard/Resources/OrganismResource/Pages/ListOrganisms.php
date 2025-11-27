@@ -2,6 +2,7 @@
 
 namespace App\Filament\Dashboard\Resources\OrganismResource\Pages;
 
+use Filament\Actions\CreateAction;
 use App\Filament\Dashboard\Resources\OrganismResource;
 use App\Models\Organism;
 use Archilex\AdvancedTables\AdvancedTables;
@@ -18,7 +19,7 @@ class ListOrganisms extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            CreateAction::make(),
         ];
     }
 
