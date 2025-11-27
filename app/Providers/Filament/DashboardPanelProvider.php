@@ -22,7 +22,10 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Kenepa\Banner\BannerPlugin;
-use pxlrbt\FilamentSpotlight\SpotlightPlugin;
+use pxlrbt\FilamentSpotlightPro\SpotlightPlugin;
+use pxlrbt\FilamentSpotlightPro\SpotlightProviders\RegisterCommands;
+use pxlrbt\FilamentSpotlightPro\SpotlightProviders\RegisterPages;
+use pxlrbt\FilamentSpotlightPro\SpotlightProviders\RegisterResources;
 
 class DashboardPanelProvider extends PanelProvider
 {
@@ -48,7 +51,12 @@ class DashboardPanelProvider extends PanelProvider
                     ->favoritesBarDefaultView(false)
                     ->presetViewsManageable(false)
                     ->resourceEnabled(false),
-                SpotlightPlugin::make(),
+                SpotlightPlugin::make()
+                    ->registerItems([
+                        RegisterPages::make(),
+                        RegisterResources::make(),
+                        RegisterCommands::make(),
+                    ]),
                 BannerPlugin::make()
                     ->disableBannerManager(),
             ])
@@ -83,7 +91,12 @@ class DashboardPanelProvider extends PanelProvider
             ->brandLogoHeight('3rem')
             ->darkMode(false)
             ->sidebarCollapsibleOnDesktop()
+            ->globalSearch(false)
             ->viteTheme('resources/css/filament/dashboard/theme.css')
+            ->renderHook(
+                'panels::global-search.before',
+                fn (): string => view('filament.dashboard.widgets.spotlight-search-button')->render()
+            )
             ->renderHook(
                 'panels::body.end',
                 fn (): string => view('components.tawk-chat')

@@ -3,7 +3,8 @@
 @import '../../../../vendor/pxlrbt/filament-spotlight-pro/resources/spotlight.css';
 @plugin "@tailwindcss/forms";
 
-@source '../../../../app/Filament/Dashboard/**/*';
-@source '../../../../resources/views/filament/dashboard/**/*';
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
 @source '../../../../vendor/archilex/filament-filter-sets/resources/**/*.blade.php';
 @source '../../../../vendor/archilex/filament-filter-sets/src/**/*.php';
+
