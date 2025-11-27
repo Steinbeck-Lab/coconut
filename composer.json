@@ -37,7 +37,8 @@
         "owen-it/laravel-auditing": "^14.0",
         "predis/predis": "^2.3",
         "pxlrbt/filament-excel": "^3.0",
-        "pxlrbt/filament-spotlight": "^2.0",
+        "pxlrbt/filament-spotlight-pro": "^1.1",
+        "rinvex/countries": "^9.1",
         "shuvroroy/filament-spatie-laravel-backup": "^3.0",
         "socialiteproviders/manager": "^4.7",
         "spatie/laravel-backup": "^9.0",
@@ -116,6 +117,10 @@
         {
             "type": "composer",
             "url": "https://model-states-for-filament.composer.sh"
+        },
+        {
+            "type": "composer",
+            "url": "https://filament-spotlight-pro.composer.pxlrbt.de"
         }
     ]
 }
