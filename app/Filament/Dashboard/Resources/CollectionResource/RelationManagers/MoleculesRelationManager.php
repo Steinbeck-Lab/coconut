@@ -2,17 +2,17 @@
 
 namespace App\Filament\Dashboard\Resources\CollectionResource\RelationManagers;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\CreateAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
+use App\Filament\Dashboard\Resources\MoleculeResource;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Forms;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class MoleculesRelationManager extends RelationManager
@@ -32,10 +32,24 @@ class MoleculesRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('canonical_smiles')
+            ->recordTitleAttribute('identifier')
             ->columns([
-                TextColumn::make('identifier'),
-                TextColumn::make('canonical_smiles'),
+                ImageColumn::make('structure')->square()
+                    ->label('Structure')
+                    ->state(function ($record) {
+                        return config('services.cheminf.api_url').'depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=true&toolkit=cdk';
+                    })
+                    ->width(200)
+                    ->height(200)
+                    ->ring(5)
+                    ->defaultImageUrl(url('/images/placeholder.png')),
+                TextColumn::make('identifier')
+                    ->label('Identifier')
+                    ->url(fn ($record) => MoleculeResource::getUrl('view', ['record' => $record->id]), shouldOpenInNewTab: true)
+                    ->color('primary')
+                    ->searchable(),
+                TextColumn::make('status')
+                    ->badge(),
             ])
             ->filters([
                 //
@@ -44,8 +58,10 @@ class MoleculesRelationManager extends RelationManager
                 CreateAction::make(),
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->iconButton(),
+                DeleteAction::make()
+                    ->iconButton(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

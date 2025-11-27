@@ -2,18 +2,10 @@
 
 namespace App\Filament\Dashboard\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Section;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\EditAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use App\Filament\Dashboard\Resources\CollectionResource\Pages\ListCollections;
 use App\Filament\Dashboard\Resources\CollectionResource\Pages\CreateCollection;
 use App\Filament\Dashboard\Resources\CollectionResource\Pages\EditCollection;
+use App\Filament\Dashboard\Resources\CollectionResource\Pages\ListCollections;
 use App\Filament\Dashboard\Resources\CollectionResource\Pages\ViewCollection;
-use App\Filament\Dashboard\Resources\CollectionResource\Pages;
 use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\CitationsRelationManager;
 use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\EntriesRelationManager;
 use App\Filament\Dashboard\Resources\CollectionResource\RelationManagers\MoleculesRelationManager;
@@ -21,14 +13,24 @@ use App\Filament\Dashboard\Resources\CollectionResource\Widgets\CollectionStats;
 use App\Filament\Dashboard\Resources\CollectionResource\Widgets\EntriesOverview;
 use App\Livewire\ShowJobStatus;
 use App\Models\Collection;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Livewire;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\Section as InfolistSection;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
@@ -39,11 +41,11 @@ class CollectionResource extends Resource
 {
     protected static ?string $model = Collection::class;
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Data';
+    protected static string|\UnitEnum|null $navigationGroup = 'Data';
 
     protected static ?int $navigationSort = 1;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-swatch';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-swatch';
 
     protected static ?string $recordTitleAttribute = 'title';
 
@@ -65,42 +67,122 @@ class CollectionResource extends Resource
                                     return auth()->user()->cannot('update', $record);
                                 }),
                         ])->columns(4),
-                    Section::make('Database details')
-                        ->description('Provide details of the database and link to the resource.')
+                    Section::make('Database Details')
+                        ->description('Provide details of the collection and link to the resource.')
                         ->schema([
-                            TextInput::make('title'),
-                            Textarea::make('description'),
-                            TextInput::make('url'),
+                            TextInput::make('title')
+                                ->label('Collection Title')
+                                ->required()
+                                ->maxLength(255)
+                                ->placeholder('Enter the name of your collection')
+                                ->helperText('A descriptive title for your collection'),
+                            Textarea::make('description')
+                                ->label('Description')
+                                ->required()
+                                ->rows(4)
+                                ->placeholder('Provide a detailed description of your collection')
+                                ->helperText('Describe the contents, scope, and purpose of this collection'),
+                            TextInput::make('url')
+                                ->label('URL')
+                                ->url()
+                                ->placeholder('https://example.com/collection')
+                                ->helperText('Link to the external database or resource (optional)')
+                                ->suffixAction(
+                                    fn (?string $state): Action => Action::make('visit')
+                                        ->icon('heroicon-o-arrow-top-right-on-square')
+                                        ->url($state, shouldOpenInNewTab: true)
+                                ),
                         ]),
-                    Section::make('Meta data')
+                    Section::make('Metadata')
+                        ->description('Additional information to help categorize and identify your collection.')
                         ->schema([
                             SpatieTagsInput::make('tags')
+                                ->label('Tags')
+                                ->placeholder('Add tags (press Tab or comma to add)')
                                 ->splitKeys(['Tab', ','])
-                                ->type('collections'),
-                            TextInput::make('identifier'),
+                                ->type('collections')
+                                ->helperText('Add keywords or categories to help users discover your collection'),
+                            TextInput::make('identifier')
+                                ->label('Identifier')
+                                ->maxLength(255)
+                                ->placeholder('e.g., accession number or unique ID')
+                                ->helperText('Unique identifier for this collection (optional)'),
                         ]),
-                    Section::make()
+                    Section::make('Display Image')
+                        ->description('Upload an image to visually represent your collection.')
                         ->schema([
                             FileUpload::make('image')
-                                ->label('Display image')
+                                ->label('Collection Image')
                                 ->image()
                                 ->directory('collections')
                                 ->visibility('public')
                                 ->imageEditor()
                                 ->imageEditorAspectRatios([
                                     '1:1',
-                                ]),
+                                ])
+                                ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/jpg', 'image/webp'])
+                                ->maxSize(5120)
+                                ->helperText('Upload a square image (1:1 ratio, max 5MB). Accepted formats: PNG, JPEG, WebP'),
 
                         ]),
                     Section::make('Distribution')
+                        ->description('Specify the license under which this collection is distributed.')
                         ->schema([
                             Select::make('license')
+                                ->label('License')
                                 ->relationship('license', 'title')
                                 ->preload()
-                                ->searchable(),
+                                ->searchable()
+                                ->placeholder('Select a license')
+                                ->helperText('Choose the license that governs the use of this collection'),
                         ]),
                 ]
             )->columns(1);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                InfolistSection::make('Database Details')
+                    ->schema([
+                        TextEntry::make('title')
+                            ->label('Collection Title'),
+                        TextEntry::make('description')
+                            ->label('Description')
+                            ->columnSpanFull(),
+                        TextEntry::make('url')
+                            ->label('URL')
+                            ->url(fn ($record) => $record->url)
+                            ->openUrlInNewTab()
+                            ->placeholder('No URL provided'),
+                    ])
+                    ->columns(2),
+                InfolistSection::make('Metadata')
+                    ->schema([
+                        TextEntry::make('tags.*.name')
+                            ->label('Tags')
+                            ->badge()
+                            ->placeholder('No tags'),
+                        TextEntry::make('identifier')
+                            ->label('Identifier')
+                            ->placeholder('No identifier'),
+                    ])
+                    ->columns(2),
+                InfolistSection::make('Display Image')
+                    ->schema([
+                        ImageEntry::make('image')
+                            ->label('Collection Image')
+                            ->visibility('public')
+                            ->size(200),
+                    ]),
+                InfolistSection::make('Distribution')
+                    ->schema([
+                        TextEntry::make('license.title')
+                            ->label('License')
+                            ->placeholder('No license specified'),
+                    ]),
+            ]);
     }
 
     public static function table(Table $table): Table

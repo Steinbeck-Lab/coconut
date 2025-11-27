@@ -2,11 +2,10 @@
 
 namespace App\Filament\Dashboard\Resources\CollectionResource\Pages;
 
-use Filament\Actions\Action;
-use Filament\Actions\DeleteAction;
 use App\Filament\Dashboard\Resources\CollectionResource;
 use App\Filament\Dashboard\Resources\CollectionResource\Widgets\EntriesOverview;
-use Filament\Actions;
+use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;

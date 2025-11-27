@@ -2,25 +2,24 @@
 
 namespace App\Filament\Dashboard\Resources\CollectionResource\RelationManagers;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Schemas\Components\Section;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\ImportAction;
-use Filament\Actions\Action;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use App\Filament\Dashboard\Imports\EntryImporter;
-use Filament\Forms;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ImportAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Artisan;
@@ -34,6 +33,7 @@ class EntriesRelationManager extends RelationManager
         return $schema
             ->components([
                 TextInput::make('reference_id')
+                    ->label('Reference ID')
                     ->required()
                     ->maxLength(255),
                 TextInput::make('canonical_smiles')
@@ -86,7 +86,8 @@ class EntriesRelationManager extends RelationManager
 
                 Section::make()
                     ->schema([
-                        TextEntry::make('reference_id'),
+                        TextEntry::make('reference_id')
+                            ->label('Reference ID'),
                         TextEntry::make('name'),
                         TextEntry::make('doi'),
                         TextEntry::make('link'),
@@ -146,7 +147,9 @@ class EntriesRelationManager extends RelationManager
                     ->height(200)
                     ->ring(5)
                     ->defaultImageUrl(url('/images/placeholder.png')),
-                TextColumn::make('reference_id')->searchable(),
+                TextColumn::make('reference_id')
+                    ->label('Reference ID')
+                    ->searchable(),
                 TextColumn::make('status'),
             ])
             ->filters([
@@ -185,9 +188,12 @@ class EntriesRelationManager extends RelationManager
                 // Tables\Actions\CreateAction::make(),
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make(),
+                ViewAction::make()
+                    ->iconButton(),
+                EditAction::make()
+                    ->iconButton(),
+                DeleteAction::make()
+                    ->iconButton(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
