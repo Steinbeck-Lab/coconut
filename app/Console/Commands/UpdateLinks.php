@@ -62,5 +62,6 @@ class UpdateLinks extends Command
         }
 
         $this->info("Updated $entriesUpdated entries and $moleculesUpdated collection_molecule records.");
+        return Command::SUCCESS;
     }
 }
