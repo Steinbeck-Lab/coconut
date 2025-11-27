@@ -31,10 +31,19 @@ class ListOrganisms extends ListRecords
                 ->badge(Organism::query()->where('molecule_count', '>', 0)->count())
                 ->preserveAll()
                 ->default(),
-            'inactive entries' => PresetView::make()
+            'inactive' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where('molecule_count', '<=', 0))
                 ->favorite()
                 ->badge(Organism::query()->where('molecule_count', '<=', 0)->count())
+                ->preserveAll(),
+            'unmapped' => PresetView::make()
+                ->modifyQueryUsing(fn ($query) => $query->where(function ($q) {
+                    $q->whereNull('rank')->orWhere('rank', '');
+                }))
+                ->favorite()
+                ->badge(Organism::query()->where(function ($q) {
+                    $q->whereNull('rank')->orWhere('rank', '');
+                })->count())
                 ->preserveAll(),
         ];
     }
