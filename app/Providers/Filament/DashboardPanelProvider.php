@@ -6,12 +6,12 @@ use Archilex\AdvancedTables\Plugin\AdvancedTablesPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Navigation\UserMenuItem;
+use Filament\Navigation\MenuItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Support\Enums\ActionSize;
+use Filament\Support\Enums\Size;
 use Filament\Widgets;
 use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -32,7 +32,7 @@ class DashboardPanelProvider extends PanelProvider
             ->id('dashboard')
             ->path('dashboard')
             ->colors([
-                'primary' => Color::Teal,
+                'primary' => Color::Slate,
             ])
             ->discoverResources(in: app_path('Filament/Dashboard/Resources'), for: 'App\\Filament\\Dashboard\\Resources')
             ->discoverPages(in: app_path('Filament/Dashboard/Pages'), for: 'App\\Filament\\Dashboard\\Pages')
@@ -44,7 +44,7 @@ class DashboardPanelProvider extends PanelProvider
                 AdvancedTablesPlugin::make()
                     ->persistActiveViewInSession()
                     ->favoritesBarDivider()
-                    ->favoritesBarSize(ActionSize::Small)
+                    ->favoritesBarSize(Size::Small)
                     ->favoritesBarDefaultView(false)
                     ->presetViewsManageable(false)
                     ->resourceEnabled(false),
@@ -58,7 +58,7 @@ class DashboardPanelProvider extends PanelProvider
                 // Widgets\FilamentInfoWidget::class,
             ])
             ->userMenuItems([
-                UserMenuItem::make()
+                MenuItem::make()
                     ->label('Profile')
                     ->url('/user/profile')
                     ->icon('heroicon-s-cog'),
