@@ -29,7 +29,7 @@ return [
      |
      */
 
-    'middleware' => ['web'],
+    'middleware' => ['web', 'auth:sanctum', 'verified'],
 
     'auth_session' => AuthenticateSession::class,
 

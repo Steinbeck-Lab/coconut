@@ -30,7 +30,7 @@
 
 
     <!-- Matomo -->
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         var _paq = window._paq = window._paq || [];
         /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
         _paq.push(['trackPageView']);
@@ -38,7 +38,7 @@
         (function() {
             var u = "//matomo.nfdi4chem.de/";
             _paq.push(['setTrackerUrl', u + 'matomo.php']);
-            _paq.push(['setSiteId', '3']);
+            _paq.push(['setSiteId', '8']);
             var d = document,
                 g = d.createElement('script'),
                 s = d.getElementsByTagName('script')[0];
@@ -75,7 +75,7 @@
     @livewireScripts
     @include('cookie-consent::index')
 </body>
-<script>
+<script nonce="{{ csp_nonce() }}">
     document.addEventListener('DOMContentLoaded', function() {
         function animateValue(element, start, end, duration) {
             let startTimestamp = null;

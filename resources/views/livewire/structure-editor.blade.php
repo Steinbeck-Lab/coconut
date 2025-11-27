@@ -177,35 +177,68 @@
                                 </div>
                                 <div>
                                     <fieldset class="mt-1">
-                                        <legend class="contents text-base font-medium text-gray-900">
+                                        <legend class="text-base font-medium text-gray-900 mb-2">
                                             Select search type
                                         </legend>
-                                        <div class="mt-4 space-y-4">
+                                        <div class="mt-4 space-y-3">
                                             <div class="flex items-center">
                                                 <label for="search-type-exact"
-                                                    class="block cursor-pointer text-sm font-medium text-gray-700">
-                                                    <input id="search-type-exact" name="search-type" x-model="type"
-                                                        value="exact" type="radio"
-                                                        class="mr-3 h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
-                                                    Exact match
+                                                    :class="type === 'exact' ? 'bg-secondary-50 border-secondary-500 ring-2 ring-secondary-500' : 'bg-white border-gray-300 hover:border-gray-400'"
+                                                    class="flex-1 cursor-pointer rounded-lg border-2 p-4 transition-all duration-200">
+                                                    <div class="flex items-center justify-between">
+                                                        <div class="flex items-center">
+                                                            <input id="search-type-exact" name="search-type" x-model="type"
+                                                                value="exact" type="radio"
+                                                                class="h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
+                                                            <span class="ml-3 font-semibold text-gray-900">Exact match</span>
+                                                        </div>
+                                                        <span x-show="type === 'exact'" class="text-secondary-600">
+                                                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                            </svg>
+                                                        </span>
+                                                    </div>
+                                                    <p class="ml-7 mt-1 text-sm text-gray-500">Find molecules with identical structure</p>
                                                 </label>
                                             </div>
                                             <div class="flex items-center">
                                                 <label for="search-type-sub"
-                                                    class="block cursor-pointer text-sm font-medium text-gray-700">
-                                                    <input id="search-type-sub" name="search-type" x-model="type"
-                                                        value="substructure" type="radio"
-                                                        class="mr-3 h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
-                                                    Substructure Search
+                                                    :class="type === 'substructure' ? 'bg-secondary-50 border-secondary-500 ring-2 ring-secondary-500' : 'bg-white border-gray-300 hover:border-gray-400'"
+                                                    class="flex-1 cursor-pointer rounded-lg border-2 p-4 transition-all duration-200">
+                                                    <div class="flex items-center justify-between">
+                                                        <div class="flex items-center">
+                                                            <input id="search-type-sub" name="search-type" x-model="type"
+                                                                value="substructure" type="radio"
+                                                                class="h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
+                                                            <span class="ml-3 font-semibold text-gray-900">Substructure Search</span>
+                                                        </div>
+                                                        <span x-show="type === 'substructure'" class="text-secondary-600">
+                                                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                            </svg>
+                                                        </span>
+                                                    </div>
+                                                    <p class="ml-7 mt-1 text-sm text-gray-500">Find molecules containing this structure</p>
                                                 </label>
                                             </div>
                                             <div class="flex items-center">
                                                 <label for="search-type-similar"
-                                                    class="block cursor-pointer text-sm font-medium text-gray-700">
-                                                    <input id="search-type-similar" name="search-type" x-model="type"
-                                                        value="similarity" type="radio"
-                                                        class="mr-3 h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
-                                                    Similarity Search (tanimoto_threshold=0.5)
+                                                    :class="type === 'similarity' ? 'bg-secondary-50 border-secondary-500 ring-2 ring-secondary-500' : 'bg-white border-gray-300 hover:border-gray-400'"
+                                                    class="flex-1 cursor-pointer rounded-lg border-2 p-4 transition-all duration-200">
+                                                    <div class="flex items-center justify-between">
+                                                        <div class="flex items-center">
+                                                            <input id="search-type-similar" name="search-type" x-model="type"
+                                                                value="similarity" type="radio"
+                                                                class="h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
+                                                            <span class="ml-3 font-semibold text-gray-900">Similarity Search</span>
+                                                        </div>
+                                                        <span x-show="type === 'similarity'" class="text-secondary-600">
+                                                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                            </svg>
+                                                        </span>
+                                                    </div>
+                                                    <p class="ml-7 mt-1 text-sm text-gray-500">Find similar molecules (Tanimoto ≥ 0.5)</p>
                                                 </label>
                                             </div>
                                         </div>

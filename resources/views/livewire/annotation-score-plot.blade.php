@@ -17,7 +17,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         const asp = document.getElementById('annotations-score-plot');
 
         // Data from Livewire/PHP

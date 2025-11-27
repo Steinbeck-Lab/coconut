@@ -8,7 +8,6 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -32,7 +31,7 @@ class Organism extends Model implements Auditable
 
     public function molecules(): BelongsToMany
     {
-        return $this->belongsToMany(Molecule::class)->distinct('molecule_id')->withTimestamps();
+        return $this->belongsToMany(Molecule::class)->distinct('molecule_id')->orderBy('molecule_id')->withTimestamps();
     }
 
     public function moleculeRelations(): BelongsToMany
@@ -58,19 +57,24 @@ class Organism extends Model implements Auditable
     {
         return $this->belongsToMany(GeoLocation::class, 'molecule_organism', 'organism_id', 'geo_location_id')
             ->withTimestamps()
-            ->distinct('geo_location_id');
+            ->distinct('geo_location_id')
+            ->orderBy('geo_location_id');
     }
 
     public function ecosystems(): BelongsToMany
     {
         return $this->belongsToMany(Ecosystem::class, 'molecule_organism', 'organism_id', 'ecosystem_id')
             ->withTimestamps()
-            ->distinct('ecosystem_id');
+            ->distinct('ecosystem_id')
+            ->orderBy('ecosystem_id');
     }
 
-    public function sampleLocations(): HasMany
+    public function sampleLocations(): BelongsToMany
     {
-        return $this->hasMany(SampleLocation::class);
+        return $this->belongsToMany(SampleLocation::class, 'molecule_organism', 'organism_id', 'sample_location_id')
+            ->withTimestamps()
+            ->distinct('sample_location_id')
+            ->orderBy('sample_location_id');
     }
 
     public function getIriAttribute($value)
