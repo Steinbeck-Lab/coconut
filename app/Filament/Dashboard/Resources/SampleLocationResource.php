@@ -2,23 +2,21 @@
 
 namespace App\Filament\Dashboard\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\EditAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use App\Filament\Dashboard\Resources\SampleLocationResource\Pages\ListSampleLocations;
 use App\Filament\Dashboard\Resources\SampleLocationResource\Pages\CreateSampleLocation;
-use App\Filament\Dashboard\Resources\SampleLocationResource\Pages\ViewSampleLocation;
 use App\Filament\Dashboard\Resources\SampleLocationResource\Pages\EditSampleLocation;
-use App\Filament\Dashboard\Resources\SampleLocationResource\Pages;
+use App\Filament\Dashboard\Resources\SampleLocationResource\Pages\ListSampleLocations;
+use App\Filament\Dashboard\Resources\SampleLocationResource\Pages\ViewSampleLocation;
 use App\Filament\Dashboard\Resources\SampleLocationResource\RelationManagers\MoleculesRelationManager;
 use App\Models\SampleLocation;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
@@ -28,11 +26,11 @@ class SampleLocationResource extends Resource
 
     protected static bool $shouldRegisterNavigation = false;
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Data';
+    protected static string|\UnitEnum|null $navigationGroup = 'Data';
 
     protected static ?int $navigationSort = 6;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-s-viewfinder-circle';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-s-viewfinder-circle';
 
     public static function form(Schema $schema): Schema
     {

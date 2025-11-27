@@ -2,28 +2,28 @@
 
 namespace App\Filament\Dashboard\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Group;
-use Filament\Schemas\Components\Section;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\Action;
-use Filament\Actions\EditAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use App\Filament\Dashboard\Resources\OrganismResource\Pages\ListOrganisms;
+use App\Filament\Dashboard\Resources\OrganismResource\Pages;
 use App\Filament\Dashboard\Resources\OrganismResource\Pages\CreateOrganism;
 use App\Filament\Dashboard\Resources\OrganismResource\Pages\EditOrganism;
-use Exception;
-use App\Filament\Dashboard\Resources\OrganismResource\Pages;
+use App\Filament\Dashboard\Resources\OrganismResource\Pages\ListOrganisms;
 use App\Filament\Dashboard\Resources\OrganismResource\RelationManagers\MoleculesRelationManager;
 use App\Filament\Dashboard\Resources\OrganismResource\RelationManagers\SampleLocationsRelationManager;
 use App\Filament\Dashboard\Resources\OrganismResource\Widgets\OrganismStats;
 use App\Forms\Components\OrganismsTable;
 use App\Models\Organism;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
+use Exception;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use GuzzleHttp\Client;
 use Illuminate\Contracts\View\View;
@@ -34,13 +34,13 @@ use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class OrganismResource extends Resource
 {
-    protected static string | \UnitEnum | null $navigationGroup = 'Data';
+    protected static string|\UnitEnum|null $navigationGroup = 'Data';
 
     protected static ?int $navigationSort = 4;
 
     protected static ?string $model = Organism::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-bug-ant';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-bug-ant';
 
     public static function form(Schema $schema): Schema
     {

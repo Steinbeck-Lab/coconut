@@ -2,33 +2,31 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Actions\EditAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use App\Filament\Resources\LicenseResource\Pages\ListLicenses;
 use App\Filament\Resources\LicenseResource\Pages\CreateLicense;
 use App\Filament\Resources\LicenseResource\Pages\EditLicense;
-use App\Filament\Resources\LicenseResource\Pages;
+use App\Filament\Resources\LicenseResource\Pages\ListLicenses;
 use App\Filament\Resources\LicenseResource\RelationManagers\CollectionsRelationManager;
 use App\Models\License;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class LicenseResource extends Resource
 {
-    protected static string | \UnitEnum | null $navigationGroup = 'Settings';
+    protected static string|\UnitEnum|null $navigationGroup = 'Settings';
 
     protected static ?string $model = License::class;
 
     protected static ?int $navigationSort = 4;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-shield-check';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';
 
     public static function form(Schema $schema): Schema
     {

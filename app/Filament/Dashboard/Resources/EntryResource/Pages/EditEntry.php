@@ -2,10 +2,9 @@
 
 namespace App\Filament\Dashboard\Resources\EntryResource\Pages;
 
-use Filament\Actions\ViewAction;
-use Filament\Actions\DeleteAction;
 use App\Filament\Dashboard\Resources\EntryResource;
-use Filament\Actions;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditEntry extends EditRecord

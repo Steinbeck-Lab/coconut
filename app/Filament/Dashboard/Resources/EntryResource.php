@@ -2,21 +2,18 @@
 
 namespace App\Filament\Dashboard\Resources;
 
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
+use App\Filament\Dashboard\Resources\EntryResource\Pages\CreateEntry;
+use App\Filament\Dashboard\Resources\EntryResource\Pages\EditEntry;
+use App\Filament\Dashboard\Resources\EntryResource\Pages\ListEntries;
+use App\Filament\Dashboard\Resources\EntryResource\Pages\ViewEntry;
+use App\Models\Entry;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use App\Filament\Dashboard\Resources\EntryResource\Pages\ListEntries;
-use App\Filament\Dashboard\Resources\EntryResource\Pages\CreateEntry;
-use App\Filament\Dashboard\Resources\EntryResource\Pages\ViewEntry;
-use App\Filament\Dashboard\Resources\EntryResource\Pages\EditEntry;
-use Filament\Schemas\Schema;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Infolists\Components\TextEntry;
-use App\Filament\Dashboard\Resources\EntryResource\Pages;
-use App\Models\Entry;
-use Filament\Infolists;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 
 class EntryResource extends Resource
@@ -25,7 +22,7 @@ class EntryResource extends Resource
 
     protected static bool $shouldRegisterNavigation = false;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function table(Table $table): Table
     {

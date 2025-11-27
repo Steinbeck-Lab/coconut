@@ -2,32 +2,19 @@
 
 namespace App\Filament\Dashboard\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Actions;
-use Filament\Actions\Action;
-use Filament\Schemas\Components\Utilities\Get;
-use Illuminate\Validation\ValidationException;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Fieldset;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use App\Filament\Dashboard\Resources\ReportResource\RelationManagers\MoleculesRelationManager;
-use App\Filament\Dashboard\Resources\ReportResource\RelationManagers\CollectionsRelationManager;
-use App\Filament\Dashboard\Resources\ReportResource\RelationManagers\CitationsRelationManager;
-use App\Filament\Dashboard\Resources\ReportResource\RelationManagers\OrganismsRelationManager;
-use App\Filament\Dashboard\Resources\ReportResource\RelationManagers\EntriesRelationManager;
-use App\Filament\Dashboard\Resources\ReportResource\Pages\ListReports;
-use App\Filament\Dashboard\Resources\ReportResource\Pages\CreateReport;
-use App\Filament\Dashboard\Resources\ReportResource\Pages\ViewReport;
-use App\Filament\Dashboard\Resources\ReportResource\Pages\EditReport;
 use App\Enums\ReportCategory;
 use App\Enums\ReportStatus;
 use App\Events\ReportAssigned;
 use App\Events\ReportStatusChanged;
-use App\Filament\Dashboard\Resources\ReportResource\Pages;
-use App\Filament\Dashboard\Resources\ReportResource\RelationManagers;
+use App\Filament\Dashboard\Resources\ReportResource\Pages\CreateReport;
+use App\Filament\Dashboard\Resources\ReportResource\Pages\EditReport;
+use App\Filament\Dashboard\Resources\ReportResource\Pages\ListReports;
+use App\Filament\Dashboard\Resources\ReportResource\Pages\ViewReport;
+use App\Filament\Dashboard\Resources\ReportResource\RelationManagers\CitationsRelationManager;
+use App\Filament\Dashboard\Resources\ReportResource\RelationManagers\CollectionsRelationManager;
+use App\Filament\Dashboard\Resources\ReportResource\RelationManagers\EntriesRelationManager;
+use App\Filament\Dashboard\Resources\ReportResource\RelationManagers\MoleculesRelationManager;
+use App\Filament\Dashboard\Resources\ReportResource\RelationManagers\OrganismsRelationManager;
 use App\Models\Citation;
 use App\Models\Collection;
 use App\Models\Entry;
@@ -37,8 +24,10 @@ use App\Models\Organism;
 use App\Models\Report;
 use App\Models\ReportUser;
 use App\Models\User;
-use Archilex\AdvancedTables\Filters\AdvancedFilter;
 use Closure;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Repeater;
@@ -48,8 +37,14 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 use Filament\Support\Enums\VerticalAlignment;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -57,17 +52,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class ReportResource extends Resource
 {
-    protected static string | \UnitEnum | null $navigationGroup = 'Reporting';
+    protected static string|\UnitEnum|null $navigationGroup = 'Reporting';
 
     protected static ?string $model = Report::class;
 
     protected static ?int $navigationSort = 1;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static $molecule = null;
 

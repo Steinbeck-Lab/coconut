@@ -2,21 +2,10 @@
 
 namespace App\Filament\Dashboard\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\Action;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\BulkAction;
-use Maatwebsite\Excel\Excel;
-use App\Filament\Dashboard\Resources\MoleculeResource\Pages\ListMolecules;
 use App\Filament\Dashboard\Resources\MoleculeResource\Pages\CreateMolecule;
 use App\Filament\Dashboard\Resources\MoleculeResource\Pages\EditMolecule;
+use App\Filament\Dashboard\Resources\MoleculeResource\Pages\ListMolecules;
 use App\Filament\Dashboard\Resources\MoleculeResource\Pages\ViewMolecule;
-use App\Filament\Dashboard\Resources\MoleculeResource\Pages;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\CitationsRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\CollectionsRelationManager;
 use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\GeoLocationRelationManager;
@@ -28,13 +17,21 @@ use App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers\RelatedRe
 use App\Filament\Dashboard\Resources\MoleculeResource\Widgets\MoleculeStats;
 use App\Models\Molecule;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -43,19 +40,20 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\HtmlString;
+use Maatwebsite\Excel\Excel;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class MoleculeResource extends Resource
 {
-    protected static string | \UnitEnum | null $navigationGroup = 'Data';
+    protected static string|\UnitEnum|null $navigationGroup = 'Data';
 
     protected static ?string $model = Molecule::class;
 
     protected static ?int $navigationSort = 3;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-share';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-share';
 
     public static function customActionMethod()
     {

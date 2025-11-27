@@ -6,7 +6,7 @@ use App\Filament\Widgets\ApplicationOverview;
 
 class Dashboard extends \Filament\Pages\Dashboard
 {
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-s-cog';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-s-cog';
 
     protected string $view = 'filament.pages.dashboard';
 

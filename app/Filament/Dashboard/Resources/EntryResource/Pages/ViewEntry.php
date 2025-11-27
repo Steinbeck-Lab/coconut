@@ -2,9 +2,8 @@
 
 namespace App\Filament\Dashboard\Resources\EntryResource\Pages;
 
-use Filament\Actions\EditAction;
 use App\Filament\Dashboard\Resources\EntryResource;
-use Filament\Actions;
+use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewEntry extends ViewRecord

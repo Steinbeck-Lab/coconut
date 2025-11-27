@@ -2,20 +2,18 @@
 
 namespace App\Filament\Dashboard\Resources;
 
-use Filament\Schemas\Schema;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Actions\EditAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use App\Filament\Dashboard\Resources\GeoLocationResource\Pages\ListGeoLocations;
 use App\Filament\Dashboard\Resources\GeoLocationResource\Pages\CreateGeoLocation;
 use App\Filament\Dashboard\Resources\GeoLocationResource\Pages\EditGeoLocation;
+use App\Filament\Dashboard\Resources\GeoLocationResource\Pages\ListGeoLocations;
 use App\Filament\Dashboard\Resources\GeoLocationResource\Pages\ViewGeoLocation;
-use App\Filament\Dashboard\Resources\GeoLocationResource\Pages;
 use App\Filament\Dashboard\Resources\GeoLocationResource\Widgets\GeoLocationStats;
 use App\Models\GeoLocation;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -23,13 +21,13 @@ use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class GeoLocationResource extends Resource
 {
-    protected static string | \UnitEnum | null $navigationGroup = 'Data';
+    protected static string|\UnitEnum|null $navigationGroup = 'Data';
 
     protected static ?int $navigationSort = 5;
 
     protected static ?string $model = GeoLocation::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-map-pin';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-map-pin';
 
     public static function form(Schema $schema): Schema
     {

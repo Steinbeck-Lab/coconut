@@ -2,9 +2,8 @@
 
 namespace App\Filament\Dashboard\Resources\MoleculeResource\Pages;
 
-use Filament\Actions\DeleteAction;
 use App\Filament\Dashboard\Resources\MoleculeResource;
-use Filament\Actions;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditMolecule extends EditRecord

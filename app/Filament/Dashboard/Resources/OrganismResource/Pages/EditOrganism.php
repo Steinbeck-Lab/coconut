@@ -2,9 +2,8 @@
 
 namespace App\Filament\Dashboard\Resources\OrganismResource\Pages;
 
-use Filament\Actions\DeleteAction;
 use App\Filament\Dashboard\Resources\OrganismResource;
-use Filament\Actions;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditOrganism extends EditRecord

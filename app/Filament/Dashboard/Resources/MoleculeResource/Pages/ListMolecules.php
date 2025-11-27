@@ -2,13 +2,12 @@
 
 namespace App\Filament\Dashboard\Resources\MoleculeResource\Pages;
 
-use Filament\Actions\CreateAction;
-use Filament\Actions\Action;
 use App\Filament\Dashboard\Resources\MoleculeResource;
 use App\Models\Molecule;
 use Archilex\AdvancedTables\AdvancedTables;
 use Archilex\AdvancedTables\Components\PresetView;
-use Filament\Actions;
+use Filament\Actions\Action;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListMolecules extends ListRecords

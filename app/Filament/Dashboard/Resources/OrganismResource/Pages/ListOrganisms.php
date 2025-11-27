@@ -2,12 +2,11 @@
 
 namespace App\Filament\Dashboard\Resources\OrganismResource\Pages;
 
-use Filament\Actions\CreateAction;
 use App\Filament\Dashboard\Resources\OrganismResource;
 use App\Models\Organism;
 use Archilex\AdvancedTables\AdvancedTables;
 use Archilex\AdvancedTables\Components\PresetView;
-use Filament\Actions;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListOrganisms extends ListRecords
