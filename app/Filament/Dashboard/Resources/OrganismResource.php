@@ -17,14 +17,13 @@ use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use GuzzleHttp\Client;
-use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Log;
@@ -92,7 +91,8 @@ class OrganismResource extends Resource
                     ->color('info')
                     ->icon('heroicon-o-link')
                     ->iconButton(),
-                // Tables\Actions\ViewAction::make(),
+                ViewAction::make()
+                    ->iconButton(),
                 EditAction::make()
                     ->iconButton(),
             ])
@@ -100,7 +100,10 @@ class OrganismResource extends Resource
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->recordUrl(
+                fn (Organism $record): string => self::getUrl('view', ['record' => $record]),
+            );
     }
 
     public static function getRelations(): array
@@ -120,7 +123,7 @@ class OrganismResource extends Resource
             'index' => ListOrganisms::route('/'),
             'create' => CreateOrganism::route('/create'),
             'edit' => EditOrganism::route('/{record}/edit'),
-            // 'view' => Pages\ViewOrganism::route('/{record}'),
+            'view' => Pages\ViewOrganism::route('/{record}'),
         ];
     }
 
