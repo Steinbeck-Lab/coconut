@@ -65,7 +65,7 @@ class FetchCASNumbersAuto extends Command
         // Exclude molecules that have failed CAS fetch previously (unless retrying)
         $query->where(function ($q) {
             $q->whereNull('curation_status->fetch-cas->status')
-                ->orWhereNotIn('curation_status->fetch-cas->status', ['failed', 'completed']);
+                ->orWhereNotIn('curation_status->fetch-cas->status', ['completed']);
         });
 
         $totalCount = $query->count();
