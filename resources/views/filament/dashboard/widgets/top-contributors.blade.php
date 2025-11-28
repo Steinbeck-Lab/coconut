@@ -20,38 +20,40 @@
         </x-slot>
 
         @if(count($contributors) > 0)
-            <div class="flex gap-6 overflow-x-auto pb-4 px-2">
-                @foreach($contributors as $contributor)
-                <div class="relative overflow-hidden rounded-xl bg-white shadow-lg border border-t ring-1 ring-gray-200/50 dark:bg-gray-800 dark:ring-gray-700/50 hover:shadow-xl hover:ring-gray-300/60 dark:hover:ring-gray-600/60 hover:scale-105 transition-all duration-300 ease-in-out flex-shrink-0 w-36 border-0">
-                    <div class="p-5">
-                        <div class="flex flex-col items-center text-center space-y-4">
-                            <!-- Avatar with enhanced styling -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                @foreach(array_slice($contributors, 0, 10) as $contributor)
+                <div class="relative rounded-2xl bg-white dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md transition-all duration-200 ease-in-out">
+                    <div class="p-4">
+                        <div class="flex flex-col items-center text-center space-y-3">
+                            <!-- Avatar with status indicator -->
                             <div class="relative">
-                                <img class="h-14 w-14 rounded-full ring-3 ring-gray-100 dark:ring-gray-700 object-cover shadow-md" 
-                                     src="{{ $contributor['avatar_url'] }}" 
-                                     alt="{{ $contributor['user']->name }}"
-                                     loading="lazy">
-                                <div class="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-green-500 ring-2 ring-white dark:ring-gray-800 flex items-center justify-center">
+                                <div class="h-16 w-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center ring-2 ring-blue-50 dark:ring-blue-900/50">
+                                    <img class="h-16 w-16 rounded-full object-cover" 
+                                         src="{{ $contributor['avatar_url'] }}" 
+                                         alt="{{ $contributor['user']->name }}"
+                                         loading="lazy">
+                                </div>
+                                <div class="absolute -bottom-0.5 -right-0.5 h-5 w-5 rounded-full bg-green-500 ring-2 ring-white dark:ring-gray-800 flex items-center justify-center">
                                     <svg class="h-3 w-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                                     </svg>
                                 </div>
                             </div>
                             
-                            <!-- User Info with improved typography -->
-                            <div class="space-y-1">
-                                <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-tight line-clamp-2 min-h-[2.5rem] flex items-center">
+                            <!-- User Name -->
+                            <div class="w-full">
+                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white leading-tight line-clamp-2 min-h-[2.5rem]">
                                     {{ $contributor['user']->name }}
                                 </h4>
                             </div>
                             
-                            <!-- Enhanced contribution badge -->
+                            <!-- Contribution count badge -->
                             <div class="w-full">
-                                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg px-3 py-2 border border-blue-200/60 dark:border-blue-700/60">
-                                    <div class="text-lg font-bold text-blue-700 dark:text-blue-300">
+                                <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg px-3 py-2">
+                                    <div class="text-xl font-bold text-blue-600 dark:text-blue-400">
                                         {{ number_format($contributor['contribution_count']) }}
                                     </div>
-                                    <div class="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                                    <div class="text-xs text-blue-500 dark:text-blue-400 font-medium">
                                         contributions
                                     </div>
                                 </div>
