@@ -1,36 +1,39 @@
-<div class="bg-white rounded-lg hover:shadow-xl shadow border">
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-gray-300 transition-all duration-200 ease-in-out overflow-hidden">
     @if ($molecule && $molecule->identifier)
         <a href="{{ route('compound', $molecule->identifier) }}" wire:navigate>
-            <div class="group flex flex-col overflow-hidden">
-                <div class="aspect-h-3 aspect-w-3 sm:aspect-none group-hover:opacity-75 h-56 relative">
-                    <livewire:molecule-depict2d :name="$molecule->name" :smiles="$molecule->canonical_smiles">
+            <div class="group flex flex-col">
+                <div class="h-56 relative bg-gray-50 overflow-hidden">
+                    <div class="absolute inset-0 flex items-center justify-center group-hover:opacity-90 transition-opacity duration-200">
+                        <livewire:molecule-depict2d :name="$molecule->name" :smiles="$molecule->canonical_smiles">
+                    </div>
                     @if(isset($molecule->active) && !$molecule->active)
-                        <div class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded shadow-lg z-10">
+                        <div class="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md z-10">
                             REVOKED
                         </div>
                     @endif
                 </div>
-                <div class="flex flex-1 border-t flex-col p-4 pb-2">
-                    <div class="flex items-center">
-                        @for ($i = 0; $i < $molecule->annotation_level; $i++)
-                            <span class="text-amber-300">★</span>
+                <div class="flex flex-1 border-t border-gray-100 flex-col p-4 pb-2 relative z-10 bg-white">
+                    @php $annotationLevel = $molecule->annotation_level ?? 0; @endphp
+                    <div class="flex items-center text-sm">
+                        @for ($i = 0; $i < $annotationLevel; $i++)
+                            <span style="color: #fbbf24;">★</span>
                         @endfor
-                        @for ($i = $molecule->annotation_level; $i < 5; $i++)
-                            ☆
+                        @for ($i = $annotationLevel; $i < 5; $i++)
+                            <span style="color: #d1d5db;">☆</span>
                         @endfor
                     </div>
-                    <div class="flex flex-1 flex-col justify-end">
+                    <div class="flex flex-1 flex-col justify-end mt-1">
                         <p class="text-sm font-medium text-gray-500">{{ $molecule->identifier }}</p>
                     </div>
                     <div>
-                        <h3 class="mt-1 text-base font-bold text-gray-900 capitalize text-clip overflow-hidden truncate ..." title="{{ $molecule->name }}">
+                        <h3 class="mt-1 text-base font-semibold text-gray-900 capitalize text-clip overflow-hidden truncate" title="{{ $molecule->name }}">
                         {!! convert_italics_notation( $molecule->name ? $molecule->name : $molecule->iupac_name) !!}
                         </h3>
                     </div>
                 </div>
             </div>
-            <div class="flex justify-around p-4 py-2 border-t mt-1">
-                <div class="flex-1 flex justify-center items-center text-xs" title="Organism Count">
+            <div class="flex justify-around px-4 py-3 border-t border-gray-100 bg-gray-50/50">
+                <div class="flex-1 flex justify-center items-center text-xs text-gray-600 hover:text-gray-900 transition-colors" title="Organism Count">
                     <svg fill="currentColor" class="w-4 h-4 inline mr-1" version="1.1" id="Layer_1"
                         xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                         viewBox="0 0 512 512" xml:space="preserve">
@@ -89,7 +92,7 @@
                     </svg>
                     <span>{{ $molecule->organism_count }}</span>
                 </div>
-                <div class="flex-1 flex justify-center items-center text-xs" title="Collection Count">
+                <div class="flex-1 flex justify-center items-center text-xs text-gray-600 hover:text-gray-900 transition-colors" title="Collection Count">
                     <svg class="w-4 h-5 inline mr-1" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"
                         fill="currentColor">
                         <path
@@ -97,7 +100,7 @@
                     </svg>
                     <span>{{ $molecule->collection_count }}</span>
                 </div>
-                <div class="flex-1 flex justify-center items-center text-xs" title="Geo Count">
+                <div class="flex-1 flex justify-center items-center text-xs text-gray-600 hover:text-gray-900 transition-colors" title="Geo Count">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="w-4 h-4 inline mr-1">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -107,7 +110,7 @@
                     </svg>
                     <span>{{ $molecule->geo_count }}</span>
                 </div>
-                <div class="flex-1 flex justify-center items-center text-xs" title="Citation Count">
+                <div class="flex-1 flex justify-center items-center text-xs text-gray-600 hover:text-gray-900 transition-colors" title="Citation Count">
                     <svg class="w-auto h-3 inline mr-1" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"
                         fill="currentColor">
                         <path fill-rule="evenodd"

@@ -6,12 +6,12 @@ use Archilex\AdvancedTables\Plugin\AdvancedTablesPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Navigation\UserMenuItem;
+use Filament\Navigation\MenuItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Support\Enums\ActionSize;
+use Filament\Support\Enums\Size;
 use Filament\Widgets;
 use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -22,7 +22,10 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Kenepa\Banner\BannerPlugin;
-use pxlrbt\FilamentSpotlight\SpotlightPlugin;
+use pxlrbt\FilamentSpotlightPro\SpotlightPlugin;
+use pxlrbt\FilamentSpotlightPro\SpotlightProviders\RegisterCommands;
+use pxlrbt\FilamentSpotlightPro\SpotlightProviders\RegisterPages;
+use pxlrbt\FilamentSpotlightPro\SpotlightProviders\RegisterResources;
 
 class DashboardPanelProvider extends PanelProvider
 {
@@ -32,7 +35,7 @@ class DashboardPanelProvider extends PanelProvider
             ->id('dashboard')
             ->path('dashboard')
             ->colors([
-                'primary' => Color::Teal,
+                'primary' => Color::Slate,
             ])
             ->discoverResources(in: app_path('Filament/Dashboard/Resources'), for: 'App\\Filament\\Dashboard\\Resources')
             ->discoverPages(in: app_path('Filament/Dashboard/Pages'), for: 'App\\Filament\\Dashboard\\Pages')
@@ -44,11 +47,16 @@ class DashboardPanelProvider extends PanelProvider
                 AdvancedTablesPlugin::make()
                     ->persistActiveViewInSession()
                     ->favoritesBarDivider()
-                    ->favoritesBarSize(ActionSize::Small)
+                    ->favoritesBarSize(Size::Small)
                     ->favoritesBarDefaultView(false)
                     ->presetViewsManageable(false)
                     ->resourceEnabled(false),
-                SpotlightPlugin::make(),
+                SpotlightPlugin::make()
+                    ->registerItems([
+                        RegisterPages::make(),
+                        RegisterResources::make(),
+                        RegisterCommands::make(),
+                    ]),
                 BannerPlugin::make()
                     ->disableBannerManager(),
             ])
@@ -58,7 +66,7 @@ class DashboardPanelProvider extends PanelProvider
                 // Widgets\FilamentInfoWidget::class,
             ])
             ->userMenuItems([
-                UserMenuItem::make()
+                MenuItem::make()
                     ->label('Profile')
                     ->url('/user/profile')
                     ->icon('heroicon-s-cog'),
@@ -83,7 +91,12 @@ class DashboardPanelProvider extends PanelProvider
             ->brandLogoHeight('3rem')
             ->darkMode(false)
             ->sidebarCollapsibleOnDesktop()
+            ->globalSearch(false)
             ->viteTheme('resources/css/filament/dashboard/theme.css')
+            ->renderHook(
+                'panels::global-search.before',
+                fn (): string => view('filament.dashboard.widgets.spotlight-search-button')->render()
+            )
             ->renderHook(
                 'panels::body.end',
                 fn (): string => view('components.tawk-chat')

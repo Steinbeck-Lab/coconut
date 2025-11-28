@@ -3,7 +3,7 @@
 namespace App\Filament\Dashboard\Resources\GeoLocationResource\Pages;
 
 use App\Filament\Dashboard\Resources\GeoLocationResource;
-use Filament\Actions;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditGeoLocation extends EditRecord
@@ -13,7 +13,7 @@ class EditGeoLocation extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            DeleteAction::make(),
         ];
     }
 }

@@ -10,7 +10,7 @@ class EntriesOverview extends BaseWidget
 {
     public ?Collection $record = null;
 
-    protected static ?string $pollingInterval = '10s';
+    protected ?string $pollingInterval = '10s';
 
     protected function getStats(): array
     {
