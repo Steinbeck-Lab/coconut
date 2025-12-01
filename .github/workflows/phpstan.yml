@@ -47,7 +47,7 @@ jobs:
           COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
         run: |
           if [ -n "$COMPOSER_AUTH" ]; then
-            echo "$COMPOSER_AUTH" | base64 -d > "$HOME/.composer/auth.json"
+            echo $COMPOSER_AUTH | base64 -d  > auth.json
             echo "✅ Composer auth configured"
           fi
           composer install --prefer-dist --no-progress --no-interaction --no-scripts --optimize-autoloader
