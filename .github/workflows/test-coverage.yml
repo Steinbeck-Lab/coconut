@@ -9,7 +9,7 @@ on:
 
 jobs:
   test-coverage:
-    name: Tests & Coverage (PHP 8.3)
+    name: Tests & Coverage (PHP 8.4)
     runs-on: ubuntu-latest
     
     services:

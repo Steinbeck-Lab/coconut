@@ -1,9 +1,7 @@
 name: PHPStan Static Analysis
 
 on:
-  push:
-    branches:
-      - code-cov
+  workflow_call:
 
 permissions:
   contents: read
