@@ -88,9 +88,7 @@ jobs:
         php artisan config:cache
 
     - name: Set up database
-      run: |
-        php artisan migrate --force --seed
-        php artisan db:seed --force
+      run: php artisan migrate --force --seed
       env:
         DB_CONNECTION: pgsql
         DB_HOST: localhost
