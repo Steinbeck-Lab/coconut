@@ -43,7 +43,14 @@ jobs:
             ${{ runner.os }}-composer-
 
       - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction --no-scripts --optimize-autoloader
+        env:
+          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+        run: |
+          if [ -n "$COMPOSER_AUTH" ]; then
+            echo "$COMPOSER_AUTH" | base64 -d > "$HOME/.composer/auth.json"
+            echo "✅ Composer auth configured"
+          fi
+          composer install --prefer-dist --no-progress --no-interaction --no-scripts --optimize-autoloader
 
       - name: Cache PHPStan results
         uses: actions/cache@v4

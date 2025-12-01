@@ -43,7 +43,14 @@ jobs:
         run: composer validate --no-check-publish
 
       - name: Install PHP dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
+        env:
+          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+        run: |
+          if [ -n "$COMPOSER_AUTH" ]; then
+            echo "$COMPOSER_AUTH" | base64 -d > "$HOME/.composer/auth.json"
+            echo "✅ Composer auth configured"
+          fi
+          composer install --no-interaction --prefer-dist --no-progress
 
       - name: PHP code style (Pint)
         run: vendor/bin/pint --test
