@@ -86,7 +86,6 @@ jobs:
         php -r "file_exists('.env') || copy('.env.ci', '.env');"
         php artisan key:generate --ansi
         php artisan config:cache
-        php artisan route:cache
 
     - name: Set up database
       run: |
