@@ -42,6 +42,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
+      - name: Install Composer dependencies
+        env:
+          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+        run: |
+          if [ -n "$COMPOSER_AUTH" ]; then
+            echo "$COMPOSER_AUTH" | base64 -d > "$HOME/.composer/auth.json"
+            echo "✅ Composer auth configured"
+            unset COMPOSER_AUTH
+          fi
+          composer install --prefer-dist --no-progress --no-interaction --no-scripts --optimize-autoloader
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -54,16 +65,8 @@ jobs:
       - name: Build frontend assets
         run: npm run build
 
-      - name: Install Composer dependencies
-        env:
-          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
-        run: |
-          if [ -n "$COMPOSER_AUTH" ]; then
-            echo "$COMPOSER_AUTH" | base64 -d > "$HOME/.composer/auth.json"
-            echo "✅ Composer auth configured"
-            unset COMPOSER_AUTH
-          fi
-          composer install --prefer-dist --no-progress --no-interaction --no-scripts --optimize-autoloader
+      - name: Complete Composer autoload
+        run: composer dump-autoload
 
       - name: Cache PHPStan results
         uses: actions/cache@v4
