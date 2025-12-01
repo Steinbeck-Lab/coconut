@@ -1,0 +1,37 @@
+name: PR Lint, Security and Tests
+
+# on:
+#   pull_request:
+#     types: [opened, synchronize, reopened, ready_for_review]
+#     branches:
+#       - development
+#       - main
+
+on:
+  push:
+    branches:
+      - code-cov
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+  checks: write
+
+jobs:
+  php-lint:
+    name: PHP Lint & Security
+    uses: ./.github/workflows/php-lint.yml
+
+  secrets-scan:
+    name: Secret Leakage Scan
+    uses: ./.github/workflows/secrets-scan.yml
+
+  phpstan:
+    name: PHPStan Analysis
+    uses: ./.github/workflows/phpstan.yml
+
+  test-coverage:
+    name: Tests & Coverage (PHP 8.3)
+    uses: ./.github/workflows/test-coverage.yml
+    secrets: inherit

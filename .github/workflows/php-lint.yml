@@ -1,0 +1,52 @@
+name: PHP Lint & Security
+
+on:
+  push:
+    branches:
+      - code-cov
+
+permissions:
+  contents: read
+
+concurrency:
+  group: php-lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  php:
+    name: PHP Lint & Security
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer
+          extensions: mbstring, intl, pdo, pdo_mysql, pdo_pgsql
+          ini-values: memory_limit=512M
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.composer/cache/files
+            ~/.cache/composer/files
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Validate composer.json
+        run: composer validate --no-check-publish --strict
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: PHP code style (Pint)
+        run: vendor/bin/pint --test
+
+      - name: Composer security audit
+        run: composer audit --no-interaction --locked
