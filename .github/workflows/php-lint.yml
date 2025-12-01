@@ -1,9 +1,7 @@
 name: PHP Lint & Security
 
 on:
-  push:
-    branches:
-      - code-cov
+  workflow_call:
 
 permissions:
   contents: read

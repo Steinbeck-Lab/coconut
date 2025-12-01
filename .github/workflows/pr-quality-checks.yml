@@ -1,16 +1,11 @@
 name: PR Quality Checks
 
-# on:
-#   pull_request:
-#     types: [opened, synchronize, reopened, ready_for_review]
-#     branches:
-#       - development
-#       - main
-
 on:
-  push:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches:
-      - code-cov
+      - development
+      - main
 
 permissions:
   contents: read
