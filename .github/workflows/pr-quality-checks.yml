@@ -1,4 +1,4 @@
-name: PR Lint, Security and Tests
+name: PR Quality Checks
 
 # on:
 #   pull_request:
