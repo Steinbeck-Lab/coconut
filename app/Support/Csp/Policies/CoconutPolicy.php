@@ -28,13 +28,13 @@ class CoconutPolicy implements Preset
         $policy
             ->add(Directive::SCRIPT, Keyword::SELF)
             ->add(Directive::STYLE, Keyword::SELF)
-            ->add(Directive::FONT, Keyword::SELF, 'data:')
+            ->add(Directive::FONT, [Keyword::SELF, 'data:'])
             ->add(Directive::CONNECT, Keyword::SELF);
 
         // Third-party services
         $policy
-            ->add(Directive::STYLE, 'https://fonts.googleapis.com', 'https://unpkg.com')
-            ->add(Directive::SCRIPT, 'https://matomo.nfdi4chem.de', 'https://cdn.jsdelivr.net')
+            ->add(Directive::STYLE, ['https://fonts.googleapis.com', 'https://unpkg.com', 'https://cdn.jsdelivr.net'])
+            ->add(Directive::SCRIPT, ['https://matomo.nfdi4chem.de', 'https://cdn.jsdelivr.net'])
             ->add(Directive::CONNECT, 'https://matomo.nfdi4chem.de')
             ->add(Directive::IMG, 'https://matomo.nfdi4chem.de');
 
@@ -71,10 +71,10 @@ class CoconutPolicy implements Preset
 
         // Allow build assets from Coconut domains (production and dev)
         $policy
-            ->add(Directive::FONT, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net')
-            ->add(Directive::STYLE, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net')
-            ->add(Directive::SCRIPT, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net')
-            ->add(Directive::IMG, 'https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net');
+            ->add(Directive::FONT, ['https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net'])
+            ->add(Directive::STYLE, ['https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net'])
+            ->add(Directive::SCRIPT, ['https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net'])
+            ->add(Directive::IMG, ['https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net']);
 
         // Add nonce for inline scripts. This is automatically handled by spatie/laravel-csp when nonce_enabled is true
         $policy->addNonce(Directive::SCRIPT);
