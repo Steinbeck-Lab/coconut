@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.1](https://github.com/Steinbeck-Lab/coconut/compare/v1.1.0...v1.1.1) (2025-12-01)
+
+
+### Bug Fixes
+
+* corrected the mismatched array key. ([#702](https://github.com/Steinbeck-Lab/coconut/issues/702)) ([67c681f](https://github.com/Steinbeck-Lab/coconut/commit/67c681f800739ceecbca748a4876139cecf8c3f0))
+* display the navigation menu items only if the user is logged in. ([#707](https://github.com/Steinbeck-Lab/coconut/issues/707)) ([a1caf1e](https://github.com/Steinbeck-Lab/coconut/commit/a1caf1e021fbb23a9dfc8a9596624f2f6356ac94))
+
+
+### Miscellaneous Chores
+
+* **main:** release 1.0.0 ([a5fb309](https://github.com/Steinbeck-Lab/coconut/commit/a5fb30919d214c90ea4bd7242b2afb9fd687f794))
+* **main:** release 1.1.0 ([5c8bd03](https://github.com/Steinbeck-Lab/coconut/commit/5c8bd034a651b1d5e4d712998bbca2a4f6c229e2))
+
 ## 1.0.0 (2025-11-27)
 
 
