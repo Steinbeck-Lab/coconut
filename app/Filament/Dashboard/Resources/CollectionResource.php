@@ -174,7 +174,7 @@ class CollectionResource extends Resource
                             ->label('Collection Image')
                             ->visibility('public')
                             ->size(200)
-                            ->state(fn ($record) => $record->image ? 'https://s3.uni-jena.de/coconut/' . $record->image : null),
+                            ->state(fn ($record) => $record->image ? 'https://s3.uni-jena.de/coconut/'.$record->image : null),
                     ]),
                 Section::make('Distribution')
                     ->schema([

@@ -659,7 +659,7 @@ class ReportResource extends Resource
                                             })
                                             ->columnSpanFull(),
                                         Grid::make()
-                                            ->schema(Organism::getForm())->columns(4),
+                                            ->schema(Organism::getForm()),
                                     ])
                                     ->reorderable(false)
                                     ->addActionLabel('Add New Organism')
@@ -667,8 +667,7 @@ class ReportResource extends Resource
                                     ->disabled(function (Get $get, string $operation) {
                                         return ! $get('show_organism_new') && $operation == 'edit';
                                     })
-                                    ->dehydrated()
-                                    ->columns(9),
+                                    ->dehydrated(),
 
                             ]),
                         Tab::make('citations')
@@ -707,7 +706,7 @@ class ReportResource extends Resource
                                             })
                                             ->columnSpanFull(),
                                         Grid::make()
-                                            ->schema(Citation::getForm())->columns(4),
+                                            ->schema(Citation::getForm()),
                                     ])
                                     ->reorderable(false)
                                     ->addActionLabel('Add New Citation')
@@ -715,8 +714,7 @@ class ReportResource extends Resource
                                     ->disabled(function (Get $get, string $operation) {
                                         return ! $get('show_citation_new') && $operation == 'edit';
                                     })
-                                    ->dehydrated()
-                                    ->columns(9),
+                                    ->dehydrated(),
 
                             ]),
                     ])
