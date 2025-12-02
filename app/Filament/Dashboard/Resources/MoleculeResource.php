@@ -78,13 +78,15 @@ class MoleculeResource extends Resource
                     ->placeholder('New Synonym')
                     ->disabled(function ($operation) {
                         return $operation == 'view';
-                    }),
+                    })
+                    ->dehydrated(true),
                 TagsInput::make('cas')
                     ->placeholder('New CAS')
                     ->label('CAS')
                     ->disabled(function ($operation) {
                         return $operation == 'view';
-                    }),
+                    })
+                    ->dehydrated(true),
                 TextInput::make('murcko_framework')
                     ->label('Murcko Framework'),
             ]);
