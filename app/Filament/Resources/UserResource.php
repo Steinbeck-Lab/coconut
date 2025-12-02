@@ -19,7 +19,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
-use STS\FilamentImpersonate\Tables\Actions\Impersonate;
+use STS\FilamentImpersonate\Actions\Impersonate;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class UserResource extends Resource
