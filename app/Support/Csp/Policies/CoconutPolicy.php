@@ -34,8 +34,8 @@ class CoconutPolicy implements Preset
         // Third-party services
         $policy
             ->add(Directive::STYLE, ['https://fonts.googleapis.com', 'https://unpkg.com', 'https://cdn.jsdelivr.net'])
-            ->add(Directive::SCRIPT, ['https://matomo.nfdi4chem.de', 'https://cdn.jsdelivr.net'])
-            ->add(Directive::CONNECT, 'https://matomo.nfdi4chem.de')
+            ->add(Directive::SCRIPT, ['https://matomo.nfdi4chem.de', 'https://cdn.jsdelivr.net', 'https://unpkg.com'])
+            ->add(Directive::CONNECT, ['https://matomo.nfdi4chem.de', 'https://unpkg.com'])
             ->add(Directive::IMG, 'https://matomo.nfdi4chem.de');
 
         // Add Coconut-specific external sources
@@ -65,9 +65,9 @@ class CoconutPolicy implements Preset
 
         // CDN sources for external libraries
         $policy
-            ->add(Directive::STYLE, 'https://cdnjs.cloudflare.com')
-            ->add(Directive::SCRIPT, 'https://code.jquery.com')
-            ->add(Directive::SCRIPT, 'https://cdnjs.cloudflare.com');
+            ->add(Directive::STYLE, ['https://cdnjs.cloudflare.com'])
+            ->add(Directive::SCRIPT, ['https://code.jquery.com'])
+            ->add(Directive::SCRIPT, ['https://cdnjs.cloudflare.com']);
 
         // Allow build assets from Coconut domains (production and dev)
         $policy
