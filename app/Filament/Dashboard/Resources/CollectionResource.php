@@ -173,7 +173,8 @@ class CollectionResource extends Resource
                         ImageEntry::make('image')
                             ->label('Collection Image')
                             ->visibility('public')
-                            ->size(200),
+                            ->size(200)
+                            ->state(fn ($record) => $record->image ? 'https://s3.uni-jena.de/coconut/' . $record->image : null),
                     ]),
                 Section::make('Distribution')
                     ->schema([
