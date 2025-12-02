@@ -266,18 +266,18 @@ class ReportResource extends Resource
                                         $get('status') == ReportStatus::APPROVED->value ||
                                         $operation != 'edit';
                                 })
-                                ->action(function (array $data, Report $record, Molecule $molecule, $set, $livewire, $get): void {
+                                ->action(function (array $data, Report $record, $set, $livewire, $get): void {
                                     // Add this validation check before processing the approval
                                     if ($record['report_category'] === ReportCategory::SUBMISSION->value) {
                                         // Validate the form data
                                         $livewire->validate();
 
                                         // If validation passes, proceed with approval
-                                        self::approveReport($data, $record, $molecule, $livewire);
+                                        self::approveReport($data, $record, $livewire);
                                         $set('status', ReportStatus::APPROVED->value);
                                     } else {
                                         // For other report types, proceed as normal
-                                        self::approveReport($data, $record, $molecule, $livewire);
+                                        self::approveReport($data, $record, $livewire);
                                         $set('status', ReportStatus::APPROVED->value);
                                     }
                                 })
@@ -1213,7 +1213,7 @@ class ReportResource extends Resource
         return $approved_changes;
     }
 
-    public static function approveReport(array $data, Report $record, Molecule $molecule, $livewire): void
+    public static function approveReport(array $data, Report $record, $livewire): void
     {
         $status = '';
         $curator_number = '';
