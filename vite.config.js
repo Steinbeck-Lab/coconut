@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
+import tailwindcss from '@tailwindcss/vite';
 import path from 'path'
 
 export default defineConfig({
@@ -11,10 +12,12 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
-                'resources/css/filament/dashboard/theme.css'
+                'resources/css/filament/dashboard/theme.css',
+                'resources/css/filament/control-panel/theme.css'
             ],
             refresh: true,
         }),
+        tailwindcss(),
     ],
     resolve: {
         alias: {

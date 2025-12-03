@@ -3,7 +3,7 @@
 namespace App\Filament\Dashboard\Resources\EntryResource\Pages;
 
 use App\Filament\Dashboard\Resources\EntryResource;
-use Filament\Actions;
+use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewEntry extends ViewRecord
@@ -13,7 +13,7 @@ class ViewEntry extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\EditAction::make(),
+            EditAction::make(),
         ];
     }
 }

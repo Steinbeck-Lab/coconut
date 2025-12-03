@@ -3,21 +3,27 @@
 namespace App\Filament\Dashboard\Resources;
 
 use App\Filament\Dashboard\Resources\OrganismResource\Pages;
+use App\Filament\Dashboard\Resources\OrganismResource\Pages\CreateOrganism;
+use App\Filament\Dashboard\Resources\OrganismResource\Pages\EditOrganism;
+use App\Filament\Dashboard\Resources\OrganismResource\Pages\ListOrganisms;
 use App\Filament\Dashboard\Resources\OrganismResource\RelationManagers\MoleculesRelationManager;
 use App\Filament\Dashboard\Resources\OrganismResource\RelationManagers\SampleLocationsRelationManager;
 use App\Filament\Dashboard\Resources\OrganismResource\Widgets\OrganismStats;
 use App\Forms\Components\OrganismsTable;
 use App\Models\Organism;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Group;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Form;
+use Exception;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use GuzzleHttp\Client;
-use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Log;
@@ -25,42 +31,31 @@ use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class OrganismResource extends Resource
 {
-    protected static ?string $navigationGroup = 'Data';
+    protected static string|\UnitEnum|null $navigationGroup = 'Data';
 
     protected static ?int $navigationSort = 4;
 
     protected static ?string $model = Organism::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-bug-ant';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-bug-ant';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Grid::make()
+        return $schema
+            ->components([
+                Section::make('Organism Information')
+                    ->description('Enter the organism details below')
+                    ->schema(Organism::getForm()),
+
+                Section::make('Similar Organisms')
+                    ->description('View similar organisms in the database')
                     ->schema([
-                        Group::make()
-                            ->schema([
-                                Section::make('')
-                                    ->schema(Organism::getForm()),
-                            ])
-                            ->columnSpan(1),
-                        Group::make()
-                            ->schema([
-                                Section::make('')
-                                    ->schema([
-                                        OrganismsTable::make('Custom Table'),
-                                        // \Livewire\Livewire::mount('similar-organisms', ['organismId' => function ($get) {
-                                        //     return $get('name');
-                                        // }]),
-                                    ]),
-                            ])
-                            ->hidden(function ($operation) {
-                                return $operation === 'create';
-                            })
-                            ->columnSpan(1),
+                        OrganismsTable::make('Custom Table'),
                     ])
-                    ->columns(2),  // Defines the number of columns in the grid
+                    ->hidden(function ($operation) {
+                        return $operation === 'create';
+                    })
+                    ->collapsible(),
             ]);
     }
 
@@ -68,15 +63,19 @@ class OrganismResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
+                    ->searchable()
+                    ->description(fn (Organism $record): ?string => $record->iri ? urldecode($record->iri) : null),
+                TextColumn::make('rank')->wrap()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('rank')->wrap()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('molecule_count')
+                    ->label('Molecules')
+                    ->sortable(),
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -85,20 +84,26 @@ class OrganismResource extends Resource
                 AdvancedFilter::make()
                     ->includeColumns(),
             ])
-            ->actions([
-                Tables\Actions\Action::make('iri')
+            ->recordActions([
+                Action::make('iri')
                     ->label('IRI')
                     ->url(fn (Organism $record) => $record->iri ? urldecode($record->iri) : null, true)
                     ->color('info')
-                    ->icon('heroicon-o-link'),
-                // Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                    ->icon('heroicon-o-link')
+                    ->iconButton(),
+                ViewAction::make()
+                    ->iconButton(),
+                EditAction::make()
+                    ->iconButton(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->recordUrl(
+                fn (Organism $record): string => self::getUrl('view', ['record' => $record]),
+            );
     }
 
     public static function getRelations(): array
@@ -115,10 +120,10 @@ class OrganismResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListOrganisms::route('/'),
-            'create' => Pages\CreateOrganism::route('/create'),
-            'edit' => Pages\EditOrganism::route('/{record}/edit'),
-            // 'view' => Pages\ViewOrganism::route('/{record}'),
+            'index' => ListOrganisms::route('/'),
+            'create' => CreateOrganism::route('/create'),
+            'edit' => EditOrganism::route('/{record}/edit'),
+            'view' => Pages\ViewOrganism::route('/{record}'),
         ];
     }
 
@@ -208,6 +213,10 @@ class OrganismResource extends Resource
             $organism->name = $name;
             $organism->iri = $iri;
             $organism->rank = $rank;
+            // Auto-generate slug if not exists
+            if (! $organism->slug) {
+                $organism->slug = \Illuminate\Support\Str::slug($name);
+            }
             $organism->save();
         } else {
             self::error("Organism not found in the database: $name");
@@ -217,46 +226,41 @@ class OrganismResource extends Resource
     protected static function getOLSIRI($name, $rank)
     {
         $client = new Client([
-            'base_uri' => 'https://www.ebi.ac.uk/ols4/api/',
+            'base_uri' => 'https://www.ebi.ac.uk/ols4/api/v2/',
         ]);
 
         try {
-            $response = $client->get('search', [
+            $response = $client->get('entities', [
                 'query' => [
-                    'q' => $name,
-                    'ontology' => ['ncbitaxon', 'efo', 'obi', 'uberon', 'taxrank'],
-                    'exact' => false,
-                    'obsoletes' => false,
-                    'format' => 'json',
+                    'search' => $name,
+                    'ontologyId' => 'ncbitaxon',
+                    'exactMatch' => true,
+                    'type' => 'class',
                 ],
             ]);
 
             $data = json_decode($response->getBody(), true);
 
-            return $data;
-            // var_dump($data);
+            if (isset($data['elements']) && count($data['elements']) > 0) {
 
-            // if (isset($data['elements']) && count($data['elements']) > 0) {
-
-            //     $element = $data['elements'][0];
-            //     if (isset($element['iri'], $element['ontologyId']) && $element['isObsolete'] === 'false') {
-            //         if ($rank && $rank == 'species') {
-            //             if (isset($element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank']) && $element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank'] == 'http://purl.obolibrary.org/obo/NCBITaxon_species') {
-            //                 return urlencode($element['iri']);
-            //             }
-            //         } elseif ($rank && $rank == 'genus') {
-            //             if (isset($element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank']) && $element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank'] == 'http://purl.obolibrary.org/obo/NCBITaxon_genus') {
-            //                 return urlencode($element['iri']);
-            //             }
-            //         } elseif ($rank && $rank == 'family') {
-            //             if (isset($element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank']) && $element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank'] == 'http://purl.obolibrary.org/obo/NCBITaxon_family') {
-            //                 return urlencode($element['iri']);
-            //             }
-            //         }
-            //     }
-            // }
-        } catch (\Exception $e) {
-            // Self::error("Error fetching IRI for $name: " . $e->getMessage());
+                $element = $data['elements'][0];
+                if (isset($element['iri'], $element['ontologyId']) && $element['isObsolete'] === false) {
+                    if ($rank && $rank == 'species') {
+                        if (isset($element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank']) && $element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank'] == 'http://purl.obolibrary.org/obo/NCBITaxon_species') {
+                            return urlencode($element['iri']);
+                        }
+                    } elseif ($rank && $rank == 'genus') {
+                        if (isset($element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank']) && $element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank'] == 'http://purl.obolibrary.org/obo/NCBITaxon_genus') {
+                            return urlencode($element['iri']);
+                        }
+                    } elseif ($rank && $rank == 'family') {
+                        if (isset($element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank']) && $element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank'] == 'http://purl.obolibrary.org/obo/NCBITaxon_family') {
+                            return urlencode($element['iri']);
+                        }
+                    }
+                }
+            }
+        } catch (Exception $e) {
             Log::error("Error fetching IRI for $name: ".$e->getMessage());
         }
 

@@ -21,7 +21,10 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Kenepa\Banner\BannerPlugin;
-use pxlrbt\FilamentSpotlight\SpotlightPlugin;
+use pxlrbt\FilamentSpotlightPro\SpotlightPlugin;
+use pxlrbt\FilamentSpotlightPro\SpotlightProviders\RegisterCommands;
+use pxlrbt\FilamentSpotlightPro\SpotlightProviders\RegisterPages;
+use pxlrbt\FilamentSpotlightPro\SpotlightProviders\RegisterResources;
 use Stephenjude\FilamentDebugger\DebuggerPlugin;
 
 class AdminPanelProvider extends PanelProvider
@@ -47,7 +50,12 @@ class AdminPanelProvider extends PanelProvider
                 FilamentShieldPlugin::make(),
                 FilamentExceptionsPlugin::make(),
                 DebuggerPlugin::make(),
-                SpotlightPlugin::make(),
+                SpotlightPlugin::make()
+                    ->registerItems([
+                        RegisterPages::make(),
+                        RegisterResources::make(),
+                        RegisterCommands::make(),
+                    ]),
                 AdvancedTablesPlugin::make()
                     ->resourceEnabled(false),
                 BannerPlugin::make(),
@@ -72,6 +80,11 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogoHeight('3rem')
             ->darkMode(false)
             ->sidebarCollapsibleOnDesktop()
+            ->viteTheme('resources/css/filament/control-panel/theme.css')
+            ->renderHook(
+                'panels::global-search.before',
+                fn (): string => view('filament.widgets.spotlight-search-button')->render()
+            )
             ->renderHook(
                 'panels::body.end',
                 fn (): string => view('components.tawk-chat')
