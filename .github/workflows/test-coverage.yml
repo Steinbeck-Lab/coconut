@@ -1,11 +1,7 @@
 name: PHPUnit Tests & Coverage Analysis
 
-on:
-  push:
-    branches: [code-cov]
-
-# on: 
-#   workflow_call:
+on: 
+  workflow_call:
 
 jobs:
   test-coverage:
