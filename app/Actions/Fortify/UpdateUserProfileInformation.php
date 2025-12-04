@@ -60,7 +60,7 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
             'name' => $input['username'],
             'email' => $input['email'],
             'email_verified_at' => null,
-            
+
             'first_name' => $input['first_name'],
             'last_name' => $input['last_name'],
             'username' => $input['username'],
