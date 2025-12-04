@@ -17,14 +17,17 @@ jobs:
   php-lint:
     name: PHP Lint & Security
     uses: ./.github/workflows/php-lint.yml
+    secrets: inherit
 
   secrets-scan:
     name: Secret Leakage Scan
     uses: ./.github/workflows/secrets-scan.yml
+    secrets: inherit
 
   phpstan:
     name: PHPStan Analysis
     uses: ./.github/workflows/phpstan.yml
+    secrets: inherit
 
   test-coverage:
     name: Tests & Coverage (PHP 8.3)
