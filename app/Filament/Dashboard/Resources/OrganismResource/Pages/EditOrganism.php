@@ -3,7 +3,7 @@
 namespace App\Filament\Dashboard\Resources\OrganismResource\Pages;
 
 use App\Filament\Dashboard\Resources\OrganismResource;
-use Filament\Actions;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditOrganism extends EditRecord
@@ -13,7 +13,7 @@ class EditOrganism extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            DeleteAction::make(),
         ];
     }
 }

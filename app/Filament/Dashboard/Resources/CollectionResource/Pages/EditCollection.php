@@ -4,7 +4,8 @@ namespace App\Filament\Dashboard\Resources\CollectionResource\Pages;
 
 use App\Filament\Dashboard\Resources\CollectionResource;
 use App\Filament\Dashboard\Resources\CollectionResource\Widgets\EntriesOverview;
-use Filament\Actions;
+use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
@@ -32,7 +33,7 @@ class EditCollection extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            \Filament\Actions\Action::make('Publish Molecules')
+            Action::make('Publish Molecules')
                 ->icon('heroicon-o-sparkles')
                 ->color('primary')
                 ->requiresConfirmation()
@@ -59,7 +60,7 @@ class EditCollection extends EditRecord
                     // Action is visible only if both conditions are false
                     return $pendingProcessingCount == 0 && $moleculesReadyToPublish > 0 && auth()->user()->can('update', $this->record);
                 }),
-            Actions\DeleteAction::make(),
+            DeleteAction::make(),
         ];
     }
 }

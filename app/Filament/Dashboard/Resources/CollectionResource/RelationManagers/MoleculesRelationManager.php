@@ -2,21 +2,28 @@
 
 namespace App\Filament\Dashboard\Resources\CollectionResource\RelationManagers;
 
-use Filament\Forms;
-use Filament\Forms\Form;
+use App\Filament\Dashboard\Resources\MoleculeResource;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class MoleculesRelationManager extends RelationManager
 {
     protected static string $relationship = 'molecules';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('canonical_smiles')
+        return $schema
+            ->components([
+                TextInput::make('canonical_smiles')
                     ->required()
                     ->maxLength(255),
             ]);
@@ -25,24 +32,40 @@ class MoleculesRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('canonical_smiles')
+            ->recordTitleAttribute('identifier')
             ->columns([
-                Tables\Columns\TextColumn::make('identifier'),
-                Tables\Columns\TextColumn::make('canonical_smiles'),
+                ImageColumn::make('structure')->square()
+                    ->label('Structure')
+                    ->state(function ($record) {
+                        return config('services.cheminf.api_url').'depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=true&toolkit=cdk';
+                    })
+                    ->width(200)
+                    ->height(200)
+                    ->ring(5)
+                    ->defaultImageUrl(url('/images/placeholder.png')),
+                TextColumn::make('identifier')
+                    ->label('Identifier')
+                    ->url(fn ($record) => MoleculeResource::getUrl('view', ['record' => $record->id]), shouldOpenInNewTab: true)
+                    ->color('primary')
+                    ->searchable(),
+                TextColumn::make('status')
+                    ->badge(),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                CreateAction::make(),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                EditAction::make()
+                    ->iconButton(),
+                DeleteAction::make()
+                    ->iconButton(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class DetailedAnalytics extends Widget
 {
-    protected static string $view = 'filament.dashboard.widgets.detailed-analytics';
+    protected string $view = 'filament.dashboard.widgets.detailed-analytics';
 
     protected static ?int $sort = 3;
 

@@ -214,7 +214,7 @@ class CreateReport extends CreateRecord
 
         return parent::getCreateFormAction()
             ->submit(null)
-            ->form(function () {
+            ->schema(function () {
                 return getChangesToDisplayModal($this->data);
             })
             ->modalHidden(function () {

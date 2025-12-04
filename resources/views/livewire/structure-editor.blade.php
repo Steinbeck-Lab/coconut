@@ -113,55 +113,49 @@
     ">
         <div x-show="isOpen" x-cloak class="fixed z-20 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <div class="flex items-center justify-center min-h-screen text-center px-8">
-                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+                <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                <div class="z-20 inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:w-full sm:p-6">
+                <div class="z-20 inline-block align-bottom bg-white rounded-xl px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:w-full sm:p-6">
                     <div class="sm:flex sm:items-start">
                         <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                            <h3 class="text-lg leading-6 font-semibold text-gray-900" id="modal-title">
                                 Structure Editor
                             </h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div class="my-4">
-                                    <div id="structureSearchEditor" class="border mb-3" style="height: 400px; width: 100%">
+                                    <div id="structureSearchEditor" class="border border-gray-200 rounded-lg mb-3" style="height: 400px; width: 100%">
                                     </div>
-                                    <!-- New SMILES display field -->
+                                    <!-- SMILES input field -->
                                     <div class="mb-3">
                                         <label for="smiles-string" class="block text-sm font-medium text-gray-700">SMILES String</label>
-                                        <div class="mt-1 flex rounded-md shadow-sm items-center">
+                                        <div class="mt-1 flex rounded-md">
                                             <input type="text" 
                                                    id="smiles-string" 
                                                    x-model="currentSmiles" 
-                                                   class="block w-full rounded-l-md border-r-0 border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" 
+                                                   class="block w-full rounded-l-md border border-r-0 border-gray-200 focus:border-gray-300 focus:ring-0 sm:text-sm" 
                                                    placeholder="Enter SMILES string to load into the Editor">
                                             <button 
                                                 @click="loadSmilesIntoEditor()"
-                                                class="relative -ml-px inline-flex items-center space-x-2 rounded-none border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                                class="inline-flex items-center rounded-r-md border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none">
                                                 Load
                                             </button>
-                                            <input type="radio" name="search-source" value="smiles" x-model="searchSource" class="ml-2 h-4 w-4 text-secondary-dark border-gray-300 focus:ring-secondary-dark" 
-                                                :title="'Use this SMILES string for search'"
-                                                :disabled="!currentSmiles || currentSmiles.trim() === ''"/>
                                         </div>
                                     </div>
                                     <div class="mb-3">
                                         <label for="editor-output" class="block text-sm font-medium text-gray-700">Editor Output</label>
-                                        <div class="mt-1 flex rounded-md shadow-sm items-center">
+                                        <div class="mt-1">
                                             <input type="text" 
                                                    id="editor-output" 
                                                    x-model="editorOutput" 
                                                    readonly
-                                                   class="block w-full rounded-l-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-gray-100" 
+                                                   class="block w-full rounded-md border border-gray-200 focus:border-gray-300 focus:ring-0 sm:text-sm bg-gray-50" 
                                                    placeholder="Editor Output">
-                                            <input type="radio" name="search-source" value="editor" x-model="searchSource" class="ml-2 h-4 w-4 text-secondary-dark border-gray-300 focus:ring-secondary-dark" 
-                                                :title="'Use the editor output for search'"
-                                                :disabled="!editorOutput || editorOutput.trim() === ''"/>
                                         </div>
                                     </div>
                                     <div class="py-3">
                                         <div x-on:dragover.prevent="draggedFile = null"
                                             x-on:drop.prevent="draggedFile = $event.dataTransfer.files[0]; handleFileUpload($event)"
-                                            class="border-2 border-dashed border-gray-300 p-6 text-center mb-3">
+                                            class="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center mb-3 hover:border-gray-300 transition-colors">
                                             <input type="file" accept=".mol,.sdf" class="hidden" id="fileUpload"
                                                 x-on:change="handleFileUpload($event)" />
                                             <label for="fileUpload" class="cursor-pointer">
@@ -169,127 +163,78 @@
                                                 <p class="text-sm text-gray-500 mt-2">Or click to select a file</p>
                                             </label>
                                         </div>
-                                        <div @click="fetchClipboardText"
-                                            class="hover:cursor-pointer w-full text-center rounded-md shadow-sm px-4 py-2 bg-white-600 text-base font-medium hover:bg-white-700 focus:outline-none sm:w-auto sm:text-sm border">
+                                        <button @click="fetchClipboardText"
+                                            class="w-full text-center rounded-lg shadow-sm px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 focus:outline-none transition-colors">
                                             Paste from Clipboard
-                                        </div>
+                                        </button>
                                     </div>
                                 </div>
                                 <div>
                                     <fieldset class="mt-1">
-                                        <legend class="text-base font-medium text-gray-900 mb-2">
-                                            Select search type
+                                        <legend class="text-sm font-medium text-gray-700 mb-2">
+                                            Search type
                                         </legend>
-                                        <div class="mt-4 space-y-3">
-                                            <div class="flex items-center">
-                                                <label for="search-type-exact"
-                                                    :class="type === 'exact' ? 'bg-secondary-50 border-secondary-500 ring-2 ring-secondary-500' : 'bg-white border-gray-300 hover:border-gray-400'"
-                                                    class="flex-1 cursor-pointer rounded-lg border-2 p-4 transition-all duration-200">
-                                                    <div class="flex items-center justify-between">
-                                                        <div class="flex items-center">
-                                                            <input id="search-type-exact" name="search-type" x-model="type"
-                                                                value="exact" type="radio"
-                                                                class="h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
-                                                            <span class="ml-3 font-semibold text-gray-900">Exact match</span>
-                                                        </div>
-                                                        <span x-show="type === 'exact'" class="text-secondary-600">
-                                                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                                            </svg>
-                                                        </span>
-                                                    </div>
-                                                    <p class="ml-7 mt-1 text-sm text-gray-500">Find molecules with identical structure</p>
-                                                </label>
-                                            </div>
-                                            <div class="flex items-center">
-                                                <label for="search-type-sub"
-                                                    :class="type === 'substructure' ? 'bg-secondary-50 border-secondary-500 ring-2 ring-secondary-500' : 'bg-white border-gray-300 hover:border-gray-400'"
-                                                    class="flex-1 cursor-pointer rounded-lg border-2 p-4 transition-all duration-200">
-                                                    <div class="flex items-center justify-between">
-                                                        <div class="flex items-center">
-                                                            <input id="search-type-sub" name="search-type" x-model="type"
-                                                                value="substructure" type="radio"
-                                                                class="h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
-                                                            <span class="ml-3 font-semibold text-gray-900">Substructure Search</span>
-                                                        </div>
-                                                        <span x-show="type === 'substructure'" class="text-secondary-600">
-                                                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                                            </svg>
-                                                        </span>
-                                                    </div>
-                                                    <p class="ml-7 mt-1 text-sm text-gray-500">Find molecules containing this structure</p>
-                                                </label>
-                                            </div>
-                                            <div class="flex items-center">
-                                                <label for="search-type-similar"
-                                                    :class="type === 'similarity' ? 'bg-secondary-50 border-secondary-500 ring-2 ring-secondary-500' : 'bg-white border-gray-300 hover:border-gray-400'"
-                                                    class="flex-1 cursor-pointer rounded-lg border-2 p-4 transition-all duration-200">
-                                                    <div class="flex items-center justify-between">
-                                                        <div class="flex items-center">
-                                                            <input id="search-type-similar" name="search-type" x-model="type"
-                                                                value="similarity" type="radio"
-                                                                class="h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
-                                                            <span class="ml-3 font-semibold text-gray-900">Similarity Search</span>
-                                                        </div>
-                                                        <span x-show="type === 'similarity'" class="text-secondary-600">
-                                                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                                            </svg>
-                                                        </span>
-                                                    </div>
-                                                    <p class="ml-7 mt-1 text-sm text-gray-500">Find similar molecules (Tanimoto ≥ 0.5)</p>
-                                                </label>
-                                            </div>
+                                        <div class="mt-3 flex gap-2">
+                                            <button type="button" @click="type = 'exact'"
+                                                :class="type === 'exact' ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'"
+                                                class="flex-1 cursor-pointer rounded-md border px-3 py-2 text-sm font-medium transition-colors">
+                                                Exact
+                                            </button>
+                                            <button type="button" @click="type = 'substructure'"
+                                                :class="type === 'substructure' ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'"
+                                                class="flex-1 cursor-pointer rounded-md border px-3 py-2 text-sm font-medium transition-colors">
+                                                Substructure
+                                            </button>
+                                            <button type="button" @click="type = 'similarity'"
+                                                :class="type === 'similarity' ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'"
+                                                class="flex-1 cursor-pointer rounded-md border px-3 py-2 text-sm font-medium transition-colors">
+                                                Similarity
+                                            </button>
                                         </div>
                                     </fieldset>
-                                    <div class="mt-6">
-                                        <h3 class="contents text-base font-medium text-gray-900">Previous searches</h3>
-                                        <ul class="mt-2">
-                                            <div class="grid grid-cols-2 gap-2 h-96 overflow-y-auto">
-                                                <template x-for="(search, index) in recentSearches"
-                                                    :key="index">
-                                                    <div>
-                                                        <div
-                                                            class="group relative flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white">
-                                                            <span class="cursor-pointer" @click="loadSearch(search)">
-                                                                <img :src="`https://api.cheminf.studio/latest/depict/2D?smiles=${search.q}&height=300&width=300&CIP=true&toolkit=cdk`"
-                                                                    alt="Molecule Structure"
-                                                                    class="object-cover sm:h-36 sm:w-36 mx-auto my-2">
-                                                                <div
-                                                                    class="flex flex-1 flex-col space-y-2 p-4 border-t">
-                                                                    <span x-text="`${search.type}`"
-                                                                        class="float rounded-lg pt-0.5 text-xs/6 font-semibold whitespace-nowrap text-slate-700">
-                                                                    </span>
-                                                                    <p x-text="`${search.q}`"
-                                                                        class="text-sm text-gray-500 truncate pt-0">
-                                                                    </p>
-
-                                                                </div>
-                                                            </span>
-                                                            <button @click="deleteSearch(index)"
-                                                                class="p-2 border-t text-red-600 hover:text-red-700 text-sm font-medium hover:underline">
-                                                                Delete
-                                                            </button>
+                                    <div class="mt-6" x-show="recentSearches.length > 0">
+                                        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Previous searches</h3>
+                                        <div class="mt-3 grid grid-cols-2 gap-4 max-h-[480px] overflow-y-auto pr-1">
+                                            <template x-for="(search, index) in recentSearches" :key="index">
+                                                <div class="border border-gray-200 rounded-md bg-white overflow-hidden">
+                                                    <div class="cursor-pointer" @click="loadSearch(search)">
+                                                        <div class="h-32 flex items-center justify-center bg-white p-2">
+                                                            <img :src="`https://api.cheminf.studio/latest/depict/2D?smiles=${search.q}&height=300&width=300&CIP=true&toolkit=cdk`"
+                                                                alt="Molecule Structure"
+                                                                class="object-contain h-full w-full">
                                                         </div>
-
+                                                        <div class="border-t border-gray-200 px-3 py-2">
+                                                            <div class="flex items-center justify-between">
+                                                                <span x-text="search.type"
+                                                                    class="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                                                </span>
+                                                                <button @click.stop="deleteSearch(index)"
+                                                                    class="text-gray-400 hover:text-red-500 transition-colors p-1 -mr-1">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                            <p x-text="search.q"
+                                                                class="mt-1 text-sm text-gray-900 truncate font-mono">
+                                                            </p>
+                                                        </div>
                                                     </div>
-
-                                                </template>
-                                            </div>
-                                        </ul>
+                                                </div>
+                                            </template>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="mt-2 sm:mt-4 sm:flex sm:flex-row-reverse border-t pt-3 px-6 -mx-6">
+                    <div class="flex justify-end gap-3 border-t border-gray-200 pt-4 mt-6">
                         <button @click="isOpen = false" type="button"
-                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                            class="cursor-pointer inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none transition-colors">
                             Close
                         </button>
                         <button @click="performSearch()" type="button"
-                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                            class="cursor-pointer inline-flex justify-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 focus:outline-none transition-colors">
                             Search
                         </button>
                     </div>
@@ -299,7 +244,7 @@
     </div>
     @if ($mode && $mode == 'inline')
         <button type="button" @click="isOpen = true"
-            class="rounded-md text-gray-900 bg-white mr-3 py-3 px-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
+            class="rounded-lg text-gray-900 bg-white mr-3 py-3 px-2 text-gray-500 hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
             <svg class="w-6 h-6 mx-2 mx-auto" viewBox="0 0 78 78" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clip-path="url(#clip0_1_2)">
                     <path d="M70.1638 11.819L66.3621 23.4827" stroke="black" stroke-width="1.13386"
@@ -371,7 +316,7 @@
         </button>
     @else
         <button type="button" @click="isOpen = true"
-            class="border bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
+            class="cursor-pointer border border-gray-200 bg-white justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-sm">
             <svg class="w-12 h-12 mx-auto" viewBox="0 0 78 78" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clip-path="url(#clip0_1_2)">
                     <path d="M70.1638 11.819L66.3621 23.4827" stroke="black" stroke-width="1.13386"

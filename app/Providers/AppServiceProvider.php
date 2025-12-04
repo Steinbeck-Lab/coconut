@@ -14,7 +14,7 @@ use App\Observers\MoleculeObserver;
 use App\Observers\OrganismObserver;
 use BezhanSalleh\PanelSwitch\PanelSwitch;
 use Filament\Facades\Filament;
-use Filament\Navigation\UserMenuItem;
+use Filament\Navigation\MenuItem;
 use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Support\Facades\App;
@@ -59,7 +59,7 @@ class AppServiceProvider extends ServiceProvider
 
         Filament::serving(function () {
             Filament::registerUserMenuItems([
-                UserMenuItem::make()
+                MenuItem::make()
                     ->label('Profile')
                     ->url('/user/profile')
                     ->icon('heroicon-s-cog'),
