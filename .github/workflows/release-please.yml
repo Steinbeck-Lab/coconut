@@ -1,4 +1,8 @@
 
+# This workflow automates release management using Google's Release Please action.
+# It analyzes conventional commits and automatically creates release pull requests with changelogs.
+# When merged, it generates GitHub releases with version tags following semantic versioning.
+#
 # This worklflow will perform following actions when the code is pushed to main branch.
 # - Trigger release-please action to create release.
 # 

@@ -1,3 +1,11 @@
+# This workflow performs static code analysis using PHPStan at level 5.
+# It scans PHP code for bugs, type errors, and potential issues without executing the code,
+# helping catch problems early in development before they reach production.
+#
+# Maintainers:
+#   - name: Nisha Sharma
+#   - email: nisha.sharma@uni-jena.de
+
 name: PHPStan Static Analysis
 
 on:

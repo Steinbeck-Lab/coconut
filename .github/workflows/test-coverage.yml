@@ -1,3 +1,11 @@
+# This workflow runs the PHPUnit test suite with code coverage analysis.
+# It executes all tests against PostgreSQL and Redis services, generates coverage reports using PCOV,
+# and uploads results to Codecov for tracking test quality and coverage metrics over time.
+#
+# Maintainers:
+#   - name: Nisha Sharma
+#   - email: nisha.sharma@uni-jena.de
+
 name: PHPUnit Tests & Coverage Analysis
 
 on: 

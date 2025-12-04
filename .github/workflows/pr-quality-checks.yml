@@ -1,3 +1,11 @@
+# This workflow orchestrates all quality checks for pull requests.
+# It runs PHP linting, security scans, static analysis (PHPStan), and the full test suite
+# to ensure code quality standards are met before merging into development or main branches.
+#
+# Maintainers:
+#   - name: Nisha Sharma
+#   - email: nisha.sharma@uni-jena.de
+
 name: PR Quality Checks
 
 on:

@@ -1,3 +1,11 @@
+# This workflow validates PHP code quality and security.
+# It runs Laravel Pint to enforce consistent code formatting and performs Composer security audits
+# to check for known vulnerabilities in dependencies.
+#
+# Maintainers:
+#   - name: Nisha Sharma
+#   - email: nisha.sharma@uni-jena.de
+
 name: PHP Lint & Security
 
 on:
