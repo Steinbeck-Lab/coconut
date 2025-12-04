@@ -1,0 +1,128 @@
+name: PHPUnit Tests & Coverage Analysis
+
+on: 
+  workflow_call:
+
+jobs:
+  test-coverage:
+    name: Tests & Coverage (PHP 8.4)
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: coconut_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+        - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.4'
+        extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, pdo_pgsql, bcmath, soap, intl, gd, exif, iconv, redis
+        coverage: pcov
+        tools: composer:v2
+
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: Cache Composer packages
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+
+    - name: Install Composer dependencies
+      env:
+        COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+      run: |
+        if [ -n "$COMPOSER_AUTH" ]; then
+          echo "$COMPOSER_AUTH" | base64 -d > "$HOME/.composer/auth.json"
+          echo "✅ Composer auth configured"
+          unset COMPOSER_AUTH
+        fi
+        composer install --no-progress --no-interaction --prefer-dist --optimize-autoloader --no-scripts
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install Node.js dependencies
+      run: npm ci
+
+    - name: Build frontend assets
+      run: npm run build
+
+    - name: Complete Composer autoload
+      run: composer dump-autoload
+
+    - name: Prepare Laravel Application
+      run: |
+        php -r "file_exists('.env') || copy('.env.ci', '.env');"
+        php artisan key:generate --ansi
+        php artisan config:cache
+
+    - name: Set up database
+      run: php artisan migrate --force --seed
+      env:
+        DB_CONNECTION: pgsql
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_DATABASE: coconut_test
+        DB_USERNAME: postgres
+        DB_PASSWORD: password
+
+    - name: Directory permissions
+      run: |
+        chmod -R 755 storage bootstrap/cache
+        
+    - name: Clear caches
+      run: |
+        php artisan cache:clear
+        php artisan config:clear
+        php artisan route:clear
+        php artisan view:clear
+
+    - name: Run PHPUnit tests with coverage
+      run: |
+        vendor/bin/phpunit \
+          --coverage-clover coverage.xml \
+          --display-warnings \
+          --display-incomplete \
+          --display-skipped \
+          --stop-on-failure
+      env:
+        APP_ENV: testing
+        DB_CONNECTION: pgsql
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_DATABASE: coconut_test
+        DB_USERNAME: postgres
+        DB_PASSWORD: password
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        slug: Steinbeck-Lab/coconut

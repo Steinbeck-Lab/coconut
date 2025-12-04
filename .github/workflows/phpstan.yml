@@ -1,0 +1,86 @@
+name: PHPStan Static Analysis
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phpstan-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phpstan:
+    name: PHPStan Analysis (Level 5)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer
+          extensions: mbstring, intl, pdo, pdo_mysql, pdo_pgsql
+          ini-values: memory_limit=2G
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        env:
+          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+        run: |
+          if [ -n "$COMPOSER_AUTH" ]; then
+            echo "$COMPOSER_AUTH" | base64 -d > "$HOME/.composer/auth.json"
+            echo "✅ Composer auth configured"
+            unset COMPOSER_AUTH
+          fi
+          composer install --prefer-dist --no-progress --no-interaction --no-scripts --optimize-autoloader
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Complete Composer autoload
+        run: composer dump-autoload
+
+      - name: Cache PHPStan results
+        uses: actions/cache@v4
+        with:
+          path: .phpstan
+          key: phpstan-${{ github.sha }}
+          restore-keys: |
+            phpstan-
+
+      - name: Run PHPStan analysis
+        run: ./vendor/bin/phpstan analyse --memory-limit=2G --error-format=github --no-progress
+
+      - name: Upload PHPStan results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phpstan-results
+          path: .phpstan/
+          retention-days: 7

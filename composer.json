@@ -53,6 +53,7 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.24.1",
+        "larastan/larastan": "^3.0",
         "laravel/pint": "^1.18.3",
         "laravel/sail": "^1.39.1",
         "mockery/mockery": "^1.6.12",
