@@ -40,7 +40,7 @@ jobs:
       - name: Validate composer.json
         run: composer validate --no-check-publish
 
-      - name: Install PHP dependencies
+      - name: Install Composer dependencies
         env:
           COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
         run: |
@@ -49,7 +49,7 @@ jobs:
             echo "✅ Composer auth configured"
             unset COMPOSER_AUTH
           fi
-          composer install --no-interaction --prefer-dist --no-progress --no-scripts
+          composer install --prefer-dist --no-progress --no-interaction --no-scripts --optimize-autoloader
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
