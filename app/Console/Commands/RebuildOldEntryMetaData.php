@@ -261,8 +261,6 @@ class RebuildOldEntryMetaData extends Command
         $nDois = count($dois);
         $nOrgs = count($organisms);
 
-
-
         // 1 DOI, many organisms
         if ($nDois <= 1 && $nOrgs > 0) {
             $locationsStructured = [];
@@ -327,7 +325,7 @@ class RebuildOldEntryMetaData extends Command
         }
 
         // Fallback (should be rare): just list DOIs
-        return array_map(fn($doi) => ['doi' => $doi, 'organisms' => []], $dois);
+        return array_map(fn ($doi) => ['doi' => $doi, 'organisms' => []], $dois);
     }
 
     /**
@@ -335,7 +333,7 @@ class RebuildOldEntryMetaData extends Command
      */
     protected function buildAmbiguousReferences(Entry $entry): array
     {
-        $dois = $this->flattenGroup ($entry->doi ?? '', 'doi ');
+        $dois = $this->flattenGroup($entry->doi ?? '', 'doi ');
 
         $references = [];
         foreach ($dois as $doi) {
@@ -402,7 +400,7 @@ class RebuildOldEntryMetaData extends Command
 
         return array_filter(
             array_map('trim', explode('|', $synonymsData)),
-            fn($synonym) => ! empty($synonym)
+            fn ($synonym) => ! empty($synonym)
         );
     }
 }

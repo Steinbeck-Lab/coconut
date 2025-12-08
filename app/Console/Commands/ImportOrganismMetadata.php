@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Models\Entry;
 use Illuminate\Console\Command;
-use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -21,10 +20,15 @@ class ImportOrganismMetadata extends Command
     private int $batchSize = 5000;
 
     private array $citationCache = [];
+
     private array $organismCache = [];
+
     private array $sampleLocationCache = [];
+
     private array $geoLocationCache = [];
+
     private array $ecosystemCache = [];
+
     private array $auditRecords = [];
 
     public function handle(): int
@@ -51,6 +55,7 @@ class ImportOrganismMetadata extends Command
 
         if ($totalCount === 0) {
             $this->info('No entries found to process.');
+
             return self::SUCCESS;
         }
 
@@ -77,7 +82,7 @@ class ImportOrganismMetadata extends Command
                     // }
                 } catch (\Exception $e) {
                     $failedCount++;
-                    Log::error("Failed to process entry {$entry->id}: " . $e->getMessage());
+                    Log::error("Failed to process entry {$entry->id}: ".$e->getMessage());
                 }
                 $bar->advance();
             }
@@ -87,7 +92,7 @@ class ImportOrganismMetadata extends Command
         $this->newLine(2);
 
         // Insert audit records if not dry run
-        if (!$dryRun && !empty($this->auditRecords)) {
+        if (! $dryRun && ! empty($this->auditRecords)) {
             $this->insertAuditRecords();
         }
 
@@ -103,8 +108,9 @@ class ImportOrganismMetadata extends Command
     {
         $metaData = json_decode($entry->meta_data, true);
         $this->line("Processing entry ID: {$entry->id}");
-        if (!$metaData || !isset($metaData['new_molecule_data'])) {
+        if (! $metaData || ! isset($metaData['new_molecule_data'])) {
             $this->warn("Entry {$entry->id} has no valid meta_data. Skipping.");
+
             return;
         }
 
@@ -119,29 +125,32 @@ class ImportOrganismMetadata extends Command
         $flatGeoLocations = $nmd['geo_locations'] ?? [];
         $flatEcosystems = $nmd['ecosystems'] ?? [];
 
-        $this->line("Organisms to process: " . json_encode($flatOrganisms));
-        $this->line("References: " . json_encode($references));
-        $this->line("Parts: " . json_encode($flatParts));
-        $this->line("Geo Locations: " . json_encode($flatGeoLocations));
-        $this->line("Ecosystems: " . json_encode($flatEcosystems));
+        $this->line('Organisms to process: '.json_encode($flatOrganisms));
+        $this->line('References: '.json_encode($references));
+        $this->line('Parts: '.json_encode($flatParts));
+        $this->line('Geo Locations: '.json_encode($flatGeoLocations));
+        $this->line('Ecosystems: '.json_encode($flatEcosystems));
 
         // Process each organism from the references or flat arrays
         $organismsToProcess = $this->extractOrganismsFromReferences($references, $flatOrganisms);
 
         if (empty($organismsToProcess)) {
             $this->warn("No organisms found for entry {$entry->id}. Skipping.");
+
             return;
         }
 
         foreach ($organismsToProcess as $organismName) {
             if (empty($organismName)) {
                 $this->warn("Empty organism name for entry {$entry->id}. Skipping.");
+
                 continue;
             }
 
             $organismId = $this->findOrCreateOrganism($organismName, $dryRun);
-            if (!$organismId) {
+            if (! $organismId) {
                 $this->warn("Could not find or create organism '{$organismName}' for entry {$entry->id}. Skipping.");
+
                 continue;
             }
 
@@ -170,7 +179,7 @@ class ImportOrganismMetadata extends Command
             );
         }
         // After processing, set entry status to IMPORTED unless dry-run
-        if (!$dryRun) {
+        if (! $dryRun) {
             DB::table('entries')->where('id', $entry->id)->update(['status' => 'IMPORTED']);
         }
     }
@@ -186,7 +195,7 @@ class ImportOrganismMetadata extends Command
         foreach ($references as $ref) {
             if (isset($ref['organisms']) && is_array($ref['organisms'])) {
                 foreach ($ref['organisms'] as $org) {
-                    if (isset($org['name']) && !empty($org['name'])) {
+                    if (isset($org['name']) && ! empty($org['name'])) {
                         $organisms[] = $org['name'];
                     }
                 }
@@ -195,7 +204,7 @@ class ImportOrganismMetadata extends Command
 
         // From flat array
         foreach ($flatOrganisms as $org) {
-            if (!empty($org)) {
+            if (! empty($org)) {
                 $organisms[] = $org;
             }
         }
@@ -273,7 +282,7 @@ class ImportOrganismMetadata extends Command
                 }
             }
 
-            if (!$matchingOrganism && empty($doi)) {
+            if (! $matchingOrganism && empty($doi)) {
                 continue;
             }
 
@@ -294,7 +303,7 @@ class ImportOrganismMetadata extends Command
                 $locations = $matchingOrganism['locations'] ?? [];
                 foreach ($locations as $loc) {
                     $geoLocationId = null;
-                    if (!empty($loc['name'])) {
+                    if (! empty($loc['name'])) {
                         $geoLocationId = $this->findOrCreateGeoLocation($loc['name'], $dryRun);
                     }
 
@@ -333,6 +342,7 @@ class ImportOrganismMetadata extends Command
         if ($dryRun) {
             $action = $existing ? 'UPDATE' : 'INSERT';
             Log::info("[DRY-RUN] Would {$action} molecule_organism for molecule={$moleculeId}, organism={$organismId}");
+
             return;
         }
 
@@ -484,13 +494,14 @@ class ImportOrganismMetadata extends Command
     {
         $ids = [];
         foreach ($dois as $doi) {
-            if (!empty($doi)) {
+            if (! empty($doi)) {
                 $id = $this->findOrCreateCitation($doi, $dryRun);
                 if ($id) {
                     $ids[] = $id;
                 }
             }
         }
+
         return array_values(array_unique($ids));
     }
 
@@ -498,13 +509,14 @@ class ImportOrganismMetadata extends Command
     {
         $ids = [];
         foreach ($parts as $part) {
-            if (!empty($part)) {
+            if (! empty($part)) {
                 $id = $this->findOrCreateSampleLocation($part, $dryRun);
                 if ($id) {
                     $ids[] = $id;
                 }
             }
         }
+
         return array_values(array_unique($ids));
     }
 
@@ -512,13 +524,14 @@ class ImportOrganismMetadata extends Command
     {
         $ids = [];
         foreach ($locations as $location) {
-            if (!empty($location)) {
+            if (! empty($location)) {
                 $id = $this->findOrCreateGeoLocation($location, $dryRun);
                 if ($id) {
                     $ids[] = $id;
                 }
             }
         }
+
         return array_values(array_unique($ids));
     }
 
@@ -526,13 +539,14 @@ class ImportOrganismMetadata extends Command
     {
         $ids = [];
         foreach ($ecosystems as $ecosystem) {
-            if (!empty($ecosystem)) {
+            if (! empty($ecosystem)) {
                 $id = $this->findOrCreateEcosystem($ecosystem, $dryRun);
                 if ($id) {
                     $ids[] = $id;
                 }
             }
         }
+
         return array_values(array_unique($ids));
     }
 
@@ -559,11 +573,13 @@ class ImportOrganismMetadata extends Command
         $existing = DB::selectOne('SELECT id FROM citations WHERE doi = ?', [$doi]);
         if ($existing) {
             $this->citationCache[$doi] = $existing->id;
+
             return $existing->id;
         }
 
         if ($dryRun) {
             Log::info("[DRY-RUN] Would create citation for DOI: {$doi}");
+
             return null;
         }
 
@@ -574,12 +590,14 @@ class ImportOrganismMetadata extends Command
                 'updated_at' => now(),
             ]);
             $this->citationCache[$doi] = $id;
+
             return $id;
         } catch (QueryException $e) {
             usleep(50000);
             $existing = DB::selectOne('SELECT id FROM citations WHERE doi = ?', [$doi]);
             if ($existing) {
                 $this->citationCache[$doi] = $existing->id;
+
                 return $existing->id;
             }
             throw $e;
@@ -599,11 +617,13 @@ class ImportOrganismMetadata extends Command
         $existing = DB::selectOne('SELECT id FROM organisms WHERE name = ?', [$name]);
         if ($existing) {
             $this->organismCache[$name] = $existing->id;
+
             return $existing->id;
         }
 
         if ($dryRun) {
             Log::info("[DRY-RUN] Would create organism: {$name}");
+
             return null;
         }
 
@@ -615,12 +635,14 @@ class ImportOrganismMetadata extends Command
                 'updated_at' => now(),
             ]);
             $this->organismCache[$name] = $id;
+
             return $id;
         } catch (QueryException $e) {
             usleep(50000);
             $existing = DB::selectOne('SELECT id FROM organisms WHERE name = ?', [$name]);
             if ($existing) {
                 $this->organismCache[$name] = $existing->id;
+
                 return $existing->id;
             }
             throw $e;
@@ -642,11 +664,13 @@ class ImportOrganismMetadata extends Command
         $existing = DB::selectOne('SELECT id FROM sample_locations WHERE name = ?', [$name]);
         if ($existing) {
             $this->sampleLocationCache[$name] = $existing->id;
+
             return $existing->id;
         }
 
         if ($dryRun) {
             Log::info("[DRY-RUN] Would create sample_location: {$name}");
+
             return null;
         }
 
@@ -658,12 +682,14 @@ class ImportOrganismMetadata extends Command
                 'updated_at' => now(),
             ]);
             $this->sampleLocationCache[$name] = $id;
+
             return $id;
         } catch (QueryException $e) {
             usleep(50000);
             $existing = DB::selectOne('SELECT id FROM sample_locations WHERE name = ?', [$name]);
             if ($existing) {
                 $this->sampleLocationCache[$name] = $existing->id;
+
                 return $existing->id;
             }
             throw $e;
@@ -683,11 +709,13 @@ class ImportOrganismMetadata extends Command
         $existing = DB::selectOne('SELECT id FROM geo_locations WHERE name = ?', [$name]);
         if ($existing) {
             $this->geoLocationCache[$name] = $existing->id;
+
             return $existing->id;
         }
 
         if ($dryRun) {
             Log::info("[DRY-RUN] Would create geo_location: {$name}");
+
             return null;
         }
 
@@ -698,12 +726,14 @@ class ImportOrganismMetadata extends Command
                 'updated_at' => now(),
             ]);
             $this->geoLocationCache[$name] = $id;
+
             return $id;
         } catch (QueryException $e) {
             usleep(50000);
             $existing = DB::selectOne('SELECT id FROM geo_locations WHERE name = ?', [$name]);
             if ($existing) {
                 $this->geoLocationCache[$name] = $existing->id;
+
                 return $existing->id;
             }
             throw $e;
@@ -723,11 +753,13 @@ class ImportOrganismMetadata extends Command
         $existing = DB::selectOne('SELECT id FROM ecosystems WHERE name = ?', [$name]);
         if ($existing) {
             $this->ecosystemCache[$name] = $existing->id;
+
             return $existing->id;
         }
 
         if ($dryRun) {
             Log::info("[DRY-RUN] Would create ecosystem: {$name}");
+
             return null;
         }
 
@@ -739,12 +771,14 @@ class ImportOrganismMetadata extends Command
                 'updated_at' => now(),
             ]);
             $this->ecosystemCache[$name] = $id;
+
             return $id;
         } catch (QueryException $e) {
             usleep(50000);
             $existing = DB::selectOne('SELECT id FROM ecosystems WHERE name = ?', [$name]);
             if ($existing) {
                 $this->ecosystemCache[$name] = $existing->id;
+
                 return $existing->id;
             }
             throw $e;
@@ -764,6 +798,7 @@ class ImportOrganismMetadata extends Command
         if (preg_match($pattern, $input, $matches)) {
             return $matches[1];
         }
+
         return '';
     }
 
@@ -785,13 +820,13 @@ class ImportOrganismMetadata extends Command
         }
 
         $this->auditRecords[] = [
-            'auditable_type' => 'App\\Models\\' . Str::studly(Str::singular($table)),
+            'auditable_type' => 'App\\Models\\'.Str::studly(Str::singular($table)),
             'auditable_id' => $recordId,
             'user_type' => 'App\\Models\\User',
             'user_id' => 11, // COCONUT curator user ID
             'event' => $event,
-            'old_values' => json_encode(array_map(fn($change) => $change['old'], $changes)),
-            'new_values' => json_encode(array_map(fn($change) => $change['new'], $changes)),
+            'old_values' => json_encode(array_map(fn ($change) => $change['old'], $changes)),
+            'new_values' => json_encode(array_map(fn ($change) => $change['new'], $changes)),
             'url' => null,
             'ip_address' => null,
             'user_agent' => 'ImportOrganismMetadata Command',
@@ -815,9 +850,9 @@ class ImportOrganismMetadata extends Command
             foreach ($chunks as $chunk) {
                 DB::table('audits')->insert($chunk);
             }
-            $this->info("Inserted " . count($this->auditRecords) . " audit records.");
+            $this->info('Inserted '.count($this->auditRecords).' audit records.');
         } catch (\Exception $e) {
-            Log::error('Failed to insert audit records: ' . $e->getMessage());
+            Log::error('Failed to insert audit records: '.$e->getMessage());
         }
     }
 }
