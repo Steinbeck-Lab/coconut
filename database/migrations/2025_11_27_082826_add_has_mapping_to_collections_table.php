@@ -16,7 +16,7 @@ return new class extends Migration
             $table->boolean('has_mapping')->default(false)->nullable();
         });
 
-        DB::table('collections')->whereIn('id', [5, 7, 20, 21, 23, 27, 30, 31, 33, 34, 39, 40, 43, 48, 53, 55, 56, 57, 59, 60, 62, 64, 65, 66, 67, 68, 69, 70])->update(['has_mapping' => true]);
+        DB::table('collections')->where('id', '>', 63)->update(['has_mapping' => true]);
     }
 
     /**
