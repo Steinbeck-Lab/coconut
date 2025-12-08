@@ -178,6 +178,27 @@ class ImportOrganismMetadata extends Command
                 $dryRun
             );
         }
+
+        // Process geo_location_molecule pivot table for this entry
+        if (! empty($flatGeoLocations)) {
+            $this->processGeoLocationMolecule(
+                $entry->molecule_id,
+                $flatGeoLocations,
+                $flatEcosystems,
+                $dryRun
+            );
+        }
+
+        // Process citables (molecule-citation link) for this entry
+        if (! empty($flatDois)) {
+            $this->processCitables(
+                $entry->molecule_id,
+                $entry->collection_id,
+                $flatDois,
+                $dryRun
+            );
+        }
+
         // After processing, set entry status to IMPORTED unless dry-run
         if (! $dryRun) {
             DB::table('entries')->where('id', $entry->id)->update(['status' => 'IMPORTED']);
@@ -412,6 +433,156 @@ class ImportOrganismMetadata extends Command
                     $this->upsertMoleculeOrganism($moleculeId, $organismId, $collectionId, $newMetadata, $dryRun);
                 } else {
                     throw $e;
+                }
+            }
+        }
+    }
+
+    /**
+     * Process and insert geo_location_molecule pivot records.
+     */
+    protected function processGeoLocationMolecule(
+        int $moleculeId,
+        array $flatGeoLocations,
+        array $flatEcosystems,
+        bool $dryRun
+    ): void {
+        foreach ($flatGeoLocations as $geoLocationName) {
+            if (empty($geoLocationName)) {
+                continue;
+            }
+
+            $geoLocationId = $this->findOrCreateGeoLocation($geoLocationName, $dryRun);
+            if (!$geoLocationId) {
+                continue;
+            }
+
+            // Prepare locations field (ecosystems as comma-separated string)
+            $locationsText = !empty($flatEcosystems) ? implode(', ', array_filter($flatEcosystems)) : null;
+
+            // Check if record exists
+            $existing = DB::selectOne(
+                'SELECT * FROM geo_location_molecule WHERE molecule_id = ? AND geo_location_id = ?',
+                [$moleculeId, $geoLocationId]
+            );
+
+            if ($dryRun) {
+                $action = $existing ? 'UPDATE' : 'INSERT';
+                Log::info("[DRY-RUN] Would {$action} geo_location_molecule for molecule={$moleculeId}, geo_location={$geoLocationId}");
+                return;
+            }
+
+            if ($existing) {
+                // Update locations if different
+                if ($existing->locations !== $locationsText) {
+                    DB::table('geo_location_molecule')
+                        ->where('id', $existing->id)
+                        ->update([
+                            'locations' => $locationsText,
+                            'updated_at' => now(),
+                        ]);
+                }
+            } else {
+                // Insert new record
+                try {
+                    DB::table('geo_location_molecule')->insert([
+                        'molecule_id' => $moleculeId,
+                        'geo_location_id' => $geoLocationId,
+                        'locations' => $locationsText,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                } catch (QueryException $e) {
+                    // Handle race condition
+                    usleep(50000);
+                    $existing = DB::selectOne(
+                        'SELECT * FROM geo_location_molecule WHERE molecule_id = ? AND geo_location_id = ?',
+                        [$moleculeId, $geoLocationId]
+                    );
+                    if (!$existing) {
+                        throw $e;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Process and insert citables records (molecule-citation and collection-citation links).
+     */
+    protected function processCitables(
+        int $moleculeId,
+        int $collectionId,
+        array $flatDois,
+        bool $dryRun
+    ): void {
+        foreach ($flatDois as $doi) {
+            if (empty($doi)) {
+                continue;
+            }
+
+            $citationId = $this->findOrCreateCitation($doi, $dryRun);
+            if (!$citationId) {
+                continue;
+            }
+
+            // Link citation to molecule
+            $existingMolecule = DB::selectOne(
+                'SELECT * FROM citables WHERE citation_id = ? AND citable_id = ? AND citable_type = ?',
+                [$citationId, $moleculeId, 'App\\Models\\Molecule']
+            );
+
+            if ($dryRun) {
+                $action = $existingMolecule ? 'SKIP' : 'INSERT';
+                Log::info("[DRY-RUN] Would {$action} citables for molecule={$moleculeId}, citation={$citationId}");
+            } elseif (!$existingMolecule) {
+                // Insert molecule-citation record
+                try {
+                    DB::table('citables')->insert([
+                        'citation_id' => $citationId,
+                        'citable_id' => $moleculeId,
+                        'citable_type' => 'App\\Models\\Molecule',
+                    ]);
+                } catch (QueryException $e) {
+                    // Handle race condition or unique constraint violation
+                    usleep(50000);
+                    $existingMolecule = DB::selectOne(
+                        'SELECT * FROM citables WHERE citation_id = ? AND citable_id = ? AND citable_type = ?',
+                        [$citationId, $moleculeId, 'App\\Models\\Molecule']
+                    );
+                    if (!$existingMolecule) {
+                        Log::warning("Failed to insert citables for molecule={$moleculeId}, citation={$citationId}: " . $e->getMessage());
+                    }
+                }
+            }
+
+            // Link citation to collection
+            $existingCollection = DB::selectOne(
+                'SELECT * FROM citables WHERE citation_id = ? AND citable_id = ? AND citable_type = ?',
+                [$citationId, $collectionId, 'App\\Models\\Collection']
+            );
+
+            if ($dryRun) {
+                $action = $existingCollection ? 'SKIP' : 'INSERT';
+                Log::info("[DRY-RUN] Would {$action} citables for collection={$collectionId}, citation={$citationId}");
+            } elseif (!$existingCollection) {
+                // Insert collection-citation record
+                try {
+                    DB::table('citables')->insert([
+                        'citation_id' => $citationId,
+                        'citable_id' => $collectionId,
+                        'citable_type' => 'App\\Models\\Collection',
+                    ]);
+                } catch (QueryException $e) {
+                    // Handle race condition or unique constraint violation
+                    usleep(50000);
+                    $existingCollection = DB::selectOne(
+                        'SELECT * FROM citables WHERE citation_id = ? AND citable_id = ? AND citable_type = ?',
+                        [$citationId, $collectionId, 'App\\Models\\Collection']
+                    );
+                    if (!$existingCollection) {
+                        Log::warning("Failed to insert citables for collection={$collectionId}, citation={$citationId}: " . $e->getMessage());
+                    }
                 }
             }
         }
