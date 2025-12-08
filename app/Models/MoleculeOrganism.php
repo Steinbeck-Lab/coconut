@@ -30,6 +30,7 @@ class MoleculeOrganism extends Model implements Auditable
         'ecosystem_id',
         'collection_ids',
         'citation_ids',
+        'metadata',
     ];
 
     /**
@@ -40,6 +41,7 @@ class MoleculeOrganism extends Model implements Auditable
     protected $casts = [
         'collection_ids' => 'array',
         'citation_ids' => 'array',
+        'metadata' => 'array',
     ];
 
     /**
