@@ -54,7 +54,7 @@ WITH molecule_properties AS (
 molecule_organisms AS (
     SELECT 
         m.id,
-        STRING_AGG(o.name, '|' ORDER BY o.name) AS organisms
+        STRING_AGG(DISTINCT o.name, '|' ORDER BY o.name) AS organisms
     FROM 
         molecules m
     INNER JOIN 
