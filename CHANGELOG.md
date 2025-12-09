@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.1.1](https://github.com/Steinbeck-Lab/coconut/compare/v1.1.0...v1.1.1) (2025-12-09)
+
+
+### Bug Fixes
+
+* allowed unpkg sources in scripts and connect directives. ([1d361f6](https://github.com/Steinbeck-Lab/coconut/commit/1d361f6c69858f62c49f60ac7f87dfc7bafde534))
+* corrected the mismatched array key. ([#702](https://github.com/Steinbeck-Lab/coconut/issues/702)) ([67c681f](https://github.com/Steinbeck-Lab/coconut/commit/67c681f800739ceecbca748a4876139cecf8c3f0))
+* display the navigation menu items only if the user is logged in. ([#707](https://github.com/Steinbeck-Lab/coconut/issues/707)) ([a1caf1e](https://github.com/Steinbeck-Lab/coconut/commit/a1caf1e021fbb23a9dfc8a9596624f2f6356ac94))
+* overriding the default view to add nonce ([4327e90](https://github.com/Steinbeck-Lab/coconut/commit/4327e90e2940e6ba1c45a68b66890d03a9fbd6a6))
+* overriding the default view to add nonce. ([4327e90](https://github.com/Steinbeck-Lab/coconut/commit/4327e90e2940e6ba1c45a68b66890d03a9fbd6a6))
+* overriding the default view to add nonce. ([24b628e](https://github.com/Steinbeck-Lab/coconut/commit/24b628ea5bbc300cee53b02b2f7e1e0fd9a0f34d))
+* replace dev matomo script with production version ([ba31846](https://github.com/Steinbeck-Lab/coconut/commit/ba31846dd715b08f11e206a903b97c0558cee2f4))
+
+
+### Miscellaneous Chores
+
+* **main:** release 1.0.0 ([a5fb309](https://github.com/Steinbeck-Lab/coconut/commit/a5fb30919d214c90ea4bd7242b2afb9fd687f794))
+* **main:** release 1.1.0 ([5c8bd03](https://github.com/Steinbeck-Lab/coconut/commit/5c8bd034a651b1d5e4d712998bbca2a4f6c229e2))
+
 ## 1.0.0 (2025-11-27)
 
 
