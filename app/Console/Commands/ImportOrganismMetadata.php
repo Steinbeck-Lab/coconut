@@ -67,7 +67,6 @@ class ImportOrganismMetadata extends Command
                         $this->processEntry($entry);
                     });
                     $successCount++;
-                    Log::info("\nProcessed entry ID: {$entry->id}");
                 } catch (\Exception $e) {
                     $failedCount++;
                     Log::error("Failed to process entry {$entry->id}: ".$e->getMessage());
@@ -83,8 +82,6 @@ class ImportOrganismMetadata extends Command
             $this->insertAuditRecords();
         }
 
-        Log::info("Completed: {$successCount} successful, {$failedCount} failed.");
-
         return self::SUCCESS;
     }
 
@@ -94,7 +91,6 @@ class ImportOrganismMetadata extends Command
     protected function processEntry(object $entry): void
     {
         $metaData = json_decode($entry->meta_data, true);
-        Log::info("Processing entry ID: {$entry->id}");
         if (! $metaData || ! isset($metaData['new_molecule_data'])) {
             Log::warning("Entry {$entry->id} has no valid meta_data. Skipping.");
 
@@ -112,11 +108,6 @@ class ImportOrganismMetadata extends Command
         $flatGeoLocations = $nmd['geo_locations'] ?? [];
         $flatEcosystems = $nmd['ecosystems'] ?? [];
 
-        Log::info('Organisms to process: '.json_encode($flatOrganisms));
-        Log::info('References: '.json_encode($references));
-        Log::info('Parts: '.json_encode($flatParts));
-        Log::info('Geo Locations: '.json_encode($flatGeoLocations));
-        Log::info('Ecosystems: '.json_encode($flatEcosystems));
         // Process each organism from the references or flat arrays
         $organismsToProcess = $this->extractOrganismsFromReferences($references, $flatOrganisms);
 
@@ -151,8 +142,6 @@ class ImportOrganismMetadata extends Command
                 $flatGeoLocations,
                 $flatEcosystems
             );
-
-            Log::info("Upserting molecule_organism for molecule_id={$entry->molecule_id}, organism_id={$organismId}");
 
             // Update or insert molecule_organism record
             $this->upsertMoleculeOrganism(
