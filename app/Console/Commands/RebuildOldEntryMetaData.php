@@ -9,34 +9,51 @@ use Illuminate\Support\Facades\DB;
 
 class RebuildOldEntryMetaData extends Command
 {
-    protected $signature = 'coconut:rebuild-meta-data';
+    protected $signature = 'coconut:rebuild-meta-data {collection? : Optional collection ID to scope the rebuild}';
 
     protected $description = 'Rebuild meta_data JSON for entries based on existing flat columns (doi, organism, locations, etc).';
 
     public function handle(): int
     {
         $chunkSize = 10000;
+        $collectionId = $this->argument('collection');
+
+        if ($collectionId) {
+            $this->info("Scoping to collection ID: {$collectionId}");
+        }
 
         // Replace '|' with ',' in geo_location for collection 40
-        $this->info('Replacing "|" with "," in geo_location for collection 40...');
-        Entry::where('collection_id', 40)
-            ->whereNotNull('geo_location')
-            ->update(['geo_location' => DB::raw("REPLACE(geo_location, '|', ',')")]);
+        if (!$collectionId || $collectionId == 40) {
+            $this->info('Replacing "|" with "," in geo_location for collection 40...');
+            Entry::where('collection_id', 40)
+                ->whereNotNull('geo_location')
+                ->update(['geo_location' => DB::raw("REPLACE(geo_location, '|', ',')")]);
+        }
 
         // Replace '|' with '##' in geo_location for collection 62
-        $this->info('Replacing "|" with "##" in geo_location for collection 62...');
-        Entry::where('collection_id', 62)
-            ->whereNotNull('geo_location')
-            ->update(['geo_location' => DB::raw("REPLACE(geo_location, '|', '##')")]);
+        if (!$collectionId || $collectionId == 62) {
+            $this->info('Replacing "|" with "##" in geo_location for collection 62...');
+            Entry::where('collection_id', 62)
+                ->whereNotNull('geo_location')
+                ->update(['geo_location' => DB::raw("REPLACE(geo_location, '|', '##')")]);
+        }
 
         // Replace '|' with '##' in organism, doi, and link columns for all entries
         $this->info('Replacing "|" with "##" in organism, doi, and link columns...');
 
         $affected = 0;
-        Entry::where('organism', 'like', '%|%')
-            ->orWhere('doi', 'like', '%|%')
-            ->orWhere('link', 'like', '%|%')
-            ->chunkById($chunkSize, function ($entries) use (&$affected) {
+        $replacementQuery = Entry::query()
+            ->where(function ($q) {
+                $q->where('organism', 'like', '%|%')
+                    ->orWhere('doi', 'like', '%|%')
+                    ->orWhere('link', 'like', '%|%');
+            });
+
+        if ($collectionId) {
+            $replacementQuery->where('collection_id', $collectionId);
+        }
+
+        $replacementQuery->chunkById($chunkSize, function ($entries) use (&$affected) {
                 foreach ($entries as $entry) {
                     $updated = false;
                     if ($entry->organism && str_contains($entry->organism, '|')) {
@@ -59,7 +76,11 @@ class RebuildOldEntryMetaData extends Command
             });
         $this->info("Done. Updated {$affected} entries.");
 
-        $query = Entry::where('collection_id', '=', 69);
+        $query = Entry::query();
+        
+        if ($collectionId) {
+            $query->where('collection_id', $collectionId);
+        }
 
         $total = $query->count();
 
