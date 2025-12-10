@@ -68,12 +68,7 @@ class ImportOrganismMetadata extends Command
                         $this->processEntry($entry);
                     });
                     $successCount++;
-                    $this->line("\nProcessed entry ID: {$entry->id}");
-                    // $confirm = $this->ask('Continue to next entry? (y/n)', 'y');
-                    // if (strtolower($confirm) !== 'y') {
-                    //     $this->info('Aborting as per user request.');
-                    //     exit(0);
-                    // }
+                    Log::info("\nProcessed entry ID: {$entry->id}");
                 } catch (\Exception $e) {
                     $failedCount++;
                     Log::error("Failed to process entry {$entry->id}: ".$e->getMessage());
@@ -83,14 +78,13 @@ class ImportOrganismMetadata extends Command
         });
 
         $bar->finish();
-        $this->newLine(2);
 
         // Insert audit records
         if (! empty($this->auditRecords)) {
             $this->insertAuditRecords();
         }
 
-        $this->info("Completed: {$successCount} successful, {$failedCount} failed.");
+        Log::info("Completed: {$successCount} successful, {$failedCount} failed.");
 
         return self::SUCCESS;
     }
@@ -101,9 +95,9 @@ class ImportOrganismMetadata extends Command
     protected function processEntry(object $entry): void
     {
         $metaData = json_decode($entry->meta_data, true);
-        $this->line("Processing entry ID: {$entry->id}");
+        Log::info("Processing entry ID: {$entry->id}");
         if (! $metaData || ! isset($metaData['new_molecule_data'])) {
-            $this->warn("Entry {$entry->id} has no valid meta_data. Skipping.");
+            Log::warning("Entry {$entry->id} has no valid meta_data. Skipping.");
 
             return;
         }
@@ -119,31 +113,30 @@ class ImportOrganismMetadata extends Command
         $flatGeoLocations = $nmd['geo_locations'] ?? [];
         $flatEcosystems = $nmd['ecosystems'] ?? [];
 
-        $this->line('Organisms to process: '.json_encode($flatOrganisms));
-        $this->line('References: '.json_encode($references));
-        $this->line('Parts: '.json_encode($flatParts));
-        $this->line('Geo Locations: '.json_encode($flatGeoLocations));
-        $this->line('Ecosystems: '.json_encode($flatEcosystems));
-
+        Log::info('Organisms to process: '.json_encode($flatOrganisms));
+        Log::info('References: '.json_encode($references));
+        Log::info('Parts: '.json_encode($flatParts));
+        Log::info('Geo Locations: '.json_encode($flatGeoLocations));
+        Log::info('Ecosystems: '.json_encode($flatEcosystems));
         // Process each organism from the references or flat arrays
         $organismsToProcess = $this->extractOrganismsFromReferences($references, $flatOrganisms);
 
         if (empty($organismsToProcess)) {
-            $this->warn("No organisms found for entry {$entry->id}. Skipping.");
+            Log::warning("No organisms found for entry {$entry->id}. Skipping.");
 
             return;
         }
 
         foreach ($organismsToProcess as $organismName) {
             if (empty($organismName)) {
-                $this->warn("Empty organism name for entry {$entry->id}. Skipping.");
+                Log::warning("Empty organism name for entry {$entry->id}. Skipping.");
 
                 continue;
             }
 
             $organismId = $this->findOrCreateOrganism($organismName);
             if (! $organismId) {
-                $this->warn("Could not find or create organism '{$organismName}' for entry {$entry->id}. Skipping.");
+                Log::warning("Could not find or create organism '{$organismName}' for entry {$entry->id}. Skipping.");
 
                 continue;
             }
@@ -160,7 +153,7 @@ class ImportOrganismMetadata extends Command
                 $flatEcosystems
             );
 
-            $this->line("Upserting molecule_organism for molecule_id={$entry->molecule_id}, organism_id={$organismId}");
+            Log::info("Upserting molecule_organism for molecule_id={$entry->molecule_id}, organism_id={$organismId}");
 
             // Update or insert molecule_organism record
             $this->upsertMoleculeOrganism(
@@ -188,6 +181,16 @@ class ImportOrganismMetadata extends Command
                 $flatDois
             );
         }
+
+        // Link molecule to collection
+        $this->linkMoleculeToCollection(
+            $entry->molecule_id,
+            $entry->collection_id,
+            $nmd['link'] ?? null,
+            $nmd['reference_id'] ?? null,
+            $nmd['mol_filename'] ?? null,
+            $nmd['structural_comments'] ?? null
+        );
 
         // After processing, set entry status to IMPORTED
         DB::table('entries')->where('id', $entry->id)->update(['status' => 'IMPORTED']);
@@ -236,21 +239,21 @@ class ImportOrganismMetadata extends Command
     ): array {
         $collectionEntry = [
             'id' => $entry->collection_id,
-            'mapping_status' => $mappingStatus,
-            'references' => [],
+            'map' => $mappingStatus,
+            'refs' => [],
         ];
 
         if ($mappingStatus === 'ambiguous') {
             // For ambiguous, put everything in unresolved
-            $collectionEntry['unresolved'] = [
-                'citation_ids' => $this->resolveCitationIds($flatDois),
-                'sample_location_ids' => $this->resolveSampleLocationIds($flatParts),
-                'geo_location_ids' => $this->resolveGeoLocationIds($flatGeoLocations),
-                'ecosystem_ids' => $this->resolveEcosystemIds($flatEcosystems),
+            $collectionEntry['unres'] = [
+                'cit_ids' => $this->resolveCitationIds($flatDois),
+                'smp_ids' => $this->resolveSampleLocationIds($flatParts),
+                'geo_ids' => $this->resolveGeoLocationIds($flatGeoLocations),
+                'eco_ids' => $this->resolveEcosystemIds($flatEcosystems),
             ];
         } else {
             // For full/inferred, build structured references
-            $collectionEntry['references'] = $this->buildStructuredReferences(
+            $collectionEntry['refs'] = $this->buildStructuredReferences(
                 $references,
                 $organismName
             );
@@ -258,12 +261,12 @@ class ImportOrganismMetadata extends Command
 
         // Build the complete metadata structure
         $metadata = [
-            'collections' => [$collectionEntry],
-            'citation_ids' => $this->resolveCitationIds($flatDois),
-            'collection_ids' => [$entry->collection_id],
-            'sample_location_ids' => $this->resolveSampleLocationIds($flatParts),
-            'geo_location_ids' => $this->resolveGeoLocationIds($flatGeoLocations),
-            'ecosystem_ids' => $this->resolveEcosystemIds($flatEcosystems),
+            'cols' => [$collectionEntry],
+            'cit_ids' => $this->resolveCitationIds($flatDois),
+            'col_ids' => [$entry->collection_id],
+            'smp_ids' => $this->resolveSampleLocationIds($flatParts),
+            'geo_ids' => $this->resolveGeoLocationIds($flatGeoLocations),
+            'eco_ids' => $this->resolveEcosystemIds($flatEcosystems),
         ];
 
         return $metadata;
@@ -296,15 +299,15 @@ class ImportOrganismMetadata extends Command
             $citationId = $this->findOrCreateCitation($doi);
 
             $refEntry = [
-                'citation_id' => $citationId,
-                'sample_location_ids' => [],
-                'locations' => [],
+                'cit_id' => $citationId,
+                'smp_ids' => [],
+                'locs' => [],
             ];
 
             if ($matchingOrganism) {
                 // Get sample location IDs from parts
                 $parts = $matchingOrganism['parts'] ?? [];
-                $refEntry['sample_location_ids'] = $this->resolveSampleLocationIds($parts);
+                $refEntry['smp_ids'] = $this->resolveSampleLocationIds($parts);
 
                 // Get locations with geo_location and ecosystems
                 $locations = $matchingOrganism['locations'] ?? [];
@@ -317,9 +320,9 @@ class ImportOrganismMetadata extends Command
                     $ecosystems = $loc['ecosystems'] ?? [];
                     $ecosystemIds = $this->resolveEcosystemIds($ecosystems);
 
-                    $refEntry['locations'][] = [
-                        'geo_location_id' => $geoLocationId,
-                        'ecosystem_ids' => $ecosystemIds,
+                    $refEntry['locs'][] = [
+                        'geo_id' => $geoLocationId,
+                        'eco_ids' => $ecosystemIds,
                     ];
                 }
             }
@@ -355,7 +358,7 @@ class ImportOrganismMetadata extends Command
             $existingCitationIds = json_decode($existing->citation_ids ?? '[]', true);
 
             $mergedCollectionIds = array_values(array_unique(array_merge($existingCollectionIds, [$collectionId])));
-            $mergedCitationIds = array_values(array_unique(array_merge($existingCitationIds, $newMetadata['citation_ids'] ?? [])));
+            $mergedCitationIds = array_values(array_unique(array_merge($existingCitationIds, $newMetadata['cit_ids'] ?? [])));
 
             $oldValues = [
                 'metadata' => $existing->metadata,
@@ -553,41 +556,113 @@ class ImportOrganismMetadata extends Command
     }
 
     /**
+     * Link molecule to collection in the collection_molecule pivot table.
+     */
+    protected function linkMoleculeToCollection(
+        int $moleculeId,
+        int $collectionId,
+        ?string $url,
+        ?string $reference,
+        ?string $molFilename,
+        ?string $structuralComments
+    ): void {
+        // Check if record exists
+        $existing = DB::selectOne(
+            'SELECT * FROM collection_molecule WHERE collection_id = ? AND molecule_id = ?',
+            [$collectionId, $moleculeId]
+        );
+
+        if ($existing) {
+            // Update if any fields have changed
+            $needsUpdate = false;
+            $updates = [];
+
+            if ($existing->url !== $url) {
+                $updates['url'] = $url;
+                $needsUpdate = true;
+            }
+            if ($existing->reference !== $reference) {
+                $updates['reference'] = $reference;
+                $needsUpdate = true;
+            }
+            if ($existing->mol_filename !== $molFilename) {
+                $updates['mol_filename'] = $molFilename;
+                $needsUpdate = true;
+            }
+            if ($existing->structural_comments !== $structuralComments) {
+                $updates['structural_comments'] = $structuralComments;
+                $needsUpdate = true;
+            }
+
+            if ($needsUpdate) {
+                $updates['updated_at'] = now();
+                DB::table('collection_molecule')
+                    ->where('id', $existing->id)
+                    ->update($updates);
+            }
+        } else {
+            // Insert new record
+            try {
+                DB::table('collection_molecule')->insert([
+                    'collection_id' => $collectionId,
+                    'molecule_id' => $moleculeId,
+                    'url' => $url,
+                    'reference' => $reference,
+                    'mol_filename' => $molFilename,
+                    'structural_comments' => $structuralComments,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } catch (QueryException $e) {
+                // Handle race condition
+                usleep(50000);
+                $existing = DB::selectOne(
+                    'SELECT * FROM collection_molecule WHERE collection_id = ? AND molecule_id = ?',
+                    [$collectionId, $moleculeId]
+                );
+                if (! $existing) {
+                    Log::warning("Failed to insert collection_molecule for collection={$collectionId}, molecule={$moleculeId}: ".$e->getMessage());
+                }
+            }
+        }
+    }
+
+    /**
      * Merge two metadata structures, combining collections arrays.
      */
     protected function mergeMetadata(array $existing, array $new): array
     {
         // Merge collections by collection ID
         $collectionsById = [];
-        foreach (($existing['collections'] ?? []) as $col) {
+        foreach (($existing['cols'] ?? []) as $col) {
             $collectionsById[$col['id']] = $col;
         }
-        foreach (($new['collections'] ?? []) as $col) {
+        foreach (($new['cols'] ?? []) as $col) {
             if (isset($collectionsById[$col['id']])) {
                 // Merge references for same collection
-                $collectionsById[$col['id']]['references'] = array_merge(
-                    $collectionsById[$col['id']]['references'] ?? [],
-                    $col['references'] ?? []
+                $collectionsById[$col['id']]['refs'] = array_merge(
+                    $collectionsById[$col['id']]['refs'] ?? [],
+                    $col['refs'] ?? []
                 );
                 // Merge unresolved if present
-                if (isset($col['unresolved'])) {
-                    $existingUnresolved = $collectionsById[$col['id']]['unresolved'] ?? [];
-                    $collectionsById[$col['id']]['unresolved'] = [
-                        'citation_ids' => array_values(array_unique(array_merge(
-                            $existingUnresolved['citation_ids'] ?? [],
-                            $col['unresolved']['citation_ids'] ?? []
+                if (isset($col['unres'])) {
+                    $existingUnresolved = $collectionsById[$col['id']]['unres'] ?? [];
+                    $collectionsById[$col['id']]['unres'] = [
+                        'cit_ids' => array_values(array_unique(array_merge(
+                            $existingUnresolved['cit_ids'] ?? [],
+                            $col['unres']['cit_ids'] ?? []
                         ))),
-                        'sample_location_ids' => array_values(array_unique(array_merge(
-                            $existingUnresolved['sample_location_ids'] ?? [],
-                            $col['unresolved']['sample_location_ids'] ?? []
+                        'smp_ids' => array_values(array_unique(array_merge(
+                            $existingUnresolved['smp_ids'] ?? [],
+                            $col['unres']['smp_ids'] ?? []
                         ))),
-                        'geo_location_ids' => array_values(array_unique(array_merge(
-                            $existingUnresolved['geo_location_ids'] ?? [],
-                            $col['unresolved']['geo_location_ids'] ?? []
+                        'geo_ids' => array_values(array_unique(array_merge(
+                            $existingUnresolved['geo_ids'] ?? [],
+                            $col['unres']['geo_ids'] ?? []
                         ))),
-                        'ecosystem_ids' => array_values(array_unique(array_merge(
-                            $existingUnresolved['ecosystem_ids'] ?? [],
-                            $col['unresolved']['ecosystem_ids'] ?? []
+                        'eco_ids' => array_values(array_unique(array_merge(
+                            $existingUnresolved['eco_ids'] ?? [],
+                            $col['unres']['eco_ids'] ?? []
                         ))),
                     ];
                 }
@@ -597,26 +672,26 @@ class ImportOrganismMetadata extends Command
         }
 
         return [
-            'collections' => array_values($collectionsById),
-            'citation_ids' => array_values(array_unique(array_merge(
-                $existing['citation_ids'] ?? [],
-                $new['citation_ids'] ?? []
+            'cols' => array_values($collectionsById),
+            'cit_ids' => array_values(array_unique(array_merge(
+                $existing['cit_ids'] ?? [],
+                $new['cit_ids'] ?? []
             ))),
-            'collection_ids' => array_values(array_unique(array_merge(
-                $existing['collection_ids'] ?? [],
-                $new['collection_ids'] ?? []
+            'col_ids' => array_values(array_unique(array_merge(
+                $existing['col_ids'] ?? [],
+                $new['col_ids'] ?? []
             ))),
-            'sample_location_ids' => array_values(array_unique(array_merge(
-                $existing['sample_location_ids'] ?? [],
-                $new['sample_location_ids'] ?? []
+            'smp_ids' => array_values(array_unique(array_merge(
+                $existing['smp_ids'] ?? [],
+                $new['smp_ids'] ?? []
             ))),
-            'geo_location_ids' => array_values(array_unique(array_merge(
-                $existing['geo_location_ids'] ?? [],
-                $new['geo_location_ids'] ?? []
+            'geo_ids' => array_values(array_unique(array_merge(
+                $existing['geo_ids'] ?? [],
+                $new['geo_ids'] ?? []
             ))),
-            'ecosystem_ids' => array_values(array_unique(array_merge(
-                $existing['ecosystem_ids'] ?? [],
-                $new['ecosystem_ids'] ?? []
+            'eco_ids' => array_values(array_unique(array_merge(
+                $existing['eco_ids'] ?? [],
+                $new['eco_ids'] ?? []
             ))),
         ];
     }
