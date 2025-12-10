@@ -13,14 +13,6 @@ return new class extends Migration
     {
         Schema::table('molecule_organism', function (Blueprint $table) {
             $table->jsonb('metadata')->nullable()->after('citation_ids');
-            $table->dropColumn([
-                'organism_parts',
-                'sample_location_id',
-                'geo_location_id',
-                'ecosystem_id',
-            ]);
-            $table->dropUnique('unique_molecule_organism_complete');
-            $table->unique(['molecule_id', 'organism_id']);
         });
     }
 
@@ -31,12 +23,6 @@ return new class extends Migration
     {
         Schema::table('molecule_organism', function (Blueprint $table) {
             $table->dropColumn('metadata');
-            $table->string('organism_parts')->nullable();
-            $table->unsignedBigInteger('sample_location_id')->nullable();
-            $table->unsignedBigInteger('geo_location_id')->nullable();
-            $table->unsignedBigInteger('ecosystem_id')->nullable();
-            $table->dropUnique(['molecule_id', 'organism_id']);
-            $table->unique('unique_molecule_organism_complete');
         });
     }
 };
