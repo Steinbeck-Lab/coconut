@@ -11,8 +11,7 @@ use Illuminate\Support\Str;
 
 class ImportOrganismMetadata extends Command
 {
-    protected $signature = 'coconut:import-organism-metadata 
-                            {--collection= : Process only entries from this collection ID}';
+    protected $signature = 'coconut:import-organism-metadata {collection? : Process only entries from this collection ID}';
 
     protected $description = 'Import organism metadata from entries into molecule_organism table with structured JSON';
 
@@ -32,7 +31,7 @@ class ImportOrganismMetadata extends Command
 
     public function handle(): int
     {
-        $collectionId = $this->option('collection');
+        $collectionId = $this->argument('collection');
 
         // Build query for entries with molecule_id and meta_data
         $query = DB::table('entries')
