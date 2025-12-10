@@ -23,7 +23,7 @@ class RebuildOldEntryMetaData extends Command
         }
 
         // Replace '|' with ',' in geo_location for collection 40
-        if (!$collectionId || $collectionId == 40) {
+        if (! $collectionId || $collectionId == 40) {
             $this->info('Replacing "|" with "," in geo_location for collection 40...');
             Entry::where('collection_id', 40)
                 ->whereNotNull('geo_location')
@@ -31,7 +31,7 @@ class RebuildOldEntryMetaData extends Command
         }
 
         // Replace '|' with '##' in geo_location for collection 62
-        if (!$collectionId || $collectionId == 62) {
+        if (! $collectionId || $collectionId == 62) {
             $this->info('Replacing "|" with "##" in geo_location for collection 62...');
             Entry::where('collection_id', 62)
                 ->whereNotNull('geo_location')
@@ -54,30 +54,30 @@ class RebuildOldEntryMetaData extends Command
         }
 
         $replacementQuery->chunkById($chunkSize, function ($entries) use (&$affected) {
-                foreach ($entries as $entry) {
-                    $updated = false;
-                    if ($entry->organism && str_contains($entry->organism, '|')) {
-                        $entry->organism = str_replace('|', '##', $entry->organism);
-                        $updated = true;
-                    }
-                    if ($entry->doi && str_contains($entry->doi, '|')) {
-                        $entry->doi = str_replace('|', '##', $entry->doi);
-                        $updated = true;
-                    }
-                    if ($entry->link && str_contains($entry->link, '|')) {
-                        $entry->link = str_replace('|', '##', $entry->link);
-                        $updated = true;
-                    }
-                    if ($updated) {
-                        $entry->save();
-                        $affected++;
-                    }
+            foreach ($entries as $entry) {
+                $updated = false;
+                if ($entry->organism && str_contains($entry->organism, '|')) {
+                    $entry->organism = str_replace('|', '##', $entry->organism);
+                    $updated = true;
                 }
-            });
+                if ($entry->doi && str_contains($entry->doi, '|')) {
+                    $entry->doi = str_replace('|', '##', $entry->doi);
+                    $updated = true;
+                }
+                if ($entry->link && str_contains($entry->link, '|')) {
+                    $entry->link = str_replace('|', '##', $entry->link);
+                    $updated = true;
+                }
+                if ($updated) {
+                    $entry->save();
+                    $affected++;
+                }
+            }
+        });
         $this->info("Done. Updated {$affected} entries.");
 
         $query = Entry::query();
-        
+
         if ($collectionId) {
             $query->where('collection_id', $collectionId);
         }
