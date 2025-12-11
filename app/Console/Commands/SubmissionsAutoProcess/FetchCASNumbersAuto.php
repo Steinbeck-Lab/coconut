@@ -233,7 +233,7 @@ class FetchCASNumbersAuto extends Command
         if ($response === false) {
             $waitTime = RateLimiter::availableIn('common-chemistry-api');
             Log::warning("Common Chemistry API rate limited (wait: {$waitTime}s). Waiting and retrying request for: {$url}");
-            sleep($waitTime);
+            sleep((int) $waitTime);
             $response = $this->makeAPIRequest($url, $params);
         }
 

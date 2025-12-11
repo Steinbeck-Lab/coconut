@@ -6,6 +6,7 @@ use App\Models\Citation;
 use App\Models\GeoLocation;
 use App\Models\Molecule;
 use App\Models\Organism;
+use Exception;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -37,6 +38,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
     {
         if ($this->entry->status == 'PASSED') {
             $molecule = null;
+            $parent = null;
             if ($this->entry->has_stereocenters) {
                 $data = $this->getRepresentations('parent');
                 $parent = $this->firstOrCreateMolecule($data['canonical_smiles'], $data['standard_inchi']);
@@ -97,7 +99,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
             $geo_location = $this->entry->geo_location;
 
             if ($geo_location && $geo_location != '') {
-                $this->saveGeoLocationDetails($geo_location, $molecule, $this->entry->location);
+                $this->saveGeoLocationDetails($geo_location, $molecule);
             }
 
             if ($this->entry->doi && $this->entry->doi != '') {

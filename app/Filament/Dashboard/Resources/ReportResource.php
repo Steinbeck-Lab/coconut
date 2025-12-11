@@ -172,7 +172,7 @@ class ReportResource extends Resource
                                     $subject = $compoundId.': '.$record->title;
 
                                     // Build body with report details
-                                    $reportUrl = env('APP_URL').'/dashboard/reports/'.$record->id;
+                                    $reportUrl = config('app.url').'/dashboard/reports/'.$record->id;
                                     $body = "Hello {$userName},\n\n";
                                     $body .= "[Your message here]\n\n";
                                     $body .= "---\n";

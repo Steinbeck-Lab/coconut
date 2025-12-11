@@ -20,6 +20,7 @@ class LoginController extends Controller
 
         $user = User::where('email', $request['email'])->firstOrFail();
 
+        // @phpstan-ignore-next-line - User always implements MustVerifyEmail but check is needed
         if ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail()) {
             if (! $user->hasVerifiedEmail()) {
                 return response()->json([

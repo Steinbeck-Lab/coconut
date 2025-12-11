@@ -35,18 +35,18 @@ class ListMolecules extends ListRecords
             'active' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where('active', true))
                 ->favorite()
-                ->badge(Molecule::query()->where('active', true)->count())
+                ->badge((string) Molecule::query()->where('active', true)->count())
                 ->preserveAll()
                 ->default(),
             'revoked' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where('active', false))
                 ->favorite()
-                ->badge(Molecule::query()->where('active', false)->count())
+                ->badge((string) Molecule::query()->where('active', false)->count())
                 ->preserveAll(),
             'drafts' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where([['active', false], ['status', 'DRAFT']]))
                 ->favorite()
-                ->badge(Molecule::query()->where([['active', false], ['status', 'DRAFT']])->count())
+                ->badge((string) Molecule::query()->where([['active', false], ['status', 'DRAFT']])->count())
                 ->preserveAll(),
         ];
     }

@@ -121,6 +121,6 @@ class GenerateAnnotationScore extends Command
         $finalScore = round($totalScore * 5, 2);
 
         // Return the final score, rounded up to the nearest integer
-        return ceil($finalScore);
+        return (int) ceil($finalScore);
     }
 }

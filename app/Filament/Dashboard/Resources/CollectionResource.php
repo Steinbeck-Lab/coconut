@@ -119,6 +119,7 @@ class CollectionResource extends Resource
                         'EMBARGO' => 'warning',
                         'PUBLISHED' => 'success',
                         'REJECTED' => 'danger',
+                        default => 'gray',
                     }),
             ])
             ->filters([

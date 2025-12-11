@@ -6,7 +6,7 @@ trait HasDOI
 {
     public function generateDOI($doiService)
     {
-        $doi_host = env('DOI_HOST', null);
+        $doi_host = config('doi.datacite.host');
         if (! is_null($doi_host)) {
             $identifier = $this->getIdentifier($this, 'identifier');
             if ($this->doi == null) {

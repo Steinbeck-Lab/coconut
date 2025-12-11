@@ -149,7 +149,6 @@ class EntriesRelationManager extends RelationManager
                         'SUBMITTED' => 'SUBMITTED',
                         'PROCESSING' => 'PROCESSING',
                         'INREVIEW' => 'INREVIEW',
-                        'PASSED' => 'PASSED',
                         'REJECTED' => 'REJECTED',
                     ]),
             ])

@@ -79,7 +79,7 @@ class ImportPubChemNames extends Command
                             }
                         } catch (\ValueError $e) {
                             Log::info('An error occurred: '.$e->getMessage());
-                            Log::info($rowCount++);
+                            Log::info((string) $rowCount++);
                         }
                     }
                 }

@@ -49,7 +49,7 @@ class PublishMolecules extends Command
         // Use chunk to process large sets of molecules
         $query->select('molecules.id')
             ->where('status', 'DRAFT')
-            ->chunk(30000, function ($mols) use (&$i) {
+            ->chunk(30000, function ($mols) {
                 $ids = $mols->pluck('id')->toArray();
 
                 DB::table('molecules')

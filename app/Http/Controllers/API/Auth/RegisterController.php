@@ -35,6 +35,7 @@ class RegisterController extends Controller
 
         $message = '';
 
+        // @phpstan-ignore-next-line - User always implements MustVerifyEmail but check is needed
         if ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail()) {
             $message = ' Please verify your email address by clicking on the link we just emailed to you.';
             $user->sendEmailVerificationNotification();
