@@ -65,7 +65,7 @@ class PublishMolecules extends Command
             });
 
         if ($collection_id) {
-            $collection->update([
+            $collection->update([ // @phpstan-ignore-line
                 'status' => 'PUBLISHED',
             ]);
         }

@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Auth;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\InvalidStateException;
 
@@ -14,7 +14,7 @@ class SocialController extends Controller
     /**
      * Redirect the user to the GitHub authentication page.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function redirectToProvider($service)
     {
@@ -24,14 +24,16 @@ class SocialController extends Controller
     /**
      * Obtain the user information from GitHub.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function handleProviderCallback($service)
     {
         try {
             $providerUser = Socialite::driver($service)->user();
         } catch (InvalidStateException $e) {
-            $providerUser = Socialite::driver($service)->stateless()->user();
+            /** @var \Laravel\Socialite\Two\AbstractProvider $driver */
+            $driver = Socialite::driver($service);
+            $providerUser = $driver->stateless()->user();
         }
 
         $linkedSocialAccount = \App\Models\LinkedSocialAccount::where('provider_name', $service)
@@ -41,7 +43,8 @@ class SocialController extends Controller
         $user = null;
 
         if ($linkedSocialAccount) {
-            $user = $linkedSocialAccount->user;
+            /** @var User $user */
+            $user = $linkedSocialAccount->user()->first();
         } else {
             $email = $providerUser->getEmail();
             $name = $providerUser->getName();

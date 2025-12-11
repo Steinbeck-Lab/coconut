@@ -98,21 +98,21 @@ class EntriesRelationManager extends RelationManager
                         })
                             ->width(200)
                             ->height(200)
-                            ->ring(5)
+                            ->ring('5')
                             ->defaultImageUrl(url('/images/placeholder.png')),
                         ImageEntry::make('canonical_smiles')->state(function ($record) {
                             return config('services.cheminf.api_url').'depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=true&toolkit=cdk';
                         })
                             ->width(200)
                             ->height(200)
-                            ->ring(5)
+                            ->ring('5')
                             ->defaultImageUrl(url('/images/placeholder.png')),
                         ImageEntry::make('standardized_canonical_smiles')->state(function ($record) {
                             return config('services.cheminf.api_url').'depict/2D?smiles='.urlencode($record->standardized_canonical_smiles).'&height=300&width=300&CIP=true&toolkit=cdk';
                         })
                             ->width(200)
                             ->height(200)
-                            ->ring(5)
+                            ->ring('5')
                             ->defaultImageUrl(url('/images/placeholder.png')),
                         // ...
                     ]),

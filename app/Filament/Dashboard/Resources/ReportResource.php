@@ -141,18 +141,21 @@ class ReportResource extends Resource
                                     $currentUserId = auth()->id();
 
                                     // Check if user is curator 1 (for SUBMITTED status)
+
                                     if ($record->status == \App\Enums\ReportStatus::SUBMITTED->value) {
+                                        /** @var \App\Models\User|null $curator1 */
                                         $curator1 = $record->curators()->wherePivot('curator_number', 1)->first();
 
-                                        return $curator1?->id !== $currentUserId;
+                                        return $curator1?->getKey() !== $currentUserId;
                                     }
 
                                     // Check if user is curator 2 (for PENDING_APPROVAL/PENDING_REJECTION status)
                                     if ($record->status == \App\Enums\ReportStatus::PENDING_APPROVAL->value ||
                                         $record->status == \App\Enums\ReportStatus::PENDING_REJECTION->value) {
+                                        /** @var \App\Models\User|null $curator2 */
                                         $curator2 = $record->curators()->wherePivot('curator_number', 2)->first();
 
-                                        return $curator2?->id !== $currentUserId;
+                                        return $curator2?->getKey() !== $currentUserId;
                                     }
 
                                     // Hide by default if status doesn't match any condition
@@ -317,12 +320,14 @@ class ReportResource extends Resource
                                         })
                                         ->default(function ($record) {
                                             if ($record->status == ReportStatus::SUBMITTED->value) {
+                                                /** @var \App\Models\User|null $curator */
                                                 $curator = $record->curators()->wherePivot('curator_number', 1)->first();
                                             } else {
+                                                /** @var \App\Models\User|null $curator */
                                                 $curator = $record->curators()->wherePivot('curator_number', 2)->first();
                                             }
 
-                                            return $curator?->id;
+                                            return $curator?->getKey();
                                         })
                                         ->options(function (Report $record) {
                                             // Get all users with curator roles
@@ -330,9 +335,10 @@ class ReportResource extends Resource
 
                                             // For pending reports, remove the first curator to allow other curators to be assigned
                                             if ($record->status === ReportStatus::PENDING_APPROVAL->value || $record->status === ReportStatus::PENDING_REJECTION->value) {
+                                                /** @var \App\Models\User|null $curator1 */
                                                 $curator1 = $record->curators()->wherePivot('curator_number', 1)->first();
                                                 if ($curator1) {
-                                                    unset($curators[$curator1->id]);
+                                                    unset($curators[$curator1->getKey()]);
                                                 }
                                             }
 
@@ -986,16 +992,19 @@ class ReportResource extends Resource
                 // Curator assignment column
                 Tables\Columns\TextColumn::make('assigned_curator')
                     ->label('Assigned To')
-                    ->state(function (Report $record): ?string {
+                    ->state(function (Report $record): string {
                         if ($record->status === ReportStatus::SUBMITTED->value) {
+                            /** @var \App\Models\User|null $curator */
                             $curator = $record->curators()->wherePivot('curator_number', 1)->first();
 
                             return $curator ? $curator->name : '';
                         } elseif ($record->status === ReportStatus::PENDING_APPROVAL->value || $record->status === ReportStatus::PENDING_REJECTION->value) {
+                            /** @var \App\Models\User|null $curator */
                             $curator = $record->curators()->wherePivot('curator_number', 2)->first();
 
                             return $curator ? $curator->name : '';
                         } elseif ($record->status === ReportStatus::APPROVED->value || $record->status === ReportStatus::REJECTED->value) {
+                            /** @var \App\Models\User|null $curator */
                             $curator = $record->curators()->wherePivot('curator_number', 2)->first();
 
                             return $curator ? $curator->name : '';
@@ -1053,6 +1062,7 @@ class ReportResource extends Resource
 
                                 // For pending reports, filter out the first curator to enforce four-eyes principle
                                 if ($record->status === ReportStatus::PENDING_APPROVAL->value || $record->status === ReportStatus::PENDING_REJECTION->value) {
+                                    /** @var \App\Models\User|null $curator1 */
                                     $curator1 = $record->curators()->wherePivot('curator_number', 1)->first();
                                     if ($curator1) {
                                         unset($curators[$curator1->id]);
@@ -1064,10 +1074,12 @@ class ReportResource extends Resource
                             ->default(function (Report $record) {
                                 // Pre-select current curator if assigned
                                 if ($record->status === ReportStatus::SUBMITTED->value) {
+                                    /** @var \App\Models\User|null $curator */
                                     $curator = $record->curators()->wherePivot('curator_number', 1)->first();
 
                                     return $curator?->id;
                                 } elseif ($record->status === ReportStatus::PENDING_APPROVAL->value || $record->status === ReportStatus::PENDING_REJECTION->value) {
+                                    /** @var \App\Models\User|null $curator */
                                     $curator = $record->curators()->wherePivot('curator_number', 2)->first();
 
                                     return $curator?->id;

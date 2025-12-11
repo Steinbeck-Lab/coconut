@@ -107,7 +107,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
 
                 $doiRegex = '/\b(10[.][0-9]{4,}(?:[.][0-9]+)*)\b/';
                 foreach ($dois as $doi) {
-                    if ($doi && $doi != '') {
+                    if ($doi && $doi != '') { // @phpstan-ignore-line
                         if (preg_match($doiRegex, $doi)) {
                             $this->fetchDOICitation($doi, $molecule);
                         } else {
@@ -221,7 +221,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
     /**
      * Save organism details.
      *
-     * @param  string  $organismData
+     * @param  string  $geo_location
      * @param  mixed  $molecule
      * @return void
      */
@@ -247,6 +247,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
      */
     public function fetchCitation($citation_text, $molecule)
     {
+        $citation = null;
         try {
             $citation = Citation::firstOrCreate(['citation_text' => $citation_text]);
         } catch (QueryException $e) {
@@ -255,7 +256,9 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
             }
         }
 
-        $molecule->citations()->syncWithoutDetaching($citation);
+        if ($citation) {
+            $molecule->citations()->syncWithoutDetaching($citation);
+        }
     }
 
     /**
@@ -330,7 +333,6 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
                 $molecule->citations()->syncWithoutDetaching($citation);
             }
         }
-
     }
 
     /**

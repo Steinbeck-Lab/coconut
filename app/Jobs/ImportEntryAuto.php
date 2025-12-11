@@ -211,7 +211,7 @@ class ImportEntryAuto implements ShouldBeUnique, ShouldQueue
     /**
      * Save organism details.
      *
-     * @param  array  $organism
+     * @param  array  $organisms
      * @param  mixed  $molecule
      * @return void
      */
@@ -331,6 +331,7 @@ class ImportEntryAuto implements ShouldBeUnique, ShouldQueue
      */
     public function fetchCitation($citation_text, $molecule)
     {
+        $citation = null;
         try {
             $citation = Citation::firstOrCreate(['citation_text' => $citation_text]);
         } catch (QueryException $e) {
@@ -339,8 +340,10 @@ class ImportEntryAuto implements ShouldBeUnique, ShouldQueue
             }
         }
 
-        $molecule->citations()->syncWithoutDetaching($citation);
-        $this->citation_ids_array[] = $citation->id;
+        if ($citation) {
+            $molecule->citations()->syncWithoutDetaching($citation);
+            $this->citation_ids_array[] = $citation->id;
+        }
     }
 
     /**
