@@ -150,11 +150,6 @@ class DedupeFixCollectionSourceLinks extends Command
         $progressBar->finish();
         $this->newLine();
 
-        if (! empty($data)) {
-            $this->info('Processing remaining records...');
-            $this->updateBatch($data);
-        }
-
         $this->info("\nTotal time taken: ".$startTime->diffForHumans(now(), \Carbon\CarbonInterface::DIFF_ABSOLUTE));
         $this->info('Process completed!');
 
@@ -220,11 +215,6 @@ class DedupeFixCollectionSourceLinks extends Command
 
                 $parentBatchCount = $parentBatchCount + 1;
             });
-
-        // Ensure any remaining data is updated after the last chunk
-        if (! empty($data)) {
-            $this->updateBatch($data);
-        }
 
         Schema::table('entries', function (Blueprint $table) {
             $table->dropIndex('idx_entries_collection_molecule');

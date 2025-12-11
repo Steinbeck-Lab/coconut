@@ -60,11 +60,6 @@ class GenerateAnnotationScore extends Command
                 }
             });
 
-        // Ensure any remaining data is updated after the last chunk
-        if (! empty($data)) {
-            $this->updateBatch($data);
-        }
-
         $this->info('Annotation scores generated successfully.');
     }
 

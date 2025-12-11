@@ -5,9 +5,9 @@ namespace App\Console\Commands;
 use App\Jobs\LoadEntriesBatch;
 use App\Models\Collection;
 use App\Models\Entry;
-use Artisan;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
 
 class ProcessEntries extends Command
@@ -46,7 +46,7 @@ class ProcessEntries extends Command
                 array_push($batchJobs, new LoadEntriesBatch($ids->pluck('id')->toArray()));
                 $i = $i + 1;
             });
-            $batch = Bus::batch($batchJobs)->then(function (Batch $batch) {})->catch(function (Batch $batch, Throwable $e) {})->finally(function (Batch $batch) use ($collection) {
+            $batch = Bus::batch($batchJobs)->then(function (Batch $batch) {})->catch(function (Batch $batch, \Throwable $e) {})->finally(function (Batch $batch) use ($collection) {
                 $collection->jobs_status = 'INCURATION';
                 $collection->job_info = '';
                 $collection->save();

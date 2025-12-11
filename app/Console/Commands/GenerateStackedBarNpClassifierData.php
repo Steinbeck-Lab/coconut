@@ -96,6 +96,7 @@ class GenerateStackedBarNpClassifierData extends Command
             $collection['classesByCount'] = array_keys($classesByCount);
             $collection['classesByName'] = array_keys($classesByName);
         }
+        unset($collection); // Break the reference
 
         // Format for final output
         $collections = [];
@@ -119,7 +120,7 @@ class GenerateStackedBarNpClassifierData extends Command
         $globalSortedClasses = array_keys($globalClassCounts);
 
         $finalData = [
-            'data' => array_values($collections),
+            'data' => $collections,
             'classes' => $allClasses,
             'globalSortedClasses' => $globalSortedClasses,
             'globalClassCounts' => $globalClassCounts,

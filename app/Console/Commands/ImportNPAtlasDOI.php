@@ -6,6 +6,7 @@ use App\Models\Citation;
 use App\Models\Entry;
 use DB;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class ImportNPAtlasDOI extends Command
 {

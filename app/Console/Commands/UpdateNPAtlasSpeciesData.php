@@ -6,6 +6,7 @@ use App\Models\Entry;
 use App\Models\Organism;
 use DB;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class UpdateNPAtlasSpeciesData extends Command
 {

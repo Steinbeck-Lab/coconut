@@ -32,9 +32,8 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
             $user->updateProfilePhoto($input['photo']);
         }
 
-        // @phpstan-ignore-next-line - User always implements MustVerifyEmail but check is needed for Laravel's interface contract
         if ($input['email'] !== $user->email &&
-            $user instanceof MustVerifyEmail) {
+            $user instanceof MustVerifyEmail) { // @phpstan-ignore-line
             $this->updateVerifiedUser($user, $input);
         } else {
             $user->forceFill([
