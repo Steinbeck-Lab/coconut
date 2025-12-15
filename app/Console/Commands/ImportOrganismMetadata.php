@@ -150,6 +150,14 @@ class ImportOrganismMetadata extends Command
                 $entry->collection_id,
                 $metadata
             );
+
+            // Link organism to geo_locations
+            if (! empty($flatGeoLocations)) {
+                $this->processGeoLocationOrganism(
+                    $organismId,
+                    $flatGeoLocations
+                );
+            }
         }
 
         // Process geo_location_molecule pivot table for this entry
@@ -463,6 +471,53 @@ class ImportOrganismMetadata extends Command
                     );
                     if (! $existing) {
                         throw $e;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Process and insert geo_location_organism pivot records.
+     */
+    protected function processGeoLocationOrganism(
+        int $organismId,
+        array $flatGeoLocations
+    ): void {
+        foreach ($flatGeoLocations as $geoLocationName) {
+            if (empty($geoLocationName)) {
+                continue;
+            }
+
+            $geoLocationId = $this->findOrCreateGeoLocation($geoLocationName);
+            if (! $geoLocationId) {
+                continue;
+            }
+
+            // Check if record exists
+            $existing = DB::selectOne(
+                'SELECT * FROM geo_location_organism WHERE organism_id = ? AND geo_location_id = ?',
+                [$organismId, $geoLocationId]
+            );
+
+            if (! $existing) {
+                // Insert new record
+                try {
+                    DB::table('geo_location_organism')->insert([
+                        'organism_id' => $organismId,
+                        'geo_location_id' => $geoLocationId,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                } catch (QueryException $e) {
+                    // Handle race condition
+                    usleep(50000);
+                    $existing = DB::selectOne(
+                        'SELECT * FROM geo_location_organism WHERE organism_id = ? AND geo_location_id = ?',
+                        [$organismId, $geoLocationId]
+                    );
+                    if (! $existing) {
+                        Log::warning("Failed to insert geo_location_organism for organism={$organismId}, geo_location={$geoLocationId}: ".$e->getMessage());
                     }
                 }
             }
