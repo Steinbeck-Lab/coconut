@@ -115,12 +115,12 @@ class CoconutPolicy implements Preset
 
         // Connection sources - External APIs
         $policy
-            ->add(Directive::CONNECT, config('filesystems.disks.s3.endpoint', 'https://s3.uni-jena.de'))
-            ->add(Directive::CONNECT, config('services.citation.europepmc_url', 'https://www.ebi.ac.uk/europepmc/webservices/rest/search'))
-            ->add(Directive::CONNECT, config('services.citation.crossref_url', 'https://api.crossref.org/works/'))
-            ->add(Directive::CONNECT, config('services.citation.datacite_url', 'https://api.datacite.org/dois/'))
-            ->add(Directive::CONNECT, config('services.regapp.redirect', 'https://coconut.naturalproducts.net'))
-            ->add(Directive::CONNECT, config('services.cheminf.api_url', 'https://api.cheminf.studio'))
+            ->add(Directive::CONNECT, config('filesystems.disks.s3.endpoint') ?: 'https://s3.uni-jena.de')
+            ->add(Directive::CONNECT, config('services.citation.europepmc_url') ?: 'https://www.ebi.ac.uk/europepmc/webservices/rest/search')
+            ->add(Directive::CONNECT, config('services.citation.crossref_url') ?: 'https://api.crossref.org/works/')
+            ->add(Directive::CONNECT, config('services.citation.datacite_url') ?: 'https://api.datacite.org/dois/')
+            ->add(Directive::CONNECT, config('services.regapp.redirect') ?: 'https://coconut.naturalproducts.net')
+            ->add(Directive::CONNECT, config('services.cheminf.api_url') ?: 'https://api.cheminf.studio')
             ->add(Directive::CONNECT, 'https://coconut.naturalproducts.net')
             ->add(Directive::CONNECT, 'https://dev.coconut.naturalproducts.net')
             ->add(Directive::CONNECT, '*.tawk.to')
