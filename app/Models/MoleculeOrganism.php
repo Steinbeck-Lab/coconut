@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use OwenIt\Auditing\Contracts\Auditable;
 
-class MoleculeOrganism extends Model implements Auditable
+class MoleculeOrganism extends Pivot implements Auditable
 {
     use \OwenIt\Auditing\Auditable;
 
@@ -16,6 +16,13 @@ class MoleculeOrganism extends Model implements Auditable
      * @var string
      */
     protected $table = 'molecule_organism';
+
+    /**
+     * Indicates if the IDs are auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = true;
 
     /**
      * The attributes that are mass assignable.
@@ -53,30 +60,6 @@ class MoleculeOrganism extends Model implements Auditable
         'created_at',
         'updated_at',
     ];
-
-    /**
-     * Get the organism that this pivot record belongs to.
-     */
-    public function organism(): BelongsTo
-    {
-        return $this->belongsTo(Organism::class);
-    }
-
-    /**
-     * Get the molecule that this pivot record belongs to.
-     */
-    public function molecule(): BelongsTo
-    {
-        return $this->belongsTo(Molecule::class);
-    }
-
-    /**
-     * Get the sample location that this record belongs to.
-     */
-    public function sampleLocation(): BelongsTo
-    {
-        return $this->belongsTo(SampleLocation::class);
-    }
 
     public function transformAudit(array $data): array
     {

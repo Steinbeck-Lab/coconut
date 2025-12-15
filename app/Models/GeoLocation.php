@@ -6,6 +6,7 @@ use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Lomkit\Rest\Relations\HasMany;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class GeoLocation extends Model implements Auditable
@@ -25,18 +26,11 @@ class GeoLocation extends Model implements Auditable
     /**
      * Get the organisms associated with this geo location.
      */
-    // public function organisms(): BelongsToMany
-    // {
-    //     return $this->belongsToMany(Organism::class, 'geo_location_organism')
-    //         ->using(GeoLocationOrganism::class)
-    //         ->withTimestamps();
-    // }
     public function organisms(): BelongsToMany
     {
-        return $this->belongsToMany(Organism::class, 'molecule_organism', 'geo_location_id', 'organism_id')
-            ->withTimestamps()
-            ->distinct('organism_id')
-            ->orderBy('organism_id');
+        return $this->belongsToMany(Organism::class)
+            ->using(GeoLocationOrganism::class)
+            ->withTimestamps();
     }
 
     /**
@@ -44,21 +38,16 @@ class GeoLocation extends Model implements Auditable
      */
     public function molecules(): BelongsToMany
     {
-        return $this->belongsToMany(Molecule::class, 'molecule_organism', 'geo_location_id', 'molecule_id')
-            ->withTimestamps()
-            ->distinct('molecule_id')
-            ->orderBy('molecule_id');
+        return $this->belongsToMany(Molecule::class, 'geo_location_molecule', 'geo_location_id', 'molecule_id')
+            ->withTimestamps();
     }
 
     /**
      * Get the ecosystems in this geo location.
      */
-    public function ecosystems(): BelongsToMany
+    public function ecosystems(): HasMany
     {
-        return $this->belongsToMany(Ecosystem::class, 'molecule_organism', 'geo_location_id', 'ecosystem_id')
-            ->withTimestamps()
-            ->distinct('ecosystem_id')
-            ->orderBy('ecosystem_id');
+        return $this->hasMany(Ecosystem::class)->withTimestamps();
     }
 
     public function transformAudit(array $data): array

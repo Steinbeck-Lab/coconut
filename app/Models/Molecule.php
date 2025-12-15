@@ -124,35 +124,14 @@ class Molecule extends Model implements Auditable
      */
     public function organisms(): BelongsToMany
     {
-        return $this->belongsToMany(Organism::class)->distinct('organism_id')->orderBy('organism_id')->withTimestamps();
-    }
-
-    /**
-     * Get all organism relationships including sample location data.
-     */
-    public function organismRelations(): BelongsToMany
-    {
         return $this->belongsToMany(Organism::class)
+            ->using(MoleculeOrganism::class)
             ->withPivot([
-                'sample_location_id',
-                'geo_location_id',
-                'ecosystem_id',
                 'collection_ids',
                 'citation_ids',
-                'notes',
+                'metadata',
             ])
-            ->withTimestamps();
-    }
-
-    /**
-     * Get all of the sample locations for the molecule.
-     */
-    public function sampleLocations(): BelongsToMany
-    {
-        return $this->belongsToMany(SampleLocation::class, 'molecule_organism', 'molecule_id', 'sample_location_id')
-            ->withTimestamps()
-            ->distinct('sample_location_id')
-            ->orderBy('sample_location_id');
+        ->withTimestamps();
     }
 
     /**
@@ -160,18 +139,8 @@ class Molecule extends Model implements Auditable
      */
     public function geo_locations(): BelongsToMany
     {
-        return $this->belongsToMany(GeoLocation::class, 'molecule_organism', 'molecule_id', 'geo_location_id')
-            ->withTimestamps()
-            ->distinct('geo_location_id')
-            ->orderBy('geo_location_id');
-    }
-
-    public function ecosystems(): BelongsToMany
-    {
-        return $this->belongsToMany(Ecosystem::class, 'molecule_organism', 'molecule_id', 'ecosystem_id')
-            ->withTimestamps()
-            ->distinct('ecosystem_id')
-            ->orderBy('ecosystem_id');
+        return $this->belongsToMany(GeoLocation::class, 'geo_location_molecule', 'molecule_id', 'geo_location_id')
+            ->withTimestamps();
     }
 
     /**
