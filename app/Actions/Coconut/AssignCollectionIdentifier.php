@@ -24,7 +24,7 @@ class AssignCollectionIdentifier
 
         $currentIndex = (int) $ticker->index + 1;
         $prefix = (config('app.env') === 'production') ? 'CNPC' : 'CNPC_DEV';
-        $identifier = $prefix.str_pad($currentIndex, 4, '0', STR_PAD_LEFT);
+        $identifier = $prefix.str_pad((string) $currentIndex, 4, '0', STR_PAD_LEFT);
 
         $collection->identifier = $identifier;
         $collection->save();
