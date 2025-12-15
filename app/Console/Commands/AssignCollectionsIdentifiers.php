@@ -31,7 +31,7 @@ class AssignCollectionsIdentifiers extends Command
         $this->info('Assigning identifiers to collections');
 
         DB::transaction(function () use ($assigner) {
-            $collections = Collection::whereNull('identifier')->get();
+            $collections = Collection::whereNull('identifier')->orderBy('id')->get();
 
             foreach ($collections as $collection) {
                 $assigner->assign($collection);
