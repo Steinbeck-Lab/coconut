@@ -48,7 +48,7 @@ class Organism extends Model implements Auditable
                 'citation_ids',
                 'metadata',
             ])
-        ->withTimestamps();
+            ->withTimestamps();
     }
 
     public function reports(): MorphToMany

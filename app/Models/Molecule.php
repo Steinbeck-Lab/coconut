@@ -131,7 +131,7 @@ class Molecule extends Model implements Auditable
                 'citation_ids',
                 'metadata',
             ])
-        ->withTimestamps();
+            ->withTimestamps();
     }
 
     /**
