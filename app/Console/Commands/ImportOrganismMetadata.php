@@ -59,6 +59,8 @@ class ImportOrganismMetadata extends Command
         $successCount = 0;
         $failedCount = 0;
 
+        // testing
+        // $query = DB::table('entries')->where('id', '=', 686910);
         // Process in chunks
         $query->orderBy('id')->chunkById($this->batchSize, function ($entries) use ($bar, &$successCount, &$failedCount) {
             foreach ($entries as $entry) {
@@ -140,7 +142,8 @@ class ImportOrganismMetadata extends Command
                 $flatDois,
                 $flatParts,
                 $flatGeoLocations,
-                $flatEcosystems
+                $flatEcosystems,
+                $organismId
             );
 
             // Update or insert molecule_organism record
@@ -231,7 +234,8 @@ class ImportOrganismMetadata extends Command
         array $flatDois,
         array $flatParts,
         array $flatGeoLocations,
-        array $flatEcosystems
+        array $flatEcosystems,
+        int $organismId
     ): array {
         $collectionEntry = [
             'id' => $entry->collection_id,
@@ -243,7 +247,7 @@ class ImportOrganismMetadata extends Command
             // For ambiguous, put everything in unresolved
             $collectionEntry['unres'] = [
                 'cit_ids' => $this->resolveCitationIds($flatDois),
-                'smp_ids' => $this->resolveSampleLocationIds($flatParts),
+                'smp_ids' => $this->resolveSampleLocationIds($flatParts, $organismId),
                 'geo_ids' => $this->resolveGeoLocationIds($flatGeoLocations),
                 'eco_ids' => $this->resolveEcosystemIds($flatEcosystems),
             ];
@@ -251,7 +255,8 @@ class ImportOrganismMetadata extends Command
             // For full/inferred, build structured references
             $collectionEntry['refs'] = $this->buildStructuredReferences(
                 $references,
-                $organismName
+                $organismName,
+                $organismId
             );
         }
 
@@ -260,7 +265,7 @@ class ImportOrganismMetadata extends Command
             'cols' => [$collectionEntry],
             'cit_ids' => $this->resolveCitationIds($flatDois),
             'col_ids' => [$entry->collection_id],
-            'smp_ids' => $this->resolveSampleLocationIds($flatParts),
+            'smp_ids' => $this->resolveSampleLocationIds($flatParts, $organismId),
             'geo_ids' => $this->resolveGeoLocationIds($flatGeoLocations),
             'eco_ids' => $this->resolveEcosystemIds($flatEcosystems),
         ];
@@ -271,7 +276,7 @@ class ImportOrganismMetadata extends Command
     /**
      * Build structured references array for full/inferred mapping.
      */
-    protected function buildStructuredReferences(array $references, string $organismName): array
+    protected function buildStructuredReferences(array $references, string $organismName, int $organismId): array
     {
         $structuredRefs = [];
 
@@ -303,7 +308,7 @@ class ImportOrganismMetadata extends Command
             if ($matchingOrganism) {
                 // Get sample location IDs from parts
                 $parts = $matchingOrganism['parts'] ?? [];
-                $refEntry['smp_ids'] = $this->resolveSampleLocationIds($parts);
+                $refEntry['smp_ids'] = $this->resolveSampleLocationIds($parts, $organismId);
 
                 // Get locations with geo_location and ecosystems
                 $locations = $matchingOrganism['locations'] ?? [];
@@ -314,7 +319,7 @@ class ImportOrganismMetadata extends Command
                     }
 
                     $ecosystems = $loc['ecosystems'] ?? [];
-                    $ecosystemIds = $this->resolveEcosystemIds($ecosystems);
+                    $ecosystemIds = $this->resolveEcosystemIds($ecosystems, $geoLocationId);
 
                     $refEntry['locs'][] = [
                         'geo_id' => $geoLocationId,
@@ -758,12 +763,12 @@ class ImportOrganismMetadata extends Command
         return array_values(array_unique($ids));
     }
 
-    protected function resolveSampleLocationIds(array $parts): array
+    protected function resolveSampleLocationIds(array $parts, ?int $organismId = null): array
     {
         $ids = [];
         foreach ($parts as $part) {
             if (! empty($part)) {
-                $id = $this->findOrCreateSampleLocation($part);
+                $id = $this->findOrCreateSampleLocation($part, $organismId);
                 if ($id) {
                     $ids[] = $id;
                 }
@@ -788,12 +793,12 @@ class ImportOrganismMetadata extends Command
         return array_values(array_unique($ids));
     }
 
-    protected function resolveEcosystemIds(array $ecosystems): array
+    protected function resolveEcosystemIds(array $ecosystems, ?int $geoLocationId = null): array
     {
         $ids = [];
         foreach ($ecosystems as $ecosystem) {
             if (! empty($ecosystem)) {
-                $id = $this->findOrCreateEcosystem($ecosystem);
+                $id = $this->findOrCreateEcosystem($ecosystem, $geoLocationId);
                 if ($id) {
                     $ids[] = $id;
                 }
@@ -890,7 +895,7 @@ class ImportOrganismMetadata extends Command
         }
     }
 
-    protected function findOrCreateSampleLocation(string $name): ?int
+    protected function findOrCreateSampleLocation(string $name, ?int $organismId = null): ?int
     {
         if (empty($name)) {
             return null;
@@ -898,32 +903,51 @@ class ImportOrganismMetadata extends Command
 
         $name = Str::title($name);
 
-        if (isset($this->sampleLocationCache[$name])) {
-            return $this->sampleLocationCache[$name];
+        // If organism_id is provided, cache and search by name + organism_id
+        $cacheKey = $organismId ? "{$name}_{$organismId}" : $name;
+
+        if (isset($this->sampleLocationCache[$cacheKey])) {
+            return $this->sampleLocationCache[$cacheKey];
         }
 
-        $existing = DB::selectOne('SELECT id FROM sample_locations WHERE name = ?', [$name]);
-        if ($existing) {
-            $this->sampleLocationCache[$name] = $existing->id;
+        // If organism_id is provided, find existing record for this organism
+        if ($organismId) {
+            $existing = DB::selectOne('SELECT id FROM sample_locations WHERE name = ? AND organism_id = ?', [$name, $organismId]);
+            if ($existing) {
+                $this->sampleLocationCache[$cacheKey] = $existing->id;
 
-            return $existing->id;
+                return $existing->id;
+            }
+        } else {
+            // Without organism_id, find any existing record with this name
+            $existing = DB::selectOne('SELECT id FROM sample_locations WHERE name = ?', [$name]);
+            if ($existing) {
+                $this->sampleLocationCache[$cacheKey] = $existing->id;
+
+                return $existing->id;
+            }
         }
 
         try {
             $id = DB::table('sample_locations')->insertGetId([
                 'name' => $name,
                 'slug' => Str::slug($name),
+                'organism_id' => $organismId,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-            $this->sampleLocationCache[$name] = $id;
+            $this->sampleLocationCache[$cacheKey] = $id;
 
             return $id;
         } catch (QueryException $e) {
             usleep(50000);
-            $existing = DB::selectOne('SELECT id FROM sample_locations WHERE name = ?', [$name]);
+            if ($organismId) {
+                $existing = DB::selectOne('SELECT id FROM sample_locations WHERE name = ? AND organism_id = ?', [$name, $organismId]);
+            } else {
+                $existing = DB::selectOne('SELECT id FROM sample_locations WHERE name = ?', [$name]);
+            }
             if ($existing) {
-                $this->sampleLocationCache[$name] = $existing->id;
+                $this->sampleLocationCache[$cacheKey] = $existing->id;
 
                 return $existing->id;
             }
@@ -969,38 +993,57 @@ class ImportOrganismMetadata extends Command
         }
     }
 
-    protected function findOrCreateEcosystem(string $name): ?int
+    protected function findOrCreateEcosystem(string $name, ?int $geoLocationId = null): ?int
     {
         if (empty($name)) {
             return null;
         }
 
-        if (isset($this->ecosystemCache[$name])) {
-            return $this->ecosystemCache[$name];
+        // If geo_location_id is provided, cache and search by name + geo_location_id
+        $cacheKey = $geoLocationId ? "{$name}_{$geoLocationId}" : $name;
+
+        if (isset($this->ecosystemCache[$cacheKey])) {
+            return $this->ecosystemCache[$cacheKey];
         }
 
-        $existing = DB::selectOne('SELECT id FROM ecosystems WHERE name = ?', [$name]);
-        if ($existing) {
-            $this->ecosystemCache[$name] = $existing->id;
+        // If geo_location_id is provided, find existing record for this geo_location
+        if ($geoLocationId) {
+            $existing = DB::selectOne('SELECT id FROM ecosystems WHERE name = ? AND geo_location_id = ?', [$name, $geoLocationId]);
+            if ($existing) {
+                $this->ecosystemCache[$cacheKey] = $existing->id;
 
-            return $existing->id;
+                return $existing->id;
+            }
+        } else {
+            // Without geo_location_id, find any existing record with this name
+            $existing = DB::selectOne('SELECT id FROM ecosystems WHERE name = ?', [$name]);
+            if ($existing) {
+                $this->ecosystemCache[$cacheKey] = $existing->id;
+
+                return $existing->id;
+            }
         }
 
         try {
             $id = DB::table('ecosystems')->insertGetId([
                 'name' => $name,
                 'description' => 'Ecosystem imported from entry data',
+                'geo_location_id' => $geoLocationId,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-            $this->ecosystemCache[$name] = $id;
+            $this->ecosystemCache[$cacheKey] = $id;
 
             return $id;
         } catch (QueryException $e) {
             usleep(50000);
-            $existing = DB::selectOne('SELECT id FROM ecosystems WHERE name = ?', [$name]);
+            if ($geoLocationId) {
+                $existing = DB::selectOne('SELECT id FROM ecosystems WHERE name = ? AND geo_location_id = ?', [$name, $geoLocationId]);
+            } else {
+                $existing = DB::selectOne('SELECT id FROM ecosystems WHERE name = ?', [$name]);
+            }
             if ($existing) {
-                $this->ecosystemCache[$name] = $existing->id;
+                $this->ecosystemCache[$cacheKey] = $existing->id;
 
                 return $existing->id;
             }
