@@ -7,7 +7,7 @@ use App\Models\Entry;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
-class RebuildOldEntryMetaData extends Command
+class RebuildEntryMetaData extends Command
 {
     protected $signature = 'coconut:rebuild-meta-data {collection? : Optional collection ID to scope the rebuild}';
 
@@ -333,6 +333,7 @@ class RebuildOldEntryMetaData extends Command
 
             // no DOI, no organism
             if ($nDois === 0 && $nOrgs === 0) {
+                dd('no DOI, no organism');
                 $refs[] = [
                     'doi' => '',
                     'organisms' => [
