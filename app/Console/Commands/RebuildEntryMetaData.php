@@ -95,6 +95,9 @@ class RebuildEntryMetaData extends Command
         $bar = $this->output->createProgressBar($total);
         $bar->start();
 
+        // Testing
+        $query= Entry::where('id',1);
+
         $query->chunkById($chunkSize, function ($entries) use ($bar) {
             /** @var \App\Models\Entry $entry */
             foreach ($entries as $entry) {
@@ -112,19 +115,8 @@ class RebuildEntryMetaData extends Command
 
     protected function rebuildEntryMetaData(Entry $entry): void
     {
-        // $current = $entry->meta_data;
-
-        // // If meta_data already has mapping_status and we are not forcing, skip.
-        // if (! $force && is_array($current)) {
-        //     $nmd = $current['new_molecule_data'] ?? null;
-        //     if (is_array($nmd) && array_key_exists('mapping_status', $nmd)) {
-        //         return;
-        //     }
-        // }
-
         $collection = Collection::find($entry->collection_id);
         $hasMapping = (bool) optional($collection)->has_mapping;
-        // $hasMapping = false;
 
         $flatDois = $this->flattenGroup($entry->doi ?? '', 'doi ');
         $flatOrganisms = $this->flattenGroup($entry->organism ?? '', 'organism');
@@ -332,16 +324,15 @@ class RebuildEntryMetaData extends Command
             }
 
             // no DOI, no organism
-            if ($nDois === 0 && $nOrgs === 0) {
-                dd('no DOI, no organism');
-                $refs[] = [
-                    'doi' => '',
-                    'organisms' => [
-                        'name' => '',
-                        'parts' => [],
-                    ],
-                ];
-            }
+            // if ($nDois === 0 && $nOrgs === 0) {
+            //     $refs[] = [
+            //         'doi' => '',
+            //         'organisms' => [
+            //             'name' => '',
+            //             'parts' => [],
+            //         ],
+            //     ];
+            // }
 
             return $refs;
         }
@@ -390,6 +381,7 @@ class RebuildEntryMetaData extends Command
             return [''];
         }
 
+        $parts = [];
         if ($data_type == 'doi ' || $data_type == 'organism') {
             $parts = preg_split('/(##)/', $data);
         } elseif ($data_type == 'organism_part' || $data_type == 'geo_location') {
@@ -407,7 +399,7 @@ class RebuildEntryMetaData extends Command
             }
         }
 
-        return array_values($result);
+        return $result;
         // return array_values(array_unique($result));
     }
 
