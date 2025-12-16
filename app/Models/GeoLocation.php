@@ -6,7 +6,7 @@ use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Lomkit\Rest\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class GeoLocation extends Model implements Auditable
@@ -47,7 +47,7 @@ class GeoLocation extends Model implements Auditable
      */
     public function ecosystems(): HasMany
     {
-        return $this->hasMany(Ecosystem::class)->withTimestamps();
+        return $this->hasMany(Ecosystem::class);
     }
 
     public function transformAudit(array $data): array

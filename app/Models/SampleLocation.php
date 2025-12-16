@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use OwenIt\Auditing\Contracts\Auditable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SampleLocation extends Model implements Auditable
 {
@@ -37,12 +38,9 @@ class SampleLocation extends Model implements Auditable
             ->orderBy('molecule_id');
     }
 
-    public function organisms(): BelongsToMany
+    public function organisms(): BelongsTo
     {
-        return $this->belongsToMany(Organism::class, 'molecule_organism', 'sample_location_id', 'organism_id')
-            ->withTimestamps()
-            ->distinct('organism_id')
-            ->orderBy('organism_id');
+        return $this->belongsTo(Organism::class, 'organism_id');
     }
 
     public function transformAudit(array $data): array
