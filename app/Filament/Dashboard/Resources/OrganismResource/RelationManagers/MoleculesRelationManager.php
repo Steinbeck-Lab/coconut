@@ -5,12 +5,20 @@ namespace App\Filament\Dashboard\Resources\OrganismResource\RelationManagers;
 use App\Models\Molecule;
 use App\Models\Organism;
 use App\Models\SampleLocation;
-use Filament\Forms;
-use Filament\Forms\Form;
+use Exception;
+use Filament\Actions\AttachAction;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DetachAction;
+use Filament\Actions\DissociateBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
-use Filament\Tables\Actions\BulkAction;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -22,11 +30,11 @@ class MoleculesRelationManager extends RelationManager
 {
     protected static string $relationship = 'molecules';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('id')
+        return $schema
+            ->components([
+                TextInput::make('id')
                     ->required()
                     ->maxLength(255),
             ]);
@@ -46,9 +54,9 @@ class MoleculesRelationManager extends RelationManager
                     ->height(200)
                     ->ring(5)
                     ->defaultImageUrl(url('/images/placeholder.png')),
-                Tables\Columns\TextColumn::make('id')->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('identifier')->searchable()->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('identifier')
+                TextColumn::make('id')->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('identifier')->searchable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('identifier')
                     ->label('Details')
                     ->formatStateUsing(
                         function (Molecule $molecule, $record): HtmlString {
@@ -65,42 +73,42 @@ class MoleculesRelationManager extends RelationManager
                     ->description(fn (Molecule $molecule): string => $molecule->standard_inchi)
                     ->searchable()
                     ->wrap(),
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable()
                     ->wrap()
                     ->lineClamp(6)
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('synonyms')
+                TextColumn::make('synonyms')
                     ->searchable()
                     ->wrap()
                     ->lineClamp(6)
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('properties.exact_molecular_weight')
+                TextColumn::make('properties.exact_molecular_weight')
                     ->label('Mol.Wt')
                     ->numeric()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('properties.np_likeness')
+                TextColumn::make('properties.np_likeness')
                     ->label('NP Likeness')
                     ->numeric()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('status'),
+                TextColumn::make('status'),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make()->multiple(),
+                AttachAction::make()->multiple(),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DetachAction::make(),
+            ->recordActions([
+                EditAction::make(),
+                DetachAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DissociateBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DissociateBulkAction::make(),
                     BulkAction::make('Change Association')
-                        ->form([
-                            Forms\Components\Select::make('org_id')
+                        ->schema([
+                            Select::make('org_id')
                                 ->label('Name')
                                 ->getSearchResultsUsing(function (string $search): array {
                                     return Organism::query()
@@ -118,7 +126,7 @@ class MoleculesRelationManager extends RelationManager
                                 ->searchable()
                                 ->live(onBlur: true)
                                 ->required(),
-                            Forms\Components\Select::make('locations')
+                            Select::make('locations')
                                 ->relationship('sampleLocations', 'name')
                                 ->getSearchResultsUsing(function (string $search, $get): array {
                                     return SampleLocation::query()
@@ -136,9 +144,9 @@ class MoleculesRelationManager extends RelationManager
                                 })
                                 ->multiple()
                                 ->createOptionForm([
-                                    Forms\Components\TextInput::make('name')
+                                    TextInput::make('name')
                                         ->required(),
-                                    Forms\Components\TextInput::make('iri')
+                                    TextInput::make('iri')
                                         ->required(),
                                 ])
                                 ->createOptionUsing(function (array $data, $livewire): int {
@@ -155,11 +163,11 @@ class MoleculesRelationManager extends RelationManager
                                         'organism_id' => $livewire->mountedTableBulkActionData['org_id'],
                                     ])->getKey();
                                 }),
-                            Forms\Components\Repeater::make('molecule_locations')
+                            Repeater::make('molecule_locations')
                                 ->schema([
-                                    Forms\Components\TextInput::make('id'),
-                                    Forms\Components\TextInput::make('name'),
-                                    Forms\Components\Select::make('sampleLocations')
+                                    TextInput::make('id'),
+                                    TextInput::make('name'),
+                                    Select::make('sampleLocations')
                                         ->relationship('sampleLocations', 'name')
                                         ->multiple()
                                         ->preload(),
@@ -272,7 +280,7 @@ class MoleculesRelationManager extends RelationManager
                                     $newOrganism->save();
 
                                     DB::commit();
-                                } catch (\Exception $e) {
+                                } catch (Exception $e) {
                                     // Rollback the transaction in case of any error
                                     DB::rollBack();
                                     throw $e; // Optionally rethrow the exception

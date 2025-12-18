@@ -6,7 +6,8 @@ use App\Filament\Dashboard\Resources\MoleculeResource;
 use App\Models\Molecule;
 use Archilex\AdvancedTables\AdvancedTables;
 use Archilex\AdvancedTables\Components\PresetView;
-use Filament\Actions;
+use Filament\Actions\Action;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListMolecules extends ListRecords
@@ -18,8 +19,8 @@ class ListMolecules extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
-            Actions\Action::make('openLivewireModal')
+            CreateAction::make(),
+            Action::make('openLivewireModal')
                 ->label('Structure Search')
                 ->modalHeading('Structure Search')
                 ->modalWidth('7xl')

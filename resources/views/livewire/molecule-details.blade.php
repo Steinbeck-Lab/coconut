@@ -2,7 +2,7 @@
     <div class="mt-28 min-h-screen isolate">
         <div class="relative isolate -z-10">
             <div class="mx-auto max-w-4xl lg:max-w-7xl px-4 md:px-10">
-                <div class="bg-white rounded-lg border">
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
                     @if ($molecule->status == 'REVOKED')
                     <div class="rounded-md m-2 bg-red-50 p-4 -mb-5">
                         <div class="flex">
@@ -87,11 +87,11 @@
                         </div>
                     </div>
                     @if ($molecule->properties)
-                    <div class="border-b border-b-gray-900/10 lg:border-t lg:border-t-gray-900/5">
+                    <div class="border-b border-b-gray-100 lg:border-t lg:border-t-gray-100">
                         <dl
                             class="mx-auto grid max-w-7xl grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:px-2 xl:px-0">
                             <div
-                                class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-5 lg:py-10 sm:px-6 lg:border-t-0 xl:px-8 ">
+                                class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-100 px-4 py-5 lg:py-10 sm:px-6 lg:border-t-0 xl:px-8 ">
                                 <dt class="font-medium text-gray-500"> NPLikeness
                                     <div class="tooltip">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
@@ -121,59 +121,59 @@
                                 </div>
                             </div>
                             <div
-                                class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-5 lg:py-10 sm:px-6 lg:border-t-0 xl:px-8 sm:border-l">
+                                class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-100 px-4 py-5 lg:py-10 sm:px-6 lg:border-t-0 xl:px-8 sm:border-l">
                                 <div>
                                     <dt class="font-medium text-gray-500"> Annotation Level</dt>
-                                    <div class="flex items-center">
-                                        @for ($i = 0; $i < $molecule->annotation_level; $i++)
-                                            <span class="text-amber-300">★<span>
-                                                    @endfor
-                                                    @for ($i = $molecule->annotation_level; $i < 5; $i++)
-                                                        ☆
-                                                        @endfor
-                                                        </div>
+                                    @php $annotationLevel = $molecule->annotation_level ?? 0; @endphp
+                                    <div class="flex items-center text-lg">
+                                        @for ($i = 0; $i < $annotationLevel; $i++)
+                                            <span style="color: #fbbf24;">★</span>
+                                        @endfor
+                                        @for ($i = $annotationLevel; $i < 5; $i++)
+                                            <span style="color: #d1d5db;">☆</span>
+                                        @endfor
                                     </div>
                                 </div>
-                                <div
-                                    class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-5 lg:py-10 sm:px-6 lg:border-t-0 xl:px-8 lg:border-l">
-                                    <div>
-                                        <dt class="font-medium text-gray-500">
-                                            <div class="grid grid-cols-2 gap-2">
-                                                <div>
-                                                    Mol. Weight
-                                                </div>
-                                                <div x-data="{ tooltip: false }" x-on:mouseover="tooltip = true"
-                                                    x-on:mouseleave="tooltip = false"
-                                                    class="ml-2 h-5 w-5 cursor-pointer">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
-                                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                    <div x-show="tooltip"
-                                                        class="text-sm text-white absolute bg-green-400 rounded-lg p-2 transform -translate-y-8 translate-x-8">
-                                                        Exact Isotopic Mass is calculated using RDKit - <a
-                                                            href="https://www.rdkit.org/docs/source/rdkit.Chem.Descriptors.html">https://www.rdkit.org/docs/source/rdkit.Chem.Descriptors.html</a>
-                                                    </div>
+                            </div>
+                            <div
+                                class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-100 px-4 py-5 lg:py-10 sm:px-6 lg:border-t-0 xl:px-8 lg:border-l">
+                                <div>
+                                    <dt class="font-medium text-gray-500">
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div>
+                                                Mol. Weight
+                                            </div>
+                                            <div x-data="{ tooltip: false }" x-on:mouseover="tooltip = true"
+                                                x-on:mouseleave="tooltip = false"
+                                                class="ml-2 h-5 w-5 cursor-pointer">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <div x-show="tooltip"
+                                                    class="text-sm text-white absolute bg-green-400 rounded-lg p-2 transform -translate-y-8 translate-x-8">
+                                                    Exact Isotopic Mass is calculated using RDKit - <a
+                                                        href="https://www.rdkit.org/docs/source/rdkit.Chem.Descriptors.html">https://www.rdkit.org/docs/source/rdkit.Chem.Descriptors.html</a>
                                                 </div>
                                             </div>
-
-                                        </dt>
-                                        <dd class="mt-1 text-sm text-gray-900">
-                                            {{ $molecule->properties->exact_molecular_weight }}
-                                        </dd>
-                                    </div>
+                                        </div>
+                                    </dt>
+                                    <dd class="mt-1 text-sm text-gray-900">
+                                        {{ $molecule->properties->exact_molecular_weight }}
+                                    </dd>
                                 </div>
-                                <div
-                                    class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-900/5 px-4 py-5 lg:py-10 sm:px-6 lg:border-t-0 xl:px-8 sm:border-l">
-                                    <div>
-                                        <dt class="font-medium text-gray-500 text-gray-500"> Mol. Formula </dt>
-                                        <dd class="mt-1 text-sm text-gray-900">
-                                            {{ $molecule->properties->molecular_formula }}
-                                        </dd>
-                                    </div>
+                            </div>
+                            <div
+                                class="flex items-baseline flex-wrap justify-between gap-y-2 gap-x-4 border-t border-gray-100 px-4 py-5 lg:py-10 sm:px-6 lg:border-t-0 xl:px-8 sm:border-l">
+                                <div>
+                                    <dt class="font-medium text-gray-500"> Mol. Formula </dt>
+                                    <dd class="mt-1 text-sm text-gray-900">
+                                        {{ $molecule->properties->molecular_formula }}
+                                    </dd>
                                 </div>
+                            </div>
                         </dl>
                     </div>
                     @endif
@@ -182,21 +182,23 @@
                         <section class="space-y-6 lg:col-span-2 lg:col-start-1 order-2 lg:order-1">
                             @if ($sortedOrganisms && count($sortedOrganisms) > 0)
                             <section>
-                                <div class="bg-white border shadow sm:rounded-lg" x-data="{ showAll: false, searchTerm: '' }">
+                                <div class="bg-white border border-gray-200 shadow-sm rounded-xl" x-data="{ showAll: false, searchTerm: '' }">
                                     <div class="px-4 py-5 sm:px-6">
                                         <h2 id="applicant-information-title"
                                             class="text-lg font-medium leading-6 text-gray-900">
                                             Organisms ({{ count($sortedOrganisms) }})
                                         </h2>
                                     </div>
-                                    <div class="border-t border-gray-200">
+                                    <div class="border-t border-gray-100">
                                         <div class="no-scrollbar px-4 py-4 lg:px-8 min-w-0">
+                                            @if (count($sortedOrganisms) > 5)
                                             <!-- Search Bar -->
                                             <div class="mb-4">
                                                 <input type="text" x-model="searchTerm"
                                                     placeholder="Search organisms..."
                                                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-secondary-dark focus:ring-secondary-dark sm:text-sm" />
                                             </div>
+                                            @endif
                                             <ul role="list" class="mt-2 leading-8">
                                                 @foreach ($sortedOrganisms as $index => $organism)
                                                 @if ($organism != '')
@@ -254,13 +256,13 @@
                             @endif
                             @if ($molecule->geo_locations && count($molecule->geo_locations) > 0)
                             <section>
-                                <div class="bg-white border shadow sm:rounded-lg">
+                                <div class="bg-white border border-gray-200 shadow-sm rounded-xl">
                                     <div class="px-4 py-5 sm:px-6">
                                         <h2 id="applicant-information-title"
                                             class="text-lg font-medium leading-6 text-gray-900">
                                             Geolocations</h2>
                                     </div>
-                                    <div class="border-t border-gray-200">
+                                    <div class="border-t border-gray-100">
                                         <div class="no-scrollbar px-4 py-4 lg:px-8 min-w-0">
                                             <ul role="list" class="mt-2 leading-8">
                                                 @foreach ($molecule->geo_locations as $geo_location)
@@ -282,14 +284,14 @@
                             @endif
 
                             <section>
-                                <div class="bg-white border shadow sm:rounded-lg">
+                                <div class="bg-white border border-gray-200 shadow-sm rounded-xl">
                                     <div class="px-4 py-5 sm:px-6">
                                         <h2 id="applicant-information-title"
                                             class="text-lg font-medium leading-6 text-gray-900">
                                             Representations</h2>
                                         <p class="mt-1 max-w-2xl text-sm text-gray-500">Molecular details</p>
                                     </div>
-                                    <div class="border-t border-gray-200">
+                                    <div class="border-t border-gray-100">
                                         <div class="no-scrollbar px-4 lg:px-8 min-w-0">
                                             <article>
                                                 <div class="">
@@ -405,7 +407,7 @@
                                                                         <li class="inline"
                                                                             x-show="showAll || {{ $index }} < 10">
                                                                             <span
-                                                                                class="border px-4 bg-white isolate inline-flex rounded-md shadow-sm mb-2">
+                                                                                class="border border-gray-200 px-4 bg-white isolate inline-flex rounded-md shadow-sm mb-2">
                                                                                 {{ $synonym }}
                                                                             </span>
                                                                         </li>
@@ -445,7 +447,7 @@
                                                                         <li class="inline"
                                                                             x-show="showAll || {{ $index }} < 10">
                                                                             <span
-                                                                                class="border px-4 bg-white isolate inline-flex rounded-md shadow-sm mb-2">
+                                                                                class="border border-gray-200 px-4 bg-white isolate inline-flex rounded-md shadow-sm mb-2">
                                                                                 {{ $cas }}
                                                                             </span>
                                                                         </li>
@@ -480,8 +482,8 @@
 
                             @if ($molecule->properties)
                             <section aria-labelledby="notes-title">
-                                <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
-                                    <div class="divide-y divide-gray-200">
+                                <div class="bg-white shadow-sm border border-gray-200 overflow-hidden rounded-xl">
+                                    <div class="divide-y divide-gray-100">
                                         <div class="px-4 py-5 sm:px-6">
                                             <h2 id="notes-title" class="text-lg font-medium text-gray-900">Chemical
                                                 classification
@@ -534,8 +536,8 @@
 
                             @if ($molecule->properties)
                             <section aria-labelledby="notes-title">
-                                <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
-                                    <div class="divide-y divide-gray-200">
+                                <div class="bg-white shadow-sm border border-gray-200 overflow-hidden rounded-xl">
+                                    <div class="divide-y divide-gray-100">
                                         <div class="px-4 py-5 sm:px-6">
                                             <h2 id="notes-title" class="text-lg font-medium text-gray-900">NP
                                                 Classification
@@ -587,8 +589,8 @@
 
 
                             <section aria-labelledby="notes-title">
-                                <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
-                                    <div class="divide-y divide-gray-200">
+                                <div class="bg-white shadow-sm border border-gray-200 overflow-hidden rounded-xl">
+                                    <div class="divide-y divide-gray-100">
                                         <div class="px-4 py-5 sm:px-6">
                                             <h2 id="notes-title" class="text-lg font-medium text-gray-900">References
                                             </h2>
@@ -603,7 +605,7 @@
                                                     <div class="not-prose grid grid-cols-1 gap-6 sm:grid-cols-2">
                                                         @foreach ($molecule->citations as $index => $citation)
                                                         @if ($citation->doi != '' || $citation->citation_text != '')
-                                                        <div class="group relative rounded-xl border border-slate-200"
+                                                        <div class="group relative rounded-xl border border-gray-200"
                                                             x-show="showAllCitations || {{ $index }} < 6">
                                                             <div
                                                                 class="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 [background:linear-gradient(var(--quick-links-hover-bg,theme(colors.sky.50)),var(--quick-links-hover-bg,theme(colors.sky.50)))_padding-box,linear-gradient(to_top,theme(colors.red.400),theme(colors.cyan.400),theme(colors.sky.500))_border-box] group-hover:opacity-100">
@@ -685,16 +687,14 @@
                                                                     class="mt-2 font-bold text-base text-gray-900">
                                                                     <a target="_blank"
                                                                         href="https://doi.org/{{ $citation->doi }}">
-                                                                        <span
-                                                                            class="rounded-xl"></span>{{ $citation->title }}
+                                                                        {!! $citation->title !!}
                                                                     </a>
                                                                 </h2>
                                                                 <h2
                                                                     class="mt-2 font-display text-base text-slate-900">
                                                                     <a target="_blank"
                                                                         href="https://doi.org/{{ $citation->doi }}">
-                                                                        <span
-                                                                            class="rounded-xl"></span>{{ $citation->authors }}
+                                                                        {!! $citation->authors !!}
                                                                     </a>
                                                                 </h2>
                                                                 @if ($citation->doi and $citation->doi != '')
@@ -759,7 +759,7 @@
                                                                                 Reference URL
                                                                             </a>
                                                                         @else
-                                                                            <span class="rounded-xl">Note: {{ $citation->citation_text }}</span>
+                                                                            <span class="rounded-xl">Note: {!! $citation->citation_text !!}</span>
                                                                         @endif
                                                                     </h2>
                                                                 @endif
@@ -798,7 +798,7 @@
                                                     <div x-data="{ collection: {{ $collection }} }"
                                                         x-show="showAllCollections || {{ $index }} < 6">
                                                         <div
-                                                            class="group rounded-xl border border-slate-200">
+                                                            class="group rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                                                             <div
                                                                 class="overflow-hidden rounded-xl p-6">
                                                                 <svg aria-hidden="true" viewBox="0 0 32 32"
@@ -960,8 +960,8 @@
 
                             @if ($molecule->related && count($molecule->related) > 0)
                             <section aria-labelledby="notes-title">
-                                <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
-                                    <div class="divide-y divide-gray-200">
+                                <div class="bg-white shadow-sm border border-gray-200 overflow-hidden rounded-xl">
+                                    <div class="divide-y divide-gray-100">
                                         <div class="px-4 py-5 sm:px-6">
                                             <h2 id="notes-title" class="text-lg font-medium text-gray-900">
                                                 Tautomers</h2>
@@ -981,8 +981,8 @@
 
                             @if ($molecule->is_parent && $molecule->has_variants)
                             <section aria-labelledby="notes-title">
-                                <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
-                                    <div class="divide-y divide-gray-200">
+                                <div class="bg-white shadow-sm border border-gray-200 overflow-hidden rounded-xl">
+                                    <div class="divide-y divide-gray-100">
                                         <div class="px-4 py-5 sm:px-6">
                                             <h2 id="notes-title" class="text-lg font-medium text-gray-900">
                                                 Stereochemical
@@ -1004,8 +1004,8 @@
 
                             @if ($molecule->parent_id != null)
                             <section aria-labelledby="notes-title">
-                                <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
-                                    <div class="divide-y divide-gray-200">
+                                <div class="bg-white shadow-sm border border-gray-200 overflow-hidden rounded-xl">
+                                    <div class="divide-y divide-gray-100">
                                         <div class="px-4 py-5 sm:px-6">
                                             <h2 id="notes-title" class="text-lg font-medium text-gray-900">Parent
                                                 (Without
@@ -1015,7 +1015,7 @@
                                         <div class="px-4 pb-5 sm:px-6">
                                             <div
                                                 class="mx-auto grid mt-6 gap-5 lg:max-w-none md:grid-cols-3 lg:grid-cols-2">
-                                                <div class="rounded-lg hover:shadow-lg shadow border">
+                                                <div>
                                                     <livewire:molecule-card :molecule="$molecule->parent" lazy />
                                                 </div>
                                             </div>
@@ -1027,8 +1027,8 @@
 
                             @if ($molecule->properties)
                             <section aria-labelledby="notes-title">
-                                <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg">
-                                    <div class="divide-y divide-gray-200">
+                                <div class="bg-white shadow-sm border border-gray-200 overflow-hidden rounded-xl">
+                                    <div class="divide-y divide-gray-100">
                                         <div class="px-4 py-5 sm:px-6">
                                             <h2 id="notes-title" class="text-lg font-medium text-gray-900">
                                                 Molecular
@@ -1117,8 +1117,8 @@
                             </section>
 
                             <section aria-labelledby="notes-title">
-                                <div class="bg-white shadow border sm:overflow-hidden sm:rounded-lg mb-10">
-                                    <div class="divide-y divide-gray-200">
+                                <div class="bg-white shadow-sm border border-gray-200 overflow-hidden rounded-xl mb-10">
+                                    <div class="divide-y divide-gray-100">
                                         <div class="px-4 py-5 sm:px-6">
                                             <h2 id="notes-title" class="text-lg font-medium text-gray-900">
                                                 Molecular
@@ -1179,7 +1179,7 @@
                         </section>
                         <section class="space-y-6 lg:col-span-1 lg:col-start-3 order-1 lg:order-2">
                             @if ($molecule->structures)
-                                <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg bg-white mb-2 mx-2">
+                                <div class="border border-gray-200 aspect-h-2 aspect-w-3 overflow-hidden rounded-xl bg-white mb-2 mx-2">
                                     <livewire:molecule-depict2d :height="300" :molecule="$molecule" :smiles="$molecule->canonical_smiles"
                                         :name="$molecule->name" :identifier="$molecule->identifier" :options="true" lazy="on-load">
                                 </div>
