@@ -19,7 +19,7 @@ FROM composer:${COMPOSER_VERSION} AS composer
 # =============================================================================
 # Main Application Stage
 # =============================================================================
-FROM dunglas/frankenphp:1.7.0-alpine
+FROM dunglas/frankenphp
 
 # Build arguments
 ARG WWWUSER=1000
