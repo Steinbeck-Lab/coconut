@@ -6,8 +6,6 @@
 # Following industry best practices for PHP/Laravel applications
 # =============================================================================
 
-ARG PHP_VERSION=8.4
-ARG FRANKENPHP_VERSION=latest
 ARG COMPOSER_VERSION=latest
 ARG NODE_VERSION=18
 

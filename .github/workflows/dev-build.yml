@@ -13,7 +13,7 @@ name : Development - Build COCONUT image and push to Docker Hub
 
 on:
   push:
-    branches: [update-docker-php-version]
+    branches: [development]
 
 env:
   REPOSITORY_NAME: coconut
