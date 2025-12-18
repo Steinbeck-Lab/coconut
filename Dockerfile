@@ -54,7 +54,7 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     python3-venv \
-    openjdk-21-jre-headless \
+    openjdk-17-jre-headless \
     && docker-php-ext-install \
     pdo_pgsql \
     pgsql \
@@ -77,8 +77,8 @@ RUN apt-get update && apt-get install -y \
 # Set Java environment variables (architecture-agnostic)
 # Dynamically determine JAVA_HOME based on the system architecture
 RUN ARCH=$(dpkg --print-architecture) && \
-    ln -sf /usr/lib/jvm/java-21-openjdk-${ARCH} /usr/lib/jvm/java-21-openjdk
-ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk
+    ln -sf /usr/lib/jvm/java-17-openjdk-${ARCH} /usr/lib/jvm/java-17-openjdk
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
 # Create Python virtual environment and install packages
