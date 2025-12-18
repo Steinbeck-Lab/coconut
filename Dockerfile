@@ -6,8 +6,6 @@
 # Following industry best practices for PHP/Laravel applications
 # =============================================================================
 
-ARG PHP_VERSION=8.4
-ARG FRANKENPHP_VERSION=latest
 ARG COMPOSER_VERSION=latest
 ARG NODE_VERSION=18
 
@@ -19,7 +17,7 @@ FROM composer:${COMPOSER_VERSION} AS composer
 # =============================================================================
 # Main Application Stage
 # =============================================================================
-FROM dunglas/frankenphp:1.7.0-alpine
+FROM dunglas/frankenphp:1-php8.4-bookworm
 
 # Build arguments
 ARG WWWUSER=1000
