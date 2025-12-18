@@ -1,3 +1,11 @@
+# This workflow automatically detects and handles spam issues submitted to the repository.
+# It analyzes new issues for spam patterns and characteristics, then closes and locks spam issues
+# while notifying the submitter, helping maintain repository quality.
+#
+# Maintainers:
+#   - name: Nisha Sharma
+#   - email: nisha.sharma@uni-jena.de
+
 name: Enhanced Spam Issue Detection
 
 on:

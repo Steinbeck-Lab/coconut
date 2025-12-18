@@ -1,0 +1,81 @@
+# This workflow validates PHP code quality and security.
+# It runs Laravel Pint to enforce consistent code formatting and performs Composer security audits
+# to check for known vulnerabilities in dependencies.
+#
+# Maintainers:
+#   - name: Nisha Sharma
+#   - email: nisha.sharma@uni-jena.de
+
+name: PHP Lint & Security
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: php-lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  php:
+    name: PHP Lint & Security
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer
+          extensions: mbstring, intl, pdo, pdo_mysql, pdo_pgsql
+          ini-values: memory_limit=512M
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.composer/cache/files
+            ~/.cache/composer/files
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Validate composer.json
+        run: composer validate --no-check-publish
+
+      - name: Install Composer dependencies
+        env:
+          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}
+        run: |
+          if [ -n "$COMPOSER_AUTH" ]; then
+            echo "$COMPOSER_AUTH" | base64 -d > "$HOME/.composer/auth.json"
+            echo "✅ Composer auth configured"
+            unset COMPOSER_AUTH
+          fi
+          composer install --prefer-dist --no-progress --no-interaction --no-scripts --optimize-autoloader
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Complete Composer autoload
+        run: composer dump-autoload
+
+      - name: PHP code style (Pint)
+        run: vendor/bin/pint --test
+
+      - name: Composer security audit
+        run: composer audit --no-interaction --locked
