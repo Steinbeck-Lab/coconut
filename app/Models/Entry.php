@@ -18,6 +18,7 @@ class Entry extends Model implements Auditable
     protected $casts = [
         'meta_data' => 'array',
         'synonyms' => 'array',
+        'cm_data' => 'array',
     ];
 
     /**

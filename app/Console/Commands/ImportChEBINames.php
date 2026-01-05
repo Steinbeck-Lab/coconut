@@ -38,6 +38,7 @@ class ImportChEBINames extends Command
         $batchSize = 1000;
         $header = null;
         $data = [];
+        $updates = [];
 
         if (($handle = fopen($file, 'r')) !== false) {
             while (($row = fgetcsv($handle, 0, '	', '"')) !== false) {

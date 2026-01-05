@@ -28,7 +28,7 @@ class IssuesRelationManager extends RelationManager
                     ->required()
                     ->maxLength(255)
                     ->columnSpanFull(),
-                TextArea::make('comment')
+                Forms\Components\Textarea::make('comment')
                     ->required()
                     ->maxLength(255)
                     ->columnSpanFull(),

@@ -203,7 +203,9 @@ class CreateReport extends CreateRecord
             }
         }
 
-        ReportSubmitted::dispatch($this->record);
+        /** @var \App\Models\Report $record */
+        $record = $this->record;
+        ReportSubmitted::dispatch($record);
     }
 
     protected function getCreateFormAction(): Action

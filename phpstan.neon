@@ -35,11 +35,7 @@ parameters:
         # Ignore PHPDoc type covariance issues from Laravel core
         - '#PHPDoc type .* is not covariant with PHPDoc type .* of overridden property#'
         
-        # Ignore method invocation with extra parameters (Spatie CSP package issue)
-        - '#Method Spatie\\Csp\\Policy::add\(\) invoked with 3 parameters, 2 required#'
-        
         # Ignore missing class issues in third-party packages
-        - '#Class .* not found#'
         - '#Call to method .* on an unknown class#'
         - '#Instantiated class .* not found#'
         

@@ -29,7 +29,7 @@ use GuzzleHttp\Client;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Log;
+use Illuminate\Support\Facades\Log;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class OrganismResource extends Resource
@@ -221,7 +221,7 @@ class OrganismResource extends Resource
             $organism->rank = $rank;
             $organism->save();
         } else {
-            self::error("Organism not found in the database: $name");
+            Log::error("Organism not found in the database: $name");
         }
     }
 

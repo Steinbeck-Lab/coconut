@@ -19,8 +19,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Helper\Sample;
-use Str;
 
 class ImportEntryAuto implements ShouldBeUnique, ShouldQueue
 {
@@ -50,6 +50,7 @@ class ImportEntryAuto implements ShouldBeUnique, ShouldQueue
 
         if ($this->entry->status == 'PASSED') {
             $molecule = null;
+            $parent = null;
             $doiRegex = '/\b(10[.][0-9]{4,}(?:[.][0-9]+)*)\b/';
 
             if ($this->entry->has_stereocenters) {
@@ -210,7 +211,7 @@ class ImportEntryAuto implements ShouldBeUnique, ShouldQueue
     /**
      * Save organism details.
      *
-     * @param  array  $organism
+     * @param  array  $organisms
      * @param  mixed  $molecule
      * @return void
      */
@@ -301,18 +302,18 @@ class ImportEntryAuto implements ShouldBeUnique, ShouldQueue
 
                 // If it exists, get the current IDs and merge them
                 if (! $moleculeOrganism->wasRecentlyCreated) {
-                    $existingCollectionIds = json_decode($moleculeOrganism->collection_ids ?? '[]', true);
-                    $existingCitationIds = json_decode($moleculeOrganism->citation_ids ?? '[]', true);
+                    $existingCollectionIds = $moleculeOrganism->collection_ids ?? [];
+                    $existingCitationIds = $moleculeOrganism->citation_ids ?? [];
 
                     $mergedCollectionIds = array_unique(array_merge($existingCollectionIds, $newCollectionIds));
                     $mergedCitationIds = array_unique(array_merge($existingCitationIds, $newCitationIds));
 
-                    $moleculeOrganism->collection_ids = json_encode($mergedCollectionIds);
-                    $moleculeOrganism->citation_ids = json_encode($mergedCitationIds);
+                    $moleculeOrganism->collection_ids = $mergedCollectionIds;
+                    $moleculeOrganism->citation_ids = $mergedCitationIds;
                 } else {
                     // It's new, so just set the initial values
-                    $moleculeOrganism->collection_ids = json_encode($newCollectionIds);
-                    $moleculeOrganism->citation_ids = json_encode($newCitationIds);
+                    $moleculeOrganism->collection_ids = $newCollectionIds;
+                    $moleculeOrganism->citation_ids = $newCitationIds;
                 }
 
                 // Save again with the updated collection and citation IDs
@@ -330,6 +331,7 @@ class ImportEntryAuto implements ShouldBeUnique, ShouldQueue
      */
     public function fetchCitation($citation_text, $molecule)
     {
+        $citation = null;
         try {
             $citation = Citation::firstOrCreate(['citation_text' => $citation_text]);
         } catch (QueryException $e) {
@@ -338,8 +340,10 @@ class ImportEntryAuto implements ShouldBeUnique, ShouldQueue
             }
         }
 
-        $molecule->citations()->syncWithoutDetaching($citation);
-        $this->citation_ids_array[] = $citation->id;
+        if ($citation) {
+            $molecule->citations()->syncWithoutDetaching($citation);
+            $this->citation_ids_array[] = $citation->id;
+        }
     }
 
     /**

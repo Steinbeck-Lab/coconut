@@ -2,11 +2,11 @@
 
 namespace App\Filament\Traits;
 
-use Str;
+use Illuminate\Support\Str;
 
 trait MutatesCollectionFormData
 {
-    protected static function mutateFormData(array $data): array
+    public static function mutateFormData(array $data): array
     {
         $data['slug'] = Str::slug($data['title']);
 

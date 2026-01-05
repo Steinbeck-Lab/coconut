@@ -37,15 +37,15 @@ class PublishMoleculesAuto extends Command
 
         $collection = Collection::find($collection_id);
 
-        if (! $collection) {
+        if (! $collection_id) {
             Log::info(('Processing molecules for all collections as no specific collection ID was provided.'));
             // Base query for draft molecules with published collections
             $query = Molecule::where('status', 'DRAFT')
                 ->whereHas('collections', function ($query) {
                     $query->where('status', 'PUBLISHED');
                 });
-        } elseif ($collection_id && $collection) {
-            Log::info("Processing molecules for collection: {$collection->name} (ID: {$collection_id})");
+        } elseif ($collection) {
+            Log::info("Processing molecules for collection: {$collection->title} (ID: {$collection_id})");
             // Base query for draft molecules
             $query = $collection->molecules()
                 ->where('status', 'DRAFT');
@@ -102,7 +102,7 @@ class PublishMoleculesAuto extends Command
             if ($collection->status == 'DRAFT') {
                 $collection->status = 'PUBLISHED';
                 $collection->save();
-                Log::info("Collection {$collection->name} (ID: {$collection_id}) has been published.");
+                Log::info("Collection {$collection->title} (ID: {$collection_id}) has been published.");
             }
         }
 

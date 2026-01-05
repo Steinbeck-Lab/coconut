@@ -15,6 +15,8 @@ class MoleculeDetails extends Component
 
     public $sortedOrganisms;
 
+    public $curationStatus;
+
     public function mount($molecule)
     {
         $this->molecule = $molecule;
@@ -183,7 +185,7 @@ class MoleculeDetails extends Component
             })
             ->filter() // Remove null users
             ->map(function ($user) {
-                $user->is_system = false;
+                $user->is_system = false; // @phpstan-ignore-line
 
                 return $user;
             });
@@ -227,8 +229,8 @@ class MoleculeDetails extends Component
      */
     public function getIncompleteStepsProperty()
     {
-        $curationStatus = $this->curationStatus;
-        $requiredSteps = $this->requiredSteps;
+        $curationStatus = $this->getCurationStatusProperty();
+        $requiredSteps = $this->getRequiredStepsProperty();
         $incompleteSteps = [];
 
         if ($curationStatus) {

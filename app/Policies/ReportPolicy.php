@@ -53,7 +53,9 @@ class ReportPolicy
                 }
 
                 // Or if user is already assigned as curator 1
-                if ($report->curators()->wherePivot('curator_number', 1)->first()?->id == $user->id) {
+                /** @var User|null $curator1 */
+                $curator1 = $report->curators()->wherePivot('curator_number', 1)->first();
+                if ($curator1?->id == $user->id) {
                     return true;
                 }
             }
@@ -61,7 +63,9 @@ class ReportPolicy
             // Case 2: Report is pending approval/rejection
             if ($report->status == ReportStatus::PENDING_APPROVAL->value || $report->status == ReportStatus::PENDING_REJECTION->value) {
                 // Get the first curator ID
-                $firstCuratorId = $report->curators()->wherePivot('curator_number', 1)->first()?->id;
+                /** @var User|null $firstCurator */
+                $firstCurator = $report->curators()->wherePivot('curator_number', 1)->first();
+                $firstCuratorId = $firstCurator?->id;
 
                 // Don't allow if user was the first curator (enforce four-eyes principle)
                 if ($firstCuratorId == $user->id) {
@@ -74,7 +78,9 @@ class ReportPolicy
                 }
 
                 // Or if user is already assigned as curator 2
-                if ($report->curators()->wherePivot('curator_number', 2)->first()?->id == $user->id) {
+                /** @var User|null $curator2 */
+                $curator2 = $report->curators()->wherePivot('curator_number', 2)->first();
+                if ($curator2?->id == $user->id) {
                     return true;
                 }
             }
