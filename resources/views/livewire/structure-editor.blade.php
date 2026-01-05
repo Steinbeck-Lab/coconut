@@ -177,7 +177,7 @@
                                         <div class="mt-4 space-y-3">
                                             <div class="flex items-center">
                                                 <label for="search-type-exact"
-                                                    :class="type === 'exact' ? 'bg-secondary-50 border-secondary-500 ring-2 ring-secondary-500' : 'bg-white border-gray-300 hover:border-gray-400'"
+                                                    :class="type === 'exact' ? 'bg-secondary-50 border-secondary-500' : 'bg-white border-gray-300 hover:border-gray-400'"
                                                     class="flex-1 cursor-pointer rounded-lg border-2 p-4 transition-all duration-200">
                                                     <div class="flex items-center justify-between">
                                                         <div class="flex items-center">
@@ -197,7 +197,7 @@
                                             </div>
                                             <div class="flex items-center">
                                                 <label for="search-type-sub"
-                                                    :class="type === 'substructure' ? 'bg-secondary-50 border-secondary-500 ring-secondary-500' : 'bg-white border-gray-300 hover:border-gray-400'"
+                                                    :class="type === 'substructure' ? 'bg-secondary-50 border-secondary-500' : 'bg-white border-gray-300 hover:border-gray-400'"
                                                     class="flex-1 cursor-pointer rounded-lg border-2 p-4 transition-all duration-200">
                                                     <div class="flex items-center justify-between">
                                                         <div class="flex items-center">
@@ -217,7 +217,7 @@
                                             </div>
                                             <div class="flex items-center">
                                                 <label for="search-type-similar"
-                                                    :class="type === 'similarity' ? 'bg-secondary-50 border-secondary-500 ring-2 ring-secondary-500' : 'bg-white border-gray-300 hover:border-gray-400'"
+                                                    :class="type === 'similarity' ? 'bg-secondary-50 border-secondary-500' : 'bg-white border-gray-300 hover:border-gray-400'"
                                                     class="flex-1 cursor-pointer rounded-lg border-2 p-4 transition-all duration-200">
                                                     <div class="flex items-center justify-between">
                                                         <div class="flex items-center">
@@ -275,7 +275,7 @@
                     </div>
                     <div class="flex justify-end gap-3 border-t border-gray-200 pt-4 mt-6">
                         <button @click="isOpen = false" type="button"
-                            class="cursor-pointer inline-flex justify-center rounded-md border border-gray-300 bg-danger-dark px-4 py-2 text-sm font-medium text-white hover:bg-danger-light focus:outline-none transition-colors">
+                            class="cursor-pointer inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none transition-colors">
                             Close
                         </button>
                         <button @click="performSearch()" type="button"
