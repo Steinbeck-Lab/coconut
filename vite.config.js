@@ -22,7 +22,7 @@ export default defineConfig({
         }
     },
     server: {
-        host: '0.0.0.0', // Listen on all interfaces for Docker
+        host: '0.0.0.0', // Required for Docker - security handled in docker-compose.yml
         https: false,
         hmr: {
             host: 'localhost',
