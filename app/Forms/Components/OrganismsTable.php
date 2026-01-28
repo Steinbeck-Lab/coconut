@@ -9,7 +9,7 @@ class OrganismsTable extends Field
 {
     protected string $view = 'forms.components.organisms-table';
 
-    public static function make(string $name): static
+    public static function make(?string $name = null): static
     {
         return parent::make($name);
     }

@@ -3,18 +3,27 @@
 namespace App\Filament\Dashboard\Resources;
 
 use App\Filament\Dashboard\Resources\OrganismResource\Pages;
+use App\Filament\Dashboard\Resources\OrganismResource\Pages\CreateOrganism;
+use App\Filament\Dashboard\Resources\OrganismResource\Pages\EditOrganism;
+use App\Filament\Dashboard\Resources\OrganismResource\Pages\ListOrganisms;
 use App\Filament\Dashboard\Resources\OrganismResource\RelationManagers\MoleculesRelationManager;
 use App\Filament\Dashboard\Resources\OrganismResource\RelationManagers\SampleLocationsRelationManager;
 use App\Filament\Dashboard\Resources\OrganismResource\Widgets\OrganismStats;
 use App\Forms\Components\OrganismsTable;
 use App\Models\Organism;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Group;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Form;
+use Exception;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use GuzzleHttp\Client;
 use Illuminate\Contracts\View\View;
@@ -25,18 +34,18 @@ use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class OrganismResource extends Resource
 {
-    protected static ?string $navigationGroup = 'Data';
+    protected static string|\UnitEnum|null $navigationGroup = 'Data';
 
     protected static ?int $navigationSort = 4;
 
     protected static ?string $model = Organism::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-bug-ant';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-bug-ant';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Grid::make()
                     ->schema([
                         Group::make()
@@ -68,15 +77,15 @@ class OrganismResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('rank')->wrap()
+                TextColumn::make('rank')->wrap()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -85,18 +94,20 @@ class OrganismResource extends Resource
                 AdvancedFilter::make()
                     ->includeColumns(),
             ])
-            ->actions([
-                Tables\Actions\Action::make('iri')
+            ->recordActions([
+                Action::make('iri')
                     ->label('IRI')
                     ->url(fn (Organism $record) => $record->iri ? urldecode($record->iri) : null, true)
                     ->color('info')
-                    ->icon('heroicon-o-link'),
+                    ->icon('heroicon-o-link')
+                    ->iconButton(),
                 // Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                EditAction::make()
+                    ->iconButton(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -115,9 +126,9 @@ class OrganismResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListOrganisms::route('/'),
-            'create' => Pages\CreateOrganism::route('/create'),
-            'edit' => Pages\EditOrganism::route('/{record}/edit'),
+            'index' => ListOrganisms::route('/'),
+            'create' => CreateOrganism::route('/create'),
+            'edit' => EditOrganism::route('/{record}/edit'),
             // 'view' => Pages\ViewOrganism::route('/{record}'),
         ];
     }
@@ -255,7 +266,7 @@ class OrganismResource extends Resource
             //         }
             //     }
             // }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Self::error("Error fetching IRI for $name: " . $e->getMessage());
             Log::error("Error fetching IRI for $name: ".$e->getMessage());
         }

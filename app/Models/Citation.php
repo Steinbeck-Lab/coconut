@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Closure;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Get;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -135,7 +135,8 @@ class Citation extends Model implements Auditable
                             } else {
                                 return true;
                             }
-                        }),
+                        })
+                        ->dehydrated(true),
                     Textarea::make('citation_text')
                         ->label('Citation text / URL')
                         ->required(function ($get) {
@@ -154,7 +155,8 @@ class Citation extends Model implements Auditable
                             } else {
                                 return true;
                             }
-                        }),
+                        })
+                        ->dehydrated(true),
                     TextInput::make('authors')
                         ->disabled(function ($get, string $operation) {
                             if ($operation == 'edit' || $get('failMessage') == 'No citation found. Please fill in the details manually' || empty($get('doi'))) {
@@ -162,7 +164,8 @@ class Citation extends Model implements Auditable
                             } else {
                                 return true;
                             }
-                        }),
+                        })
+                        ->dehydrated(true),
                 ])->columns(1),
         ];
     }
