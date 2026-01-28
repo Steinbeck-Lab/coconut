@@ -223,7 +223,6 @@ class CreateReport extends CreateRecord
                 return $this->data['report_category'] !== ReportCategory::UPDATE->value;
             })
             ->action(function () {
-                $this->closeActionModal();
                 $this->create();
             });
     }
