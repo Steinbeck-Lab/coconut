@@ -43,6 +43,10 @@ class Classify extends Command
             // Retrieve only molecules from this collection that do not have structures.
             $query = $collection->molecules();
             $this->info("Processing molecules from collection ID: {$collection_id}.");
+        } else {
+            // Process all molecules
+            $query = Molecule::query();
+            $this->info('Processing all molecules in the database.');
         }
 
         // Count the total number of molecules for the progress bar.
@@ -58,7 +62,7 @@ class Classify extends Command
         $progressBar->start();
 
         // Process molecules in chunks.
-        $query->select('molecules.id', 'molecules.canonical_smiles')
+        $query->select(['molecules.id', 'molecules.canonical_smiles'])
             ->chunk(100, function ($mols) use ($progressBar) {
                 $data = [];
                 foreach ($mols as $mol) {
@@ -102,7 +106,7 @@ class Classify extends Command
     {
         $maxRetries = 3;
         $attempt = 0;
-        $backoffSeconds = 0.01;
+        $backoffMicroseconds = 10000; // 0.01 seconds = 10,000 microseconds
 
         while ($attempt < $maxRetries) {
             try {
@@ -114,8 +118,8 @@ class Classify extends Command
 
                 // Throttling: if we hit a 429, wait and retry.
                 if ($response->status() === 429) {
-                    Log::warning("Throttled (429) for SMILES: {$smiles}. Retrying in {$backoffSeconds} second(s)...");
-                    sleep($backoffSeconds);
+                    Log::warning("Throttled (429) for SMILES: {$smiles}. Retrying in ".($backoffMicroseconds / 1000000).' second(s)...');
+                    usleep($backoffMicroseconds);
                     $attempt++;
 
                     continue;
@@ -126,7 +130,7 @@ class Classify extends Command
                 return null;
             } catch (Throwable $e) {
                 Log::error("Exception fetching data for SMILES: {$smiles}. ".$e->getMessage());
-                sleep($backoffSeconds);
+                usleep($backoffMicroseconds);
                 $attempt++;
             }
         }

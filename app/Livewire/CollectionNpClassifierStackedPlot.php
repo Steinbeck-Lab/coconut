@@ -196,7 +196,7 @@ class CollectionNpClassifierStackedPlot extends Component
 
             // Prepare final data structure
             $this->classifierData = [
-                'data' => array_values($filteredData),
+                'data' => $filteredData,
                 'classes' => $limitedClassKeys,
                 'sortScope' => $this->sortScope,
                 'sortBy' => $this->sortBy,
@@ -208,7 +208,7 @@ class CollectionNpClassifierStackedPlot extends Component
                 'classes' => count($limitedClassKeys),
                 'sortScope' => $this->sortScope,
                 'sortBy' => $this->sortBy,
-                'sample_collection_keys' => isset($filteredData[0]) ? array_keys($filteredData[0]) : [],
+                'sample_collection_keys' => array_keys($filteredData[0]),
             ]);
 
             // Get all collections for the filter dropdown

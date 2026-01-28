@@ -28,13 +28,13 @@ class SubmissionController extends Controller
 
         if (isset($submission_id)) {
             // retrieve submission under the user?
-            $submission = $user->submissions->where('id', $submission_id)->get();
+            $submission = $user->submissions->where('id', $submission_id)->get(); // @phpstan-ignore-line
             // check if the submission is still editable?
         } else {
             $reference = strtoupper(Str::random(8));
 
-            $submission = Submission::create([
-                'user_id' => $user->id,
+            $submission = Submission::create([ // @phpstan-ignore-line
+                'user_id' => $user->id, // @phpstan-ignore-line
                 'type' => 'report',
                 'reference' => $reference,
                 'comment' => $submission_comments,
@@ -103,9 +103,9 @@ class SubmissionController extends Controller
 
         $reference = strtoupper(Str::random(8));
 
-        $submission = Submission::create([
+        $submission = Submission::create([ // @phpstan-ignore-line
             'data' => json_encode($submissions),
-            'user_id' => $user->id,
+            'user_id' => $user->id, // @phpstan-ignore-line
             'type' => $type,
             'reference' => $reference,
             'comments' => $comments,

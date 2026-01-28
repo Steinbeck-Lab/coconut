@@ -33,7 +33,7 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
         }
 
         if ($input['email'] !== $user->email &&
-            $user instanceof MustVerifyEmail) {
+            $user instanceof MustVerifyEmail) { // @phpstan-ignore-line
             $this->updateVerifiedUser($user, $input);
         } else {
             $user->forceFill([

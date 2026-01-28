@@ -9,6 +9,10 @@ class DensityPlot extends Component
     // Making our data properties public so they're accessible in the view
     public $chartData_overall = [];
 
+    public $chartData_collections = [];
+
+    public $chartData = [];
+
     public function mount()
     {
         $jsonPath = public_path('reports/density_charts.json');

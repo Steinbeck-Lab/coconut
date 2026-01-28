@@ -30,6 +30,7 @@ return [
         'secret' => env('DATACITE_SECRET'),
         'prefix' => env('DATACITE_PREFIX'),
         'endpoint' => env('DATACITE_ENDPOINT', 'api.test.datacite.org'),
+        'host' => env('DOI_HOST'),
         'contributor_types' => env('DATACITE_CONTRIBUTOR_TYPE', ['ContactPerson', 'DataCollector', 'DataCurator', 'DataManager', 'Distributor', 'Editor', 'HostingInstitution', 'Producer', 'ProjectLeader', 'ProjectManager', 'ProjectMember', 'RegistrationAgency', 'RegistrationAuthority', 'RelatedPerson', 'Researcher', 'ResearchGroup', 'RightsHolder', 'Sponsor', 'Supervisor', 'WorkPackageLeader', 'Other']),
     ],
 

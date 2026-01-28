@@ -262,14 +262,14 @@ class FetchCitationMetadataAuto extends Command
                 )) {
                     $delay = $baseDelay * $attempt + (rand(0, 500) / 1000);
                     Log::info("Retrying after {$delay}s due to connection issue...");
-                    usleep($delay * 1000000);
+                    usleep((int) ($delay * 1000000));
 
                     continue;
                 }
             }
             if ($attempt < $maxRetries) {
                 $delay = $baseDelay * $attempt;
-                usleep($delay * 1000000);
+                usleep((int) ($delay * 1000000));
             }
         }
 

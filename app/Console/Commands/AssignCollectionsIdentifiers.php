@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Actions\Coconut\AssignCollectionIdentifier;
 use App\Models\Collection;
-use App\Models\Ticker;
-use DB;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class AssignCollectionsIdentifiers extends Command
 {
@@ -21,65 +21,25 @@ class AssignCollectionsIdentifiers extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Assigns identifiers to all collections without identifiers';
 
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(AssignCollectionIdentifier $assigner)
     {
-        $batchSize = 1000;
-        $currentIndex = $this->fetchLastIndex() + 1;
-        $data = [];
         $this->info('Assigning identifiers to collections');
-        Collection::select('identifier', 'id')->where([
-            ['identifier', '=', null],
-        ])->chunk($batchSize, function ($collections) use (&$currentIndex) {
-            $data = [];
-            $header = ['id', 'identifier'];
+
+        DB::transaction(function () use ($assigner) {
+            $collections = Collection::whereNull('identifier')->orderBy('id')->get();
+
             foreach ($collections as $collection) {
-                if (! $collection->identifier) {
-                    $data[] = array_combine($header, [$collection->id, $this->generateIdentifier($currentIndex)]);
-                    $currentIndex++;
-                }
+                $assigner->assign($collection);
             }
-            $this->insertBatch($data);
         });
+
         $this->info('Assigning identifiers to collections: Done');
-    }
 
-    public function generateIdentifier($index)
-    {
-        $prefix = (env('APP_ENV') === 'production') ? 'CNPC' : 'CNPC_DEV';
-
-        return $prefix.str_pad($index, 4, '0', STR_PAD_LEFT);
-    }
-
-    public function fetchLastIndex()
-    {
-        $ticker = Ticker::where('type', 'collection')->first();
-
-        return (int) $ticker->index;
-    }
-
-    /**
-     * Insert a batch of data into the database.
-     *
-     * @return void
-     */
-    private function insertBatch(array $data)
-    {
-        DB::transaction(function () use ($data) {
-            foreach ($data as $row) {
-                Collection::updateorCreate(
-                    [
-                        'id' => $row['id'],
-                    ],
-                    [
-                        'identifier' => $row['identifier'],
-                    ]
-                );
-            }
-        });
+        return 0;
     }
 }

@@ -31,7 +31,7 @@ class AnnotationScorePlot extends Component
         } catch (\Exception $e) {
             \Log::error('Failed to load density chart data: '.$e->getMessage());
 
-            $this->chartData = [
+            $this->chartData_overall = [
                 'properties' => [
                     'alogp' => [
                         'overall' => [

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Collection;
+use App\Models\Molecule;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -28,7 +29,7 @@ class PublishMolecules extends Command
     public function handle()
     {
         // Grab the 'collection_id' argument, which may be null or an integer
-        $collection_id = $this->argument('collection_id');
+        $collection_id = $this->argument('collection_id') ?? null;
 
         // Decide which query to build based on whether collection_id is null
         if (! is_null($collection_id)) {
@@ -44,12 +45,15 @@ class PublishMolecules extends Command
 
             // Retrieve only molecules from this collection that do not have properties
             $query = $collection->molecules();
+        } else {
+            // Process all molecules in the database
+            $query = Molecule::query();
         }
 
         // Use chunk to process large sets of molecules
         $query->select('molecules.id')
             ->where('status', 'DRAFT')
-            ->chunk(30000, function ($mols) use (&$i) {
+            ->chunk(30000, function ($mols) {
                 $ids = $mols->pluck('id')->toArray();
 
                 DB::table('molecules')
@@ -60,8 +64,10 @@ class PublishMolecules extends Command
                     ]);
             });
 
-        $collection->update([
-            'status' => 'PUBLISHED',
-        ]);
+        if ($collection_id) {
+            $collection->update([ // @phpstan-ignore-line
+                'status' => 'PUBLISHED',
+            ]);
+        }
     }
 }

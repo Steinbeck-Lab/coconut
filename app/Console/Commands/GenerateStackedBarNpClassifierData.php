@@ -96,19 +96,21 @@ class GenerateStackedBarNpClassifierData extends Command
             $collection['classesByCount'] = array_keys($classesByCount);
             $collection['classesByName'] = array_keys($classesByName);
         }
+        unset($collection); // Break the reference
 
         // Format for final output
         $collections = [];
-        foreach ($processedData as $collection) {
+        foreach ($processedData as $collectionData) {
+            /** @var array{title: mixed, classes: non-empty-array<int>, classesByCount: non-empty-list<(int|string)>, classesByName: non-empty-list<(int|string)>} $collectionData */
             $entry = [
-                'title' => $collection['title'],
-                'classesByCount' => $collection['classesByCount'],
-                'classesByName' => $collection['classesByName'],
+                'title' => $collectionData['title'],
+                'classesByCount' => $collectionData['classesByCount'],
+                'classesByName' => $collectionData['classesByName'],
             ];
 
             // Add all classes (even if zero)
             foreach ($allClasses as $class) {
-                $entry[$class] = $collection['classes'][$class] ?? 0;
+                $entry[$class] = $collectionData['classes'][$class] ?? 0;
             }
 
             $collections[] = $entry;
@@ -119,7 +121,7 @@ class GenerateStackedBarNpClassifierData extends Command
         $globalSortedClasses = array_keys($globalClassCounts);
 
         $finalData = [
-            'data' => array_values($collections),
+            'data' => $collections,
             'classes' => $allClasses,
             'globalSortedClasses' => $globalSortedClasses,
             'globalClassCounts' => $globalClassCounts,
