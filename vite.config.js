@@ -22,7 +22,10 @@ export default defineConfig({
         }
     },
     server: {
-        host: '127.0.0.1', // Force IPv4 localhost to avoid CSP issues with [::1]
-        https: false
+        host: '0.0.0.0', // Listen on all interfaces for Docker
+        https: false,
+        hmr: {
+            host: 'localhost',
+        },
     },
 });
