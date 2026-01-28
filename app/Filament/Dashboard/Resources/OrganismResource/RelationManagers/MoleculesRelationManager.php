@@ -181,7 +181,7 @@ class MoleculesRelationManager extends RelationManager
                                         }
                                     }
 
-                                    return $filtered->map(function ($record) { // @phpstan-ignore-line
+                                    return $filtered->map(function ($record) {
                                         $location_ids = [];
                                         foreach ($record->sampleLocations as $location) {
                                             array_push($location_ids, $location->id);

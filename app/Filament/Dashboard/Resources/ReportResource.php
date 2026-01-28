@@ -151,7 +151,7 @@ class ReportResource extends Resource
 
                                     // Check if user is curator 1 (for SUBMITTED status)
 
-                                    if ($record->status == \App\Enums\ReportStatus::SUBMITTED->value) {
+                                    if ($record->status == ReportStatus::SUBMITTED->value) {
                                         /** @var \App\Models\User|null $curator1 */
                                         $curator1 = $record->curators()->wherePivot('curator_number', 1)->first();
 
@@ -159,8 +159,8 @@ class ReportResource extends Resource
                                     }
 
                                     // Check if user is curator 2 (for PENDING_APPROVAL/PENDING_REJECTION status)
-                                    if ($record->status == \App\Enums\ReportStatus::PENDING_APPROVAL->value ||
-                                        $record->status == \App\Enums\ReportStatus::PENDING_REJECTION->value) {
+                                    if ($record->status == ReportStatus::PENDING_APPROVAL->value ||
+                                        $record->status == ReportStatus::PENDING_REJECTION->value) {
                                         /** @var \App\Models\User|null $curator2 */
                                         $curator2 = $record->curators()->wherePivot('curator_number', 2)->first();
 

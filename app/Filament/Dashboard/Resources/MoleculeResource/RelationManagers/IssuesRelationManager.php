@@ -8,7 +8,7 @@ use Filament\Actions\CreateAction;
 use Filament\Actions\DetachAction;
 use Filament\Actions\DetachBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\TextArea;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -28,7 +28,7 @@ class IssuesRelationManager extends RelationManager
                     ->required()
                     ->maxLength(255)
                     ->columnSpanFull(),
-                Forms\Components\Textarea::make('comment')
+                Textarea::make('comment')
                     ->required()
                     ->maxLength(255)
                     ->columnSpanFull(),

@@ -29,14 +29,14 @@ class ListCollections extends ListRecords
                 ->icon('heroicon-o-check-circle')
                 ->modifyQueryUsing(fn ($query) => $query->where('status', 'PUBLISHED'))
                 ->favorite()
-                ->badge(Collection::query()->where('status', 'PUBLISHED')->count())
+                ->badge((string) Collection::query()->where('status', 'PUBLISHED')->count())
                 ->preserveAll()
                 ->default(),
             'draft' => PresetView::make()
                 ->icon('heroicon-o-pencil-square')
                 ->modifyQueryUsing(fn ($query) => $query->where('status', 'DRAFT'))
                 ->favorite()
-                ->badge(Collection::query()->where('status', 'DRAFT')->count())
+                ->badge((string) Collection::query()->where('status', 'DRAFT')->count())
                 ->preserveAll(),
         ];
     }
