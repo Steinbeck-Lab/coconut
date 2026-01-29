@@ -171,8 +171,8 @@
                                 </div>
                                 <div>
                                     <fieldset class="mt-1">
-                                        <legend class="text-base font-medium text-gray-900 mb-2">
-                                            Select search type
+                                        <legend class="text-sm font-medium text-gray-700 mb-2">
+                                            Search type
                                         </legend>
                                         <div class="mt-4 space-y-3">
                                             <div class="flex items-center">
