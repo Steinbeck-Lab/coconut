@@ -279,11 +279,7 @@
                             Close
                         </button>
                         <button @click="performSearch()" type="button"
-<<<<<<< HEAD
-                            class="cursor-pointer inline-flex justify-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 focus:outline-none transition-colors">
-=======
                             class="cursor-pointer inline-flex justify-center rounded-md bg-secondary-dark px-4 py-2 text-sm font-medium text-white hover:bg-secondary-light focus:outline-none transition-colors">
->>>>>>> development
                             Search
                         </button>
                     </div>
