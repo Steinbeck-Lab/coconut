@@ -76,7 +76,7 @@
                                             <div class="flex items-center md:ml-1">
                                                 <button
                                                     @click="window.location.href = '/search?q=' + encodeURIComponent(query)"
-                                                    class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"><svg
+                                                    class="cursor-pointer rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"><svg
                                                         xmlns="http://www.w3.org/2000/svg" fill="none"
                                                         viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                                                         class="size-4 inline">
@@ -245,24 +245,22 @@
                         <livewire:structure-editor :mode="'button'" lazy="on-load" :smiles="''" />
                     </div>
                     <a href="/search"
-                        class="border bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
+                        class="border border-gray-200 bg-white justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
                         </svg>
                         <small class="text-base font-semibold leading-7">Browse Data</small>
-                        </button>
                     </a>
                     <div @click="isOpen = true"
-                        class="cursor-pointer border bg-gray-50 justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-secondary-dark focus:ring-offset-2">
+                        class="cursor-pointer border border-gray-200 bg-white justify-center items-center text-center rounded-md text-gray-900 mr-1 py-3 px-4 hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all shadow-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M3 4.5h14.25M3 9h9.75M3 13.5h5.25m5.25-.75L17.25 9m0 0L21 12.75M17.25 9v12" />
                         </svg>
                         <small class="text-base font-semibold leading-7">Submit Data</small>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -467,44 +465,47 @@
                         class="-mb-1 block bg-gradient-to-r from-secondary-dark to-secondary-light bg-clip-text pb-1 text-transparent">Get
                         in touch or create an account.</span></h2>
             </div>
-            <div class="mt-6 space-y-4 sm:flex sm:space-y-0 sm:space-x-5"><a href="mailto:info.coconut@uni-jena.de"
-                    target="_blank"
-                    class="cursor-pointer flex items-center justify-center rounded-md border border-transparent bg-teal-50 px-4 py-3 text-base font-medium text-teal-800 shadow-sm hover:bg-teal-100">Contact
-                    Us</a>
+            <div class="mt-6 space-y-4 sm:flex sm:space-y-0 sm:space-x-5">
+                <a href="mailto:info.coconut@uni-jena.de" target="_blank"
+                    class="cursor-pointer rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4 inline">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                    </svg>
+                    &nbsp;Contact Us
+                </a>
             </div>
         </div>
     </div>
-    <div x-show="isOpen" x-cloak class="fixed z-20 inset-0 overflow-y-auto" aria-labelledby="modal-title"
-        role="dialog" aria-modal="true">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-            <!-- This element is to trick the browser into centering the modal contents. -->
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div
-                class="z-20 inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-                <div class="sm:flex sm:items-start">
-                    <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                        <div class="py-3">
-                            You are welcome to submit your natural product collection in CSV format to the COCONUT
-                            database. Please send your data via email to <a class="text-blue-600"
-                                href="mailto:info.coconut@uni-jena.de">info.coconut@uni-jena.de</a>. To assist you in
-                            preparing your submission, an example CSV template is available for download below,
-                            detailing the required format and fields. We value your contribution and appreciate your
-                            effort in enriching the COCONUT database.
-                            <br />
-                            <br />
-                            <i>Online submissions will be available soon.</i>
-                        </div>
-                    </div>
+    <div x-show="isOpen" x-cloak 
+        x-transition:enter="ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex min-h-screen items-center justify-center p-4">
+            <div @click="isOpen = false" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm"></div>
+            <div class="relative z-10 w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Submit Data</h3>
                 </div>
-                <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                <div class="text-sm text-gray-600 leading-relaxed">
+                    <p>You are welcome to submit your natural product collection in CSV format to the COCONUT
+                    database. Please send your data via email to <a class="text-blue-600 hover:underline"
+                        href="mailto:info.coconut@uni-jena.de">info.coconut@uni-jena.de</a>.</p>
+                    <p class="mt-3">To assist you in preparing your submission, an example CSV template is available for download below,
+                    detailing the required format and fields.</p>
+                    <p class="mt-3 text-gray-500 italic">Online submissions will be available soon.</p>
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
                     <button @click="isOpen = false" type="button"
-                        class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        class="cursor-pointer inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none transition-colors">
                         Close
                     </button>
-                    <a href="https://coconut.s3.uni-jena.de/np-collection-example.csv" target="_blank" type="button"
-                        class="cursor-pointer mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                        Download example CSV file
+                    <a href="https://coconut.s3.uni-jena.de/np-collection-example.csv" target="_blank"
+                        class="cursor-pointer inline-flex justify-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 focus:outline-none transition-colors">
+                        Download CSV Template
                     </a>
                 </div>
             </div>

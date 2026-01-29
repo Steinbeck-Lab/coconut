@@ -3,7 +3,7 @@
 namespace App\Filament\Dashboard\Resources\MoleculeResource\Pages;
 
 use App\Filament\Dashboard\Resources\MoleculeResource;
-use Filament\Actions;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditMolecule extends EditRecord
@@ -13,7 +13,7 @@ class EditMolecule extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            DeleteAction::make(),
         ];
     }
 }

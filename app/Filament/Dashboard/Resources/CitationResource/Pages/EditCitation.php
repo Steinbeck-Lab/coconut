@@ -3,7 +3,7 @@
 namespace App\Filament\Dashboard\Resources\CitationResource\Pages;
 
 use App\Filament\Dashboard\Resources\CitationResource;
-use Filament\Actions;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditCitation extends EditRecord
@@ -13,7 +13,7 @@ class EditCitation extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            DeleteAction::make(),
         ];
     }
 }

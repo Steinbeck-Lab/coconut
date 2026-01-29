@@ -3,11 +3,15 @@
 namespace App\Filament\Dashboard\Resources\ReportResource\RelationManagers;
 
 use App\Models\Molecule;
-use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Actions\AttachAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DetachAction;
+use Filament\Actions\DetachBulkAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\HtmlString;
@@ -16,11 +20,11 @@ class MoleculesRelationManager extends RelationManager
 {
     protected static string $relationship = 'molecules';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('canonical_smiles')
+        return $schema
+            ->components([
+                TextInput::make('canonical_smiles')
                     ->required()
                     ->maxLength(255),
             ]);
@@ -41,49 +45,49 @@ class MoleculesRelationManager extends RelationManager
                     ->height(200)
                     ->ring(5)
                     ->defaultImageUrl(url('/images/placeholder.png')),
-                Tables\Columns\TextColumn::make('id')->searchable()->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('identifier')->searchable()->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('identifier')
+                TextColumn::make('id')->searchable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('identifier')->searchable()->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('identifier')
                     ->label('Details')
                     ->formatStateUsing(
                         fn (Molecule $molecule): HtmlString => new HtmlString("<strong>ID:</strong> {$molecule->id}<br><strong>Identifier:</strong> {$molecule->identifier}<br><strong>Name:</strong> {$molecule->name}")
                     )
                     ->description(fn (Molecule $molecule): string => $molecule->standard_inchi)
                     ->wrap(),
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable()
                     ->wrap()
                     ->lineClamp(6)
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('synonyms')
+                TextColumn::make('synonyms')
                     ->searchable()
                     ->wrap()
                     ->lineClamp(6)
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('properties.exact_molecular_weight')
+                TextColumn::make('properties.exact_molecular_weight')
                     ->label('Mol.Wt')
                     ->numeric()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('properties.np_likeness')
+                TextColumn::make('properties.np_likeness')
                     ->label('NP Likeness')
                     ->numeric()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('status'),
+                TextColumn::make('status'),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make()
+                AttachAction::make()
                     ->multiple()
                     ->recordSelectSearchColumns(['canonical_smiles']),
             ])
-            ->actions([
-                Tables\Actions\DetachAction::make(),
+            ->recordActions([
+                DetachAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DetachBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DetachBulkAction::make(),
                 ]),
             ]);
     }
