@@ -531,10 +531,10 @@ class ImportCisTransEntries extends Command
                 $combinationExists = false;
                 for ($i = 0; $i < count($existingReferences); $i++) {
                     if (
-                        isset($existingReferences[$i]) && $existingReferences[$i] === $newReference &&
-                        isset($existingUrls[$i]) && $existingUrls[$i] === $newUrl &&
-                        isset($existingFilenames[$i]) && $existingFilenames[$i] === $newFilename &&
-                        isset($existingComments[$i]) && $existingComments[$i] === $newComment
+                        $existingReferences[$i] === $newReference &&
+                        $existingUrls[$i] === $newUrl &&
+                        $existingFilenames[$i] === $newFilename &&
+                        $existingComments[$i] === $newComment
                     ) {
                         $combinationExists = true;
                         break;

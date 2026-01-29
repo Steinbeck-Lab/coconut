@@ -203,7 +203,9 @@ class CreateReport extends CreateRecord
             }
         }
 
-        ReportSubmitted::dispatch($this->record);
+        /** @var \App\Models\Report $record */
+        $record = $this->record;
+        ReportSubmitted::dispatch($record);
     }
 
     protected function getCreateFormAction(): Action
@@ -221,7 +223,6 @@ class CreateReport extends CreateRecord
                 return $this->data['report_category'] !== ReportCategory::UPDATE->value;
             })
             ->action(function () {
-                $this->closeActionModal();
                 $this->create();
             });
     }

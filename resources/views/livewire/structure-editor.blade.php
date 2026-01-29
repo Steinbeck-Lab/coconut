@@ -174,22 +174,67 @@
                                         <legend class="text-sm font-medium text-gray-700 mb-2">
                                             Search type
                                         </legend>
-                                        <div class="mt-3 flex gap-2">
-                                            <button type="button" @click="type = 'exact'"
-                                                :class="type === 'exact' ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'"
-                                                class="flex-1 cursor-pointer rounded-md border px-3 py-2 text-sm font-medium transition-colors">
-                                                Exact
-                                            </button>
-                                            <button type="button" @click="type = 'substructure'"
-                                                :class="type === 'substructure' ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'"
-                                                class="flex-1 cursor-pointer rounded-md border px-3 py-2 text-sm font-medium transition-colors">
-                                                Substructure
-                                            </button>
-                                            <button type="button" @click="type = 'similarity'"
-                                                :class="type === 'similarity' ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'"
-                                                class="flex-1 cursor-pointer rounded-md border px-3 py-2 text-sm font-medium transition-colors">
-                                                Similarity
-                                            </button>
+                                        <div class="mt-4 space-y-3">
+                                            <div class="flex items-center">
+                                                <label for="search-type-exact"
+                                                    :class="type === 'exact' ? 'bg-secondary-50 border-secondary-500' : 'bg-white border-gray-300 hover:border-gray-400'"
+                                                    class="flex-1 cursor-pointer rounded-lg border-2 p-4 transition-all duration-200">
+                                                    <div class="flex items-center justify-between">
+                                                        <div class="flex items-center">
+                                                            <input id="search-type-exact" name="search-type" x-model="type"
+                                                                value="exact" type="radio"
+                                                                class="h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
+                                                            <span class="ml-3 font-semibold text-gray-900">Exact match</span>
+                                                        </div>
+                                                        <span x-show="type === 'exact'" class="text-secondary-600">
+                                                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                            </svg>
+                                                        </span>
+                                                    </div>
+                                                    <p class="ml-7 mt-1 text-sm text-gray-500">Find molecules with identical structure</p>
+                                                </label>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <label for="search-type-sub"
+                                                    :class="type === 'substructure' ? 'bg-secondary-50 border-secondary-500' : 'bg-white border-gray-300 hover:border-gray-400'"
+                                                    class="flex-1 cursor-pointer rounded-lg border-2 p-4 transition-all duration-200">
+                                                    <div class="flex items-center justify-between">
+                                                        <div class="flex items-center">
+                                                            <input id="search-type-sub" name="search-type" x-model="type"
+                                                                value="substructure" type="radio"
+                                                                class="h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
+                                                            <span class="ml-3 font-semibold text-gray-900">Substructure Search</span>
+                                                        </div>
+                                                        <span x-show="type === 'substructure'" class="text-secondary-600">
+                                                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                            </svg>
+                                                        </span>
+                                                    </div>
+                                                    <p class="ml-7 mt-1 text-sm text-gray-500">Find molecules containing this structure</p>
+                                                </label>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <label for="search-type-similar"
+                                                    :class="type === 'similarity' ? 'bg-secondary-50 border-secondary-500' : 'bg-white border-gray-300 hover:border-gray-400'"
+                                                    class="flex-1 cursor-pointer rounded-lg border-2 p-4 transition-all duration-200">
+                                                    <div class="flex items-center justify-between">
+                                                        <div class="flex items-center">
+                                                            <input id="search-type-similar" name="search-type" x-model="type"
+                                                                value="similarity" type="radio"
+                                                                class="h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
+                                                            <span class="ml-3 font-semibold text-gray-900">Similarity Search</span>
+                                                        </div>
+                                                        <span x-show="type === 'similarity'" class="text-secondary-600">
+                                                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                            </svg>
+                                                        </span>
+                                                    </div>
+                                                    <p class="ml-7 mt-1 text-sm text-gray-500">Find similar molecules (Tanimoto ≥ 0.5)</p>
+                                                </label>
+                                            </div>
                                         </div>
                                     </fieldset>
                                     <div class="mt-6" x-show="recentSearches.length > 0">
@@ -234,7 +279,11 @@
                             Close
                         </button>
                         <button @click="performSearch()" type="button"
+<<<<<<< HEAD
                             class="cursor-pointer inline-flex justify-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 focus:outline-none transition-colors">
+=======
+                            class="cursor-pointer inline-flex justify-center rounded-md bg-secondary-dark px-4 py-2 text-sm font-medium text-white hover:bg-secondary-light focus:outline-none transition-colors">
+>>>>>>> development
                             Search
                         </button>
                     </div>

@@ -109,7 +109,7 @@ class GenerateCoordinates extends Command
     {
         $maxRetries = 3;
         $attempt = 0;
-        $backoffSeconds = 0.01;
+        $backoffMicroseconds = 10000; // 0.01 seconds = 10,000 microseconds
 
         while ($attempt < $maxRetries) {
             try {
@@ -120,8 +120,8 @@ class GenerateCoordinates extends Command
                 }
 
                 if ($response->status() === 429) {
-                    Log::warning("Throttled (429) for SMILES: {$smiles}. Retrying in {$backoffSeconds} second(s)...");
-                    sleep($backoffSeconds);
+                    Log::warning("Throttled (429) for SMILES: {$smiles}. Retrying in ".($backoffMicroseconds / 1000000).' second(s)...');
+                    usleep($backoffMicroseconds);
                     $attempt++;
 
                     continue;
@@ -132,7 +132,7 @@ class GenerateCoordinates extends Command
                 return null;
             } catch (Throwable $e) {
                 Log::error("Exception fetching data for SMILES: {$smiles}. ".$e->getMessage());
-                sleep($backoffSeconds);
+                usleep($backoffMicroseconds);
                 $attempt++;
             }
         }

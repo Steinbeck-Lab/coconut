@@ -5,10 +5,12 @@ namespace App\Console\Commands;
 use App\Jobs\ImportPubChem;
 use App\Models\Collection;
 use App\Models\Molecule;
-use DB;
+use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
-use Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class ImportPubChemNames extends Command
 {
@@ -79,7 +81,7 @@ class ImportPubChemNames extends Command
                             }
                         } catch (\ValueError $e) {
                             Log::info('An error occurred: '.$e->getMessage());
-                            Log::info($rowCount++);
+                            Log::info((string) $rowCount++);
                         }
                     }
                 }

@@ -3,6 +3,13 @@
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          bootstrap="vendor/autoload.php"
          colors="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         executionOrder="random"
+         failOnWarning="true"
+         failOnRisky="true"
+         failOnEmptyTestSuite="true"
+         beStrictAboutOutputDuringTests="true"
 >
     <testsuites>
         <testsuite name="Unit">
@@ -16,16 +23,29 @@
         <include>
             <directory>app</directory>
         </include>
+        <exclude>
+            <directory>app/Console/Commands</directory>
+            <file>app/Helper.php</file>
+        </exclude>
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_DRIVER" value="array"/>
-        <env name="DB_DATABASE" value="testing"/>
+        <env name="DB_CONNECTION" value="pgsql" force="false"/>
+        <env name="DB_HOST" value="localhost" force="false"/>
+        <env name="DB_PORT" value="5432" force="false"/>
+        <env name="DB_DATABASE" value="testing" force="false"/>
+        <env name="DB_USERNAME" value="sail" force="false"/>
+        <env name="DB_PASSWORD" value="password" force="false"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
+        <env name="FILAMENT_BROADCASTING_ENABLED" value="false"/>
     </php>
+    <logging>
+        <junit outputFile="junit.xml"/>
+    </logging>
 </phpunit>

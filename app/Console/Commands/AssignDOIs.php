@@ -30,7 +30,7 @@ class AssignDOIs extends Command
      */
     public function handle(AssignDOI $assigner)
     {
-        return DB::transaction(function () use ($assigner) {
+        DB::transaction(function () use ($assigner) {
             $collections = Collection::where([
                 ['status', 'PUBLISHED'],
                 ['doi', null],
@@ -41,5 +41,7 @@ class AssignDOIs extends Command
                 $assigner->assign($collection);
             }
         });
+
+        return 0;
     }
 }

@@ -11,6 +11,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use OwenIt\Auditing\Contracts\Auditable;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string|null $iri
+ * @property string|null $rank
+ * @property int|null $molecule_count
+ * @property string|null $slug
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ */
 class Organism extends Model implements Auditable
 {
     use HasFactory;

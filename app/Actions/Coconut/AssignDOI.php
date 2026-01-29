@@ -3,25 +3,27 @@
 namespace App\Actions\Coconut;
 
 use App\Models\Collection;
-use App\Models\Ticker;
 use App\Services\DOI\DOIService;
 
 class AssignDOI
 {
     private $doiService;
 
+    private $identifierAssigner;
+
     /**
      * Create a new class instance.
      *
      * @return void
      */
-    public function __construct(DOIService $doiService)
+    public function __construct(DOIService $doiService, AssignCollectionIdentifier $identifierAssigner)
     {
         $this->doiService = $doiService;
+        $this->identifierAssigner = $identifierAssigner;
     }
 
     /**
-     * Archive the given model.
+     * Assign DOI to the given collection.
      *
      * @param  mixed  $model
      * @return void
@@ -33,16 +35,7 @@ class AssignDOI
             $collection = $model;
         }
         if ($collection) {
-            $collectionIdentifier = $collection->identifier ? $collection->identifier : null;
-            if ($collectionIdentifier == null) {
-                $collectionTicker = Ticker::whereType('collection')->first();
-                $collectionIdentifier = $collectionTicker->index + 1;
-                $collectionTicker->index = $collectionIdentifier;
-                $collectionTicker->save();
-
-                $collection->identifier = $collectionIdentifier;
-                $collection->save();
-            }
+            $this->identifierAssigner->assign($collection);
             $collection->fresh()->generateDOI($this->doiService);
             echo $collection->identifier."\r\n";
         }

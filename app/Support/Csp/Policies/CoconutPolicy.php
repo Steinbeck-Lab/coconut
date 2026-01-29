@@ -28,7 +28,7 @@ class CoconutPolicy implements Preset
         $policy
             ->add(Directive::SCRIPT, Keyword::SELF)
             ->add(Directive::STYLE, Keyword::SELF)
-            ->add(Directive::FONT, Keyword::SELF, 'data:')
+            ->add(Directive::FONT, [Keyword::SELF, 'data:'])
             ->add(Directive::CONNECT, Keyword::SELF);
 
         // Third-party services
@@ -131,12 +131,12 @@ class CoconutPolicy implements Preset
 
         // Connection sources - External APIs
         $policy
-            ->add(Directive::CONNECT, env('AWS_ENDPOINT', 'https://s3.uni-jena.de'))
-            ->add(Directive::CONNECT, env('EUROPEPMC_WS_API', 'https://www.ebi.ac.uk/europepmc/webservices/rest/search'))
-            ->add(Directive::CONNECT, env('CROSSREF_WS_API', 'https://api.crossref.org/works/'))
-            ->add(Directive::CONNECT, env('DATACITE_WS_API', 'https://api.datacite.org/dois/'))
-            ->add(Directive::CONNECT, env('NFDI_REDIRECT_URL', 'https://coconut.naturalproducts.net'))
-            ->add(Directive::CONNECT, env('CM_PUBLIC_API', 'https://api.cheminf.studio'))
+            ->add(Directive::CONNECT, config('filesystems.disks.s3.endpoint') ?: 'https://s3.uni-jena.de')
+            ->add(Directive::CONNECT, config('services.citation.europepmc_url') ?: 'https://www.ebi.ac.uk/europepmc/webservices/rest/search')
+            ->add(Directive::CONNECT, config('services.citation.crossref_url') ?: 'https://api.crossref.org/works/')
+            ->add(Directive::CONNECT, config('services.citation.datacite_url') ?: 'https://api.datacite.org/dois/')
+            ->add(Directive::CONNECT, config('services.regapp.redirect') ?: 'https://coconut.naturalproducts.net')
+            ->add(Directive::CONNECT, config('services.cheminf.api_url') ?: 'https://api.cheminf.studio')
             ->add(Directive::CONNECT, 'https://coconut.naturalproducts.net')
             ->add(Directive::CONNECT, 'https://dev.coconut.naturalproducts.net')
             ->add(Directive::CONNECT, '*.tawk.to')

@@ -6,6 +6,7 @@ use App\Models\Entry;
 use App\Models\Organism;
 use DB;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class UpdateNPAtlasSpeciesData extends Command
 {
@@ -54,7 +55,7 @@ class UpdateNPAtlasSpeciesData extends Command
                         }
                     } catch (\ValueError $e) {
                         Log::info('An error occurred: '.$e->getMessage());
-                        Log::info($rowCount++);
+                        Log::info((string) $rowCount++);
                     }
                 }
             }
