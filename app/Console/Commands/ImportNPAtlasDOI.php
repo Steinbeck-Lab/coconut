@@ -6,6 +6,7 @@ use App\Models\Citation;
 use App\Models\Entry;
 use DB;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class ImportNPAtlasDOI extends Command
 {
@@ -54,7 +55,7 @@ class ImportNPAtlasDOI extends Command
                         }
                     } catch (\ValueError $e) {
                         Log::info('An error occurred: '.$e->getMessage());
-                        Log::info($rowCount++);
+                        Log::info((string) $rowCount++);
                     }
                 }
             }

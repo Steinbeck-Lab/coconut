@@ -6,8 +6,15 @@ use App\Enums\ReportCategory;
 use App\Enums\ReportStatus;
 use App\Events\ReportAssigned;
 use App\Events\ReportStatusChanged;
-use App\Filament\Dashboard\Resources\ReportResource\Pages;
-use App\Filament\Dashboard\Resources\ReportResource\RelationManagers;
+use App\Filament\Dashboard\Resources\ReportResource\Pages\CreateReport;
+use App\Filament\Dashboard\Resources\ReportResource\Pages\EditReport;
+use App\Filament\Dashboard\Resources\ReportResource\Pages\ListReports;
+use App\Filament\Dashboard\Resources\ReportResource\Pages\ViewReport;
+use App\Filament\Dashboard\Resources\ReportResource\RelationManagers\CitationsRelationManager;
+use App\Filament\Dashboard\Resources\ReportResource\RelationManagers\CollectionsRelationManager;
+use App\Filament\Dashboard\Resources\ReportResource\RelationManagers\EntriesRelationManager;
+use App\Filament\Dashboard\Resources\ReportResource\RelationManagers\MoleculesRelationManager;
+use App\Filament\Dashboard\Resources\ReportResource\RelationManagers\OrganismsRelationManager;
 use App\Models\Citation;
 use App\Models\Collection;
 use App\Models\Entry;
@@ -17,26 +24,27 @@ use App\Models\Organism;
 use App\Models\Report;
 use App\Models\ReportUser;
 use App\Models\User;
-use Archilex\AdvancedTables\Filters\AdvancedFilter;
 use Closure;
-use Filament\Forms\Components\Actions;
-use Filament\Forms\Components\Actions\Action;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Actions;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Schema;
 use Filament\Support\Enums\VerticalAlignment;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -44,17 +52,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class ReportResource extends Resource
 {
-    protected static ?string $navigationGroup = 'Reporting';
+    protected static string|\UnitEnum|null $navigationGroup = 'Reporting';
 
     protected static ?string $model = Report::class;
 
     protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static $molecule = null;
 
@@ -67,10 +76,10 @@ class ReportResource extends Resource
         self::$molecule = request()->has('compound_id') ? Molecule::where('identifier', request()->compound_id)->first() : null;
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Grid::make()
                     ->schema([
                         Select::make('report_category')
@@ -141,18 +150,21 @@ class ReportResource extends Resource
                                     $currentUserId = auth()->id();
 
                                     // Check if user is curator 1 (for SUBMITTED status)
-                                    if ($record->status == \App\Enums\ReportStatus::SUBMITTED->value) {
+
+                                    if ($record->status == ReportStatus::SUBMITTED->value) {
+                                        /** @var \App\Models\User|null $curator1 */
                                         $curator1 = $record->curators()->wherePivot('curator_number', 1)->first();
 
-                                        return $curator1?->id !== $currentUserId;
+                                        return $curator1?->getKey() !== $currentUserId;
                                     }
 
                                     // Check if user is curator 2 (for PENDING_APPROVAL/PENDING_REJECTION status)
-                                    if ($record->status == \App\Enums\ReportStatus::PENDING_APPROVAL->value ||
-                                        $record->status == \App\Enums\ReportStatus::PENDING_REJECTION->value) {
+                                    if ($record->status == ReportStatus::PENDING_APPROVAL->value ||
+                                        $record->status == ReportStatus::PENDING_REJECTION->value) {
+                                        /** @var \App\Models\User|null $curator2 */
                                         $curator2 = $record->curators()->wherePivot('curator_number', 2)->first();
 
-                                        return $curator2?->id !== $currentUserId;
+                                        return $curator2?->getKey() !== $currentUserId;
                                     }
 
                                     // Hide by default if status doesn't match any condition
@@ -172,7 +184,7 @@ class ReportResource extends Resource
                                     $subject = $compoundId.': '.$record->title;
 
                                     // Build body with report details
-                                    $reportUrl = env('APP_URL').'/dashboard/reports/'.$record->id;
+                                    $reportUrl = config('app.url').'/dashboard/reports/'.$record->id;
                                     $body = "Hello {$userName},\n\n";
                                     $body .= "[Your message here]\n\n";
                                     $body .= "---\n";
@@ -195,7 +207,7 @@ class ReportResource extends Resource
                                     return 'mailto:'.rawurlencode($userEmail).'?cc='.rawurlencode($ccEmail).'&subject='.rawurlencode($subject).'&body='.rawurlencode($body);
                                 }, shouldOpenInNewTab: true),
                             Action::make('approve')
-                                ->form(function ($record, $livewire, $get) {
+                                ->schema(function ($record, $livewire, $get) {
                                     if ($record['report_category'] === ReportCategory::UPDATE->value) {
                                         self::$approved_changes = self::prepareApprovedChanges($record, $livewire);
                                         $key_value_fields = getChangesToDisplayModal(self::$approved_changes);
@@ -241,7 +253,7 @@ class ReportResource extends Resource
 
                                             // If validation passed, show confirmation modal
                                             return true;
-                                        } catch (\Illuminate\Validation\ValidationException $e) {
+                                        } catch (ValidationException $e) {
                                             // Validation failed, don't show confirmation modal
                                             // Filament will automatically show validation errors
                                             return false;
@@ -257,18 +269,18 @@ class ReportResource extends Resource
                                         $get('status') == ReportStatus::APPROVED->value ||
                                         $operation != 'edit';
                                 })
-                                ->action(function (array $data, Report $record, Molecule $molecule, $set, $livewire, $get): void {
+                                ->action(function (array $data, Report $record, $set, $livewire, $get): void {
                                     // Add this validation check before processing the approval
                                     if ($record['report_category'] === ReportCategory::SUBMISSION->value) {
                                         // Validate the form data
                                         $livewire->validate();
 
                                         // If validation passes, proceed with approval
-                                        self::approveReport($data, $record, $molecule, $livewire);
+                                        self::approveReport($data, $record, $livewire);
                                         $set('status', ReportStatus::APPROVED->value);
                                     } else {
                                         // For other report types, proceed as normal
-                                        self::approveReport($data, $record, $molecule, $livewire);
+                                        self::approveReport($data, $record, $livewire);
                                         $set('status', ReportStatus::APPROVED->value);
                                     }
                                 })
@@ -279,7 +291,7 @@ class ReportResource extends Resource
                                 }),
                             Action::make('reject')
                                 ->color('danger')
-                                ->form([
+                                ->schema([
                                     Textarea::make('reason'),
                                 ])
                                 ->hidden(function (Get $get, string $operation) {
@@ -306,7 +318,7 @@ class ReportResource extends Resource
                                         ($record->status != ReportStatus::APPROVED->value) &&
                                         ($record->status != ReportStatus::REJECTED->value));
                                 })
-                                ->form([
+                                ->schema([
                                     Radio::make('curator')
                                         ->label(function ($record) {
                                             if ($record->status == ReportStatus::SUBMITTED->value) {
@@ -317,12 +329,14 @@ class ReportResource extends Resource
                                         })
                                         ->default(function ($record) {
                                             if ($record->status == ReportStatus::SUBMITTED->value) {
+                                                /** @var \App\Models\User|null $curator */
                                                 $curator = $record->curators()->wherePivot('curator_number', 1)->first();
                                             } else {
+                                                /** @var \App\Models\User|null $curator */
                                                 $curator = $record->curators()->wherePivot('curator_number', 2)->first();
                                             }
 
-                                            return $curator?->id;
+                                            return $curator?->getKey();
                                         })
                                         ->options(function (Report $record) {
                                             // Get all users with curator roles
@@ -330,9 +344,10 @@ class ReportResource extends Resource
 
                                             // For pending reports, remove the first curator to allow other curators to be assigned
                                             if ($record->status === ReportStatus::PENDING_APPROVAL->value || $record->status === ReportStatus::PENDING_REJECTION->value) {
+                                                /** @var \App\Models\User|null $curator1 */
                                                 $curator1 = $record->curators()->wherePivot('curator_number', 1)->first();
                                                 if ($curator1) {
-                                                    unset($curators[$curator1->id]);
+                                                    unset($curators[$curator1->getKey()]);
                                                 }
                                             }
 
@@ -479,7 +494,7 @@ class ReportResource extends Resource
                     ->disabled(),
                 Tabs::make('suggested_changes')
                     ->tabs([
-                        Tabs\Tab::make('compound_info_changes')
+                        Tab::make('compound_info_changes')
                             ->label('Compound Info')
                             ->schema([
                                 Fieldset::make('Geo Locations')
@@ -613,7 +628,7 @@ class ReportResource extends Resource
                                     ])
                                     ->columns(9),
                             ]),
-                        Tabs\Tab::make('organisms_changes')
+                        Tab::make('organisms_changes')
                             ->label('Organisms')
                             ->schema([
                                 Fieldset::make('Organisms')
@@ -649,8 +664,8 @@ class ReportResource extends Resource
                                                 return ! auth()->user()->isCurator() || $operation == 'create';
                                             })
                                             ->columnSpanFull(),
-                                        Grid::make('new_organism')
-                                            ->schema(Organism::getForm())->columns(4),
+                                        Grid::make()
+                                            ->schema(Organism::getForm()),
                                     ])
                                     ->reorderable(false)
                                     ->addActionLabel('Add New Organism')
@@ -658,11 +673,10 @@ class ReportResource extends Resource
                                     ->disabled(function (Get $get, string $operation) {
                                         return ! $get('show_organism_new') && $operation == 'edit';
                                     })
-                                    ->dehydrated()
-                                    ->columns(9),
+                                    ->dehydrated(),
 
                             ]),
-                        Tabs\Tab::make('citations')
+                        Tab::make('citations')
                             ->label('Citations')
                             ->schema([
                                 Fieldset::make('Citations')
@@ -697,8 +711,8 @@ class ReportResource extends Resource
                                                 return ! auth()->user()->isCurator() || $operation == 'create';
                                             })
                                             ->columnSpanFull(),
-                                        Grid::make('new_citation')
-                                            ->schema(Citation::getForm())->columns(4),
+                                        Grid::make()
+                                            ->schema(Citation::getForm()),
                                     ])
                                     ->reorderable(false)
                                     ->addActionLabel('Add New Citation')
@@ -706,8 +720,7 @@ class ReportResource extends Resource
                                     ->disabled(function (Get $get, string $operation) {
                                         return ! $get('show_citation_new') && $operation == 'edit';
                                     })
-                                    ->dehydrated()
-                                    ->columns(9),
+                                    ->dehydrated(),
 
                             ]),
                     ])
@@ -716,7 +729,7 @@ class ReportResource extends Resource
                     }),
                 Tabs::make('new_molecule_form')
                     ->tabs([
-                        Tabs\Tab::make('molecule_info')
+                        Tab::make('molecule_info')
                             ->label('Molecule Information')
                             ->icon('heroicon-o-beaker')
                             ->schema([
@@ -773,7 +786,7 @@ class ReportResource extends Resource
                                     ])->columns(2),
                             ]),
 
-                        Tabs\Tab::make('source_relationships')
+                        Tab::make('source_relationships')
                             ->label('Source Relationships')
                             ->icon('heroicon-o-document-text')
                             ->schema([
@@ -976,35 +989,41 @@ class ReportResource extends Resource
             ->columns([
                 TextColumn::make('title')
                     ->wrap()
+                    ->width('400px')
+                    ->sortable()
+                    ->searchable(false)
                     ->formatStateUsing(fn (Report $record): HtmlString => new HtmlString(
                         '<b>'.$record->title.'</b>'.
                             ' <br> <i>Type: </i>'.
                             '<span class="font-medium">'.$record->report_category.'</span>'
                     )),
                 TextColumn::make('user.name')
-                    ->label('Reported By'),
-                // Curator assignment column
-                Tables\Columns\TextColumn::make('assigned_curator')
+                    ->label('Reported By')
+                    ->sortable()
+                    ->searchable(false),
+                // Curator assignment column (computed, not searchable/sortable)
+                TextColumn::make('assigned_curator')
                     ->label('Assigned To')
-                    ->state(function (Report $record): ?string {
+                    ->state(function (Report $record): string {
                         if ($record->status === ReportStatus::SUBMITTED->value) {
+                            /** @var \App\Models\User|null $curator */
                             $curator = $record->curators()->wherePivot('curator_number', 1)->first();
 
                             return $curator ? $curator->name : '';
                         } elseif ($record->status === ReportStatus::PENDING_APPROVAL->value || $record->status === ReportStatus::PENDING_REJECTION->value) {
+                            /** @var \App\Models\User|null $curator */
                             $curator = $record->curators()->wherePivot('curator_number', 2)->first();
 
                             return $curator ? $curator->name : '';
                         } elseif ($record->status === ReportStatus::APPROVED->value || $record->status === ReportStatus::REJECTED->value) {
+                            /** @var \App\Models\User|null $curator */
                             $curator = $record->curators()->wherePivot('curator_number', 2)->first();
 
                             return $curator ? $curator->name : '';
                         }
 
                         return 'N/A';
-                    })
-                    ->searchable()
-                    ->sortable(),
+                    }),
             ])
             ->recordClasses(function (Model $record) {
                 $user = filament()->auth()->user();
@@ -1027,16 +1046,13 @@ class ReportResource extends Resource
                     : static::getUrl('view', ['record' => $record->id])
             )
             ->defaultSort('created_at', 'desc')
-            ->filters([
-                AdvancedFilter::make()
-                    ->includeColumns(),
-            ])
-            ->actions([
-                Tables\Actions\Action::make('assign_curator')
+            ->filters([])
+            ->recordActions([
+                Action::make('assign_curator')
                     ->label('')
                     ->size('xl')
                     ->icon('heroicon-o-user-plus')
-                    ->form([
+                    ->schema([
                         Radio::make('curator')
                             ->label(function (Report $record) {
                                 if ($record->status === ReportStatus::SUBMITTED->value) {
@@ -1053,6 +1069,7 @@ class ReportResource extends Resource
 
                                 // For pending reports, filter out the first curator to enforce four-eyes principle
                                 if ($record->status === ReportStatus::PENDING_APPROVAL->value || $record->status === ReportStatus::PENDING_REJECTION->value) {
+                                    /** @var \App\Models\User|null $curator1 */
                                     $curator1 = $record->curators()->wherePivot('curator_number', 1)->first();
                                     if ($curator1) {
                                         unset($curators[$curator1->id]);
@@ -1064,10 +1081,12 @@ class ReportResource extends Resource
                             ->default(function (Report $record) {
                                 // Pre-select current curator if assigned
                                 if ($record->status === ReportStatus::SUBMITTED->value) {
+                                    /** @var \App\Models\User|null $curator */
                                     $curator = $record->curators()->wherePivot('curator_number', 1)->first();
 
                                     return $curator?->id;
                                 } elseif ($record->status === ReportStatus::PENDING_APPROVAL->value || $record->status === ReportStatus::PENDING_REJECTION->value) {
+                                    /** @var \App\Models\User|null $curator */
                                     $curator = $record->curators()->wherePivot('curator_number', 2)->first();
 
                                     return $curator?->id;
@@ -1113,9 +1132,9 @@ class ReportResource extends Resource
                     }),
 
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -1123,11 +1142,11 @@ class ReportResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\MoleculesRelationManager::class,
-            RelationManagers\CollectionsRelationManager::class,
-            RelationManagers\CitationsRelationManager::class,
-            RelationManagers\OrganismsRelationManager::class,
-            RelationManagers\EntriesRelationManager::class,
+            MoleculesRelationManager::class,
+            CollectionsRelationManager::class,
+            CitationsRelationManager::class,
+            OrganismsRelationManager::class,
+            EntriesRelationManager::class,
             AuditsRelationManager::class,
         ];
     }
@@ -1135,10 +1154,10 @@ class ReportResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListReports::route('/'),
-            'create' => Pages\CreateReport::route('/create'),
-            'view' => Pages\ViewReport::route('/{record}'),
-            'edit' => Pages\EditReport::route('/{record}/edit'),
+            'index' => ListReports::route('/'),
+            'create' => CreateReport::route('/create'),
+            'view' => ViewReport::route('/{record}'),
+            'edit' => EditReport::route('/{record}/edit'),
         ];
     }
 
@@ -1204,7 +1223,7 @@ class ReportResource extends Resource
         return $approved_changes;
     }
 
-    public static function approveReport(array $data, Report $record, Molecule $molecule, $livewire): void
+    public static function approveReport(array $data, Report $record, $livewire): void
     {
         $status = '';
         $curator_number = '';

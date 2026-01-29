@@ -65,7 +65,7 @@ class FetchCASNumbersAuto extends Command
         // Exclude molecules that have failed CAS fetch previously (unless retrying)
         $query->where(function ($q) {
             $q->whereNull('curation_status->fetch-cas->status')
-                ->orWhereNotIn('curation_status->fetch-cas->status', ['failed', 'completed']);
+                ->orWhereNotIn('curation_status->fetch-cas->status', ['completed']);
         });
 
         $totalCount = $query->count();
@@ -233,7 +233,7 @@ class FetchCASNumbersAuto extends Command
         if ($response === false) {
             $waitTime = RateLimiter::availableIn('common-chemistry-api');
             Log::warning("Common Chemistry API rate limited (wait: {$waitTime}s). Waiting and retrying request for: {$url}");
-            sleep($waitTime);
+            sleep((int) $waitTime);
             $response = $this->makeAPIRequest($url, $params);
         }
 
@@ -279,7 +279,7 @@ class FetchCASNumbersAuto extends Command
                 )) {
                     $delay = $baseDelay * $attempt + (rand(0, 500) / 1000);
                     Log::info("Retrying after {$delay}s due to connection issue...");
-                    usleep($delay * 1000000);
+                    usleep((int) ($delay * 1000000));
 
                     continue;
                 }
@@ -287,7 +287,7 @@ class FetchCASNumbersAuto extends Command
 
             if ($attempt < $maxRetries) {
                 $delay = $baseDelay * $attempt;
-                usleep($delay * 1000000);
+                usleep((int) ($delay * 1000000));
             }
         }
 
@@ -342,7 +342,7 @@ class FetchCASNumbersAuto extends Command
         // Extract smile, inchi, and inchiKey from the detail response
         return [
             'smile' => $data['smile'] ?? null,
-            'canonical_smiles' => $data['canonical_smiles'] ?? null,
+            'canonical_smiles' => $data['canonicalSmile'] ?? null,
             'inchi' => $data['inchi'] ?? null,
             'inchikey' => $data['inchikey'] ?? null,
         ];
@@ -354,7 +354,7 @@ class FetchCASNumbersAuto extends Command
     private function verifyMoleculeIdentity(Molecule $originalMolecule, array $fetchedDetails): bool
     {
         $API_URL = config('services.cheminf.internal_api_url');
-        $smiles = $fetchedDetails['smile'] ?: $fetchedDetails['canonicalSmile'];
+        $smiles = $fetchedDetails['smile'] ?: $fetchedDetails['canonical_smiles'];
         if (! $smiles) {
             Log::warning('No SMILES data available for molecule verification', ['molecule_id' => $originalMolecule->id]);
 

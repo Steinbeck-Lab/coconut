@@ -5,8 +5,10 @@ namespace App\Livewire;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 
+#[Layout('layouts.guest')]
 class Stats extends Component
 {
     public $properties_json_data = [];

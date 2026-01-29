@@ -13,7 +13,7 @@
                         <path d="M3.75 15C3.75 14.5858 3.41422 14.25 3 14.25C2.58579 14.25 2.25 14.5858 2.25 15V15.0549C2.24998 16.4225 2.24996 17.5248 2.36652 18.3918C2.48754 19.2919 2.74643 20.0497 3.34835 20.6516C3.95027 21.2536 4.70814 21.5125 5.60825 21.6335C6.47522 21.75 7.57754 21.75 8.94513 21.75H15.0549C16.4225 21.75 17.5248 21.75 18.3918 21.6335C19.2919 21.5125 20.0497 21.2536 20.6517 20.6516C21.2536 20.0497 21.5125 19.2919 21.6335 18.3918C21.75 17.5248 21.75 16.4225 21.75 15.0549V15C21.75 14.5858 21.4142 14.25 21 14.25C20.5858 14.25 20.25 14.5858 20.25 15C20.25 16.4354 20.2484 17.4365 20.1469 18.1919C20.0482 18.9257 19.8678 19.3142 19.591 19.591C19.3142 19.8678 18.9257 20.0482 18.1919 20.1469C17.4365 20.2484 16.4354 20.25 15 20.25H9C7.56459 20.25 6.56347 20.2484 5.80812 20.1469C5.07435 20.0482 4.68577 19.8678 4.40901 19.591C4.13225 19.3142 3.9518 18.9257 3.85315 18.1919C3.75159 17.4365 3.75 16.4354 3.75 15Z" fill="#1C274C" />
                     </svg>
             </span>
-            <button @click="src = '{{ $this->source }}'"
+            <button @click="src = '{{ $this->source }}'; on = !on"
                 :class="{ 'bg-gray-600': src=='', 'bg-green-600': src!='' }" type="button"
                 class="bg-gray-200 relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
                 role="switch" aria-checked="false" x-ref="switch" x-state:on="Enabled" x-state:off="Not Enabled"
@@ -26,7 +26,7 @@
             </button>
         </div>
     </div>
-    <div class="border aspect-h-2 aspect-w-3 overflow-hidden rounded-lg mb-2 mt-2" x-show="src">
+    <div class="border border-gray-200 aspect-h-2 aspect-w-3 overflow-hidden rounded-xl mb-2 mt-2" x-show="src">
         <iframe x-bind:src="src" width="{{ $this->width }}" height="{{ $this->height }}"
             frameborder="0"></iframe>
     </div>

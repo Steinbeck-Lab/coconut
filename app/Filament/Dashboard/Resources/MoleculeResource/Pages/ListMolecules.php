@@ -6,7 +6,8 @@ use App\Filament\Dashboard\Resources\MoleculeResource;
 use App\Models\Molecule;
 use Archilex\AdvancedTables\AdvancedTables;
 use Archilex\AdvancedTables\Components\PresetView;
-use Filament\Actions;
+use Filament\Actions\Action;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListMolecules extends ListRecords
@@ -18,8 +19,8 @@ class ListMolecules extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
-            Actions\Action::make('openLivewireModal')
+            CreateAction::make(),
+            Action::make('openLivewireModal')
                 ->label('Structure Search')
                 ->modalHeading('Structure Search')
                 ->modalWidth('7xl')
@@ -35,18 +36,18 @@ class ListMolecules extends ListRecords
             'active' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where('active', true))
                 ->favorite()
-                ->badge(Molecule::query()->where('active', true)->count())
+                ->badge((string) Molecule::query()->where('active', true)->count())
                 ->preserveAll()
                 ->default(),
             'revoked' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where('active', false))
                 ->favorite()
-                ->badge(Molecule::query()->where('active', false)->count())
+                ->badge((string) Molecule::query()->where('active', false)->count())
                 ->preserveAll(),
             'drafts' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where([['active', false], ['status', 'DRAFT']]))
                 ->favorite()
-                ->badge(Molecule::query()->where([['active', false], ['status', 'DRAFT']])->count())
+                ->badge((string) Molecule::query()->where([['active', false], ['status', 'DRAFT']])->count())
                 ->preserveAll(),
         ];
     }

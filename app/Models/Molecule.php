@@ -301,7 +301,7 @@ class Molecule extends Model implements Auditable
     {
         if ($type === 'bioschemas' && $this->properties) {
             $moleculeSchema = Schema::MolecularEntity();
-            $moleculeSchema['@id'] = $this->inchi_key;
+            $moleculeSchema['@id'] = $this->standard_inchi_key;
             $moleculeSchema['dct:conformsTo'] = $this->prepareConformsTo();
 
             $moleculeSchema->identifier($this->identifier)
@@ -377,7 +377,8 @@ class Molecule extends Model implements Auditable
                 array_push($additionalPropertysSchemas, $propertySchema);
             }
 
-            $moleculeSchema->additionalProperty($additionalPropertysSchemas);
+            // Use setProperty since MolecularEntity doesn't expose additionalProperty in its contract
+            $moleculeSchema->setProperty('additionalProperty', $additionalPropertysSchemas);
 
             $datasetSchema = Schema::Dataset();
             $datasetSchema->name($this->name);

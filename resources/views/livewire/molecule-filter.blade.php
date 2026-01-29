@@ -2,14 +2,13 @@
     isOpen: true,
     type: 'substructure',
     smiles: '',
-    currentSmiles: '', // Added for SMILES input
+    currentSmiles: '',
     draggedFile: null,
     loadSmilesIntoEditor() {
         try {
             window.editor.setSmiles(this.currentSmiles);
         } catch(e) {
             console.error('Invalid SMILES:', e);
-            // Revert to last valid SMILES if invalid
             this.currentSmiles = window.editor.getSmiles();
             alert('Invalid SMILES string');
         }
@@ -66,35 +65,39 @@
             window.getEditorSmiles = () => window.editor.getSmiles();
         }
     }, 100);">
-        <div class="w-full bg-white rounded-lg shadow-md max-w-7xl mx-auto">
+        <div class="w-full bg-white max-w-7xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <div class="border rounded-md mb-3">
-                        <div id="structureSearchEditor" style="height: 400px; width: 100%"></div>
-                    </div>
-                    <!-- Added SMILES input field -->
+                <!-- Left Column: Editor and SMILES Input -->
+                <div class="my-4">
+                    <div id="structureSearchEditor" class="border border-gray-200 rounded-lg mb-3" style="height: 400px; width: 100%"></div>
+                    
+                    <!-- SMILES input field -->
                     <div class="mb-3">
                         <label for="smiles-string" class="block text-sm font-medium text-gray-700">SMILES String</label>
-                        <div class="mt-1 flex rounded-md shadow-sm">
+                        <div class="mt-1 flex rounded-lg overflow-hidden border border-gray-200">
                             <input type="text" 
                                    id="smiles-string" 
                                    x-model="currentSmiles" 
-                                   class="block w-full rounded-l-md border-r-0 border-gray-300 focus:border-blue-500 focus:ring-blue-500 sm:text-sm" 
+                                   class="block w-full border-0 px-3 py-2 focus:ring-0 sm:text-sm" 
                                    placeholder="Enter SMILES string to load into the Editor">
-                                                            <button 
+                            <button 
                                 type="button"
                                 @click.stop="loadSmilesIntoEditor()"
-                                class="relative -ml-px inline-flex items-center space-x-2 rounded-r-md border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                class="inline-flex items-center border-l border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none">
                                 Load
                             </button>
                         </div>
                     </div>
                 </div>
+
+                <!-- Right Column: File Upload, Search Options -->
                 <div>
-                    <div class="pb-3">
+                    <div class="py-3">
+                        <!-- File Upload Area -->
                         <div x-on:dragover.prevent="draggedFile = null"
                             x-on:drop.prevent="draggedFile = $event.dataTransfer.files[0]; handleFileUpload($event)"
-                            class="border border-dashed border-gray-300 p-6 text-center mb-3 rounded-md">
+                            style="border: 2px dashed #d1d5db; border-radius: 0.5rem;"
+                            class="p-6 text-center mb-3 hover:border-gray-400 transition-colors cursor-pointer">
                             <input type="file" accept=".mol,.sdf" class="hidden" id="fileUpload"
                                 x-on:change="handleFileUpload($event)" />
                             <label for="fileUpload" class="cursor-pointer">
@@ -102,50 +105,45 @@
                                 <p class="text-sm text-gray-500 mt-2">Or click to select a file</p>
                             </label>
                         </div>
-                        <div @click="fetchClipboardText"
-                            class="hover:cursor-pointer w-full text-center rounded-md shadow-sm px-4 py-2 bg-white-600 text-base font-medium hover:bg-white-700 focus:outline-none sm:w-auto sm:text-sm border mb-4">
+
+                        <!-- Paste from Clipboard -->
+                        <button @click="fetchClipboardText" type="button"
+                            class="w-full text-center rounded-lg shadow-sm p-4 text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 focus:outline-none transition-colors">
                             Paste from Clipboard
-                        </div>
+                        </button>
                     </div>
+
+                    <!-- Search Type Selection -->
                     <fieldset class="mt-1">
-                        <legend class="contents text-base font-medium text-gray-900">
-                            Select search type
-                        </legend>
-                        <div class="mt-4 space-y-4">
-                            <div class="flex items-center">
-                                <label for="search-type-exact"
-                                    class="block cursor-pointer text-sm font-medium text-gray-700">
-                                    <input id="search-type-exact" name="search-type" x-model="type" value="exact"
-                                        type="radio"
-                                        class="mr-3 h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
-                                    Exact match
-                                </label>
-                            </div>
-                            <div class="flex items-center">
-                                <label for="search-type-sub"
-                                    class="block cursor-pointer text-sm font-medium text-gray-700">
-                                    <input id="search-type-sub" name="search-type" x-model="type" value="substructure"
-                                        type="radio"
-                                        class="mr-3 h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
-                                    Substructure Search
-                                </label>
-                            </div>
-                            <div class="flex items-center">
-                                <label for="search-type-similar"
-                                    class="block cursor-pointer text-sm font-medium text-gray-700">
-                                    <input id="search-type-similar" name="search-type" x-model="type" value="similarity"
-                                        type="radio"
-                                        class="mr-3 h-4 w-4 border-gray-300 text-secondary-dark focus:ring-secondary-dark" />
-                                    Similarity Search (tanimoto_threshold=0.5)
-                                </label>
-                            </div>
+                        <legend class="text-sm font-medium text-gray-700 mb-2">Search type</legend>
+                        <div class="mt-3 flex gap-2">
+                            <button type="button" @click="type = 'exact'"
+                                x-bind:style="type === 'exact' ? 'background-color: #111827; color: white; border-color: #111827;' : ''"
+                                class="flex-1 cursor-pointer rounded-lg border border-gray-200 bg-white text-gray-700 p-4 text-sm font-medium transition-colors hover:bg-gray-50">
+                                Exact
+                            </button>
+                            <button type="button" @click="type = 'substructure'"
+                                x-bind:style="type === 'substructure' ? 'background-color: #111827; color: white; border-color: #111827;' : ''"
+                                class="flex-1 cursor-pointer rounded-lg border border-gray-200 bg-white text-gray-700 p-4 text-sm font-medium transition-colors hover:bg-gray-50">
+                                Substructure
+                            </button>
+                            <button type="button" @click="type = 'similarity'"
+                                x-bind:style="type === 'similarity' ? 'background-color: #111827; color: white; border-color: #111827;' : ''"
+                                class="flex-1 cursor-pointer rounded-lg border border-gray-200 bg-white text-gray-700 p-4 text-sm font-medium transition-colors hover:bg-gray-50">
+                                Similarity
+                            </button>
                         </div>
                     </fieldset>
-                    <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+
+                    <!-- Search Button -->
+                    <div class="mt-5 sm:mt-4">
                         <button
                             @click="const smiles = window.getEditorSmiles(); window.location.href = `${window.location.pathname}?tableFilters[structure][type]=${type}&tableFilters[structure][smiles]=${encodeURIComponent(smiles)}`"
                             type="button"
-                            class="hover:cursor-pointer w-full text-center rounded-md shadow-sm px-4 py-2 bg-white-600 text-base font-medium hover:bg-white-700 focus:outline-none sm:w-auto sm:text-sm border my-4">
+                            class="w-full cursor-pointer rounded-lg p-4 text-sm font-medium text-white focus:outline-none transition-colors mt-2"
+                            style="background-color: #111827;"
+                            onmouseover="this.style.backgroundColor='#1f2937'"
+                            onmouseout="this.style.backgroundColor='#111827'">
                             Search
                         </button>
                     </div>
