@@ -31,8 +31,6 @@ class UpdateLinks extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return int|null
      */
     public function handle()
     {
