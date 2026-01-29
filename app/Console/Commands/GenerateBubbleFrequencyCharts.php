@@ -31,10 +31,14 @@ class GenerateBubbleFrequencyCharts extends Command
             $first_table = $columnsInfo['first_table'];
             $second_table = $columnsInfo['second_table'];
 
-            $query1 = "SELECT DISTINCT f.$first_column col, COUNT(*) count FROM $first_table f  WHERE f.$first_column IS NOT NULL AND f.$first_column!='' ";
-            $query1 .= $first_table == 'properties' ? 'JOIN molecules m ON f.molecule_id=m.id WHERE m.active = TRUE AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE) ' : '';
-            $query2 = "SELECT DISTINCT s.$second_column col, COUNT(*) count FROM $second_table s WHERE s.$second_column IS NOT NULL AND s.$second_column!='' ";
-            $query2 .= $second_table == 'properties' ? 'JOIN molecules m ON s.molecule_id=m.id WHERE m.active = TRUE AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE) ' : '';
+            $query1 = "SELECT DISTINCT f.$first_column col, COUNT(*) count FROM $first_table f ";
+            $query1 .= $first_table == 'properties' ? 'JOIN molecules m ON f.molecule_id=m.id ' : '';
+            $query1 .= "WHERE f.$first_column IS NOT NULL AND f.$first_column!='' ";
+            $query1 .= $first_table == 'properties' ? 'AND m.active = TRUE AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE) ' : '';
+            $query2 = "SELECT DISTINCT s.$second_column col, COUNT(*) count FROM $second_table s ";
+            $query2 .= $second_table == 'properties' ? 'JOIN molecules m ON s.molecule_id=m.id ' : '';
+            $query2 .= "WHERE s.$second_column IS NOT NULL AND s.$second_column!='' ";
+            $query2 .= $second_table == 'properties' ? 'AND m.active = TRUE AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE) ' : '';
 
             $query1 .= 'GROUP BY 1';
             $query2 .= 'GROUP BY 1';
