@@ -2,30 +2,36 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\LicenseResource\Pages;
+use App\Filament\Resources\LicenseResource\Pages\CreateLicense;
+use App\Filament\Resources\LicenseResource\Pages\EditLicense;
+use App\Filament\Resources\LicenseResource\Pages\ListLicenses;
 use App\Filament\Resources\LicenseResource\RelationManagers\CollectionsRelationManager;
 use App\Models\License;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class LicenseResource extends Resource
 {
-    protected static ?string $navigationGroup = 'Settings';
+    protected static string|\UnitEnum|null $navigationGroup = 'Settings';
 
     protected static ?string $model = License::class;
 
     protected static ?int $navigationSort = 4;
 
-    protected static ?string $navigationIcon = 'heroicon-o-shield-check';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 TextInput::make('title'),
                 TextInput::make('spdx_id'),
                 TextInput::make('url'),
@@ -39,22 +45,22 @@ class LicenseResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title')->wrap()
+                TextColumn::make('title')->wrap()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('spdx_id')
+                TextColumn::make('spdx_id')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('category')
+                TextColumn::make('category')
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('category'),
+                SelectFilter::make('category'),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -69,9 +75,9 @@ class LicenseResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListLicenses::route('/'),
-            'create' => Pages\CreateLicense::route('/create'),
-            'edit' => Pages\EditLicense::route('/{record}/edit'),
+            'index' => ListLicenses::route('/'),
+            'create' => CreateLicense::route('/create'),
+            'edit' => EditLicense::route('/{record}/edit'),
         ];
     }
 }

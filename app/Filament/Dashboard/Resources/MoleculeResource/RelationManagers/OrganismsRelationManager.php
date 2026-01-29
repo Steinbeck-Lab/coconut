@@ -2,22 +2,26 @@
 
 namespace App\Filament\Dashboard\Resources\MoleculeResource\RelationManagers;
 
-use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Actions\AttachAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DetachAction;
+use Filament\Actions\DetachBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
-use Filament\Tables\Actions\AttachAction;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class OrganismsRelationManager extends RelationManager
 {
     protected static string $relationship = 'organisms';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
+        return $schema
+            ->components([
+                TextInput::make('name')
                     ->required()
                     ->maxLength(255),
             ]);
@@ -28,32 +32,32 @@ class OrganismsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('organism_parts'),
+                TextColumn::make('name'),
+                TextColumn::make('organism_parts'),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make()
+                AttachAction::make()
                     ->preloadRecordSelect()
                     ->form(fn (AttachAction $action): array => [
                         $action->getRecordSelect(),
-                        Forms\Components\TextInput::make('organism_parts'),
+                        TextInput::make('organism_parts'),
                     ]),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make()
-                    ->form(function ($action) {
+            ->recordActions([
+                EditAction::make()
+                    ->schema(function ($action) {
                         return [
-                            Forms\Components\TextInput::make('organism_parts'),
+                            TextInput::make('organism_parts'),
                         ];
                     }),
-                Tables\Actions\DetachAction::make(),
+                DetachAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DetachBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DetachBulkAction::make(),
                 ]),
             ]);
     }

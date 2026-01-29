@@ -216,14 +216,13 @@ class CreateReport extends CreateRecord
 
         return parent::getCreateFormAction()
             ->submit(null)
-            ->form(function () {
+            ->schema(function () {
                 return getChangesToDisplayModal($this->data);
             })
             ->modalHidden(function () {
                 return $this->data['report_category'] !== ReportCategory::UPDATE->value;
             })
             ->action(function () {
-                $this->closeActionModal();
                 $this->create();
             });
     }

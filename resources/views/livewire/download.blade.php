@@ -9,7 +9,7 @@
                             Downloads</h1>
                     </div>
                     <time datetime="2020-03-16" class="block text-sm leading-6 text-gray-600"></time>
-                    <div class="grid gap-4 mx-auto max-w-sm bg-white shadow-xl p-8 text-slate-700 rounded-md border">
+                    <div class="grid gap-4 mx-auto max-w-sm bg-white shadow-sm p-8 text-slate-700 rounded-md border border-gray-200">
                         <h3 class="text-balance text-xl font-semibold text-slate-900">Cite us</h3>
                         <p class="text-md/6 hover:text-blue-800">
                             <span
@@ -38,8 +38,8 @@
                     </div>
                 </article>
                 <div
-                    class="mx-auto w-full px-6 md:px-0 max-w-2xl border-t border-gray-900/10 pt-12 sm:pt-16 lg:mx-0 lg:max-w-none lg:border-t-0 lg:pt-0">
-                    <div class="-my-12 divide-y divide-gray-900/10">
+                    class="mx-auto w-full px-6 md:px-0 max-w-2xl border-t border-gray-200 pt-12 sm:pt-16 lg:mx-0 lg:max-w-none lg:border-t-0 lg:pt-0">
+                    <div class="-my-12 divide-y divide-gray-200">
                         <article class="py-12 mt-24">
                             <div class="group relative max-w-xl">
                                 <time datetime="{{ now()->format('Y-m-d') }}" class="block text-sm leading-6 text-gray-600">Version:
@@ -64,7 +64,7 @@
                                 <div class="relative gap-x-2.5 text-sm font-semibold leading-6 text-gray-900">
                                     Natural Products - SDF
                                 </div>
-                                <div class="mt-1 border-b border-gray-100 pb-2">
+                                <div class="mt-1 border-b border-gray-200 pb-2">
                                     <div><a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/coconut_sdf_2d_lite-{{ $currentMonthYear }}.zip"
                                             class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
                                             (coconut_sdf_2d_lite-{{ $currentMonthYear }}.zip / 287.6 MB) <span aria-hidden="true">→</span></a></div>
@@ -78,7 +78,7 @@
                                 <div class="relative gap-x-2.5 text-sm font-semibold leading-6 text-gray-900 mt-2">
                                     Natural Products - 3D SDF (Generated using RDKit) 
                                 </div>
-                                <div class="mt-1 border-b border-gray-100 pb-2">
+                                <div class="mt-1 border-b border-gray-200 pb-2">
                                     
                                     <div><a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/coconut_sdf_3d-{{ $currentMonthYear }}.zip"
                                             class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
@@ -90,7 +90,7 @@
                                 <div class="relative gap-x-2.5 text-sm font-semibold leading-6 text-gray-900">
                                     Complete (active/inactive) COCONUT dataset
                                 </div>
-                                <div class="mt-1 flex border-b border-gray-100 pb-2">
+                                <div class="mt-1 flex border-b border-gray-200 pb-2">
                                     <a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/coconut-dump-{{ $currentMonthYear }}.sql"
                                         class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
                                         (coconut-dump-{{ $currentMonthYear }}.sql / 31.91 GB)<span aria-hidden="true">→</span></a>
@@ -100,7 +100,7 @@
                                 <div class="relative gap-x-2.5 text-sm font-semibold leading-6 text-gray-900">
                                     Natural Products - CSV format
                                 </div>
-                                <div class="mt-1 border-b border-gray-100 pb-2">
+                                <div class="mt-1 border-b border-gray-200 pb-2">
                                     <div><a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/coconut_csv_lite-{{ $currentMonthYear }}.zip"
                                             class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
                                             (coconut_csv_lite-{{ $currentMonthYear }}.zip / 191 MB) <span aria-hidden="true">→</span></a></div>
@@ -132,7 +132,7 @@
             </div>
         </div>
     </div>
-    <div class="border border-t py-24">
+    <div class="border-t border-gray-200 py-24">
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
             <div class="mx-auto max-w-2xl lg:max-w-4xl">
                 <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Use Cases</h2>
@@ -170,7 +170,7 @@
                             </div>
                             <div>
                                 <div class="mt-4">
-                                    <div class="mt-1 border-gray-100 pb-2">
+                                    <div class="mt-1 border-gray-200 pb-2">
                                         <p
                                             class="line-clamp-1 text-ellipsis overflow-hidden ... mt-5 text-sm leading-6 text-gray-600">
                                         <div class="tooltip"><a
@@ -187,7 +187,7 @@
                                     </div>
                                 </div>
                                 <div class="mt-4">
-                                    <div class="mt-1 border-gray-100 pb-2">
+                                    <div class="mt-1 border-gray-200 pb-2">
                                         <p class="line-clamp-1 mt-5 text-sm leading-6 text-gray-600">
                                         <div class="tooltip"><a
                                                 href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/MORTAR/Items_Ertl_algorithm.csv"
@@ -204,7 +204,7 @@
                                     </div>
                                 </div>
                                 <div class="mt-4">
-                                    <div class="mt-1 border-gray-100 pb-2">
+                                    <div class="mt-1 border-gray-200 pb-2">
                                         <p class="line-clamp-1 mt-5 text-sm leading-6 text-gray-600">
                                         <div class="tooltip"><a
                                                 href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/MORTAR/Fragments_Scaffold_Generator.csv"
@@ -220,7 +220,7 @@
                                     </div>
                                 </div>
                                 <div class="mt-4">
-                                    <div class="mt-1 border-gray-100 pb-2">
+                                    <div class="mt-1 border-gray-200 pb-2">
                                         <p class="line-clamp-1 mt-5 text-sm leading-6 text-gray-600">
                                         <div class="tooltip"><a
                                                 href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/MORTAR/Items_Scaffold_Generator.csv"
@@ -236,7 +236,7 @@
                                     </div>
                                 </div>
                                 <div class="mt-4">
-                                    <div class="mt-1 border-gray-100 pb-2">
+                                    <div class="mt-1 border-gray-200 pb-2">
                                         <p class="line-clamp-1 mt-5 text-sm leading-6 text-gray-600">
                                         <div class="tooltip"><a
                                                 href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/MORTAR/Fragments_Scaffold_Generator_Scafold_tree.csv"
@@ -255,7 +255,7 @@
                                     </div>
                                 </div>
                                 <div class="mt-4">
-                                    <div class="mt-1 border-gray-100 pb-2">
+                                    <div class="mt-1 border-gray-200 pb-2">
                                         <p class="line-clamp-1 mt-5 text-sm leading-6 text-gray-600">
                                         <div class="tooltip"><a
                                                 href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/MORTAR/Items_Scaffold_Generator_Scaffold_tree.csv"
@@ -324,7 +324,7 @@
                                     high-throughput screening (HTS) and deep learning models in identifying promising
                                     drug candidates.</p>
                             </div>
-                            <div class="mt-6 flex border-t border-gray-900/5 pt-6">
+                            <div class="mt-6 flex border-t border-gray-200 pt-6">
                                 <div class="relative flex items-center gap-x-4">
                                     <div class="tooltip"><a
                                             href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/DD/COCONUT_2024_08_DrugDiscovery.tsv.zip"
@@ -366,7 +366,7 @@
                                     weights of natural products to identify and characterize novel compounds, enabling
                                     the exploration of bioactive molecules with potential therapeutic applications.</p>
                             </div>
-                            <div class="mt-6 flex border-t border-gray-900/5 pt-6">
+                            <div class="mt-6 flex border-t border-gray-200 pt-6">
                                 <div class="relative flex items-center gap-x-4">
                                     <div class="text-sm leading-6">
                                         <a href="https://coconut.s3.uni-jena.de/prod/downloads/2024-10/CD/CompoundDiscovererCOCONUT_%202.csv.zip"

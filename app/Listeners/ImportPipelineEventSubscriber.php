@@ -6,7 +6,7 @@ use App\Events\PostPublishJobFailed;
 use App\Events\PrePublishJobFailed;
 use App\Notifications\PostPublishJobFailedNotification;
 use App\Notifications\PrePublishJobFailedNotification;
-use Filament\Notifications\Actions\Action;
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Illuminate\Events\Dispatcher;
 

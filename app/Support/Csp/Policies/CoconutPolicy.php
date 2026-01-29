@@ -33,9 +33,10 @@ class CoconutPolicy implements Preset
 
         // Third-party services
         $policy
-            ->add(Directive::STYLE, ['https://fonts.googleapis.com', 'https://unpkg.com', 'https://cdn.jsdelivr.net'])
-            ->add(Directive::SCRIPT, ['https://matomo.nfdi4chem.de', 'https://cdn.jsdelivr.net'])
-            ->add(Directive::CONNECT, 'https://matomo.nfdi4chem.de')
+            ->add(Directive::STYLE, ['https://fonts.googleapis.com', 'https://unpkg.com', 'https://cdn.jsdelivr.net', 'https://fonts.bunny.net'])
+            ->add(Directive::FONT, ['https://fonts.bunny.net'])
+            ->add(Directive::SCRIPT, ['https://matomo.nfdi4chem.de', 'https://cdn.jsdelivr.net', 'https://unpkg.com'])
+            ->add(Directive::CONNECT, ['https://matomo.nfdi4chem.de', 'https://unpkg.com'])
             ->add(Directive::IMG, 'https://matomo.nfdi4chem.de');
 
         // Add Coconut-specific external sources
@@ -65,9 +66,9 @@ class CoconutPolicy implements Preset
 
         // CDN sources for external libraries
         $policy
-            ->add(Directive::STYLE, 'https://cdnjs.cloudflare.com')
-            ->add(Directive::SCRIPT, 'https://code.jquery.com')
-            ->add(Directive::SCRIPT, 'https://cdnjs.cloudflare.com');
+            ->add(Directive::STYLE, ['https://cdnjs.cloudflare.com'])
+            ->add(Directive::SCRIPT, ['https://code.jquery.com'])
+            ->add(Directive::SCRIPT, ['https://cdnjs.cloudflare.com']);
 
         // Allow build assets from Coconut domains (production and dev)
         $policy
@@ -76,14 +77,29 @@ class CoconutPolicy implements Preset
             ->add(Directive::SCRIPT, ['https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net'])
             ->add(Directive::IMG, ['https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net']);
 
-        // Add nonce for inline scripts. This is automatically handled by spatie/laravel-csp when nonce_enabled is true
-        $policy->addNonce(Directive::SCRIPT);
+        $policy = $this->addNonce($policy);
 
         // Keep unsafe-inline for styles temporarily (needed for Alpine.js inline styles and dynamic style attributes)
         $policy->add(Directive::STYLE, Keyword::UNSAFE_INLINE);
         $policy->add(Directive::SCRIPT, Keyword::UNSAFE_EVAL);
         // Security enhancements - automatically upgrade HTTP to HTTPS
         $policy->add(Directive::UPGRADE_INSECURE_REQUESTS, Value::NO_VALUE);
+    }
+
+    private function addNonce(Policy $policy): Policy
+    {
+        // Add nonce for inline scripts, but NOT for Horizon routes.
+        // When both nonce and unsafe-inline are present, browsers ignore unsafe-inline.
+        // Horizon uses inline scripts without nonces, so we skip nonce and add unsafe-inline instead.
+        $isHorizonRoute = request()->is(config('horizon.path', 'horizon').'*');
+
+        if ($isHorizonRoute) {
+            $policy->add(Directive::SCRIPT, Keyword::UNSAFE_INLINE);
+        } else {
+            $policy->addNonce(Directive::SCRIPT);
+        }
+
+        return $policy;
     }
 
     /**
