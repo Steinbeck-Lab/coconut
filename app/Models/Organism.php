@@ -6,9 +6,20 @@ use Filament\Forms;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use OwenIt\Auditing\Contracts\Auditable;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string|null $iri
+ * @property string|null $rank
+ * @property int|null $molecule_count
+ * @property string|null $slug
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ */
 class Organism extends Model implements Auditable
 {
     use HasFactory;
@@ -43,19 +54,11 @@ class Organism extends Model implements Auditable
 
     public function molecules(): BelongsToMany
     {
-        return $this->belongsToMany(Molecule::class)->distinct('molecule_id')->orderBy('molecule_id')->withTimestamps();
-    }
-
-    public function moleculeRelations(): BelongsToMany
-    {
         return $this->belongsToMany(Molecule::class)
             ->withPivot([
-                'sample_location_id',
-                'geo_location_id',
-                'ecosystem_id',
                 'collection_ids',
                 'citation_ids',
-                'notes',
+                'metadata',
             ])
             ->withTimestamps();
     }
@@ -67,26 +70,14 @@ class Organism extends Model implements Auditable
 
     public function geoLocations(): BelongsToMany
     {
-        return $this->belongsToMany(GeoLocation::class, 'molecule_organism', 'organism_id', 'geo_location_id')
-            ->withTimestamps()
-            ->distinct('geo_location_id')
-            ->orderBy('geo_location_id');
+        return $this->belongsToMany(GeoLocation::class)
+            ->using(GeoLocationOrganism::class)
+            ->withTimestamps();
     }
 
-    public function ecosystems(): BelongsToMany
+    public function sampleLocations(): HasMany
     {
-        return $this->belongsToMany(Ecosystem::class, 'molecule_organism', 'organism_id', 'ecosystem_id')
-            ->withTimestamps()
-            ->distinct('ecosystem_id')
-            ->orderBy('ecosystem_id');
-    }
-
-    public function sampleLocations(): BelongsToMany
-    {
-        return $this->belongsToMany(SampleLocation::class, 'molecule_organism', 'organism_id', 'sample_location_id')
-            ->withTimestamps()
-            ->distinct('sample_location_id')
-            ->orderBy('sample_location_id');
+        return $this->hasMany(SampleLocation::class);
     }
 
     public function getIriAttribute($value)

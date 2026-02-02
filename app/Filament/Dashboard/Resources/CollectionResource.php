@@ -24,7 +24,6 @@ use Filament\Forms\Components\SpatieTagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\ImageEntry;
-use Filament\Infolists\Components\Section as InfolistSection;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
@@ -144,7 +143,7 @@ class CollectionResource extends Resource
     {
         return $schema
             ->components([
-                InfolistSection::make('Database Details')
+                Section::make('Database Details')
                     ->schema([
                         TextEntry::make('title')
                             ->label('Collection Title'),
@@ -158,7 +157,7 @@ class CollectionResource extends Resource
                             ->placeholder('No URL provided'),
                     ])
                     ->columns(2),
-                InfolistSection::make('Metadata')
+                Section::make('Metadata')
                     ->schema([
                         TextEntry::make('tags.*.name')
                             ->label('Tags')
@@ -169,14 +168,15 @@ class CollectionResource extends Resource
                             ->placeholder('No identifier'),
                     ])
                     ->columns(2),
-                InfolistSection::make('Display Image')
+                Section::make('Display Image')
                     ->schema([
                         ImageEntry::make('image')
                             ->label('Collection Image')
                             ->visibility('public')
-                            ->size(200),
+                            ->size(200)
+                            ->state(fn ($record) => $record->image ? 'https://s3.uni-jena.de/coconut/'.$record->image : null),
                     ]),
-                InfolistSection::make('Distribution')
+                Section::make('Distribution')
                     ->schema([
                         TextEntry::make('license.title')
                             ->label('License')
@@ -217,6 +217,7 @@ class CollectionResource extends Resource
                         'EMBARGO' => 'warning',
                         'PUBLISHED' => 'success',
                         'REJECTED' => 'danger',
+                        default => 'gray',
                     }),
             ])
             ->searchable(false)

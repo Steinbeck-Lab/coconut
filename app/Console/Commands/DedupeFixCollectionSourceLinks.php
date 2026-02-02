@@ -84,79 +84,73 @@ class DedupeFixCollectionSourceLinks extends Command
             ->orderBy('id')
             ->chunk($batchSize, function ($collection_molecules) use (&$data, $db_links, &$childBatchCount, $progressBar, $totalBatches, $startTime) {
                 $this->info("\nProcessing batch {$childBatchCount} of {$totalBatches}");
-                $this->info('Time elapsed: '.$startTime->diffForHumans(now(), true));
+                $this->info('Time elapsed: '.$startTime->diffForHumans(now(), \Carbon\CarbonInterface::DIFF_ABSOLUTE));
 
-                if ($childBatchCount >= 0) {
-                    foreach ($collection_molecules as $collection_molecule) {
-                        // $collection_molecule->collection_id = 30;
-                        // $collection_molecule->molecule_id = 36269;
-                        $url = null;
-                        $reference = null;
+                foreach ($collection_molecules as $collection_molecule) {
+                    // $collection_molecule->collection_id = 30;
+                    // $collection_molecule->molecule_id = 36269;
+                    $url = null;
+                    $reference = null;
 
-                        // Get the source URL and reference for the molecule
-                        $entries = DB::select('SELECT link, reference_id FROM entries WHERE collection_id = ? and molecule_id = ?;', [$collection_molecule->collection_id, $collection_molecule->molecule_id]);
+                    // Get the source URL and reference for the molecule
+                    $entries = DB::select('SELECT link, reference_id FROM entries WHERE collection_id = ? and molecule_id = ?;', [$collection_molecule->collection_id, $collection_molecule->molecule_id]);
 
-                        foreach ($entries as $index => $entry) {
-                            // dd($index, $entry);
-                            if ($index == 0) {
-                                switch ($collection_molecule->collection_id) {
-                                    case 30:
-                                    case 42:
-                                    case 43:
-                                    case 54:
-                                    case 58:
-                                        $url = $db_links[$collection_molecule->collection_id].$entry->reference_id;
-                                        break;
-                                    default:
-                                        $url = $entry->link;
-                                        break;
-                                }
-                                $reference = $entry->reference_id;
-                            } else {
-                                switch ($collection_molecule->collection_id) {
-                                    case 30:
-                                    case 42:
-                                    case 43:
-                                    case 54:
-                                    case 58:
-                                        $url .= '|'.$db_links[$collection_molecule->collection_id].$entry->reference_id;
-                                        break;
-                                    default:
-                                        $url .= '|'.$entry->link;
-                                        break;
-                                }
-                                $reference .= '|'.$entry->reference_id;
+                    foreach ($entries as $index => $entry) {
+                        // dd($index, $entry);
+                        if ($index == 0) {
+                            switch ($collection_molecule->collection_id) {
+                                case 30:
+                                case 42:
+                                case 43:
+                                case 54:
+                                case 58:
+                                    $url = $db_links[$collection_molecule->collection_id].$entry->reference_id;
+                                    break;
+                                default:
+                                    $url = $entry->link;
+                                    break;
                             }
+                            $reference = $entry->reference_id;
+                        } else {
+                            switch ($collection_molecule->collection_id) {
+                                case 30:
+                                case 42:
+                                case 43:
+                                case 54:
+                                case 58:
+                                    $url .= '|'.$db_links[$collection_molecule->collection_id].$entry->reference_id;
+                                    break;
+                                default:
+                                    $url .= '|'.$entry->link;
+                                    break;
+                            }
+                            $reference .= '|'.$entry->reference_id;
                         }
-
-                        array_push($data, [
-                            'collection_id' => $collection_molecule->collection_id,
-                            'molecule_id' => $collection_molecule->molecule_id,
-                            'url' => $url,
-                            'reference' => $reference,
-                        ]);
-
-                        $progressBar->advance();
                     }
 
-                    if (! empty($data)) {
-                        // $this->info("\nUpdating batch {$childBatchCount} of {$totalBatches}");
-                        $this->updateBatch($data);
-                        $data = [];
-                    }
+                    array_push($data, [
+                        'collection_id' => $collection_molecule->collection_id,
+                        'molecule_id' => $collection_molecule->molecule_id,
+                        'url' => $url,
+                        'reference' => $reference,
+                    ]);
+
+                    $progressBar->advance();
                 }
+
+                if (! empty($data)) {
+                    // $this->info("\nUpdating batch {$childBatchCount} of {$totalBatches}");
+                    $this->updateBatch($data);
+                    $data = [];
+                }
+
                 $childBatchCount = $childBatchCount + 1;
             });
 
         $progressBar->finish();
         $this->newLine();
 
-        if (! empty($data)) {
-            $this->info('Processing remaining records...');
-            $this->updateBatch($data);
-        }
-
-        $this->info("\nTotal time taken: ".$startTime->diffForHumans(now(), true));
+        $this->info("\nTotal time taken: ".$startTime->diffForHumans(now(), \Carbon\CarbonInterface::DIFF_ABSOLUTE));
         $this->info('Process completed!');
 
         // Process parent molecules
@@ -170,22 +164,21 @@ class DedupeFixCollectionSourceLinks extends Command
             ->orderBy('id')
             ->chunk($batchSize, function ($parent_molecules) use (&$data, &$parentBatchCount, $total_parent_molecules, $batchSize, $startTime) {
                 $this->info("\nstarted parent batch ".$parentBatchCount.' of '.ceil($total_parent_molecules / $batchSize));
-                $this->info('Time elapsed: '.$startTime->diffForHumans(now(), true));
+                $this->info('Time elapsed: '.$startTime->diffForHumans(now(), \Carbon\CarbonInterface::DIFF_ABSOLUTE));
 
-                if ($parentBatchCount >= 0) {
-                    $patents_pivot_rows = DB::table('collection_molecule')
-                        ->selectRaw('collection_id, molecule_id, url, reference')
-                        ->whereIntegerInRaw('molecule_id', $parent_molecules->pluck('id')->toArray())
-                        ->get();
+                $patents_pivot_rows = DB::table('collection_molecule')
+                    ->selectRaw('collection_id, molecule_id, url, reference')
+                    ->whereIntegerInRaw('molecule_id', $parent_molecules->pluck('id')->toArray())
+                    ->get();
 
-                    $total_parent_molecules = count($patents_pivot_rows);
+                $total_parent_molecules = count($patents_pivot_rows);
 
-                    $progressBar = $this->output->createProgressBar($total_parent_molecules);
-                    foreach ($patents_pivot_rows as $parent_pivot_row) {
-                        $url = $parent_pivot_row->url;
-                        $reference = $parent_pivot_row->reference;
+                $progressBar = $this->output->createProgressBar($total_parent_molecules);
+                foreach ($patents_pivot_rows as $parent_pivot_row) {
+                    $url = $parent_pivot_row->url;
+                    $reference = $parent_pivot_row->reference;
 
-                        $children_pivot_rows = DB::select('
+                    $children_pivot_rows = DB::select('
                                                     SELECT cm.collection_id, cm.molecule_id, cm.url, cm.reference 
                                                     FROM collection_molecule cm
                                                     INNER JOIN molecules m ON cm.molecule_id = m.id 
@@ -193,41 +186,35 @@ class DedupeFixCollectionSourceLinks extends Command
                                                     AND cm.collection_id = ?
                                                 ', [$parent_pivot_row->molecule_id, $parent_pivot_row->collection_id]);
 
-                        foreach ($children_pivot_rows as $children_pivot_row) {
-                            if (! $url) {
-                                $url = $children_pivot_row->url;
-                                $reference = $children_pivot_row->reference;
-                            } else {
-                                $url .= '|'.$children_pivot_row->url;
-                                $reference .= '|'.$children_pivot_row->reference;
-                            }
+                    foreach ($children_pivot_rows as $children_pivot_row) {
+                        if (! $url) {
+                            $url = $children_pivot_row->url;
+                            $reference = $children_pivot_row->reference;
+                        } else {
+                            $url .= '|'.$children_pivot_row->url;
+                            $reference .= '|'.$children_pivot_row->reference;
                         }
-                        // push each parent data for update
-                        array_push($data, [
-                            'collection_id' => $parent_pivot_row->collection_id,
-                            'molecule_id' => $parent_pivot_row->molecule_id,
-                            'url' => $url,
-                            'reference' => $reference,
-                        ]);
-                        $progressBar->advance();
                     }
+                    // push each parent data for update
+                    array_push($data, [
+                        'collection_id' => $parent_pivot_row->collection_id,
+                        'molecule_id' => $parent_pivot_row->molecule_id,
+                        'url' => $url,
+                        'reference' => $reference,
+                    ]);
+                    $progressBar->advance();
+                }
 
-                    // Update the database with the calculated scores in batch
-                    if (! empty($data)) {
-                        // $this->info('Updating parent batch ' . $parentBatchCount);
-                        $this->updateBatch($data);
-                        $progressBar->finish();
-                        $data = []; // Reset the data array for the next batch
-                    }
+                // Update the database with the calculated scores in batch
+                if (! empty($data)) {
+                    // $this->info('Updating parent batch ' . $parentBatchCount);
+                    $this->updateBatch($data);
+                    $progressBar->finish();
+                    $data = []; // Reset the data array for the next batch
                 }
 
                 $parentBatchCount = $parentBatchCount + 1;
             });
-
-        // Ensure any remaining data is updated after the last chunk
-        if (! empty($data)) {
-            $this->updateBatch($data);
-        }
 
         Schema::table('entries', function (Blueprint $table) {
             $table->dropIndex('idx_entries_collection_molecule');

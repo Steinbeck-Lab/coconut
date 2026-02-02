@@ -1,5 +1,11 @@
-# Sample workflow for building and deploying a VitePress site to GitHub Pages
+# This workflow builds and deploys the COCONUT documentation to GitHub Pages.
+# It uses VitePress to generate static documentation from markdown files and automatically
+# deploys updates when changes are pushed to the docs directory or related configuration files.
 #
+# Maintainers:
+#   - name: Nisha Sharma
+#   - email: nisha.sharma@uni-jena.de
+
 name: Deploy Coconut docs to Pages
 
 on:

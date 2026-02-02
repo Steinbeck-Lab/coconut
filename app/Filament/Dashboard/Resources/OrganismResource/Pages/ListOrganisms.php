@@ -28,13 +28,13 @@ class ListOrganisms extends ListRecords
             'organisms' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where('molecule_count', '>', 0))
                 ->favorite()
-                ->badge(Organism::query()->where('molecule_count', '>', 0)->count())
+                ->badge((string) Organism::query()->where('molecule_count', '>', 0)->count())
                 ->preserveAll()
                 ->default(),
             'inactive' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where('molecule_count', '<=', 0))
                 ->favorite()
-                ->badge(Organism::query()->where('molecule_count', '<=', 0)->count())
+                ->badge((string) Organism::query()->where('molecule_count', '<=', 0)->count())
                 ->preserveAll(),
             'unmapped' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where(function ($q) {

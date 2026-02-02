@@ -101,7 +101,7 @@ class ClassifyMoleculeAuto implements ShouldQueue
                 // Throttling: if we hit a 429, wait and retry
                 if ($response->status() === 429) {
                     Log::warning("Throttled (429) for SMILES: {$smiles}. Retrying in {$backoffSeconds} second(s)...");
-                    sleep($backoffSeconds);
+                    usleep((int) ($backoffSeconds * 1000000));
                     $attempt++;
 
                     continue;
@@ -112,7 +112,7 @@ class ClassifyMoleculeAuto implements ShouldQueue
                 return null;
             } catch (Throwable $e) {
                 Log::error("Exception fetching data for SMILES: {$smiles}. ".$e->getMessage());
-                sleep($backoffSeconds);
+                usleep((int) ($backoffSeconds * 1000000));
                 $attempt++;
             }
         }

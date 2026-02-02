@@ -24,14 +24,6 @@ class CurateCitations extends Command
 
     private array $correctedDois = [];
 
-    private array $problemDois = [];
-
-    private array $failedCitations = [];
-
-    private array $existingProblemDois = [];
-
-    private array $existingFailedCitations = [];
-
     public function handle()
     {
 
@@ -80,7 +72,7 @@ class CurateCitations extends Command
         $this->info("Total batches to process: {$totalBatches}");
 
         $correctedDOIs = $this->ask('Enter the path of the corrected dois file (tsv file): ', 'doi_replaced.tsv');
-        $startBatch = $this->ask('Starting batch: ', 1);
+        $startBatch = $this->ask('Starting batch: ', '1');
 
         $this->loadCorrectedDois($correctedDOIs);
         $this->loadExistingCitations();
@@ -99,8 +91,8 @@ class CurateCitations extends Command
 
         $query->orderBy('id')
             ->chunkById($batchSize, function (Collection $entries) use (&$totalCitationsCreated, &$totalFailedCitations, &$totalDuplicateCitations, &$batchCount, $totalBatches, $startBatch, &$problemDois, &$failedCitations) {
-                if ($batchCount >= $startBatch) {
-                    DB::transaction(function () use ($entries, &$totalCitationsCreated, &$totalFailedCitations, &$totalDuplicateCitations, $batchCount, $totalBatches, &$problemDois, &$failedCitations) {
+                if ($batchCount >= (int) $startBatch) {
+                    DB::transaction(function () use ($entries, &$totalCitationsCreated, &$totalFailedCitations, &$totalDuplicateCitations, $batchCount, $totalBatches, &$problemDois, &$failedCitations, $startBatch) {
                         $this->info("\nProcessing batch {$batchCount} of {$totalBatches}");
                         $citationsCreatedCount = 0;
                         $failedCitationsCount = 0;
@@ -262,7 +254,7 @@ class CurateCitations extends Command
                         $totalDuplicateCitations += $duplicateCitationsCount;
 
                         // Write this batch's results
-                        // $this->writeOutputFiles(problemDois: $batchProblemDois, $batchFailedCitations, $startBatch);
+                        $this->writeOutputFiles(problemDois: $batchProblemDois, failedCitations: $batchFailedCitations, startBatch: $startBatch);
                         $problemDois = array_merge($problemDois, $batchProblemDois);
                         $failedCitations = array_merge($failedCitations, $batchFailedCitations);
 
@@ -294,11 +286,7 @@ class CurateCitations extends Command
             $correctedDoisFile = storage_path('citations_fix_data/'.$doiFile);
             if (($handle = fopen($correctedDoisFile, 'r')) !== false) {
                 while (($row = fgetcsv($handle, 0, "\t", '"')) !== false) {
-                    try {
-                        $this->correctedDois[$row[0]] = $row[1] ?? null;
-                    } catch (\ValueError $e) {
-                        Log::info('An error occurred: '.$e->getMessage());
-                    }
+                    $this->correctedDois[$row[0]] = $row[1] ?? null;
                 }
                 fclose($handle);
             }
@@ -332,7 +320,7 @@ class CurateCitations extends Command
 
     private function processDoi(
         string $doi,
-        object $entry,
+        object|array $entry,
         array &$newCitations,
         array &$newCitablePairs,
         int &$citationsCreatedCount,
@@ -340,14 +328,16 @@ class CurateCitations extends Command
         array &$batchProblemDois,
         array &$batchFailedCitations
     ): void {
+        $moleculeId = is_array($entry) ? $entry['molecule_id'] : $entry->molecule_id;
+
         // Check if DOI exists in citations
         if (isset($this->existingCitationDois[$doi])) {
             $citationId = $this->existingCitationDois[$doi];
-            $citableKey = $this->getCitableKey($citationId, $entry->molecule_id);
+            $citableKey = $this->getCitableKey($citationId, $moleculeId);
 
             // Only add to pairs if relationship doesn't exist
             if (! isset($this->existingCitables[$citableKey])) {
-                $newCitablePairs[] = ['doi' => $doi, 'molecule_id' => $entry->molecule_id];
+                $newCitablePairs[] = ['doi' => $doi, 'molecule_id' => $moleculeId];
             }
 
             return;
@@ -360,11 +350,11 @@ class CurateCitations extends Command
 
             if (isset($this->existingCitationDois[$singleDoi])) {
                 $citationId = $this->existingCitationDois[$singleDoi];
-                $citableKey = $this->getCitableKey($citationId, $entry->molecule_id);
+                $citableKey = $this->getCitableKey($citationId, $moleculeId);
 
                 // Only add to pairs if relationship doesn't exist
                 if (! isset($this->existingCitables[$citableKey])) {
-                    $newCitablePairs[] = ['doi' => $singleDoi, 'molecule_id' => $entry->molecule_id];
+                    $newCitablePairs[] = ['doi' => $singleDoi, 'molecule_id' => $moleculeId];
                 }
 
                 continue;
@@ -381,11 +371,11 @@ class CurateCitations extends Command
                 }
                 if (isset($this->existingCitationDois[$citationDetails['doi']])) {
                     $citationId = $this->existingCitationDois[$citationDetails['doi']];
-                    $citableKey = $this->getCitableKey($citationId, $entry->molecule_id);
+                    $citableKey = $this->getCitableKey($citationId, $moleculeId);
 
                     // Only add to pairs if relationship doesn't exist
                     if (! isset($this->existingCitables[$citableKey])) {
-                        $newCitablePairs[] = ['doi' => $citationDetails['doi'], 'molecule_id' => $entry->molecule_id];
+                        $newCitablePairs[] = ['doi' => $citationDetails['doi'], 'molecule_id' => $moleculeId];
                     }
 
                     continue;
@@ -408,7 +398,7 @@ class CurateCitations extends Command
                     ];
                 }
 
-                $newCitablePairs[] = ['doi' => $citationDetails['doi'], 'molecule_id' => $entry->molecule_id];
+                $newCitablePairs[] = ['doi' => $citationDetails['doi'], 'molecule_id' => $moleculeId];
                 $citationsCreatedCount++;
             } catch (\Exception $e) {
                 $entry = (array) $entry;
@@ -521,7 +511,7 @@ class CurateCitations extends Command
                     ->orWhere('citation_text', '');
             })
             ->select('id', 'doi', 'title', 'authors', 'citation_text')
-            ->chunkById($batchSize, function (Collection $citations) use (&$updatedCount, &$failedCount, &$batchCount, $totalBatches, &$startBatch) {
+            ->chunkById($batchSize, function (Collection $citations) use (&$updatedCount, &$failedCount, &$batchCount, $totalBatches) {
 
                 $this->info("\nProcessing batch {$batchCount} of {$totalBatches}");
 

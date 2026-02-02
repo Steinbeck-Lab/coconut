@@ -82,6 +82,7 @@ class DataCite implements DOIService
      */
     public function updateDOI($doi, $metadata = [])
     {
+        $attributes = [];
         foreach ($metadata as $key => $value) {
             $attributes[$key] = $value;
         }

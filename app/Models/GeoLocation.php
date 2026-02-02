@@ -10,6 +10,7 @@ use Filament\Schemas\Components\Section;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class GeoLocation extends Model implements Auditable
@@ -48,30 +49,28 @@ class GeoLocation extends Model implements Auditable
     /**
      * Get the organisms associated with this geo location.
      */
-    // public function organisms(): BelongsToMany
-    // {
-    //     return $this->belongsToMany(Organism::class, 'geo_location_organism')
-    //         ->using(GeoLocationOrganism::class)
-    //         ->withTimestamps();
-    // }
+    public function organisms(): BelongsToMany
+    {
+        return $this->belongsToMany(Organism::class)
+            ->using(GeoLocationOrganism::class)
+            ->withTimestamps();
+    }
+
     /**
      * Get the molecules associated with this geo location.
      */
     public function molecules(): BelongsToMany
     {
-        return $this->belongsToMany(Molecule::class, 'geo_location_molecule')
+        return $this->belongsToMany(Molecule::class, 'geo_location_molecule', 'geo_location_id', 'molecule_id')
             ->withTimestamps();
     }
 
     /**
      * Get the ecosystems in this geo location.
      */
-    public function ecosystems(): BelongsToMany
+    public function ecosystems(): HasMany
     {
-        return $this->belongsToMany(Ecosystem::class, 'molecule_organism', 'geo_location_id', 'ecosystem_id')
-            ->withTimestamps()
-            ->distinct('ecosystem_id')
-            ->orderBy('ecosystem_id');
+        return $this->hasMany(Ecosystem::class);
     }
 
     public function transformAudit(array $data): array
