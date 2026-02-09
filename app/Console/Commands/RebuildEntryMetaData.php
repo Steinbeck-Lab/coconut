@@ -95,9 +95,6 @@ class RebuildEntryMetaData extends Command
         $bar = $this->output->createProgressBar($total);
         $bar->start();
 
-        // Testing
-        $query = Entry::where('id', 1);
-
         $query->chunkById($chunkSize, function ($entries) use ($bar) {
             /** @var \App\Models\Entry $entry */
             foreach ($entries as $entry) {
