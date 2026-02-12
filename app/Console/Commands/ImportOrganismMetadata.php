@@ -370,27 +370,25 @@ class ImportOrganismMetadata extends Command
                 'locs' => [],
             ];
 
-            if ($matchingOrganism) {
-                // Get sample location IDs from parts
-                $parts = $matchingOrganism['parts'] ?? [];
-                $refEntry['smp_ids'] = $this->resolveSampleLocationIds($parts, $organismId);
+            // Get sample location IDs from parts
+            $parts = $matchingOrganism['parts'] ?? [];
+            $refEntry['smp_ids'] = $this->resolveSampleLocationIds($parts, $organismId);
 
-                // Get locations with geo_location and ecosystems
-                $locations = $matchingOrganism['locations'] ?? [];
-                foreach ($locations as $loc) {
-                    $geoLocationId = null;
-                    if (! empty($loc['name'])) {
-                        $geoLocationId = $this->findOrCreateGeoLocation($loc['name']);
-                    }
-
-                    $ecosystems = $loc['ecosystems'] ?? [];
-                    $ecosystemIds = $this->resolveEcosystemIds($ecosystems, $geoLocationId);
-
-                    $refEntry['locs'][] = [
-                        'geo_id' => $geoLocationId,
-                        'eco_ids' => $ecosystemIds,
-                    ];
+            // Get locations with geo_location and ecosystems
+            $locations = $matchingOrganism['locations'] ?? [];
+            foreach ($locations as $loc) {
+                $geoLocationId = null;
+                if (! empty($loc['name'])) {
+                    $geoLocationId = $this->findOrCreateGeoLocation($loc['name']);
                 }
+
+                $ecosystems = $loc['ecosystems'] ?? [];
+                $ecosystemIds = $this->resolveEcosystemIds($ecosystems, $geoLocationId);
+
+                $refEntry['locs'][] = [
+                    'geo_id' => $geoLocationId,
+                    'eco_ids' => $ecosystemIds,
+                ];
             }
 
             $structuredRefs[] = $refEntry;
