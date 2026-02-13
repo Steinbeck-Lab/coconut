@@ -3,17 +3,23 @@
 namespace App\Filament\Dashboard\Resources\CollectionResource\RelationManagers;
 
 use App\Filament\Dashboard\Imports\EntryImporter;
-use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ImportAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\ImageEntry;
-use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Infolist;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Actions\ImportAction;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Artisan;
@@ -22,64 +28,66 @@ class EntriesRelationManager extends RelationManager
 {
     protected static string $relationship = 'entries';
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('reference_id')
+        return $schema
+            ->components([
+                TextInput::make('reference_id')
+                    ->label('Reference ID')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('canonical_smiles')
+                TextInput::make('canonical_smiles')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('name')
+                TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('doi')
+                TextInput::make('doi')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('link')
+                TextInput::make('link')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('organism')
+                TextInput::make('organism')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('organism_part')
+                TextInput::make('organism_part')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('mol_filename')
+                TextInput::make('mol_filename')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('molecular_formula')
+                TextInput::make('molecular_formula')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Textarea::make('structural_comments')
+                Textarea::make('structural_comments')
                     ->required(),
-                Forms\Components\TextInput::make('geo_location')
+                TextInput::make('geo_location')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('location')
+                TextInput::make('location')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Textarea::make('errors')
+                Textarea::make('errors')
                     ->required(),
-                Forms\Components\TextInput::make('standardized_canonical_smiles')
+                TextInput::make('standardized_canonical_smiles')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('parent_canonical_smiles')
+                TextInput::make('parent_canonical_smiles')
                     ->required()
                     ->maxLength(255),
             ]);
     }
 
-    public function infolist(Infolist $infolist): Infolist
+    public function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
+        return $schema
+            ->components([
 
                 Section::make()
                     ->schema([
-                        TextEntry::make('reference_id'),
+                        TextEntry::make('reference_id')
+                            ->label('Reference ID'),
                         TextEntry::make('name'),
                         TextEntry::make('doi'),
                         TextEntry::make('link'),
@@ -103,21 +111,21 @@ class EntriesRelationManager extends RelationManager
                         })
                             ->width(200)
                             ->height(200)
-                            ->ring(5)
+                            ->ring('5')
                             ->defaultImageUrl(url('/images/placeholder.png')),
                         ImageEntry::make('canonical_smiles')->state(function ($record) {
                             return config('services.cheminf.api_url').'depict/2D?smiles='.urlencode($record->canonical_smiles).'&height=300&width=300&CIP=true&toolkit=cdk';
                         })
                             ->width(200)
                             ->height(200)
-                            ->ring(5)
+                            ->ring('5')
                             ->defaultImageUrl(url('/images/placeholder.png')),
                         ImageEntry::make('standardized_canonical_smiles')->state(function ($record) {
                             return config('services.cheminf.api_url').'depict/2D?smiles='.urlencode($record->standardized_canonical_smiles).'&height=300&width=300&CIP=true&toolkit=cdk';
                         })
                             ->width(200)
                             ->height(200)
-                            ->ring(5)
+                            ->ring('5')
                             ->defaultImageUrl(url('/images/placeholder.png')),
                         // ...
                     ]),
@@ -139,8 +147,10 @@ class EntriesRelationManager extends RelationManager
                     ->height(200)
                     ->ring(5)
                     ->defaultImageUrl(url('/images/placeholder.png')),
-                Tables\Columns\TextColumn::make('reference_id')->searchable(),
-                Tables\Columns\TextColumn::make('status'),
+                TextColumn::make('reference_id')
+                    ->label('Reference ID')
+                    ->searchable(),
+                TextColumn::make('status'),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -149,7 +159,6 @@ class EntriesRelationManager extends RelationManager
                         'SUBMITTED' => 'SUBMITTED',
                         'PROCESSING' => 'PROCESSING',
                         'INREVIEW' => 'INREVIEW',
-                        'PASSED' => 'PASSED',
                         'REJECTED' => 'REJECTED',
                     ]),
             ])
@@ -177,14 +186,17 @@ class EntriesRelationManager extends RelationManager
                     }),
                 // Tables\Actions\CreateAction::make(),
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                ViewAction::make()
+                    ->iconButton(),
+                EditAction::make()
+                    ->iconButton(),
+                DeleteAction::make()
+                    ->iconButton(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])->paginated([10, 25, 50, 100])
             ->extremePaginationLinks();

@@ -1,6 +1,61 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+
+@source "../views/**/*.blade.php";
+@source "../../app/Livewire/**/*.php";
+@source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
+@source "../../vendor/laravel/jetstream/**/*.blade.php";
+
+/* Custom theme colors */
+@theme {
+  --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  
+  /* Base colors for auto-generated scales */
+  --color-primary: #451300;
+  --color-secondary: #32994d;
+
+  /* Primary scale from --color-primary */
+  --color-primary-50:  color-mix(in oklab, var(--color-primary) 10%, white);
+  --color-primary-100: color-mix(in oklab, var(--color-primary) 20%, white);
+  --color-primary-200: color-mix(in oklab, var(--color-primary) 30%, white);
+  --color-primary-300: color-mix(in oklab, var(--color-primary) 40%, white);
+  --color-primary-400: color-mix(in oklab, var(--color-primary) 55%, white);
+  --color-primary-500: var(--color-primary);
+  --color-primary-600: color-mix(in oklab, var(--color-primary) 90%, black);
+  --color-primary-700: color-mix(in oklab, var(--color-primary) 80%, black);
+  --color-primary-800: color-mix(in oklab, var(--color-primary) 70%, black);
+  --color-primary-900: color-mix(in oklab, var(--color-primary) 60%, black);
+
+  /* Secondary scale from --color-secondary */
+  --color-secondary-50:  color-mix(in oklab, var(--color-secondary) 10%, white);
+  --color-secondary-100: color-mix(in oklab, var(--color-secondary) 20%, white);
+  --color-secondary-200: color-mix(in oklab, var(--color-secondary) 30%, white);
+  --color-secondary-300: color-mix(in oklab, var(--color-secondary) 40%, white);
+  --color-secondary-400: color-mix(in oklab, var(--color-secondary) 55%, white);
+  --color-secondary-500: var(--color-secondary);
+  --color-secondary-600: color-mix(in oklab, var(--color-secondary) 90%, black);
+  --color-secondary-700: color-mix(in oklab, var(--color-secondary) 80%, black);
+  --color-secondary-800: color-mix(in oklab, var(--color-secondary) 70%, black);
+  --color-secondary-900: color-mix(in oklab, var(--color-secondary) 60%, black);
+
+
+  /* Custom named colors (backward compatibility) */
+  /* --color-primary-dark: #451300;
+  --color-primary-light: #92400e;
+  --color-secondary-dark: #32994d;
+  --color-secondary-light: #3bbf62; */
+  --color-primary-dark: var(--color-primary);
+  --color-primary-light: color-mix(in oklab, var(--color-primary) 65%, white);
+  --color-secondary-dark: var(--color-secondary);
+  --color-secondary-light: color-mix(in oklab, var(--color-secondary) 80%, white);
+  --color-text-dark: #374151;
+  --color-text-light: #6b7280;
+  --color-link-dark: #4f46e5;
+  --color-link-light: #818cf8;
+  --color-danger-dark: #dc2626;
+  --color-danger-light: #f87171;
+}
 
 /* latin */
 @font-face {
@@ -77,22 +132,14 @@ body {
   display: none;
 }
 
-@layer utilities {
-  @layer responsive {
-
-    /* Hide scrollbar for Chrome, Safari and Opera */
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-
-    /* Hide scrollbar for IE, Edge and Firefox */
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      /* IE and Edge */
-      scrollbar-width: none;
-      /* Firefox */
-    }
+@utility no-scrollbar {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  &::-webkit-scrollbar {
+    display: none;
   }
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 :root {

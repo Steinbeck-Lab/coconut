@@ -1,0 +1,65 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app/
+
+    # Level 5 provides good balance of strictness and practicality
+    # Checks for: basic undefined variables, unknown classes/methods, incorrect types
+    level: 5
+
+    # Disable strict PHPDoc type checks to reduce noise from state/enum comparisons
+    # Set to true for stricter type checking if needed
+    treatPhpDocTypesAsCertain: false
+
+    # Report unused private properties, methods, and constants
+    checkUninitializedProperties: true
+    
+    # Laravel-specific rules (highly recommended)
+    checkModelProperties: false  # Beta - enable when stable
+    checkOctaneCompatibility: false  # Enable if using Octane
+    checkMissingCallableSignature: false  # Level 6+ required
+    noUnnecessaryCollectionCall: true  # Catch inefficient queries
+    noModelMake: true  # Prevent inefficient Model::make()
+    noEnvCallsOutsideOfConfig: true  # Critical for cached configs
+    checkModelAppends: true  # Validate $appends property
+    
+    # Performance-related
+    parallel:
+        maximumNumberOfProcesses: 4
+        processTimeout: 300.0
+
+    # Ignore errors that are too noisy or impractical to fix
+    ignoreErrors:
+        # Ignore PHPDoc type covariance issues from Laravel core
+        - '#PHPDoc type .* is not covariant with PHPDoc type .* of overridden property#'
+        
+        # Ignore missing class issues in third-party packages
+        - '#Call to method .* on an unknown class#'
+        - '#Instantiated class .* not found#'
+        
+        # Ignore undefined properties on generic Eloquent Model (use specific model types where possible)
+        - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$\w+#'
+        
+        # Ignore method not found on generic Eloquent Model
+        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Model::\w+\(\)#'
+        
+        # Ignore cannot access/call on generic types (needs proper type hints)
+        - '#Cannot access property .* on Illuminate\\Database\\Eloquent\\Model\|int\|string#'
+        - '#Cannot call method .* on Illuminate\\Database\\Eloquent\\Model\|int\|string#'
+        
+        # Ignore RestRequest parameter type issues (third-party package)
+        - '#Parameter \$request of method App\\Rest\\Resources\\.+Resource::\w+\(\) has invalid type App\\Rest\\Resources\\RestRequest#'
+        - '#PHPDoc tag @param for parameter \$request with type App\\Rest\\Resources\\RestRequest is not subtype#'
+        
+        # Ignore DataCite service undefined property (trait-based properties)
+        - '#Access to an undefined property App\\Services\\DOI\\DataCite::\$(client|prefix)#'
+        
+    excludePaths:
+        analyseAndScan:
+            - app/Console/Kernel.php
+            - app/Exceptions/Handler.php
+            - database/migrations/*
+            - database/factories/*
+            - database/seeders/*

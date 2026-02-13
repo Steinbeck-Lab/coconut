@@ -676,39 +676,37 @@ class ImportEntriesReferencesAuto extends Command
                     }
                 }
 
-                // If record exists (either found initially or created by another process), merge the arrays
-                if ($existing) {
-                    $existingCollectionIds = json_decode($existing->collection_ids ?? '[]', true);
-                    $existingCitationIds = json_decode($existing->citation_ids ?? '[]', true);
+                // Record exists (either found initially or created by another process), merge the arrays
+                $existingCollectionIds = json_decode($existing->collection_ids ?? '[]', true);
+                $existingCitationIds = json_decode($existing->citation_ids ?? '[]', true);
 
-                    $mergedCollectionIds = array_unique(array_merge($existingCollectionIds, $newCollectionIds));
-                    $mergedCitationIds = array_unique(array_merge($existingCitationIds, $newCitationIds));
+                $mergedCollectionIds = array_unique(array_merge($existingCollectionIds, $newCollectionIds));
+                $mergedCitationIds = array_unique(array_merge($existingCitationIds, $newCitationIds));
 
-                    // Check if there are actual changes before updating
-                    $existingCollectionJson = json_encode($existingCollectionIds);
-                    $existingCitationJson = json_encode($existingCitationIds);
-                    $newCollectionJson = json_encode($mergedCollectionIds);
-                    $newCitationJson = json_encode($mergedCitationIds);
+                // Check if there are actual changes before updating
+                $existingCollectionJson = json_encode($existingCollectionIds);
+                $existingCitationJson = json_encode($existingCitationIds);
+                $newCollectionJson = json_encode($mergedCollectionIds);
+                $newCitationJson = json_encode($mergedCitationIds);
 
-                    if ($existingCollectionJson !== $newCollectionJson || $existingCitationJson !== $newCitationJson) {
-                        $oldValues = [
-                            'collection_ids' => $existing->collection_ids,
-                            'citation_ids' => $existing->citation_ids,
-                            'updated_at' => $existing->updated_at,
-                        ];
+                if ($existingCollectionJson !== $newCollectionJson || $existingCitationJson !== $newCitationJson) {
+                    $oldValues = [
+                        'collection_ids' => $existing->collection_ids,
+                        'citation_ids' => $existing->citation_ids,
+                        'updated_at' => $existing->updated_at,
+                    ];
 
-                        $newValues = [
-                            'collection_ids' => $newCollectionJson,
-                            'citation_ids' => $newCitationJson,
-                            'updated_at' => now(),
-                        ];
+                    $newValues = [
+                        'collection_ids' => $newCollectionJson,
+                        'citation_ids' => $newCitationJson,
+                        'updated_at' => now(),
+                    ];
 
-                        DB::table('molecule_organism')
-                            ->where('id', $existing->id)
-                            ->update($newValues);
+                    DB::table('molecule_organism')
+                        ->where('id', $existing->id)
+                        ->update($newValues);
 
-                        $this->collectAudit('molecule_organism', $existing->id, $oldValues, $newValues, $entryAuditRecords);
-                    }
+                    $this->collectAudit('molecule_organism', $existing->id, $oldValues, $newValues, $entryAuditRecords);
                 }
             }
         }
@@ -728,7 +726,7 @@ class ImportEntriesReferencesAuto extends Command
             if (($key === 'collection_ids' || $key === 'citation_ids') &&
                  is_string($oldValue) && is_string($newValue)) {
                 // Decode JSON strings for comparison
-                $oldDecoded = json_decode($oldValue ?? '[]', true);
+                $oldDecoded = json_decode($oldValue, true);
                 $newDecoded = json_decode($newValue, true);
 
                 // Sort arrays to ensure consistent comparison

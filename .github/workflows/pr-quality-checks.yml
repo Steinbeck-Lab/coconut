@@ -1,0 +1,43 @@
+# This workflow orchestrates all quality checks for pull requests.
+# It runs PHP linting, security scans, static analysis (PHPStan), and the full test suite
+# to ensure code quality standards are met before merging into development or main branches.
+#
+# Maintainers:
+#   - name: Nisha Sharma
+#   - email: nisha.sharma@uni-jena.de
+
+name: PR Quality Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - development
+      - main
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+  checks: write
+
+jobs:
+  php-lint:
+    name: PHP Lint & Security
+    uses: ./.github/workflows/php-lint.yml
+    secrets: inherit
+
+  secrets-scan:
+    name: Secret Leakage Scan
+    uses: ./.github/workflows/secrets-scan.yml
+    secrets: inherit
+
+  phpstan:
+    name: PHPStan Analysis
+    uses: ./.github/workflows/phpstan.yml
+    secrets: inherit
+
+  test-coverage:
+    name: Tests & Coverage (PHP 8.3)
+    uses: ./.github/workflows/test-coverage.yml
+    secrets: inherit

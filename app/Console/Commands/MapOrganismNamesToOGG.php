@@ -41,7 +41,7 @@ class MapOrganismNamesToOGG extends Command
             foreach ($organisms as $organism) {
                 $name = ucfirst(trim($organism->name));
                 $data = null;
-                if ($name && $name != '') {
+                if ($name) {
                     $data = $this->getOLSIRI($name, 'species');
                     if ($data) {
                         $this->updateOrganismModel($name, $data, $organism, 'species');

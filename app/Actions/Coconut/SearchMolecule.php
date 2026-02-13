@@ -9,7 +9,6 @@ use App\Models\Organism;
 use Illuminate\Database\QueryException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class SearchMolecule
 {
@@ -184,7 +183,7 @@ class SearchMolecule
                 $sql = 'SELECT id, COUNT(*) OVER () AS count
                           FROM molecules 
                           WHERE standard_inchi LIKE ?
-                          AND NOT (is_parent = TRUE AND has_variants = TRUE)';
+                          AND is_placeholder = FALSE';
                 $this->applyRawStatusFilter($sql);
                 $orderBy = 'ORDER BY active DESC, annotation_level DESC';
                 $params = ['%'.$this->query.'%'];
@@ -195,7 +194,7 @@ class SearchMolecule
                 $sql = 'SELECT id, COUNT(*) OVER () AS count
                           FROM molecules 
                           WHERE standard_inchi_key LIKE ?
-                          AND NOT (is_parent = TRUE AND has_variants = TRUE)';
+                          AND is_placeholder = FALSE';
                 $this->applyRawStatusFilter($sql);
                 $orderBy = 'ORDER BY active DESC, annotation_level DESC';
                 $params = ['%'.$this->query.'%'];
@@ -206,7 +205,7 @@ class SearchMolecule
                           FROM molecules 
                           INNER JOIN properties ON molecules.id = properties.molecule_id
                           WHERE properties.molecular_formula = ?
-                          AND NOT (molecules.is_parent = TRUE AND molecules.has_variants = TRUE)';
+                          AND molecules.is_placeholder = FALSE';
                 $this->applyRawStatusFilter($sql, 'molecules');
                 $orderBy = 'ORDER BY molecules.active DESC, molecules.annotation_level DESC';
                 $params = [$this->query];
@@ -239,7 +238,7 @@ class SearchMolecule
                 $sql = 'SELECT id, COUNT(*) OVER () AS count
                               FROM molecules 
                               WHERE ("identifier"::TEXT ILIKE ?)
-                              AND NOT (is_parent = TRUE AND has_variants = TRUE)';
+                              AND is_placeholder = FALSE';
                 $this->applyRawStatusFilter($sql);
                 $orderBy = 'ORDER BY active DESC, annotation_level DESC';
                 $params = ['%'.$this->query.'%'];
@@ -319,7 +318,7 @@ class SearchMolecule
 
             $this->applyStatusFilterToQuery($query);
 
-            return $query->where('is_parent', false)->orderBy('active', 'DESC')->orderBy('annotation_level', 'DESC')->paginate($this->size);
+            return $query->where('is_placeholder', false)->orderBy('active', 'DESC')->orderBy('annotation_level', 'DESC')->paginate($this->size);
         } elseif ($this->tagType == 'citations') {
             $query_citations = array_map('strtolower', array_map('trim', explode(',', $this->query)));
             $this->citations = Citation::where(function ($query) use ($query_citations) {
@@ -338,13 +337,13 @@ class SearchMolecule
 
             $this->applyStatusFilterToQuery($query);
 
-            return $query->where('is_parent', false)->orderBy('active', 'DESC')->orderBy('annotation_level', 'DESC')->paginate($this->size);
+            return $query->where('is_placeholder', false)->orderBy('active', 'DESC')->orderBy('annotation_level', 'DESC')->paginate($this->size);
         } else {
             $query = Molecule::withAnyTags([$this->query], $this->tagType);
 
             $this->applyStatusFilterToQuery($query);
 
-            return $query->where('is_parent', false)->orderBy('active', 'DESC')->paginate($this->size);
+            return $query->where('is_placeholder', false)->orderBy('active', 'DESC')->paginate($this->size);
         }
     }
 
@@ -357,7 +356,7 @@ class SearchMolecule
         $sql = 'SELECT properties.molecule_id as id, molecules.active, COUNT(*) OVER () AS count
                   FROM properties 
                   INNER JOIN molecules ON properties.molecule_id = molecules.id 
-                  WHERE NOT (molecules.is_parent = TRUE AND molecules.has_variants = TRUE)';
+                  WHERE molecules.is_placeholder = FALSE';
 
         $status = strtolower($this->status);
         if ($status === 'approved') {
@@ -433,7 +432,7 @@ class SearchMolecule
                 (("name"::TEXT ILIKE ?) 
                 OR ("synonyms"::TEXT ILIKE ?) 
                 OR ("identifier"::TEXT ILIKE ?)) 
-                AND is_parent = FALSE';
+                AND is_placeholder = FALSE';
 
             $searchPattern = '%'.$this->query.'%';
             $exactPattern = $this->query;
@@ -472,7 +471,7 @@ class SearchMolecule
         } else {
             $sql = 'SELECT id, COUNT(*) OVER () AS count
                     FROM molecules 
-                    WHERE (NOT (is_parent = TRUE AND has_variants = TRUE))';
+                    WHERE is_placeholder = FALSE';
 
             // Apply status filter
             $this->applyRawStatusFilter($sql);
@@ -517,7 +516,7 @@ class SearchMolecule
                    m.organism_count, m.citation_count, m.geo_count, m.collection_count, m.active
             FROM molecules m
             INNER JOIN id_list ON m.id = id_list.id
-            WHERE NOT (m.is_parent = TRUE AND m.has_variants = TRUE)
+            WHERE m.is_placeholder = FALSE
             ORDER BY id_list.position';
 
             $params = [$idsJson];
@@ -532,48 +531,5 @@ class SearchMolecule
         } else {
             return new LengthAwarePaginator([], 0, $this->size, $this->page);
         }
-    }
-
-    /**
-     * Handle exceptions by returning a user-friendly error response.
-     */
-    private function handleException(QueryException $exception)
-    {
-        $message = $exception->getMessage();
-
-        // Log the exception for debugging
-        Log::error('SearchMolecule query exception', [
-            'query' => $this->query,
-            'type' => $this->type,
-            'exception_message' => $message,
-            'exception_code' => $exception->getCode(),
-        ]);
-
-        if (str_contains(strtolower($message), 'sqlstate[42p01]')) {
-            Log::error('It appears that the molecules table is not indexed. To enable search, please index molecules table and generate corresponding fingerprints.');
-
-            return [
-                'error' => true,
-                'message' => 'Indexing issue. Plese report this to info.COCONUT@uni-jena.de',
-                'results' => [],
-                'total' => 0,
-            ];
-        }
-
-        if (str_contains(strtolower($message), 'sqlstate[22000]')) {
-            return [
-                'error' => true,
-                'message' => 'Error processing the molecule.',
-                'results' => [],
-                'total' => 0,
-            ];
-        }
-
-        return [
-            'error' => true,
-            'message' => 'An error occurred while searching. Please try again.',
-            'results' => [],
-            'total' => 0,
-        ];
     }
 }

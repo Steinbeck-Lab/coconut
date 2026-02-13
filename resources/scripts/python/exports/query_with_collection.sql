@@ -54,7 +54,7 @@ WITH molecule_properties AS (
 molecule_organisms AS (
     SELECT 
         m.id,
-        STRING_AGG(o.name, '|' ORDER BY o.name) AS organisms
+        STRING_AGG(DISTINCT o.name, '|' ORDER BY o.name) AS organisms
     FROM 
         molecules m
     INNER JOIN 
@@ -107,10 +107,20 @@ molecule_citations AS (
 molecule_synonyms_cas AS (
     SELECT 
         m.id,
-        REGEXP_REPLACE(REPLACE(m.synonyms::text, ',', '|'), '\[|\]|"', '', 'g') AS synonyms, 
+        COALESCE(syn.synonyms, '') AS synonyms,
         REGEXP_REPLACE(REPLACE(m.cas::text, ',', '|'), '\[|\]|"', '', 'g') AS cas
     FROM 
         molecules m
+    LEFT JOIN LATERAL (
+        SELECT STRING_AGG(btrim(e.elem::text, '"'), '|' ORDER BY btrim(e.elem::text, '"')) AS synonyms
+        FROM json_array_elements(
+            CASE
+                WHEN json_typeof(m.synonyms) = 'array'  THEN m.synonyms
+                WHEN json_typeof(m.synonyms) = 'string' THEN json_build_array(m.synonyms)
+                ELSE '[]'::json
+            END
+        ) AS e(elem)
+    ) syn ON true
     WHERE 
         m.identifier IS NOT NULL 
         AND m.active = TRUE 

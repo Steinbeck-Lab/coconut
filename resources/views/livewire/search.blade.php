@@ -1,4 +1,19 @@
 <div x-data="{ activeTab: @entangle('activeTab'), view: 'card' }">
+    <!-- Loading Overlay -->
+    <div wire:loading wire:target="search" role="status"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/20 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 flex flex-col items-center gap-4">
+            <div class="relative">
+                <div class="w-12 h-12 rounded-full border-4 border-gray-200"></div>
+                <div class="w-12 h-12 rounded-full border-4 border-secondary-dark border-t-transparent animate-spin absolute top-0 left-0"></div>
+            </div>
+            <div class="text-center">
+                <p class="text-sm font-medium text-gray-900">Searching</p>
+                <p class="text-xs text-gray-500 mt-1">Please wait...</p>
+            </div>
+        </div>
+    </div>
+
     <div class="mt-24 px-4 lg:px-8">
         @if ($tagType == 'dataSource' && $collection)
             <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
@@ -152,7 +167,7 @@
                                         <livewire:structure-editor :mode="'inline'" :smiles="$query"
                                             lazy="on-load" />
                                         <button type="submit"
-                                            class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3"><svg
+                                            class="cursor-pointer rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3"><svg
                                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                                 stroke-width="1.5" stroke="currentColor" class="size-4 inline">
                                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -200,7 +215,7 @@
                                     </div>
                                     <div class="flex items-center md:ml-1">
                                         <button type="submit"
-                                            class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3"><svg
+                                            class="cursor-pointer rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3"><svg
                                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                                 stroke-width="1.5" stroke="currentColor" class="size-4 inline">
                                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -247,7 +262,7 @@
                                     </div>
                                     <div class="flex items-center md:ml-1">
                                         <button type="submit"
-                                            class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3"><svg
+                                            class="cursor-pointer rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3"><svg
                                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                                 stroke-width="1.5" stroke="currentColor" class="size-4 inline">
                                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -459,10 +474,6 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-            <div wire:loading role="status"
-                class="border rounded-lg shadow-md opacity-90 absolute -translate-x-1/2 top-24 left-1/2 text-center justify-center">
-                <img class="w-full rounded-md" alt="loading" src="/img/loading.gif" />
             </div>
         </div>
     @elseif($query && !session()->has('error'))

@@ -231,7 +231,7 @@ class GenerateDensityCharts extends Command
         return $result;
     }
 
-    private function calculateDensity(string $table, string $column, string $dataType): ?array
+    private function calculateDensity(string $table, string $column, string $dataType): array
     {
         $statsForColumn = [];
 

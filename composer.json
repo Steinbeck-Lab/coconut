@@ -9,17 +9,17 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
-        "archilex/filament-filter-sets": "^3.7.35",
-        "bezhansalleh/filament-exceptions": "^2.1.2",
-        "bezhansalleh/filament-panel-switch": "*",
-        "bezhansalleh/filament-shield": "^3.3.4",
+        "archilex/filament-filter-sets": "^4.0",
+        "bezhansalleh/filament-exceptions": "4.x-dev",
+        "bezhansalleh/filament-panel-switch": "^2.0",
+        "bezhansalleh/filament-shield": "^4.0",
         "dompdf/dompdf": "^3.0.1",
-        "filament/filament": "^3.2.131",
-        "filament/forms": "^3.2.131",
-        "filament/spatie-laravel-media-library-plugin": "^3.2.131",
-        "filament/spatie-laravel-tags-plugin": "^3.2.131",
+        "filament/filament": "^4.0",
+        "filament/forms": "^4.0",
+        "filament/spatie-laravel-media-library-plugin": "^4.0",
+        "filament/spatie-laravel-tags-plugin": "^4.0",
         "guzzlehttp/guzzle": "^7.9.2",
-        "kenepa/banner": "^0.0.9",
+        "kenepa/banner": "^1.0",
         "laravel/framework": "^12.40.1",
         "laravel/horizon": "*",
         "laravel/jetstream": "^5.3.4",
@@ -36,9 +36,10 @@
         "mpdf/mpdf": "^8.2.5",
         "owen-it/laravel-auditing": "^14.0",
         "predis/predis": "^2.3",
-        "pxlrbt/filament-excel": "^2.3.4",
-        "pxlrbt/filament-spotlight": "^1.3",
-        "shuvroroy/filament-spatie-laravel-backup": "^2.2.3",
+        "pxlrbt/filament-excel": "^3.0",
+        "pxlrbt/filament-spotlight-pro": "^1.1",
+        "rinvex/countries": "^9.1",
+        "shuvroroy/filament-spatie-laravel-backup": "^3.0",
         "socialiteproviders/manager": "^4.7",
         "spatie/laravel-backup": "^9.0",
         "spatie/laravel-cookie-consent": "^3.3.2",
@@ -46,13 +47,14 @@
         "spatie/laravel-model-states": "^2.9",
         "spatie/laravel-permission": "^6.10.1",
         "spatie/schema-org": "^3.23",
-        "stechstudio/filament-impersonate": "*",
-        "stephenjude/filament-debugger": "^4.0.0",
-        "tapp/filament-auditing": "^3.0.9",
+        "stechstudio/filament-impersonate": "^4.0",
+        "stephenjude/filament-debugger": "^4.0",
+        "tapp/filament-auditing": "^4.0",
         "tecnickcom/tc-lib-pdf": "^8.0.82"
     },
     "require-dev": {
         "fakerphp/faker": "^1.24.1",
+        "larastan/larastan": "^3.0",
         "laravel/pint": "^1.18.3",
         "laravel/sail": "^1.39.1",
         "mockery/mockery": "^1.6.12",
@@ -106,7 +108,7 @@
             "php-http/discovery": true
         }
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true,
     "repositories": [
         {
@@ -116,6 +118,10 @@
         {
             "type": "composer",
             "url": "https://model-states-for-filament.composer.sh"
+        },
+        {
+            "type": "composer",
+            "url": "https://filament-spotlight-pro.composer.pxlrbt.de"
         }
     ]
 }

@@ -6,7 +6,7 @@ use App\Filament\Dashboard\Resources\OrganismResource;
 use App\Models\Organism;
 use Archilex\AdvancedTables\AdvancedTables;
 use Archilex\AdvancedTables\Components\PresetView;
-use Filament\Actions;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListOrganisms extends ListRecords
@@ -18,7 +18,7 @@ class ListOrganisms extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            CreateAction::make(),
         ];
     }
 
@@ -28,13 +28,13 @@ class ListOrganisms extends ListRecords
             'organisms' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where('molecule_count', '>', 0))
                 ->favorite()
-                ->badge(Organism::query()->where('molecule_count', '>', 0)->count())
+                ->badge((string) Organism::query()->where('molecule_count', '>', 0)->count())
                 ->preserveAll()
                 ->default(),
             'inactive entries' => PresetView::make()
                 ->modifyQueryUsing(fn ($query) => $query->where('molecule_count', '<=', 0))
                 ->favorite()
-                ->badge(Organism::query()->where('molecule_count', '<=', 0)->count())
+                ->badge((string) Organism::query()->where('molecule_count', '<=', 0)->count())
                 ->preserveAll(),
         ];
     }

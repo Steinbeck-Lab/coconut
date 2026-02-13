@@ -35,6 +35,8 @@ class ImportCisTransEntries extends Command
 
     private $indexCreationThreshold = 1000;             // Minimum entries to create performance indexes (balance overhead vs benefit)
 
+    private $oldParentMoleculeIds = [];                 // Accumulator for old parent molecule IDs to process in batches
+
     /**
      * Initialize configuration
      */
@@ -116,9 +118,15 @@ class ImportCisTransEntries extends Command
                     $progressBar->advance();
                 }
 
-                // Insert audit records for this batch
+                // Process accumulated old parent molecules for this batch
+                if (! empty($this->oldParentMoleculeIds)) {
+                    $this->processOldParentMolecules($auditRecords);
+                    $this->oldParentMoleculeIds = []; // Clear after processing
+                }
+
+                // Insert audit records for this batch in chunks to avoid parameter limit
                 if (! empty($auditRecords)) {
-                    DB::table('audits')->insert($auditRecords);
+                    $this->insertAuditRecords($auditRecords);
                     $auditRecords = []; // Clear after insert
                 }
             }
@@ -214,6 +222,7 @@ class ImportCisTransEntries extends Command
      */
     public function processEntryMoleculeWithCisTrans($entry, &$auditRecords): void
     {
+        $oldParentMolecule = $entry->molecule_id;
         $molecule = null;
         $entry_synonyms = json_decode($entry->synonyms, true);
 
@@ -322,6 +331,134 @@ class ImportCisTransEntries extends Command
 
         // Attach reports to molecule
         $this->attachReportsToMolecule($entry->id, $molecule->id);
+
+        // Accumulate old parent molecule ID for batch processing
+        if ($oldParentMolecule && ! in_array($oldParentMolecule, $this->oldParentMoleculeIds)) {
+            $this->oldParentMoleculeIds[] = $oldParentMolecule;
+        }
+    }
+
+    /**
+     * Insert audit records in chunks to avoid PostgreSQL parameter limit
+     */
+    private function insertAuditRecords(array $auditRecords): void
+    {
+        // Each audit record has ~13 fields, so chunk by 5000 records
+        // 5000 * 13 = 65000 parameters (safely under 65535 limit)
+        $chunks = array_chunk($auditRecords, 5000);
+
+        foreach ($chunks as $chunk) {
+            DB::table('audits')->insert($chunk);
+        }
+    }
+
+    /**
+     * Process old parent molecules in batch
+     */
+    private function processOldParentMolecules(&$auditRecords): void
+    {
+        if (empty($this->oldParentMoleculeIds)) {
+            return;
+        }
+
+        // Fetch all old parent molecules in one query
+        $placeholders = str_repeat('?,', count($this->oldParentMoleculeIds) - 1).'?';
+        $oldParents = DB::select(
+            "SELECT id, has_variants, is_placeholder FROM molecules WHERE id IN ({$placeholders})",
+            $this->oldParentMoleculeIds
+        );
+
+        if (empty($oldParents)) {
+            return;
+        }
+
+        // Create a map for quick lookup
+        $oldParentsMap = [];
+        foreach ($oldParents as $parent) {
+            $oldParentsMap[$parent->id] = $parent;
+        }
+
+        // Check which molecules still have entries in one query
+        $entryCounts = DB::select(
+            "SELECT molecule_id, COUNT(*) as count FROM entries WHERE molecule_id IN ({$placeholders}) GROUP BY molecule_id",
+            $this->oldParentMoleculeIds
+        );
+
+        $hasEntriesMap = [];
+        foreach ($entryCounts as $count) {
+            $hasEntriesMap[$count->molecule_id] = $count->count > 0;
+        }
+
+        // Prepare bulk updates grouped by is_placeholder value
+        $updates = [];
+        foreach ($this->oldParentMoleculeIds as $moleculeId) {
+            if (! isset($oldParentsMap[$moleculeId])) {
+                continue;
+            }
+
+            $oldParent = $oldParentsMap[$moleculeId];
+            $hasRemainingEntries = $hasEntriesMap[$moleculeId] ?? false;
+            $newIsPlaceholder = ! $hasRemainingEntries;
+
+            // Add audit record (will be skipped internally if no changes)
+            $this->addAuditRecord(
+                'App\Models\Molecule',
+                $moleculeId,
+                'updated',
+                ['has_variants' => $oldParent->has_variants, 'is_placeholder' => $oldParent->is_placeholder],
+                ['has_variants' => true, 'is_placeholder' => $newIsPlaceholder],
+                $auditRecords
+            );
+
+            $updates[$moleculeId] = $newIsPlaceholder;
+        }
+
+        // Execute bulk update
+        if (! empty($updates)) {
+            $this->executeBulkParentUpdate($updates);
+        }
+    }
+
+    /**
+     * Execute bulk update for parent molecules
+     *
+     * @param  array  $updates  Associative array: [moleculeId => isPlaceholder]
+     */
+    private function executeBulkParentUpdate(array $updates): void
+    {
+        if (empty($updates)) {
+            return;
+        }
+
+        // Group molecule IDs by their is_placeholder value
+        $placeholderTrue = [];
+        $placeholderFalse = [];
+
+        foreach ($updates as $moleculeId => $isPlaceholder) {
+            if ($isPlaceholder) {
+                $placeholderTrue[] = $moleculeId;
+            } else {
+                $placeholderFalse[] = $moleculeId;
+            }
+        }
+
+        // Update molecules with is_placeholder = true
+        if (! empty($placeholderTrue)) {
+            $placeholders = str_repeat('?,', count($placeholderTrue) - 1).'?';
+            DB::update(
+                "UPDATE molecules SET has_variants = true, is_placeholder = true, updated_at = NOW() WHERE id IN ({$placeholders})",
+                $placeholderTrue
+            );
+        }
+
+        // Update molecules with is_placeholder = false
+        if (! empty($placeholderFalse)) {
+            $placeholders = str_repeat('?,', count($placeholderFalse) - 1).'?';
+            DB::update(
+                "UPDATE molecules SET has_variants = true, is_placeholder = false, updated_at = NOW() WHERE id IN ({$placeholders})",
+                $placeholderFalse
+            );
+        }
     }
 
     /**
@@ -531,10 +668,10 @@ class ImportCisTransEntries extends Command
                 $combinationExists = false;
                 for ($i = 0; $i < count($existingReferences); $i++) {
                     if (
-                        isset($existingReferences[$i]) && $existingReferences[$i] === $newReference &&
-                        isset($existingUrls[$i]) && $existingUrls[$i] === $newUrl &&
-                        isset($existingFilenames[$i]) && $existingFilenames[$i] === $newFilename &&
-                        isset($existingComments[$i]) && $existingComments[$i] === $newComment
+                        $existingReferences[$i] === $newReference &&
+                        $existingUrls[$i] === $newUrl &&
+                        $existingFilenames[$i] === $newFilename &&
+                        $existingComments[$i] === $newComment
                     ) {
                         $combinationExists = true;
                         break;
@@ -640,21 +777,46 @@ class ImportCisTransEntries extends Command
      */
     private function addAuditRecord($auditableType, $auditableId, $event, $oldValues, $newValues, &$auditRecords)
     {
-        $auditRecords[] = [
-            'user_type' => 'App\\Models\\User',
-            'user_id' => 11,
-            'event' => $event,
-            'auditable_type' => $auditableType,
-            'auditable_id' => $auditableId,
-            'old_values' => json_encode($oldValues),
-            'new_values' => json_encode($newValues),
-            'url' => null,
-            'ip_address' => null,
-            'user_agent' => null,
-            'tags' => null,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ];
+        // Filter out unchanged values
+        $filteredOldValues = [];
+        $filteredNewValues = [];
+
+        foreach ($oldValues as $key => $oldValue) {
+            $newValue = $newValues[$key] ?? null;
+
+            // Compare values (use loose comparison for type flexibility)
+            if ($oldValue != $newValue) {
+                $filteredOldValues[$key] = $oldValue;
+                $filteredNewValues[$key] = $newValue;
+            }
+        }
+
+        // Add any new keys that don't exist in oldValues
+        foreach ($newValues as $key => $newValue) {
+            if (! array_key_exists($key, $oldValues)) {
+                $filteredOldValues[$key] = null;
+                $filteredNewValues[$key] = $newValue;
+            }
+        }
+
+        // Only add audit record if there are actual changes
+        if (! empty($filteredOldValues) || ! empty($filteredNewValues)) {
+            $auditRecords[] = [
+                'user_type' => 'App\\Models\\User',
+                'user_id' => 11,
+                'event' => $event,
+                'auditable_type' => $auditableType,
+                'auditable_id' => $auditableId,
+                'old_values' => json_encode($filteredOldValues),
+                'new_values' => json_encode($filteredNewValues),
+                'url' => null,
+                'ip_address' => null,
+                'user_agent' => null,
+                'tags' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
     }
 
     /**

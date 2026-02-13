@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,11 +22,9 @@ class LoginController extends Controller
         $user = User::where('email', $request['email'])->firstOrFail();
 
         if ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail()) {
-            if (! $user->hasVerifiedEmail()) {
-                return response()->json([
-                    'message' => 'Account is not yet verified. Please verify your email address by clicking on the link we just emailed to you.',
-                ], 403);
-            }
+            return response()->json([
+                'message' => 'Account is not yet verified. Please verify your email address by clicking on the link we just emailed to you.',
+            ], 403);
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
