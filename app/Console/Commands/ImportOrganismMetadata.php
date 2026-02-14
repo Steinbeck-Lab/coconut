@@ -59,8 +59,6 @@ class ImportOrganismMetadata extends Command
         $successCount = 0;
         $failedCount = 0;
 
-        // testing
-        // $query = DB::table('entries')->where('id', '=', 686910);
         // Process in chunks
         $query->orderBy('id')->chunkById($this->batchSize, function ($entries) use ($bar, &$successCount, &$failedCount) {
             foreach ($entries as $entry) {
@@ -112,9 +110,8 @@ class ImportOrganismMetadata extends Command
 
         // Process each organism from the references or flat arrays
         $organismsToProcess = $this->extractOrganismsFromReferences($references, $flatOrganisms);
-
         if (empty($organismsToProcess)) {
-            Log::warning("No organisms found for entry {$entry->id}. Skipping.");
+            DB::table('entries')->where('id', $entry->id)->update(['status' => 'IMPORTED']);
 
             return;
         }
@@ -123,7 +120,6 @@ class ImportOrganismMetadata extends Command
         $resolvedCitIds = $this->resolveCitationIds($flatDois);
         $resolvedGeoIds = $this->resolveGeoLocationIds($flatGeoLocations);
         $resolvedEcoIds = $this->resolveEcosystemIds($flatEcosystems);
-
         foreach ($organismsToProcess as $organismName) {
             if (empty($organismName)) {
                 Log::warning("Empty organism name for entry {$entry->id}. Skipping.");
@@ -137,9 +133,7 @@ class ImportOrganismMetadata extends Command
 
                 continue;
             }
-
             $resolvedSmpIds = $this->resolveSampleLocationIds($flatParts, $organismId);
-
             // Build the metadata JSON structure for this molecule-organism pair
             $metadata = $this->buildOrganismMetadata(
                 $entry,
@@ -160,7 +154,6 @@ class ImportOrganismMetadata extends Command
                 $entry->collection_id,
                 $metadata
             );
-
             // Link organism to its specific geo_locations from references
             $organismGeoLocations = $this->extractOrganismGeoLocations($references, $organismName);
             if (! empty($organismGeoLocations)) {
@@ -176,7 +169,6 @@ class ImportOrganismMetadata extends Command
                 );
             }
         }
-
         // Process geo_location_molecule pivot table for this entry
         if (! empty($flatGeoLocations)) {
             $this->processGeoLocationMolecule(
@@ -204,7 +196,6 @@ class ImportOrganismMetadata extends Command
             $nmd['mol_filename'] ?? null,
             $nmd['structural_comments'] ?? null
         );
-
         // After processing, set entry status to IMPORTED
         DB::table('entries')->where('id', $entry->id)->update(['status' => 'IMPORTED']);
     }
@@ -221,7 +212,8 @@ class ImportOrganismMetadata extends Command
             if (isset($ref['organisms']) && is_array($ref['organisms'])) {
                 foreach ($ref['organisms'] as $org) {
                     if (isset($org['name']) && ! empty($org['name'])) {
-                        $organisms[] = $org['name'];
+                        // Sanitize UTF-8 immediately upon extraction
+                        $organisms[] = $this->sanitizeUtf8($org['name']);
                     }
                 }
             }
@@ -230,7 +222,8 @@ class ImportOrganismMetadata extends Command
         // From flat array
         foreach ($flatOrganisms as $org) {
             if (! empty($org)) {
-                $organisms[] = $org;
+                // Sanitize UTF-8 immediately upon extraction
+                $organisms[] = $this->sanitizeUtf8($org);
             }
         }
 
@@ -467,7 +460,12 @@ class ImportOrganismMetadata extends Command
                     'metadata' => json_encode($newMetadata),
                 ], 'created');
             } catch (QueryException $e) {
-                // Handle race condition
+                // Skip silently if molecule doesn't exist (foreign key violation)
+                if ($this->isForeignKeyViolation($e)) {
+                    return;
+                }
+
+                // Handle race condition - unique violation
                 usleep(50000);
                 $existing = DB::selectOne(
                     'SELECT * FROM molecule_organism WHERE molecule_id = ? AND organism_id = ? LIMIT 1',
@@ -531,7 +529,12 @@ class ImportOrganismMetadata extends Command
                         'updated_at' => now(),
                     ]);
                 } catch (QueryException $e) {
-                    // Handle race condition
+                    // Skip silently if molecule doesn't exist (foreign key violation)
+                    if ($this->isForeignKeyViolation($e)) {
+                        continue;
+                    }
+
+                    // Handle race condition - unique violation
                     usleep(50000);
                     $existing = DB::selectOne(
                         'SELECT * FROM geo_location_molecule WHERE molecule_id = ? AND geo_location_id = ?',
@@ -578,7 +581,7 @@ class ImportOrganismMetadata extends Command
                         'updated_at' => now(),
                     ]);
                 } catch (QueryException $e) {
-                    // Handle race condition
+                    // Handle race condition - unique violation
                     usleep(50000);
                     $existing = DB::selectOne(
                         'SELECT * FROM geo_location_organism WHERE organism_id = ? AND geo_location_id = ?',
@@ -625,7 +628,12 @@ class ImportOrganismMetadata extends Command
                         'citable_type' => 'App\\Models\\Molecule',
                     ]);
                 } catch (QueryException $e) {
-                    // Handle race condition or unique constraint violation
+                    // Skip silently if molecule doesn't exist (foreign key violation)
+                    if ($this->isForeignKeyViolation($e)) {
+                        continue;
+                    }
+
+                    // Handle race condition - unique violation
                     usleep(50000);
                     $existingMolecule = DB::selectOne(
                         'SELECT * FROM citables WHERE citation_id = ? AND citable_id = ? AND citable_type = ?',
@@ -652,7 +660,7 @@ class ImportOrganismMetadata extends Command
                         'citable_type' => 'App\\Models\\Collection',
                     ]);
                 } catch (QueryException $e) {
-                    // Handle race condition or unique constraint violation
+                    // Handle race condition - unique violation
                     usleep(50000);
                     $existingCollection = DB::selectOne(
                         'SELECT * FROM citables WHERE citation_id = ? AND citable_id = ? AND citable_type = ?',
@@ -725,7 +733,12 @@ class ImportOrganismMetadata extends Command
                     'updated_at' => now(),
                 ]);
             } catch (QueryException $e) {
-                // Handle race condition
+                // Skip silently if molecule doesn't exist (foreign key violation)
+                if ($this->isForeignKeyViolation($e)) {
+                    return;
+                }
+
+                // Handle race condition - unique violation
                 usleep(50000);
                 $existing = DB::selectOne(
                     'SELECT * FROM collection_molecule WHERE collection_id = ? AND molecule_id = ?',
@@ -931,6 +944,7 @@ class ImportOrganismMetadata extends Command
 
             return $id;
         } catch (QueryException $e) {
+            // Handle race condition - unique violation
             usleep(50000);
             $existing = DB::selectOne('SELECT id FROM citations WHERE doi = ?', [$doi]);
             if ($existing) {
@@ -947,6 +961,9 @@ class ImportOrganismMetadata extends Command
         if (empty($name)) {
             return null;
         }
+
+        // Sanitize UTF-8 encoding
+        $name = $this->sanitizeUtf8($name);
 
         if (isset($this->organismCache[$name])) {
             return $this->organismCache[$name];
@@ -970,6 +987,7 @@ class ImportOrganismMetadata extends Command
 
             return $id;
         } catch (QueryException $e) {
+            // Handle race condition - unique violation
             usleep(50000);
             $existing = DB::selectOne('SELECT id FROM organisms WHERE name = ?', [$name]);
             if ($existing) {
@@ -1026,6 +1044,7 @@ class ImportOrganismMetadata extends Command
 
             return $id;
         } catch (QueryException $e) {
+            // Handle race condition - unique violation
             usleep(50000);
             if ($organismId) {
                 $existing = DB::selectOne('SELECT id FROM sample_locations WHERE name = ? AND organism_id = ?', [$name, $organismId]);
@@ -1068,6 +1087,7 @@ class ImportOrganismMetadata extends Command
 
             return $id;
         } catch (QueryException $e) {
+            // Handle race condition - unique violation
             usleep(50000);
             $existing = DB::selectOne('SELECT id FROM geo_locations WHERE name = ?', [$name]);
             if ($existing) {
@@ -1084,6 +1104,9 @@ class ImportOrganismMetadata extends Command
         if (empty($name)) {
             return null;
         }
+
+        // Sanitize UTF-8 encoding
+        $name = $this->sanitizeUtf8($name);
 
         // If geo_location_id is provided, cache and search by name + geo_location_id
         $cacheKey = $geoLocationId ? "{$name}_{$geoLocationId}" : $name;
@@ -1122,6 +1145,7 @@ class ImportOrganismMetadata extends Command
 
             return $id;
         } catch (QueryException $e) {
+            // Handle race condition - unique violation
             usleep(50000);
             if ($geoLocationId) {
                 $existing = DB::selectOne('SELECT id FROM ecosystems WHERE name = ? AND geo_location_id = ?', [$name, $geoLocationId]);
@@ -1140,6 +1164,43 @@ class ImportOrganismMetadata extends Command
     // ===================
     // Helper Methods
     // ===================
+
+    /**
+     * Check if a QueryException is a unique constraint violation.
+     */
+    private function isUniqueViolation(QueryException $e): bool
+    {
+        return ($e->errorInfo[0] ?? null) === '23505' || $e->getCode() === '23505';
+    }
+
+    /**
+     * Check if a QueryException is a foreign key violation.
+     */
+    private function isForeignKeyViolation(QueryException $e): bool
+    {
+        return ($e->errorInfo[0] ?? null) === '23503' || $e->getCode() === '23503';
+    }
+
+    /**
+     * Sanitize string to ensure valid UTF-8 encoding.
+     */
+    protected function sanitizeUtf8(string $input): string
+    {
+        // Remove null bytes
+        $input = str_replace("\0", '', $input);
+
+        // Remove invalid UTF-8 byte sequences using iconv
+        $cleaned = @iconv('UTF-8', 'UTF-8//IGNORE', $input);
+        if ($cleaned === false) {
+            // Fallback: strip to ASCII only if iconv fails
+            $cleaned = preg_replace('/[^\x20-\x7E\x0A\x0D\x09]/s', '', $input);
+        }
+
+        // Remove control characters except newline, carriage return, and tab
+        $cleaned = preg_replace('/[^\P{C}\n\r\t]+/u', '', $cleaned) ?? $cleaned;
+
+        return $cleaned ?: '?';
+    }
 
     /**
      * Extract DOI from a string (handles URLs and extra text).
