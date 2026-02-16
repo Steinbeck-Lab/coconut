@@ -54,7 +54,7 @@ class MapOrganismNamesToOGG extends Command
                         } else {
                             $data = $this->getOLSIRI(explode(' ', $name)[0], 'family');
                             if ($data) {
-                                $this->updateOrganismModel($name, $data, $organism, 'genus');
+                                $this->updateOrganismModel($name, $data, $organism, 'family');
                                 $this->info("Mapped and updated: $name");
                             } else {
                                 $this->getGNFMatches($name, $organism);
@@ -155,7 +155,7 @@ class MapOrganismNamesToOGG extends Command
             if (isset($data['elements']) && count($data['elements']) > 0) {
 
                 $element = $data['elements'][0];
-                if (isset($element['iri'], $element['ontologyId']) && $element['isObsolete'] === 'false') {
+                if (isset($element['iri'], $element['ontologyId']) && $element['isObsolete'] === false) {
                     if ($rank && $rank == 'species') {
                         if (isset($element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank']) && $element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank'] == 'http://purl.obolibrary.org/obo/NCBITaxon_species') {
                             return urlencode($element['iri']);
@@ -188,6 +188,10 @@ class MapOrganismNamesToOGG extends Command
         if ($organism) {
             $organism->iri = $iri;
             $organism->rank = $rank;
+            // Auto-generate slug if not exists
+            if (! $organism->slug) {
+                $organism->slug = \Illuminate\Support\Str::slug($name);
+            }
             $organism->save();
         } else {
             $this->error("Organism not found in the database: $name");

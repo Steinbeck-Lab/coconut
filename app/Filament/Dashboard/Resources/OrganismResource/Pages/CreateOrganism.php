@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateOrganism extends CreateRecord
 {
     protected static string $resource = OrganismResource::class;
+
+    public function getMaxContentWidth(): ?string
+    {
+        return 'full';
+    }
 }
