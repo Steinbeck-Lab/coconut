@@ -1351,16 +1351,6 @@ class ImportOrganismMetadata extends Command
         // Sanitize UTF-8 encoding FIRST
         $name = $this->sanitizeUtf8($name);
 
-        // Truncate safely using mb_substr to avoid cutting multi-byte sequences
-        $maxLength = 255;
-        if (mb_strlen($name, 'UTF-8') > $maxLength) {
-            $originalLength = mb_strlen($name, 'UTF-8');
-            $name = mb_substr($name, 0, $maxLength, 'UTF-8');
-            Log::warning("Ecosystem name truncated from {$originalLength} to {$maxLength} characters: ".mb_substr($name, 0, 50, 'UTF-8').'...');
-        }
-
-        // Log the sanitized name for debugging
-
         // If geo_location_id is provided, cache and search by name + geo_location_id
         $cacheKey = $geoLocationId ? "{$name}_{$geoLocationId}" : $name;
 
