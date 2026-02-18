@@ -673,7 +673,7 @@ class ImportCisTransEntries extends Command
                     count($existingFilenames),
                     count($existingComments)
                 );
-                
+
                 for ($i = 0; $i < $maxCount; $i++) {
                     if (
                         ($existingReferences[$i] ?? '') === $newReference &&

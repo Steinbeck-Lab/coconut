@@ -518,10 +518,6 @@ class ImportOrganismMetadata extends Command
                     'metadata' => json_encode($newMetadata),
                 ], 'created');
             } catch (QueryException $e) {
-                // Skip silently if molecule doesn't exist (foreign key violation)
-                if ($this->isForeignKeyViolation($e)) {
-                    return;
-                }
 
                 if (! $this->isUniqueViolation($e)) {
                     Log::error('Unexpected DB error in molecule_organism insert (not unique violation)', [
@@ -595,10 +591,6 @@ class ImportOrganismMetadata extends Command
                         'updated_at' => now(),
                     ]);
                 } catch (QueryException $e) {
-                    // Skip silently if molecule doesn't exist (foreign key violation)
-                    if ($this->isForeignKeyViolation($e)) {
-                        continue;
-                    }
 
                     if (! $this->isUniqueViolation($e)) {
                         Log::error('Unexpected DB error in geo_location_molecule insert (not unique violation)', [
@@ -710,11 +702,6 @@ class ImportOrganismMetadata extends Command
                         'citable_type' => 'App\\Models\\Molecule',
                     ]);
                 } catch (QueryException $e) {
-                    // Skip silently if molecule doesn't exist (foreign key violation)
-                    if ($this->isForeignKeyViolation($e)) {
-                        continue;
-                    }
-
                     if (! $this->isUniqueViolation($e)) {
                         Log::error('Unexpected DB error in citables insert for molecule (not unique violation)', [
                             'sqlstate' => $e->errorInfo[0] ?? null,
@@ -831,11 +818,6 @@ class ImportOrganismMetadata extends Command
                     'updated_at' => now(),
                 ]);
             } catch (QueryException $e) {
-                // Skip silently if molecule doesn't exist (foreign key violation)
-                if ($this->isForeignKeyViolation($e)) {
-                    return;
-                }
-
                 if (! $this->isUniqueViolation($e)) {
                     Log::error('Unexpected DB error in collection_molecule insert (not unique violation)', [
                         'sqlstate' => $e->errorInfo[0] ?? null,
