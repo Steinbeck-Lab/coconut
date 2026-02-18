@@ -11,6 +11,16 @@ use Illuminate\Support\Str;
 
 class ImportOrganismMetadata extends Command
 {
+    /**
+     * Store IDs of successfully processed entries.
+     */
+    protected array $successfulEntryIds = [];
+
+    /**
+     * Store IDs of failed entries.
+     */
+    protected array $failedEntryIds = [];
+
     protected $signature = 'coconut:import-organism-metadata {collection? : Process only entries from this collection ID}';
 
     protected $description = 'Import organism metadata from entries into molecule_organism table with structured JSON';
@@ -59,28 +69,69 @@ class ImportOrganismMetadata extends Command
         $successCount = 0;
         $failedCount = 0;
 
-        // testing
-        // $query = DB::table('entries')->where('id', '=', 686910);
-        // Process in chunks
-        $query->orderBy('id')->chunkById($this->batchSize, function ($entries) use ($bar, &$successCount, &$failedCount) {
+        // Use chunkById for efficient batch processing
+        $query->orderBy('id')->chunkById($this->batchSize, function ($entries) use (&$successCount, &$failedCount, $bar) {
+            // Reset entry ID arrays at the start of each batch
+            $this->successfulEntryIds = [];
+            $this->failedEntryIds = [];
             foreach ($entries as $entry) {
                 try {
+                    // Each entry in its own isolated transaction
                     DB::transaction(function () use ($entry) {
                         $this->processEntry($entry);
-                    });
+                    }, 1); // 1 attempt, no retries
                     $successCount++;
-                } catch (\Exception $e) {
+                    $this->successfulEntryIds[] = $entry->molecule_id;
+                } catch (\Throwable $e) {
                     $failedCount++;
-                    Log::error("Failed to process entry {$entry->id}: ".$e->getMessage());
+                    $this->failedEntryIds[] = $entry->molecule_id;
+                    $p = $e->getPrevious();
+                    Log::error("Failed to process entry {$entry->id}", [
+                        'error' => $e->getMessage(),
+                        'class' => get_class($e),
+                        'code' => $e->getCode(),
+                        'prev_class' => $p ? get_class($p) : null,
+                        'prev_code' => $p?->getCode(),
+                        'prev' => $p?->getMessage(),
+                    ]);
                 }
                 $bar->advance();
             }
-
-            // Flush audit records after each chunk to avoid memory exhaustion
+            // Flush audit records after each batch to avoid memory exhaustion
             if (! empty($this->auditRecords)) {
                 $this->insertAuditRecords();
             }
-        });
+
+            // Fetch molecules for successful entries, excluding failed ones
+            $successfulIds = array_diff($this->successfulEntryIds, $this->failedEntryIds);
+            if (! empty($successfulIds)) {
+                // Use a single raw SQL query for maximum efficiency
+                $ids = implode(',', array_map('intval', $successfulIds));
+                if (! empty($ids)) {
+                    $sql = "UPDATE molecules m\n"
+                            ."SET curation_status = (\n"
+                            ."  jsonb_set(\n"
+                            ."    COALESCE(m.curation_status::jsonb, '{}'::jsonb),\n"
+                            ."    '{enrich-molecules}',\n"
+                            ."    COALESCE(m.curation_status::jsonb -> 'enrich-molecules', '{}'::jsonb)\n"
+                            ."      || jsonb_build_object(\n"
+                            ."           'status', 'completed',\n"
+                            ."           'processed_at', to_jsonb(\n"
+                            ."             to_char(clock_timestamp() at time zone 'UTC',\n"
+                            ."                     'YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"')\n"
+                            ."           ),\n"
+                            ."           'error_message', 'null'::jsonb\n"
+                            ."         ),\n"
+                            ."    true\n"
+                            ."  )\n"
+                            .")::json\n"
+                            ."WHERE m.id IN ($ids)\n"
+                            ."AND COALESCE(m.curation_status::jsonb #>> '{enrich-molecules,status}', '') <> 'completed'";
+
+                    DB::statement($sql);
+                }
+            }
+        }, 'id');
 
         $bar->finish();
 
@@ -114,30 +165,28 @@ class ImportOrganismMetadata extends Command
         $organismsToProcess = $this->extractOrganismsFromReferences($references, $flatOrganisms);
 
         if (empty($organismsToProcess)) {
-            Log::warning("No organisms found for entry {$entry->id}. Skipping.");
+            DB::table('entries')->where('id', $entry->id)->update(['status' => 'IMPORTED']);
 
             return;
         }
 
         // Pre-resolve flat IDs once for reuse
         $resolvedCitIds = $this->resolveCitationIds($flatDois);
+
         $resolvedGeoIds = $this->resolveGeoLocationIds($flatGeoLocations);
+
         $resolvedEcoIds = $this->resolveEcosystemIds($flatEcosystems);
 
-        foreach ($organismsToProcess as $organismName) {
-            if (empty($organismName)) {
-                Log::warning("Empty organism name for entry {$entry->id}. Skipping.");
+        foreach ($organismsToProcess as $index => $organismName) {
 
+            if (empty($organismName)) {
                 continue;
             }
 
             $organismId = $this->findOrCreateOrganism($organismName);
             if (! $organismId) {
-                Log::warning("Could not find or create organism '{$organismName}' for entry {$entry->id}. Skipping.");
-
                 continue;
             }
-
             $resolvedSmpIds = $this->resolveSampleLocationIds($flatParts, $organismId);
 
             // Build the metadata JSON structure for this molecule-organism pair
@@ -221,7 +270,8 @@ class ImportOrganismMetadata extends Command
             if (isset($ref['organisms']) && is_array($ref['organisms'])) {
                 foreach ($ref['organisms'] as $org) {
                     if (isset($org['name']) && ! empty($org['name'])) {
-                        $organisms[] = $org['name'];
+                        // Sanitize UTF-8 immediately upon extraction
+                        $organisms[] = $this->sanitizeUtf8($org['name']);
                     }
                 }
             }
@@ -230,7 +280,8 @@ class ImportOrganismMetadata extends Command
         // From flat array
         foreach ($flatOrganisms as $org) {
             if (! empty($org)) {
-                $organisms[] = $org;
+                // Sanitize UTF-8 immediately upon extraction
+                $organisms[] = $this->sanitizeUtf8($org);
             }
         }
 
@@ -467,7 +518,16 @@ class ImportOrganismMetadata extends Command
                     'metadata' => json_encode($newMetadata),
                 ], 'created');
             } catch (QueryException $e) {
-                // Handle race condition
+
+                if (! $this->isUniqueViolation($e)) {
+                    Log::error('Unexpected DB error in molecule_organism insert (not unique violation)', [
+                        'sqlstate' => $e->errorInfo[0] ?? null,
+                        'msg' => $e->getMessage(),
+                    ]);
+                    throw $e;
+                }
+
+                // Handle race condition - unique violation
                 usleep(50000);
                 $existing = DB::selectOne(
                     'SELECT * FROM molecule_organism WHERE molecule_id = ? AND organism_id = ? LIMIT 1',
@@ -531,7 +591,16 @@ class ImportOrganismMetadata extends Command
                         'updated_at' => now(),
                     ]);
                 } catch (QueryException $e) {
-                    // Handle race condition
+
+                    if (! $this->isUniqueViolation($e)) {
+                        Log::error('Unexpected DB error in geo_location_molecule insert (not unique violation)', [
+                            'sqlstate' => $e->errorInfo[0] ?? null,
+                            'msg' => $e->getMessage(),
+                        ]);
+                        throw $e;
+                    }
+
+                    // Handle race condition - unique violation
                     usleep(50000);
                     $existing = DB::selectOne(
                         'SELECT * FROM geo_location_molecule WHERE molecule_id = ? AND geo_location_id = ?',
@@ -578,7 +647,15 @@ class ImportOrganismMetadata extends Command
                         'updated_at' => now(),
                     ]);
                 } catch (QueryException $e) {
-                    // Handle race condition
+                    if (! $this->isUniqueViolation($e)) {
+                        Log::error('Unexpected DB error in geo_location_organism insert (not unique violation)', [
+                            'sqlstate' => $e->errorInfo[0] ?? null,
+                            'msg' => $e->getMessage(),
+                        ]);
+                        throw $e;
+                    }
+
+                    // Handle race condition - unique violation
                     usleep(50000);
                     $existing = DB::selectOne(
                         'SELECT * FROM geo_location_organism WHERE organism_id = ? AND geo_location_id = ?',
@@ -625,7 +702,15 @@ class ImportOrganismMetadata extends Command
                         'citable_type' => 'App\\Models\\Molecule',
                     ]);
                 } catch (QueryException $e) {
-                    // Handle race condition or unique constraint violation
+                    if (! $this->isUniqueViolation($e)) {
+                        Log::error('Unexpected DB error in citables insert for molecule (not unique violation)', [
+                            'sqlstate' => $e->errorInfo[0] ?? null,
+                            'msg' => $e->getMessage(),
+                        ]);
+                        throw $e;
+                    }
+
+                    // Handle race condition - unique violation
                     usleep(50000);
                     $existingMolecule = DB::selectOne(
                         'SELECT * FROM citables WHERE citation_id = ? AND citable_id = ? AND citable_type = ?',
@@ -652,7 +737,15 @@ class ImportOrganismMetadata extends Command
                         'citable_type' => 'App\\Models\\Collection',
                     ]);
                 } catch (QueryException $e) {
-                    // Handle race condition or unique constraint violation
+                    if (! $this->isUniqueViolation($e)) {
+                        Log::error('Unexpected DB error in citables insert for collection (not unique violation)', [
+                            'sqlstate' => $e->errorInfo[0] ?? null,
+                            'msg' => $e->getMessage(),
+                        ]);
+                        throw $e;
+                    }
+
+                    // Handle race condition - unique violation
                     usleep(50000);
                     $existingCollection = DB::selectOne(
                         'SELECT * FROM citables WHERE citation_id = ? AND citable_id = ? AND citable_type = ?',
@@ -725,7 +818,15 @@ class ImportOrganismMetadata extends Command
                     'updated_at' => now(),
                 ]);
             } catch (QueryException $e) {
-                // Handle race condition
+                if (! $this->isUniqueViolation($e)) {
+                    Log::error('Unexpected DB error in collection_molecule insert (not unique violation)', [
+                        'sqlstate' => $e->errorInfo[0] ?? null,
+                        'msg' => $e->getMessage(),
+                    ]);
+                    throw $e;
+                }
+
+                // Handle race condition - unique violation
                 usleep(50000);
                 $existing = DB::selectOne(
                     'SELECT * FROM collection_molecule WHERE collection_id = ? AND molecule_id = ?',
@@ -834,14 +935,27 @@ class ImportOrganismMetadata extends Command
     // Resolution Methods
     // ===================
 
-    protected function resolveCitationIds(array $dois): array
+    public function resolveCitationIds(array $dois): array
     {
         $ids = [];
         foreach ($dois as $doi) {
             if (! empty($doi)) {
-                $id = $this->findOrCreateCitation($doi);
-                if ($id) {
-                    $ids[] = $id;
+                try {
+                    $id = $this->findOrCreateCitation($doi);
+                    if ($id) {
+                        $ids[] = $id;
+                    }
+                } catch (\Throwable $e) {
+                    $p = $e->getPrevious();
+                    Log::error("Citation resolution failed for DOI '{$doi}'", [
+                        'e_class' => get_class($e),
+                        'e_msg' => $e->getMessage(),
+                        'e_code' => $e->getCode(),
+                        'p_class' => $p ? get_class($p) : null,
+                        'p_msg' => $p?->getMessage(),
+                        'p_code' => $p?->getCode(),
+                    ]);
+                    throw $e; // <-- do not continue inside the transaction
                 }
             }
         }
@@ -854,9 +968,22 @@ class ImportOrganismMetadata extends Command
         $ids = [];
         foreach ($parts as $part) {
             if (! empty($part)) {
-                $id = $this->findOrCreateSampleLocation($part, $organismId);
-                if ($id) {
-                    $ids[] = $id;
+                try {
+                    $id = $this->findOrCreateSampleLocation($part, $organismId);
+                    if ($id) {
+                        $ids[] = $id;
+                    }
+                } catch (\Throwable $e) {
+                    $p = $e->getPrevious();
+                    Log::error("Sample location resolution failed for part '{$part}'", [
+                        'e_class' => get_class($e),
+                        'e_msg' => $e->getMessage(),
+                        'e_code' => $e->getCode(),
+                        'p_class' => $p ? get_class($p) : null,
+                        'p_msg' => $p?->getMessage(),
+                        'p_code' => $p?->getCode(),
+                    ]);
+                    throw $e; // <-- do not continue inside the transaction
                 }
             }
         }
@@ -864,14 +991,27 @@ class ImportOrganismMetadata extends Command
         return array_values(array_unique($ids));
     }
 
-    protected function resolveGeoLocationIds(array $locations): array
+    public function resolveGeoLocationIds(array $locations): array
     {
         $ids = [];
         foreach ($locations as $location) {
             if (! empty($location)) {
-                $id = $this->findOrCreateGeoLocation($location);
-                if ($id) {
-                    $ids[] = $id;
+                try {
+                    $id = $this->findOrCreateGeoLocation($location);
+                    if ($id) {
+                        $ids[] = $id;
+                    }
+                } catch (\Throwable $e) {
+                    $p = $e->getPrevious();
+                    Log::error("Geo location resolution failed for '{$location}'", [
+                        'e_class' => get_class($e),
+                        'e_msg' => $e->getMessage(),
+                        'e_code' => $e->getCode(),
+                        'p_class' => $p ? get_class($p) : null,
+                        'p_msg' => $p?->getMessage(),
+                        'p_code' => $p?->getCode(),
+                    ]);
+                    throw $e; // <-- do not continue inside the transaction
                 }
             }
         }
@@ -884,9 +1024,22 @@ class ImportOrganismMetadata extends Command
         $ids = [];
         foreach ($ecosystems as $ecosystem) {
             if (! empty($ecosystem)) {
-                $id = $this->findOrCreateEcosystem($ecosystem, $geoLocationId);
-                if ($id) {
-                    $ids[] = $id;
+                try {
+                    $id = $this->findOrCreateEcosystem($ecosystem, $geoLocationId);
+                    if ($id) {
+                        $ids[] = $id;
+                    }
+                } catch (\Throwable $e) {
+                    $p = $e->getPrevious();
+                    Log::error("Ecosystem resolution failed for '".mb_substr((string) $ecosystem, 0, 50, 'UTF-8')."...'", [
+                        'e_class' => get_class($e),
+                        'e_msg' => $e->getMessage(),
+                        'e_code' => $e->getCode(),
+                        'p_class' => $p ? get_class($p) : null,
+                        'p_msg' => $p?->getMessage(),
+                        'p_code' => $p?->getCode(),
+                    ]);
+                    throw $e; // <-- do not continue inside the transaction
                 }
             }
         }
@@ -898,25 +1051,40 @@ class ImportOrganismMetadata extends Command
     // Find or Create Methods
     // =======================
 
-    protected function findOrCreateCitation(string $doi): ?int
+    /**
+     * Find or create a citation. Supports both DOI and plain citation text.
+     */
+    protected function findOrCreateCitation(string $doiOrText): ?int
     {
-        if (empty($doi)) {
+        if (empty($doiOrText)) {
             return null;
         }
 
-        // Extract DOI if it's a URL or has extra text
-        $doi = $this->extractDoi($doi);
-        if (empty($doi)) {
-            return null;
+        // Try to extract DOI
+        $doi = $this->extractDoi($doiOrText);
+
+        if (! empty($doi)) {
+            return $this->findOrCreateCitationByDoi($doi);
         }
 
-        if (isset($this->citationCache[$doi])) {
-            return $this->citationCache[$doi];
+        // Non-DOI: treat as citation text
+        return $this->findOrCreateCitationByText($doiOrText);
+    }
+
+    /**
+     * Find or create a citation by DOI.
+     */
+    protected function findOrCreateCitationByDoi(string $doi): ?int
+    {
+        $cacheKey = "doi:{$doi}";
+
+        if (isset($this->citationCache[$cacheKey])) {
+            return $this->citationCache[$cacheKey];
         }
 
         $existing = DB::selectOne('SELECT id FROM citations WHERE doi = ?', [$doi]);
         if ($existing) {
-            $this->citationCache[$doi] = $existing->id;
+            $this->citationCache[$cacheKey] = $existing->id;
 
             return $existing->id;
         }
@@ -927,14 +1095,71 @@ class ImportOrganismMetadata extends Command
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-            $this->citationCache[$doi] = $id;
+            $this->citationCache[$cacheKey] = $id;
 
             return $id;
         } catch (QueryException $e) {
+            if (! $this->isUniqueViolation($e)) {
+                Log::error('Unexpected DB error in citations insert (not unique violation)', [
+                    'sqlstate' => $e->errorInfo[0] ?? null,
+                    'msg' => $e->getMessage(),
+                ]);
+                throw $e;
+            }
+
+            // Handle race condition - unique violation
             usleep(50000);
             $existing = DB::selectOne('SELECT id FROM citations WHERE doi = ?', [$doi]);
             if ($existing) {
-                $this->citationCache[$doi] = $existing->id;
+                $this->citationCache[$cacheKey] = $existing->id;
+
+                return $existing->id;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Find or create a citation by plain text (non-DOI).
+     */
+    protected function findOrCreateCitationByText(string $citationText): ?int
+    {
+        $cacheKey = 'text:'.md5($citationText);
+
+        if (isset($this->citationCache[$cacheKey])) {
+            return $this->citationCache[$cacheKey];
+        }
+
+        $existing = DB::selectOne('SELECT id FROM citations WHERE citation_text = ?', [$citationText]);
+        if ($existing) {
+            $this->citationCache[$cacheKey] = $existing->id;
+
+            return $existing->id;
+        }
+
+        try {
+            $id = DB::table('citations')->insertGetId([
+                'citation_text' => $citationText,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $this->citationCache[$cacheKey] = $id;
+
+            return $id;
+        } catch (QueryException $e) {
+            if (! $this->isUniqueViolation($e)) {
+                Log::error('Unexpected DB error in citations insert (not unique violation)', [
+                    'sqlstate' => $e->errorInfo[0] ?? null,
+                    'msg' => $e->getMessage(),
+                ]);
+                throw $e;
+            }
+
+            // Handle race condition - unique violation
+            usleep(50000);
+            $existing = DB::selectOne('SELECT id FROM citations WHERE citation_text = ?', [$citationText]);
+            if ($existing) {
+                $this->citationCache[$cacheKey] = $existing->id;
 
                 return $existing->id;
             }
@@ -946,6 +1171,17 @@ class ImportOrganismMetadata extends Command
     {
         if (empty($name)) {
             return null;
+        }
+
+        // Sanitize UTF-8 encoding
+        $name = $this->sanitizeUtf8($name);
+
+        // Truncate very long organism names using mb_substr (max 255 characters for database)
+        $maxLength = 255;
+        if (mb_strlen($name, 'UTF-8') > $maxLength) {
+            $originalLength = mb_strlen($name, 'UTF-8');
+            $name = mb_substr($name, 0, $maxLength, 'UTF-8');
+            Log::warning("Organism name truncated from {$originalLength} to {$maxLength} characters: ".mb_substr($name, 0, 50, 'UTF-8').'...');
         }
 
         if (isset($this->organismCache[$name])) {
@@ -970,6 +1206,15 @@ class ImportOrganismMetadata extends Command
 
             return $id;
         } catch (QueryException $e) {
+            if (! $this->isUniqueViolation($e)) {
+                Log::error('Unexpected DB error in organisms insert (not unique violation)', [
+                    'sqlstate' => $e->errorInfo[0] ?? null,
+                    'msg' => $e->getMessage(),
+                ]);
+                throw $e;
+            }
+
+            // Handle race condition - unique violation
             usleep(50000);
             $existing = DB::selectOne('SELECT id FROM organisms WHERE name = ?', [$name]);
             if ($existing) {
@@ -1026,6 +1271,15 @@ class ImportOrganismMetadata extends Command
 
             return $id;
         } catch (QueryException $e) {
+            if (! $this->isUniqueViolation($e)) {
+                Log::error('Unexpected DB error in sample_locations insert (not unique violation)', [
+                    'sqlstate' => $e->errorInfo[0] ?? null,
+                    'msg' => $e->getMessage(),
+                ]);
+                throw $e;
+            }
+
+            // Handle race condition - unique violation
             usleep(50000);
             if ($organismId) {
                 $existing = DB::selectOne('SELECT id FROM sample_locations WHERE name = ? AND organism_id = ?', [$name, $organismId]);
@@ -1068,6 +1322,15 @@ class ImportOrganismMetadata extends Command
 
             return $id;
         } catch (QueryException $e) {
+            if (! $this->isUniqueViolation($e)) {
+                Log::error('Unexpected DB error in geo_locations insert (not unique violation)', [
+                    'sqlstate' => $e->errorInfo[0] ?? null,
+                    'msg' => $e->getMessage(),
+                ]);
+                throw $e;
+            }
+
+            // Handle race condition - unique violation
             usleep(50000);
             $existing = DB::selectOne('SELECT id FROM geo_locations WHERE name = ?', [$name]);
             if ($existing) {
@@ -1084,6 +1347,19 @@ class ImportOrganismMetadata extends Command
         if (empty($name)) {
             return null;
         }
+
+        // Sanitize UTF-8 encoding FIRST
+        $name = $this->sanitizeUtf8($name);
+
+        // Truncate safely using mb_substr to avoid cutting multi-byte sequences
+        $maxLength = 255;
+        if (mb_strlen($name, 'UTF-8') > $maxLength) {
+            $originalLength = mb_strlen($name, 'UTF-8');
+            $name = mb_substr($name, 0, $maxLength, 'UTF-8');
+            Log::warning("Ecosystem name truncated from {$originalLength} to {$maxLength} characters: ".mb_substr($name, 0, 50, 'UTF-8').'...');
+        }
+
+        // Log the sanitized name for debugging
 
         // If geo_location_id is provided, cache and search by name + geo_location_id
         $cacheKey = $geoLocationId ? "{$name}_{$geoLocationId}" : $name;
@@ -1122,6 +1398,15 @@ class ImportOrganismMetadata extends Command
 
             return $id;
         } catch (QueryException $e) {
+            if (! $this->isUniqueViolation($e)) {
+                Log::error('Unexpected DB error in ecosystems insert (not unique violation)', [
+                    'sqlstate' => $e->errorInfo[0] ?? null,
+                    'msg' => $e->getMessage(),
+                ]);
+                throw $e;
+            }
+
+            // Handle race condition - unique violation
             usleep(50000);
             if ($geoLocationId) {
                 $existing = DB::selectOne('SELECT id FROM ecosystems WHERE name = ? AND geo_location_id = ?', [$name, $geoLocationId]);
@@ -1140,6 +1425,36 @@ class ImportOrganismMetadata extends Command
     // ===================
     // Helper Methods
     // ===================
+
+    /**
+     * Check if a QueryException is a unique constraint violation.
+     */
+    private function isUniqueViolation(QueryException $e): bool
+    {
+        // Postgres unique_violation
+        return ($e->errorInfo[0] ?? null) === '23505' || $e->getCode() === '23505';
+    }
+
+    /**
+     * Sanitize string to ensure valid UTF-8 encoding.
+     */
+    protected function sanitizeUtf8(string $input): string
+    {
+        // Remove null bytes
+        $input = str_replace("\0", '', $input);
+
+        // Remove invalid UTF-8 byte sequences using iconv
+        $cleaned = @iconv('UTF-8', 'UTF-8//IGNORE', $input);
+        if ($cleaned === false) {
+            // Fallback: strip to ASCII only if iconv fails
+            $cleaned = preg_replace('/[^\x20-\x7E\x0A\x0D\x09]/s', '', $input);
+        }
+
+        // Remove control characters except newline, carriage return, and tab
+        $cleaned = preg_replace('/[^\P{C}\n\r\t]+/u', '', $cleaned) ?? $cleaned;
+
+        return $cleaned ?: '?';
+    }
 
     /**
      * Extract DOI from a string (handles URLs and extra text).
