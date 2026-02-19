@@ -110,30 +110,30 @@ class EntryImporter extends Importer
         $flatLocations = $this->flattenGroup($this->data['location'] ?? '', 'location');
 
         $metaData = [
-            'new_molecule_data' => [
-                'canonical_smiles' => $this->data['canonical_smiles'] ?? '',
-                'reference_id' => $this->data['reference_id'] ?? '',
-                'name' => $this->data['name'] ?? '',
-                'synonyms' => $synonyms,
-                'link' => $this->data['link'] ?? '',
-                'mol_filename' => $this->data['mol_filename'] ?? '',
-                'structural_comments' => $this->data['structural_comments'] ?? '',
-                'mapping_status' => $mappingStatus,
-                'references' => [],
+            'm' => [
+                'smi' => $this->data['canonical_smiles'] ?? '',
+                'rid' => $this->data['reference_id'] ?? '',
+                'nm' => $this->data['name'] ?? '',
+                'syn' => $synonyms,
+                'url' => $this->data['link'] ?? '',
+                'mol' => $this->data['mol_filename'] ?? '',
+                'cmt' => $this->data['structural_comments'] ?? '',
+                'ms' => $mappingStatus,
+                'refs' => [],
                 'dois' => array_values(array_unique($flatDois)),
-                'organisms' => array_values(array_unique($flatOrganisms)),
-                'organism_parts' => array_values(array_unique($flatParts)),
-                'geo_locations' => array_values(array_unique($flatGeoLocations)),
-                'ecosystems' => array_values(array_unique($flatLocations)),
+                'orgs' => array_values(array_unique($flatOrganisms)),
+                'prts' => array_values(array_unique($flatParts)),
+                'geos' => array_values(array_unique($flatGeoLocations)),
+                'ecos' => array_values(array_unique($flatLocations)),
             ],
         ];
 
         if ($mappingStatus === 'ambiguous') {
-            $metaData['new_molecule_data']['references'] = $this->buildAmbiguousReferences();
+            $metaData['m']['refs'] = $this->buildAmbiguousReferences();
         } elseif ($mappingStatus === 'inferred') {
-            $metaData['new_molecule_data']['references'] = $this->buildInferredReferences();
+            $metaData['m']['refs'] = $this->buildInferredReferences();
         } else {
-            $metaData['new_molecule_data']['references'] = $this->buildFullReferences();
+            $metaData['m']['refs'] = $this->buildFullReferences();
         }
 
         return $metaData;
@@ -184,16 +184,16 @@ class EntryImporter extends Importer
             if ($referenceIndex === null) {
                 $references[] = [
                     'doi' => $doi,
-                    'organisms' => [],
+                    'orgs' => [],
                 ];
                 $referenceIndex = count($references) - 1;
             }
 
             if (! empty($organism)) {
                 $organismData = [
-                    'name' => $organism,
-                    'parts' => ! empty($parts) ? array_map('trim', explode('|', $parts)) : [],
-                    'locations' => [],
+                    'nm' => $organism,
+                    'prts' => ! empty($parts) ? array_map('trim', explode('|', $parts)) : [],
+                    'locs' => [],
                 ];
 
                 if (! empty($geoLocs)) {
@@ -207,15 +207,15 @@ class EntryImporter extends Importer
                                 $ecosystems = array_map('trim', explode(';', $locationsList[$locIndex]));
                             }
 
-                            $organismData['locations'][] = [
-                                'name' => $geoLocation,
-                                'ecosystems' => $ecosystems,
+                            $organismData['locs'][] = [
+                                'nm' => $geoLocation,
+                                'ecos' => $ecosystems,
                             ];
                         }
                     }
                 }
 
-                $references[$referenceIndex]['organisms'][] = $organismData;
+                $references[$referenceIndex]['orgs'][] = $organismData;
             }
         }
 
@@ -240,23 +240,23 @@ class EntryImporter extends Importer
             $locationsStructured = [];
             foreach ($geoLocs as $geo) {
                 $locationsStructured[] = [
-                    'name' => $geo,
-                    'ecosystems' => $ecosystems,
+                    'nm' => $geo,
+                    'ecos' => $ecosystems,
                 ];
             }
 
             $organismEntries = [];
             foreach ($organisms as $orgName) {
                 $organismEntries[] = [
-                    'name' => $orgName,
-                    'parts' => $parts,
-                    'locations' => $locationsStructured,
+                    'nm' => $orgName,
+                    'prts' => $parts,
+                    'locs' => $locationsStructured,
                 ];
             }
 
             return [[
                 'doi' => $dois[0] ?? '',
-                'organisms' => $organismEntries,
+                'orgs' => $organismEntries,
             ]];
         }
 
@@ -265,22 +265,22 @@ class EntryImporter extends Importer
             $locationsStructured = [];
             foreach ($geoLocs as $geo) {
                 $locationsStructured[] = [
-                    'name' => $geo,
-                    'ecosystems' => $ecosystems,
+                    'nm' => $geo,
+                    'ecos' => $ecosystems,
                 ];
             }
 
             $org = [
-                'name' => $organisms[0] ?? '',
-                'parts' => $parts,
-                'locations' => $locationsStructured,
+                'nm' => $organisms[0] ?? '',
+                'prts' => $parts,
+                'locs' => $locationsStructured,
             ];
 
             $refs = [];
             foreach ($dois as $doi) {
                 $refs[] = [
                     'doi' => $doi ?? '',
-                    'organisms' => [$org],
+                    'orgs' => [$org],
                 ];
             }
 
@@ -288,7 +288,7 @@ class EntryImporter extends Importer
         }
 
         // Fallback: just list DOIs
-        return array_map(fn ($doi) => ['doi' => $doi, 'organisms' => []], $dois);
+        return array_map(fn ($doi) => ['doi' => $doi, 'orgs' => []], $dois);
     }
 
     /**
@@ -302,7 +302,7 @@ class EntryImporter extends Importer
         foreach ($dois as $doi) {
             $references[] = [
                 'doi' => $doi,
-                'organisms' => [],
+                'orgs' => [],
             ];
         }
 

@@ -200,22 +200,22 @@ class ImportEntriesReferencesAuto extends Command
     protected function processEntry(object $entry): void
     {
         $metaData = json_decode($entry->meta_data, true);
-        if (! $metaData || ! isset($metaData['new_molecule_data'])) {
+        if (! $metaData || ! isset($metaData['m'])) {
             Log::warning("Entry {$entry->id} has no valid meta_data. Skipping.");
 
             return;
         }
 
-        $nmd = $metaData['new_molecule_data'];
-        $mappingStatus = $nmd['mapping_status'] ?? 'ambiguous';
-        $references = $nmd['references'] ?? [];
+        $nmd = $metaData['m'];
+        $mappingStatus = $nmd['ms'] ?? 'ambiguous';
+        $references = $nmd['refs'] ?? [];
 
         // Get flat arrays for aggregation
         $flatDois = $nmd['dois'] ?? [];
-        $flatOrganisms = $nmd['organisms'] ?? [];
-        $flatParts = $nmd['organism_parts'] ?? [];
-        $flatGeoLocations = $nmd['geo_locations'] ?? [];
-        $flatEcosystems = $nmd['ecosystems'] ?? [];
+        $flatOrganisms = $nmd['orgs'] ?? [];
+        $flatParts = $nmd['prts'] ?? [];
+        $flatGeoLocations = $nmd['geos'] ?? [];
+        $flatEcosystems = $nmd['ecos'] ?? [];
 
         // Extract unique organisms
         $organismsToProcess = $this->extractOrganismsFromReferences($references, $flatOrganisms);
@@ -300,10 +300,10 @@ class ImportEntriesReferencesAuto extends Command
         $organisms = [];
 
         foreach ($references as $ref) {
-            if (isset($ref['organisms']) && is_array($ref['organisms'])) {
-                foreach ($ref['organisms'] as $org) {
-                    if (isset($org['name']) && ! empty($org['name'])) {
-                        $organisms[] = $org['name'];
+            if (isset($ref['orgs']) && is_array($ref['orgs'])) {
+                foreach ($ref['orgs'] as $org) {
+                    if (isset($org['nm']) && ! empty($org['nm'])) {
+                        $organisms[] = $org['nm'];
                     }
                 }
             }
@@ -397,11 +397,11 @@ class ImportEntriesReferencesAuto extends Command
         $geoLocations = [];
 
         foreach ($references as $ref) {
-            foreach (($ref['organisms'] ?? []) as $org) {
-                if (($org['name'] ?? '') === $organismName) {
-                    foreach (($org['locations'] ?? []) as $loc) {
-                        if (! empty($loc['name'])) {
-                            $geoLocations[] = $loc['name'];
+            foreach (($ref['orgs'] ?? []) as $org) {
+                if (($org['nm'] ?? '') === $organismName) {
+                    foreach (($org['locs'] ?? []) as $loc) {
+                        if (! empty($loc['nm'])) {
+                            $geoLocations[] = $loc['nm'];
                         }
                     }
                 }
@@ -420,12 +420,12 @@ class ImportEntriesReferencesAuto extends Command
 
         foreach ($references as $ref) {
             $doi = $ref['doi'] ?? '';
-            $organisms = $ref['organisms'] ?? [];
+            $organisms = $ref['orgs'] ?? [];
 
             // Find organism data matching our organism name
             $matchingOrganism = null;
             foreach ($organisms as $org) {
-                if (isset($org['name']) && $org['name'] === $organismName) {
+                if (isset($org['nm']) && $org['nm'] === $organismName) {
                     $matchingOrganism = $org;
                     break;
                 }
@@ -444,18 +444,18 @@ class ImportEntriesReferencesAuto extends Command
             ];
 
             // Get sample location IDs from parts
-            $parts = $matchingOrganism['parts'] ?? [];
+            $parts = $matchingOrganism['prts'] ?? [];
             $refEntry['smp_ids'] = $this->resolveSampleLocationIds($parts, $organismId);
 
             // Get locations with geo_location and ecosystems
-            $locations = $matchingOrganism['locations'] ?? [];
+            $locations = $matchingOrganism['locs'] ?? [];
             foreach ($locations as $loc) {
                 $geoLocationId = null;
-                if (! empty($loc['name'])) {
-                    $geoLocationId = $this->findOrCreateGeoLocation($loc['name']);
+                if (! empty($loc['nm'])) {
+                    $geoLocationId = $this->findOrCreateGeoLocation($loc['nm']);
                 }
 
-                $ecosystems = $loc['ecosystems'] ?? [];
+                $ecosystems = $loc['ecos'] ?? [];
                 $ecosystemIds = $this->resolveEcosystemIds($ecosystems, $geoLocationId);
 
                 $refEntry['locs'][] = [
