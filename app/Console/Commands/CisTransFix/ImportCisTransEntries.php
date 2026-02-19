@@ -666,12 +666,20 @@ class ImportCisTransEntries extends Command
                 $newComment = $entry->structural_comments ?? '';
 
                 $combinationExists = false;
-                for ($i = 0; $i < count($existingReferences); $i++) {
+                // Get the maximum count to ensure we check all possible positions
+                $maxCount = max(
+                    count($existingReferences),
+                    count($existingUrls),
+                    count($existingFilenames),
+                    count($existingComments)
+                );
+
+                for ($i = 0; $i < $maxCount; $i++) {
                     if (
-                        $existingReferences[$i] === $newReference &&
-                        $existingUrls[$i] === $newUrl &&
-                        $existingFilenames[$i] === $newFilename &&
-                        $existingComments[$i] === $newComment
+                        ($existingReferences[$i] ?? '') === $newReference &&
+                        ($existingUrls[$i] ?? '') === $newUrl &&
+                        ($existingFilenames[$i] ?? '') === $newFilename &&
+                        ($existingComments[$i] ?? '') === $newComment
                     ) {
                         $combinationExists = true;
                         break;

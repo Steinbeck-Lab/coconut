@@ -10,75 +10,66 @@ use Illuminate\Support\Str;
 
 class ImportEntriesReferencesAuto extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'coconut:enrich-molecules {collection_id : The ID of the collection to import references for}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Import references and organism details for entries in AUTOCURATION status';
 
-    /**
-     * Configuration variables for easy tuning
-     * Can be overridden via environment variables:
-     * - ENRICHMENT_BATCH_SIZE (default: 1500)
-     * - ENRICHMENT_INDEX_THRESHOLD (default: 1000)
-     */
-    private $batchSize = 1500;                           // Number of entries per batch job (affects memory usage and parallelism)
+    private int $batchSize = 1500;
 
-    private $indexCreationThreshold = 1000;             // Minimum entries to create performance indexes (balance overhead vs benefit)
+    private int $indexCreationThreshold = 1000;
 
-    /**
-     * Execute the console command.
-     */
-    public function handle()
+    private array $citationCache = [];
+
+    private array $organismCache = [];
+
+    private array $sampleLocationCache = [];
+
+    private array $geoLocationCache = [];
+
+    private array $ecosystemCache = [];
+
+    private array $auditRecords = [];
+
+    public function handle(): int
     {
-        $collection_id = $this->argument('collection_id');
+        $collectionId = $this->argument('collection_id');
 
-        $collection = DB::selectOne('SELECT * FROM collections WHERE id = ?', [$collection_id]);
+        $collection = DB::selectOne('SELECT * FROM collections WHERE id = ?', [$collectionId]);
         if (! $collection) {
-            Log::error("Collection with ID {$collection_id} not found.");
+            $this->error("Collection with ID {$collectionId} not found.");
+            Log::error("Collection with ID {$collectionId} not found.");
 
-            return 1;
+            return self::FAILURE;
         }
-        Log::info("Importing references for collection ID: {$collection_id}");
+
+        $this->info("Importing references for collection ID: {$collectionId}");
+        Log::info("Importing references for collection ID: {$collectionId}");
 
         // Update collection status
         DB::update(
             'UPDATE collections SET jobs_status = ?, job_info = ?, updated_at = ? WHERE id = ?',
-            ['PROCESSING', 'Importing references: Citations and Organism Info', now(), $collection_id]
+            ['PROCESSING', 'Importing references: Citations and Organism Info', now(), $collectionId]
         );
 
-        // Build the query to get entries in AUTOCURATION status with active molecules
-        $sql = '
-            SELECT e.id 
-            FROM entries e 
-            WHERE e.status = ? 
-            AND e.molecule_id IS NOT NULL 
-            AND e.collection_id = ? 
-            ORDER BY e.id
-        ';
-        $params = ['AUTOCURATION', $collection_id];
+        // Build query for entries in AUTOCURATION status
+        $query = DB::table('entries')
+            ->where('status', '=', 'AUTOCURATION')
+            ->whereNotNull('molecule_id')
+            ->whereNotNull('meta_data')
+            ->where('collection_id', '=', $collectionId);
 
-        $entries = DB::select($sql, $params);
-        $entryIds = array_column($entries, 'id');
-        $totalCount = count($entryIds);
-
-        Log::info("Found {$totalCount} entries to process for enrichment in collection ID: {$collection_id}");
-        Log::info("Configuration: batch_size={$this->batchSize}, index_threshold={$this->indexCreationThreshold}");
+        $totalCount = $query->count();
+        Log::info("Found {$totalCount} entries to process for enrichment in collection ID: {$collectionId}");
 
         if ($totalCount === 0) {
-            Log::info("No entries found in AUTOCURATION status for collection ID {$collection_id}.");
+            $this->info('No entries found to process.');
+            Log::info("No entries found in AUTOCURATION status for collection ID {$collectionId}.");
             DB::update(
                 'UPDATE collections SET jobs_status = ?, job_info = ?, updated_at = ? WHERE id = ?',
-                ['COMPLETE', '', now(), $collection_id]
+                ['COMPLETE', '', now(), $collectionId]
             );
+
+            return self::SUCCESS;
         }
 
         // Create performance indexes for larger batches
@@ -86,58 +77,51 @@ class ImportEntriesReferencesAuto extends Command
             $this->createPerformanceIndexes();
         }
 
-        // Split entry IDs into chunks and process each batch directly in the command
-        $entryIdChunks = array_chunk($entryIds, $this->batchSize);
-        $totalBatches = count($entryIdChunks);
+        $this->info("Processing {$totalCount} entries...");
+        $bar = $this->output->createProgressBar($totalCount);
+        $bar->setFormat(' %current%/%max% [%bar%] %percent%% %elapsed%/%estimated% %memory%');
+        $bar->start();
 
-        $this->info("Processing {$totalCount} entries in {$totalBatches} batches of up to {$this->batchSize} entries each");
+        $successCount = 0;
+        $failedCount = 0;
+        $startTime = microtime(true);
 
-        $overallSuccessCount = 0;
-        $overallFailedCount = 0;
-        $overallAuditRecords = [];
-        $overallStartTime = microtime(true);
+        $query->orderBy('id')->chunkById($this->batchSize, function ($entries) use ($bar, &$successCount, &$failedCount) {
+            foreach ($entries as $entry) {
+                try {
+                    DB::transaction(function () use ($entry) {
+                        $this->processEntry($entry);
+                    });
+                    $successCount++;
+                } catch (\Exception $e) {
+                    $failedCount++;
+                    Log::error("Failed to process entry {$entry->id}: ".$e->getMessage());
+                }
+                $bar->advance();
+            }
 
-        // Create progress bar for batches
-        $batchProgressBar = $this->output->createProgressBar($totalBatches);
-        $batchProgressBar->setFormat(' %current%/%max% batches [%bar%] %percent%% %elapsed%/%estimated% %memory%');
-        $batchProgressBar->start();
+            // Flush audit records after each chunk to avoid memory exhaustion
+            if (! empty($this->auditRecords)) {
+                $this->insertAuditRecords();
+            }
+        });
 
-        foreach ($entryIdChunks as $batchIndex => $entryIdBatch) {
-            $batchNo = $batchIndex + 1;
-            $batchStartTime = microtime(true);
-
-            $batchResult = $this->processBatch($entryIdBatch, $batchNo, $totalBatches);
-
-            $overallSuccessCount += $batchResult['successCount'];
-            $overallFailedCount += $batchResult['failedCount'];
-            $overallAuditRecords = array_merge($overallAuditRecords, $batchResult['auditRecords']);
-
-            $batchDuration = round(microtime(true) - $batchStartTime, 2);
-
-            // Advance progress bar
-            $batchProgressBar->advance();
-
-            // Log detailed batch results to log file only
-            Log::info("Batch {$batchNo}/{$totalBatches} completed: {$batchResult['successCount']} successful, {$batchResult['failedCount']} failed (Duration: {$batchDuration}s)");
-        }
-
-        $batchProgressBar->finish();
+        $bar->finish();
         $this->newLine();
 
-        $overallDuration = round(microtime(true) - $overallStartTime, 2);
+        $duration = round(microtime(true) - $startTime, 2);
 
-        // Display final summary
         $this->info('Enrichment completed successfully!');
         $this->line("Total entries processed: {$totalCount}");
-        $this->line("Successful: {$overallSuccessCount}");
-        $this->line("Failed: {$overallFailedCount}");
-        $this->line("Total duration: {$overallDuration}s");
+        $this->line("Successful: {$successCount}");
+        $this->line("Failed: {$failedCount}");
+        $this->line("Total duration: {$duration}s");
+        Log::info("All entries completed: {$successCount} successful, {$failedCount} failed out of {$totalCount} entries (Duration: {$duration}s)");
 
-        // Log detailed results
-        Log::info("All batches completed: {$overallSuccessCount} successful, {$overallFailedCount} failed out of {$totalCount} entries (Total Duration: {$overallDuration}s)");
-
-        // Bulk insert all audit records
-        $this->insertAuditRecords($overallAuditRecords);
+        // Flush remaining audit records
+        if (! empty($this->auditRecords)) {
+            $this->insertAuditRecords();
+        }
 
         // Clean up indexes if they were created
         if ($totalCount > $this->indexCreationThreshold) {
@@ -150,25 +134,23 @@ class ImportEntriesReferencesAuto extends Command
 
         DB::update(
             'UPDATE collections SET jobs_status = ?, job_info = ?, updated_at = ? WHERE id = ?',
-            ['COMPLETE', '', now(), $collection_id]
+            ['COMPLETE', '', now(), $collectionId]
         );
 
-        Log::info("References import process completed for collection ID {$collection_id}.");
+        Log::info("References import process completed for collection ID {$collectionId}.");
+
+        return self::SUCCESS;
     }
 
     /**
-     * Create temporary performance indexes for enrichment optimization
+     * Create temporary performance indexes for enrichment optimization.
      */
     private function createPerformanceIndexes(): void
     {
-        Log::info('Creating temporary performance indexes for enrichment optimization based on EnrichMoleculesBatch queries');
+        Log::info('Creating temporary performance indexes for enrichment optimization');
 
         $indexes = [
-
-            // Citation operations - text lookups with lockForUpdate
             'CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_temp_citations_text ON citations(citation_text)',
-
-            // Citables polymorphic relationship table for syncWithoutDetaching
             'CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_temp_citables_molecule ON citables(citation_id, citable_type, citable_id) WHERE citable_type = \'App\\Models\\Molecule\'',
         ];
 
@@ -185,11 +167,11 @@ class ImportEntriesReferencesAuto extends Command
     }
 
     /**
-     * Drop performance indexes (non-static version)
+     * Drop temporary performance indexes.
      */
     private function dropPerformanceIndexes(): void
     {
-        Log::info('Dropping temporary enrichment performance indexes after processing completion');
+        Log::info('Dropping temporary enrichment performance indexes');
 
         $indexes = [
             'DROP INDEX CONCURRENTLY IF EXISTS idx_temp_citations_text',
@@ -208,593 +190,1091 @@ class ImportEntriesReferencesAuto extends Command
         Log::info('Enrichment performance indexes cleaned up successfully');
     }
 
+    // ===========================
+    // Core Processing Methods
+    // ===========================
+
     /**
-     * Process a batch of entry IDs
+     * Process a single entry and update molecule_organism records.
      */
-    private function processBatch(array $entryIds, int $batchNo, int $totalBatches): array
+    protected function processEntry(object $entry): void
     {
-        $successCount = 0;
-        $failedCount = 0;
-        $auditRecords = [];
+        $metaData = json_decode($entry->meta_data, true);
+        if (! $metaData || ! isset($metaData['m'])) {
+            Log::warning("Entry {$entry->id} has no valid meta_data. Skipping.");
 
-        // Get the full entry objects for this batch
-        $placeholders = str_repeat('?,', count($entryIds) - 1).'?';
-        $entries = DB::select(
-            "SELECT * FROM entries WHERE id IN ({$placeholders}) AND status = ? AND molecule_id IS NOT NULL",
-            array_merge($entryIds, ['AUTOCURATION'])
-        );
+            return;
+        }
 
-        if (empty($entries)) {
-            Log::info("Batch {$batchNo}/{$totalBatches}: No entries need enrichment processing");
+        $nmd = $metaData['m'];
+        $mappingStatus = $nmd['ms'] ?? 'ambiguous';
+        $references = $nmd['refs'] ?? [];
 
-            return [
-                'successCount' => 0,
-                'failedCount' => 0,
-                'auditRecords' => [],
+        // Get flat arrays for aggregation
+        $flatDois = $nmd['dois'] ?? [];
+        $flatOrganisms = $nmd['orgs'] ?? [];
+        $flatParts = $nmd['prts'] ?? [];
+        $flatGeoLocations = $nmd['geos'] ?? [];
+        $flatEcosystems = $nmd['ecos'] ?? [];
+
+        // Extract unique organisms
+        $organismsToProcess = $this->extractOrganismsFromReferences($references, $flatOrganisms);
+
+        if (empty($organismsToProcess)) {
+            Log::warning("No organisms found for entry {$entry->id}. Skipping.");
+
+            return;
+        }
+
+        // Pre-resolve flat IDs once for reuse
+        $resolvedCitIds = $this->resolveCitationIds($flatDois);
+        $resolvedGeoIds = $this->resolveGeoLocationIds($flatGeoLocations);
+        $resolvedEcoIds = $this->resolveEcosystemIds($flatEcosystems);
+
+        foreach ($organismsToProcess as $organismName) {
+            if (empty($organismName)) {
+                continue;
+            }
+
+            $organismId = $this->findOrCreateOrganism($organismName);
+            if (! $organismId) {
+                Log::warning("Could not find or create organism '{$organismName}' for entry {$entry->id}. Skipping.");
+
+                continue;
+            }
+
+            $resolvedSmpIds = $this->resolveSampleLocationIds($flatParts, $organismId);
+
+            // Build the metadata JSON structure for this molecule-organism pair
+            $metadata = $this->buildOrganismMetadata(
+                $entry,
+                $mappingStatus,
+                $references,
+                $organismName,
+                $organismId,
+                $resolvedCitIds,
+                $resolvedSmpIds,
+                $resolvedGeoIds,
+                $resolvedEcoIds
+            );
+
+            // Upsert molecule_organism record
+            $this->upsertMoleculeOrganism(
+                $entry->molecule_id,
+                $organismId,
+                $entry->collection_id,
+                $metadata
+            );
+
+            // Link organism to its specific geo_locations from references
+            $organismGeoLocations = $this->extractOrganismGeoLocations($references, $organismName);
+            if (! empty($organismGeoLocations)) {
+                $this->processGeoLocationOrganism($organismId, $organismGeoLocations);
+            } elseif (! empty($flatGeoLocations)) {
+                $this->processGeoLocationOrganism($organismId, $flatGeoLocations);
+            }
+        }
+
+        // Process geo_location_molecule pivot
+        if (! empty($flatGeoLocations)) {
+            $this->processGeoLocationMolecule($entry->molecule_id, $flatGeoLocations, $flatEcosystems);
+        }
+
+        // Process citables (molecule-citation and collection-citation links)
+        if (! empty($flatDois)) {
+            $this->processCitables($entry->molecule_id, $entry->collection_id, $flatDois);
+        }
+
+        // Mark curation status as completed
+        updateCurationStatus($entry->molecule_id, 'enrich-molecules', 'completed');
+
+        // Set entry status to IMPORTED
+        DB::table('entries')->where('id', $entry->id)->update(['status' => 'IMPORTED']);
+    }
+
+    /**
+     * Extract unique organism names from references and flat arrays.
+     */
+    protected function extractOrganismsFromReferences(array $references, array $flatOrganisms): array
+    {
+        $organisms = [];
+
+        foreach ($references as $ref) {
+            if (isset($ref['orgs']) && is_array($ref['orgs'])) {
+                foreach ($ref['orgs'] as $org) {
+                    if (isset($org['nm']) && ! empty($org['nm'])) {
+                        $organisms[] = $org['nm'];
+                    }
+                }
+            }
+        }
+
+        foreach ($flatOrganisms as $org) {
+            if (! empty($org)) {
+                $organisms[] = $org;
+            }
+        }
+
+        return array_unique($organisms);
+    }
+
+    /**
+     * Build the metadata JSON structure for a molecule-organism record.
+     */
+    protected function buildOrganismMetadata(
+        object $entry,
+        string $mappingStatus,
+        array $references,
+        string $organismName,
+        int $organismId,
+        array $resolvedCitIds,
+        array $resolvedSmpIds,
+        array $resolvedGeoIds,
+        array $resolvedEcoIds
+    ): array {
+        $collectionEntry = [
+            'id' => $entry->collection_id,
+            'map' => $mappingStatus,
+            'refs' => [],
+        ];
+
+        if ($mappingStatus === 'ambiguous') {
+            $collectionEntry['unres'] = [
+                'cit_ids' => $resolvedCitIds,
+                'smp_ids' => $resolvedSmpIds,
+                'geo_ids' => $resolvedGeoIds,
+                'eco_ids' => $resolvedEcoIds,
+            ];
+
+            $metadata = [
+                'cols' => [$collectionEntry],
+                'cit_ids' => $resolvedCitIds,
+                'col_ids' => [$entry->collection_id],
+                'smp_ids' => $resolvedSmpIds,
+                'geo_ids' => $resolvedGeoIds,
+                'eco_ids' => $resolvedEcoIds,
+            ];
+        } else {
+            $structuredRefs = $this->buildStructuredReferences($references, $organismName, $organismId);
+            $collectionEntry['refs'] = $structuredRefs;
+
+            // Derive root-level IDs from organism-specific structured refs
+            $orgCitIds = [];
+            $orgSmpIds = [];
+            $orgGeoIds = [];
+            $orgEcoIds = [];
+            foreach ($structuredRefs as $ref) {
+                if (! empty($ref['cit_id'])) {
+                    $orgCitIds[] = $ref['cit_id'];
+                }
+                $orgSmpIds = array_merge($orgSmpIds, $ref['smp_ids'] ?? []);
+                foreach (($ref['locs'] ?? []) as $loc) {
+                    if (! empty($loc['geo_id'])) {
+                        $orgGeoIds[] = $loc['geo_id'];
+                    }
+                    $orgEcoIds = array_merge($orgEcoIds, $loc['eco_ids'] ?? []);
+                }
+            }
+
+            $metadata = [
+                'cols' => [$collectionEntry],
+                'cit_ids' => array_values(array_unique($orgCitIds)),
+                'col_ids' => [$entry->collection_id],
+                'smp_ids' => array_values(array_unique($orgSmpIds)),
+                'geo_ids' => array_values(array_unique($orgGeoIds)),
+                'eco_ids' => array_values(array_unique($orgEcoIds)),
             ];
         }
 
-        // Fetch molecules for this batch
-        $moleculeIds = array_values(array_unique(array_column($entries, 'molecule_id')));
-        $molecules = [];
-
-        if (! empty($moleculeIds)) {
-            $moleculePlaceholders = str_repeat('?,', count($moleculeIds) - 1).'?';
-            $moleculeResults = DB::select(
-                "SELECT * FROM molecules WHERE id IN ({$moleculePlaceholders})",
-                $moleculeIds
-            );
-            // Index molecules by ID for quick lookup
-            foreach ($moleculeResults as $molecule) {
-                $molecules[$molecule->id] = $molecule;
-            }
-        }
-
-        // Process each entry in the batch
-        foreach ($entries as $index => $entry) {
-            try {
-
-                $entryAuditRecords = []; // Collect audit records for this entry
-                DB::transaction(function () use ($entry, $molecules, &$entryAuditRecords) {
-                    $this->processEntryReferences($entry, $molecules, $entryAuditRecords);
-                });
-
-                // Add audit records from successful transaction
-                $auditRecords = array_merge($auditRecords, $entryAuditRecords);
-                $successCount++;
-
-            } catch (\Throwable $e) {
-                Log::error("Batch {$batchNo}/{$totalBatches}: Failed to enrich entry {$entry->id}: ".$e->getMessage());
-                $failedCount++;
-            }
-        }
-
-        return [
-            'successCount' => $successCount,
-            'failedCount' => $failedCount,
-            'auditRecords' => $auditRecords,
-        ];
+        return $metadata;
     }
 
     /**
-     * Process entry references (moved from EnrichMoleculesBatch)
+     * Extract geo-location names specific to an organism from structured references.
      */
-    public function processEntryReferences(\stdClass $entry, array $molecules, array &$entryAuditRecords = []): void
+    protected function extractOrganismGeoLocations(array $references, string $organismName): array
     {
-        // Only process entries that are in AUTOCURATION status and have a molecule_id
-        if ($entry->status !== 'AUTOCURATION' || ! $entry->molecule_id) {
-            return;
-        }
+        $geoLocations = [];
 
-        // Get the molecule from the pre-fetched array
-        $molecule = $molecules[$entry->molecule_id] ?? null;
-        if (! $molecule) {
-            return;
-        }
-
-        $citation_ids_array = [];
-
-        // Decode meta_data JSON string to array for stdClass entry
-        $meta_data = is_string($entry->meta_data) ? json_decode($entry->meta_data, true) : (array) $entry->meta_data;
-
-        // Process references if they exist
-        if (isset($meta_data['new_molecule_data']['references'])) {
-            // Process each reference
-            $this->processReferences($meta_data['new_molecule_data']['references'], $molecule, $entry, $citation_ids_array, $entryAuditRecords);
-        }
-
-        // Mark as completed
-        updateCurationStatus($molecule->id, 'enrich-molecules', 'completed');
-
-        // Update the entry status to IMPORTED and collect audit
-        $oldStatus = $entry->status;
-        DB::table('entries')->where('id', $entry->id)->update(['status' => 'IMPORTED']);
-        $this->collectAudit('entries', $entry->id, ['status' => $oldStatus], ['status' => 'IMPORTED'], $entryAuditRecords);
-    }
-
-    /**
-     * Process references for the molecule (moved from EnrichMoleculesBatch)
-     */
-    public function processReferences($references, \stdClass $molecule, \stdClass $entry, array &$citation_ids_array, array &$entryAuditRecords = []): void
-    {
-        // Save organism details - sample location and geo location
-        foreach ($references as $reference) {
-            // Create separate citation array for this specific reference
-            $currentReferenceCitations = [];
-
-            $doi = $reference['doi'] ?? '';
-
-            $doiRegex = '/\b(10[.][0-9]{4,}(?:[.][0-9]+)*)\b/';
-            if ($doi && $doi != '') {
-                if (preg_match($doiRegex, $doi)) {
-                    $this->fetchDOICitation($doi, $molecule, $currentReferenceCitations);
-                    $this->fetchDOICitation($doi, $molecule, $citation_ids_array);
-                } else {
-                    $this->fetchCitation($doi, $molecule, $currentReferenceCitations);
-                    $this->fetchCitation($doi, $molecule, $citation_ids_array);
-                }
-            }
-
-            if (isset($reference['organisms']) && $reference['organisms']) {
-                $this->saveOrganismDetails($reference['organisms'], $molecule, $entry, $currentReferenceCitations, $entryAuditRecords);
-            }
-        }
-
-        if (! empty($citation_ids_array)) {
-            // Use unique array and handle potential race conditions in citation attachment
-            $uniqueCitationIds = array_unique($citation_ids_array);
-            try {
-                // Use database-agnostic approach for citation attachment via citables table
-                foreach ($uniqueCitationIds as $citationId) {
-                    // Check if relationship already exists in citables table
-                    $exists = DB::selectOne(
-                        'SELECT 1 FROM citables WHERE citation_id = ? AND citable_type = ? AND citable_id = ?',
-                        [$citationId, 'App\\Models\\Molecule', $molecule->id]
-                    );
-
-                    if (! $exists) {
-                        try {
-                            DB::table('citables')->insert([
-                                'citation_id' => $citationId,
-                                'citable_type' => 'App\\Models\\Molecule',
-                                'citable_id' => $molecule->id,
-                            ]);
-                        } catch (QueryException $e) {
-                            // Ignore if it's a duplicate key error (race condition)
-                            if (! str_contains($e->getMessage(), 'unique') && ! str_contains($e->getMessage(), 'duplicate')) {
-                                throw $e;
-                            }
+        foreach ($references as $ref) {
+            foreach (($ref['orgs'] ?? []) as $org) {
+                if (($org['nm'] ?? '') === $organismName) {
+                    foreach (($org['locs'] ?? []) as $loc) {
+                        if (! empty($loc['nm'])) {
+                            $geoLocations[] = $loc['nm'];
                         }
                     }
                 }
-            } catch (\Exception $e) {
-                // Log the error but don't fail the entire job for citation sync issues
-                Log::warning("Citation sync failed for molecule {$molecule->id}: ".$e->getMessage());
             }
         }
+
+        return array_values(array_unique($geoLocations));
     }
 
     /**
-     * Fetch citation by citation text (moved from EnrichMoleculesBatch)
+     * Build structured references array for full/inferred mapping.
      */
-    public function fetchCitation($citation_text, \stdClass $molecule, array &$citation_ids_array): void
+    protected function buildStructuredReferences(array $references, string $organismName, int $organismId): array
     {
-        // First try to find existing citation
-        $existing = DB::selectOne('SELECT * FROM citations WHERE citation_text = ?', [$citation_text]);
+        $structuredRefs = [];
+
+        foreach ($references as $ref) {
+            $doi = $ref['doi'] ?? '';
+            $organisms = $ref['orgs'] ?? [];
+
+            // Find organism data matching our organism name
+            $matchingOrganism = null;
+            foreach ($organisms as $org) {
+                if (isset($org['nm']) && $org['nm'] === $organismName) {
+                    $matchingOrganism = $org;
+                    break;
+                }
+            }
+
+            if (! $matchingOrganism) {
+                continue;
+            }
+
+            $citationId = $this->findOrCreateCitation($doi);
+
+            $refEntry = [
+                'cit_id' => $citationId,
+                'smp_ids' => [],
+                'locs' => [],
+            ];
+
+            // Get sample location IDs from parts
+            $parts = $matchingOrganism['prts'] ?? [];
+            $refEntry['smp_ids'] = $this->resolveSampleLocationIds($parts, $organismId);
+
+            // Get locations with geo_location and ecosystems
+            $locations = $matchingOrganism['locs'] ?? [];
+            foreach ($locations as $loc) {
+                $geoLocationId = null;
+                if (! empty($loc['nm'])) {
+                    $geoLocationId = $this->findOrCreateGeoLocation($loc['nm']);
+                }
+
+                $ecosystems = $loc['ecos'] ?? [];
+                $ecosystemIds = $this->resolveEcosystemIds($ecosystems, $geoLocationId);
+
+                $refEntry['locs'][] = [
+                    'geo_id' => $geoLocationId,
+                    'eco_ids' => $ecosystemIds,
+                ];
+            }
+
+            $structuredRefs[] = $refEntry;
+        }
+
+        return $structuredRefs;
+    }
+
+    // ===========================
+    // Upsert & Pivot Methods
+    // ===========================
+
+    /**
+     * Upsert molecule_organism record with metadata.
+     */
+    protected function upsertMoleculeOrganism(
+        int $moleculeId,
+        int $organismId,
+        int $collectionId,
+        array $newMetadata
+    ): void {
+        $existing = DB::selectOne(
+            'SELECT * FROM molecule_organism WHERE molecule_id = ? AND organism_id = ? LIMIT 1',
+            [$moleculeId, $organismId]
+        );
 
         if ($existing) {
-            $citation = $existing;
+            $existingMetadata = json_decode($existing->metadata ?? '{}', true);
+            $mergedMetadata = $this->mergeMetadata($existingMetadata, $newMetadata);
+
+            $existingCollectionIds = json_decode($existing->collection_ids ?? '[]', true);
+            $existingCitationIds = json_decode($existing->citation_ids ?? '[]', true);
+
+            $mergedCollectionIds = array_values(array_unique(array_merge($existingCollectionIds, [$collectionId])));
+            $mergedCitationIds = array_values(array_unique(array_merge($existingCitationIds, $newMetadata['cit_ids'] ?? [])));
+
+            $oldValues = [
+                'metadata' => $existing->metadata,
+                'collection_ids' => $existing->collection_ids,
+                'citation_ids' => $existing->citation_ids,
+            ];
+
+            $newValues = [
+                'metadata' => json_encode($mergedMetadata),
+                'collection_ids' => json_encode($mergedCollectionIds),
+                'citation_ids' => json_encode($mergedCitationIds),
+                'updated_at' => now(),
+            ];
+
+            DB::table('molecule_organism')
+                ->where('id', $existing->id)
+                ->update($newValues);
+
+            $this->collectAudit('molecule_organism', $existing->id, $oldValues, $newValues);
         } else {
             try {
-                $citationId = DB::table('citations')->insertGetId([
-                    'citation_text' => $citation_text,
+                $newId = DB::table('molecule_organism')->insertGetId([
+                    'molecule_id' => $moleculeId,
+                    'organism_id' => $organismId,
+                    'sample_location_id' => null,
+                    'geo_location_id' => null,
+                    'ecosystem_id' => null,
+                    'collection_ids' => json_encode([$collectionId]),
+                    'citation_ids' => json_encode($newMetadata['cit_ids'] ?? []),
+                    'metadata' => json_encode($newMetadata),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
-                $citation = DB::selectOne('SELECT * FROM citations WHERE id = ?', [$citationId]);
+
+                $this->collectAudit('molecule_organism', $newId, [], [
+                    'molecule_id' => $moleculeId,
+                    'organism_id' => $organismId,
+                    'collection_ids' => json_encode([$collectionId]),
+                    'citation_ids' => json_encode($newMetadata['cit_ids'] ?? []),
+                    'metadata' => json_encode($newMetadata),
+                ], 'created');
             } catch (QueryException $e) {
-                // Handle race condition - another process might have created it
-                usleep(50000); // 50ms
-                $existing = DB::selectOne('SELECT * FROM citations WHERE citation_text = ?', [$citation_text]);
+                usleep(50000);
+                $existing = DB::selectOne(
+                    'SELECT * FROM molecule_organism WHERE molecule_id = ? AND organism_id = ? LIMIT 1',
+                    [$moleculeId, $organismId]
+                );
                 if ($existing) {
-                    $citation = $existing;
+                    $this->upsertMoleculeOrganism($moleculeId, $organismId, $collectionId, $newMetadata);
                 } else {
                     throw $e;
                 }
             }
         }
-
-        $citation_ids_array[] = $citation->id;
     }
 
     /**
-     * Fetch DOI citation (moved from EnrichMoleculesBatch)
+     * Process and insert geo_location_molecule pivot records.
      */
-    public function fetchDOICitation($doi, \stdClass $molecule, array &$citation_ids_array): void
-    {
-        $dois = $this->extract_dois($doi);
-
-        foreach ($dois as $doi) {
-            if ($doi) {
-                // Create or find citation with DOI using database-agnostic approach
-                $existing = DB::selectOne('SELECT * FROM citations WHERE doi = ?', [$doi]);
-
-                if ($existing) {
-                    $citation = $existing;
-                } else {
-                    try {
-                        $citationId = DB::table('citations')->insertGetId([
-                            'doi' => $doi,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-                        $citation = DB::selectOne('SELECT * FROM citations WHERE id = ?', [$citationId]);
-                    } catch (QueryException $e) {
-                        // Handle race condition - another process might have created it
-                        usleep(50000); // 50ms
-                        $existing = DB::selectOne('SELECT * FROM citations WHERE doi = ?', [$doi]);
-                        if ($existing) {
-                            $citation = $existing;
-                        } else {
-                            throw $e;
-                        }
-                    }
-                }
-
-                $citation_ids_array[] = $citation->id;
+    protected function processGeoLocationMolecule(
+        int $moleculeId,
+        array $flatGeoLocations,
+        array $flatEcosystems
+    ): void {
+        foreach ($flatGeoLocations as $geoLocationName) {
+            if (empty($geoLocationName)) {
+                continue;
             }
-        }
-    }
 
-    /**
-     * Extract DOIs from a given input string (moved from EnrichMoleculesBatch)
-     */
-    public function extract_dois($input_string): array
-    {
-        $dois = [];
-        $matches = [];
-        // Regex pattern to match DOIs
-        $pattern = '/(10\.\d{4,}(?:\.\d+)*\/\S+(?:(?!["&\'<>])\S))/i';
-        // Extract DOIs using preg_match_all
-        preg_match_all($pattern, $input_string, $matches);
-        // Add matched DOIs to the dois array
-        foreach ($matches[0] as $doi) {
-            $dois[] = $doi;
-        }
+            $geoLocationId = $this->findOrCreateGeoLocation($geoLocationName);
+            if (! $geoLocationId) {
+                continue;
+            }
 
-        // Check if the dois are split properly (especially considering that non dois are there).
-        return $dois;
-    }
+            $locationsText = ! empty($flatEcosystems) ? implode(', ', array_filter($flatEcosystems)) : null;
 
-    /**
-     * Save organism details (moved from EnrichMoleculesBatch)
-     */
-    public function saveOrganismDetails($organisms, \stdClass $molecule, \stdClass $entry, array $citation_ids_array, array &$entryAuditRecords = []): void
-    {
-        // Define collection and citation IDs once
-        $newCollectionIds = [$entry->collection_id];
-        $newCitationIds = $citation_ids_array;
-
-        foreach ($organisms as $organism) {
-            $parts_ids = [];
-            $ecosystem_ids = [];
-
-            // Handle organism creation using database-agnostic approach
-            $existing = DB::selectOne('SELECT id FROM organisms WHERE name = ?', [$organism['name']]);
+            $existing = DB::selectOne(
+                'SELECT * FROM geo_location_molecule WHERE molecule_id = ? AND geo_location_id = ?',
+                [$moleculeId, $geoLocationId]
+            );
 
             if ($existing) {
-                $organismId = $existing->id;
+                if ($existing->locations !== $locationsText) {
+                    DB::table('geo_location_molecule')
+                        ->where('id', $existing->id)
+                        ->update([
+                            'locations' => $locationsText,
+                            'updated_at' => now(),
+                        ]);
+                }
             } else {
                 try {
-                    $organismId = DB::table('organisms')->insertGetId([
-                        'name' => $organism['name'],
-                        'slug' => Str::slug($organism['name']),
+                    DB::table('geo_location_molecule')->insert([
+                        'molecule_id' => $moleculeId,
+                        'geo_location_id' => $geoLocationId,
+                        'locations' => $locationsText,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
                 } catch (QueryException $e) {
-                    // Handle race condition - another process might have created it
-                    usleep(50000); // 50ms
-                    $existing = DB::selectOne('SELECT id FROM organisms WHERE name = ?', [$organism['name']]);
-                    if ($existing) {
-                        $organismId = $existing->id;
-                    } else {
+                    usleep(50000);
+                    $existing = DB::selectOne(
+                        'SELECT * FROM geo_location_molecule WHERE molecule_id = ? AND geo_location_id = ?',
+                        [$moleculeId, $geoLocationId]
+                    );
+                    if (! $existing) {
                         throw $e;
                     }
-                }
-            }
-
-            // Process parts or add null if none
-            if (! empty($organism['parts'])) {
-                foreach ($organism['parts'] as $part) {
-                    // Handle sample location creation using database-agnostic approach
-                    $partName = Str::title($part);
-                    $partSlug = Str::slug($part);
-                    $existing = DB::selectOne('SELECT id FROM sample_locations WHERE name = ?', [$partName]);
-
-                    if ($existing) {
-                        $partId = $existing->id;
-                    } else {
-                        try {
-                            $partId = DB::table('sample_locations')->insertGetId([
-                                'name' => $partName,
-                                'slug' => $partSlug,
-                                'created_at' => now(),
-                                'updated_at' => now(),
-                            ]);
-                        } catch (QueryException $e) {
-                            // Handle race condition - another process might have created it
-                            usleep(50000); // 50ms
-                            $existing = DB::selectOne('SELECT id FROM sample_locations WHERE name = ?', [$partName]);
-                            if ($existing) {
-                                $partId = $existing->id;
-                            } else {
-                                throw $e;
-                            }
-                        }
-                    }
-                    $parts_ids[] = [$organismId, $partId];
-                }
-            } else {
-                $parts_ids[] = [$organismId, null];
-            }
-
-            // Process locations or add null if none
-            if (! empty($organism['locations'])) {
-                foreach ($organism['locations'] as $location) {
-                    $geo_location_ids = []; // Reset for each location
-
-                    // Handle geo location creation using database-agnostic approach
-                    $existing = DB::selectOne('SELECT id FROM geo_locations WHERE name = ?', [$location['name']]);
-
-                    if ($existing) {
-                        $geoLocationId = $existing->id;
-                    } else {
-                        try {
-                            $geoLocationId = DB::table('geo_locations')->insertGetId([
-                                'name' => $location['name'],
-                                'created_at' => now(),
-                                'updated_at' => now(),
-                            ]);
-                        } catch (QueryException $e) {
-                            // Handle race condition - another process might have created it
-                            usleep(50000); // 50ms
-                            $existing = DB::selectOne('SELECT id FROM geo_locations WHERE name = ?', [$location['name']]);
-                            if ($existing) {
-                                $geoLocationId = $existing->id;
-                            } else {
-                                throw $e;
-                            }
-                        }
-                    }
-
-                    foreach ($parts_ids as $part) {
-                        $geo_location_ids[] = [$part[0], $part[1], $geoLocationId];
-                    }
-
-                    // Process ecosystems or add null if none
-                    if (! empty($location['ecosystems'])) {
-                        foreach ($location['ecosystems'] as $ecosystemName) {
-                            // Handle ecosystem creation using database-agnostic approach
-                            $existing = DB::selectOne('SELECT id FROM ecosystems WHERE name = ?', [$ecosystemName]);
-
-                            if ($existing) {
-                                $ecosystemId = $existing->id;
-                            } else {
-                                try {
-                                    $ecosystemId = DB::table('ecosystems')->insertGetId([
-                                        'name' => $ecosystemName,
-                                        'description' => 'Ecosystem imported from entry data',
-                                        'created_at' => now(),
-                                        'updated_at' => now(),
-                                    ]);
-                                } catch (QueryException $e) {
-                                    // Handle race condition - another process might have created it
-                                    usleep(50000); // 50ms
-                                    $existing = DB::selectOne('SELECT id FROM ecosystems WHERE name = ?', [$ecosystemName]);
-                                    if ($existing) {
-                                        $ecosystemId = $existing->id;
-                                    } else {
-                                        throw $e;
-                                    }
-                                }
-                            }
-                            foreach ($geo_location_ids as $geo_location) {
-                                $ecosystem_ids[] = [$geo_location[0], $geo_location[1], $geo_location[2], $ecosystemId];
-                            }
-                        }
-                    } else {
-                        foreach ($geo_location_ids as $geo_location) {
-                            $ecosystem_ids[] = [$geo_location[0], $geo_location[1], $geo_location[2], null];
-                        }
-                    }
-                }
-            } else {
-                $geo_location_ids = []; // Create empty array for consistency
-                foreach ($parts_ids as $part) {
-                    $geo_location_ids[] = [$part[0], $part[1], null];
-                }
-                foreach ($geo_location_ids as $geo_location) {
-                    $ecosystem_ids[] = [$geo_location[0], $geo_location[1], $geo_location[2], null];
-                }
-            }
-
-            // Insert or update each relationship with collection and citation IDs using raw queries
-            foreach ($ecosystem_ids as $pivot) {
-                // Check if molecule-organism relationship already exists
-                $existing = DB::selectOne(
-                    'SELECT * FROM molecule_organism WHERE molecule_id = ? AND organism_id = ? AND sample_location_id = ? AND geo_location_id = ? AND ecosystem_id = ?',
-                    [$molecule->id, $pivot[0], $pivot[1], $pivot[2], $pivot[3]]
-                );
-
-                if (! $existing) {
-                    // Create new record using insertGetId and then fetch the complete record
-                    try {
-                        $newId = DB::table('molecule_organism')->insertGetId([
-                            'molecule_id' => $molecule->id,
-                            'organism_id' => $pivot[0],
-                            'sample_location_id' => $pivot[1],
-                            'geo_location_id' => $pivot[2],
-                            'ecosystem_id' => $pivot[3],
-                            'collection_ids' => json_encode($newCollectionIds),
-                            'citation_ids' => json_encode($newCitationIds),
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-
-                        // Create an audit record for the new entry
-                        $this->collectAudit(
-                            'molecule_organism',
-                            $newId,
-                            [],
-                            [
-                                'molecule_id' => $molecule->id,
-                                'organism_id' => $pivot[0],
-                                'sample_location_id' => $pivot[1],
-                                'geo_location_id' => $pivot[2],
-                                'ecosystem_id' => $pivot[3],
-                                'collection_ids' => json_encode($newCollectionIds),
-                                'citation_ids' => json_encode($newCitationIds),
-                            ],
-                            $entryAuditRecords,
-                            'created'
-                        );
-
-                        // Successfully created, no need to update
-                        continue;
-                    } catch (QueryException $e) {
-                        // Handle race condition - another process might have created it
-                        usleep(50000); // 50ms
-                        $existing = DB::selectOne(
-                            'SELECT * FROM molecule_organism WHERE molecule_id = ? AND organism_id = ? AND sample_location_id = ? AND geo_location_id = ? AND ecosystem_id = ?',
-                            [$molecule->id, $pivot[0], $pivot[1], $pivot[2], $pivot[3]]
-                        );
-                        if (! $existing) {
-                            throw $e;
-                        }
-                        // If record was created by another process, update it below
-                    }
-                }
-
-                // Record exists (either found initially or created by another process), merge the arrays
-                $existingCollectionIds = json_decode($existing->collection_ids ?? '[]', true);
-                $existingCitationIds = json_decode($existing->citation_ids ?? '[]', true);
-
-                $mergedCollectionIds = array_unique(array_merge($existingCollectionIds, $newCollectionIds));
-                $mergedCitationIds = array_unique(array_merge($existingCitationIds, $newCitationIds));
-
-                // Check if there are actual changes before updating
-                $existingCollectionJson = json_encode($existingCollectionIds);
-                $existingCitationJson = json_encode($existingCitationIds);
-                $newCollectionJson = json_encode($mergedCollectionIds);
-                $newCitationJson = json_encode($mergedCitationIds);
-
-                if ($existingCollectionJson !== $newCollectionJson || $existingCitationJson !== $newCitationJson) {
-                    $oldValues = [
-                        'collection_ids' => $existing->collection_ids,
-                        'citation_ids' => $existing->citation_ids,
-                        'updated_at' => $existing->updated_at,
-                    ];
-
-                    $newValues = [
-                        'collection_ids' => $newCollectionJson,
-                        'citation_ids' => $newCitationJson,
-                        'updated_at' => now(),
-                    ];
-
-                    DB::table('molecule_organism')
-                        ->where('id', $existing->id)
-                        ->update($newValues);
-
-                    $this->collectAudit('molecule_organism', $existing->id, $oldValues, $newValues, $entryAuditRecords);
                 }
             }
         }
     }
 
     /**
-     * Collect audit record for UPDATE operations
+     * Process and insert geo_location_organism pivot records.
      */
-    private function collectAudit(string $table, int $recordId, array $oldValues, array $newValues, array &$auditRecords, string $event = 'updated'): void
+    protected function processGeoLocationOrganism(
+        int $organismId,
+        array $flatGeoLocations
+    ): void {
+        foreach ($flatGeoLocations as $geoLocationName) {
+            if (empty($geoLocationName)) {
+                continue;
+            }
+
+            $geoLocationId = $this->findOrCreateGeoLocation($geoLocationName);
+            if (! $geoLocationId) {
+                continue;
+            }
+
+            $existing = DB::selectOne(
+                'SELECT * FROM geo_location_organism WHERE organism_id = ? AND geo_location_id = ?',
+                [$organismId, $geoLocationId]
+            );
+
+            if (! $existing) {
+                try {
+                    DB::table('geo_location_organism')->insert([
+                        'organism_id' => $organismId,
+                        'geo_location_id' => $geoLocationId,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                } catch (QueryException $e) {
+                    usleep(50000);
+                    $existing = DB::selectOne(
+                        'SELECT * FROM geo_location_organism WHERE organism_id = ? AND geo_location_id = ?',
+                        [$organismId, $geoLocationId]
+                    );
+                    if (! $existing) {
+                        Log::warning("Failed to insert geo_location_organism for organism={$organismId}, geo_location={$geoLocationId}: ".$e->getMessage());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Process and insert citables records (molecule-citation and collection-citation links).
+     */
+    protected function processCitables(
+        int $moleculeId,
+        int $collectionId,
+        array $flatDois
+    ): void {
+        foreach ($flatDois as $doi) {
+            if (empty($doi)) {
+                continue;
+            }
+
+            $citationId = $this->findOrCreateCitation($doi);
+            if (! $citationId) {
+                continue;
+            }
+
+            // Link citation to molecule
+            $existingMolecule = DB::selectOne(
+                'SELECT * FROM citables WHERE citation_id = ? AND citable_id = ? AND citable_type = ?',
+                [$citationId, $moleculeId, 'App\\Models\\Molecule']
+            );
+
+            if (! $existingMolecule) {
+                try {
+                    DB::table('citables')->insert([
+                        'citation_id' => $citationId,
+                        'citable_id' => $moleculeId,
+                        'citable_type' => 'App\\Models\\Molecule',
+                    ]);
+                } catch (QueryException $e) {
+                    usleep(50000);
+                    $existingMolecule = DB::selectOne(
+                        'SELECT * FROM citables WHERE citation_id = ? AND citable_id = ? AND citable_type = ?',
+                        [$citationId, $moleculeId, 'App\\Models\\Molecule']
+                    );
+                    if (! $existingMolecule) {
+                        Log::warning("Failed to insert citables for molecule={$moleculeId}, citation={$citationId}: ".$e->getMessage());
+                    }
+                }
+            }
+
+            // Link citation to collection
+            $existingCollection = DB::selectOne(
+                'SELECT * FROM citables WHERE citation_id = ? AND citable_id = ? AND citable_type = ?',
+                [$citationId, $collectionId, 'App\\Models\\Collection']
+            );
+
+            if (! $existingCollection) {
+                try {
+                    DB::table('citables')->insert([
+                        'citation_id' => $citationId,
+                        'citable_id' => $collectionId,
+                        'citable_type' => 'App\\Models\\Collection',
+                    ]);
+                } catch (QueryException $e) {
+                    usleep(50000);
+                    $existingCollection = DB::selectOne(
+                        'SELECT * FROM citables WHERE citation_id = ? AND citable_id = ? AND citable_type = ?',
+                        [$citationId, $collectionId, 'App\\Models\\Collection']
+                    );
+                    if (! $existingCollection) {
+                        Log::warning("Failed to insert citables for collection={$collectionId}, citation={$citationId}: ".$e->getMessage());
+                    }
+                }
+            }
+        }
+    }
+
+    // ===========================
+    // Metadata Merge
+    // ===========================
+
+    /**
+     * Merge two metadata structures, combining collections arrays.
+     */
+    protected function mergeMetadata(array $existing, array $new): array
     {
-        // Only collect audits for actual changes
+        $collectionsById = [];
+        foreach (($existing['cols'] ?? []) as $col) {
+            $collectionsById[$col['id']] = $col;
+        }
+        foreach (($new['cols'] ?? []) as $col) {
+            if (isset($collectionsById[$col['id']])) {
+                // Merge references for same collection, deduplicating by cit_id
+                $existingRefs = $collectionsById[$col['id']]['refs'] ?? [];
+                $refsByCitId = [];
+                foreach ($existingRefs as $ref) {
+                    $key = $ref['cit_id'] ?? 'null';
+                    $refsByCitId[$key] = $ref;
+                }
+                foreach (($col['refs'] ?? []) as $ref) {
+                    $key = $ref['cit_id'] ?? 'null';
+                    if (isset($refsByCitId[$key])) {
+                        $refsByCitId[$key]['smp_ids'] = array_values(array_unique(array_merge(
+                            $refsByCitId[$key]['smp_ids'] ?? [],
+                            $ref['smp_ids'] ?? []
+                        )));
+                        $existingLocs = $refsByCitId[$key]['locs'] ?? [];
+                        $existingGeoIds = array_column($existingLocs, 'geo_id');
+                        foreach (($ref['locs'] ?? []) as $loc) {
+                            if (! in_array($loc['geo_id'], $existingGeoIds)) {
+                                $refsByCitId[$key]['locs'][] = $loc;
+                            }
+                        }
+                    } else {
+                        $refsByCitId[$key] = $ref;
+                    }
+                }
+                $collectionsById[$col['id']]['refs'] = array_values($refsByCitId);
+
+                // Merge unresolved if present
+                if (isset($col['unres'])) {
+                    $existingUnresolved = $collectionsById[$col['id']]['unres'] ?? [];
+                    $collectionsById[$col['id']]['unres'] = [
+                        'cit_ids' => array_values(array_unique(array_merge(
+                            $existingUnresolved['cit_ids'] ?? [],
+                            $col['unres']['cit_ids'] ?? []
+                        ))),
+                        'smp_ids' => array_values(array_unique(array_merge(
+                            $existingUnresolved['smp_ids'] ?? [],
+                            $col['unres']['smp_ids'] ?? []
+                        ))),
+                        'geo_ids' => array_values(array_unique(array_merge(
+                            $existingUnresolved['geo_ids'] ?? [],
+                            $col['unres']['geo_ids'] ?? []
+                        ))),
+                        'eco_ids' => array_values(array_unique(array_merge(
+                            $existingUnresolved['eco_ids'] ?? [],
+                            $col['unres']['eco_ids'] ?? []
+                        ))),
+                    ];
+                }
+            } else {
+                $collectionsById[$col['id']] = $col;
+            }
+        }
+
+        return [
+            'cols' => array_values($collectionsById),
+            'cit_ids' => array_values(array_unique(array_merge(
+                $existing['cit_ids'] ?? [],
+                $new['cit_ids'] ?? []
+            ))),
+            'col_ids' => array_values(array_unique(array_merge(
+                $existing['col_ids'] ?? [],
+                $new['col_ids'] ?? []
+            ))),
+            'smp_ids' => array_values(array_unique(array_merge(
+                $existing['smp_ids'] ?? [],
+                $new['smp_ids'] ?? []
+            ))),
+            'geo_ids' => array_values(array_unique(array_merge(
+                $existing['geo_ids'] ?? [],
+                $new['geo_ids'] ?? []
+            ))),
+            'eco_ids' => array_values(array_unique(array_merge(
+                $existing['eco_ids'] ?? [],
+                $new['eco_ids'] ?? []
+            ))),
+        ];
+    }
+
+    // ===========================
+    // Resolution Methods
+    // ===========================
+
+    protected function resolveCitationIds(array $dois): array
+    {
+        $ids = [];
+        foreach ($dois as $doi) {
+            if (! empty($doi)) {
+                $id = $this->findOrCreateCitation($doi);
+                if ($id) {
+                    $ids[] = $id;
+                }
+            }
+        }
+
+        return array_values(array_unique($ids));
+    }
+
+    protected function resolveSampleLocationIds(array $parts, ?int $organismId = null): array
+    {
+        $ids = [];
+        foreach ($parts as $part) {
+            if (! empty($part)) {
+                $id = $this->findOrCreateSampleLocation($part, $organismId);
+                if ($id) {
+                    $ids[] = $id;
+                }
+            }
+        }
+
+        return array_values(array_unique($ids));
+    }
+
+    protected function resolveGeoLocationIds(array $locations): array
+    {
+        $ids = [];
+        foreach ($locations as $location) {
+            if (! empty($location)) {
+                $id = $this->findOrCreateGeoLocation($location);
+                if ($id) {
+                    $ids[] = $id;
+                }
+            }
+        }
+
+        return array_values(array_unique($ids));
+    }
+
+    protected function resolveEcosystemIds(array $ecosystems, ?int $geoLocationId = null): array
+    {
+        $ids = [];
+        foreach ($ecosystems as $ecosystem) {
+            if (! empty($ecosystem)) {
+                $id = $this->findOrCreateEcosystem($ecosystem, $geoLocationId);
+                if ($id) {
+                    $ids[] = $id;
+                }
+            }
+        }
+
+        return array_values(array_unique($ids));
+    }
+
+    // ===========================
+    // Find or Create Methods
+    // ===========================
+
+    /**
+     * Find or create a citation. Supports both DOI and plain citation text.
+     */
+    protected function findOrCreateCitation(string $doiOrText): ?int
+    {
+        if (empty($doiOrText)) {
+            return null;
+        }
+
+        // Try to extract DOI
+        $doi = $this->extractDoi($doiOrText);
+
+        if (! empty($doi)) {
+            return $this->findOrCreateCitationByDoi($doi);
+        }
+
+        // Non-DOI: treat as citation text
+        return $this->findOrCreateCitationByText($doiOrText);
+    }
+
+    /**
+     * Find or create a citation by DOI.
+     */
+    protected function findOrCreateCitationByDoi(string $doi): ?int
+    {
+        $cacheKey = "doi:{$doi}";
+
+        if (isset($this->citationCache[$cacheKey])) {
+            return $this->citationCache[$cacheKey];
+        }
+
+        $existing = DB::selectOne('SELECT id FROM citations WHERE doi = ?', [$doi]);
+        if ($existing) {
+            $this->citationCache[$cacheKey] = $existing->id;
+
+            return $existing->id;
+        }
+
+        try {
+            $id = DB::table('citations')->insertGetId([
+                'doi' => $doi,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $this->citationCache[$cacheKey] = $id;
+
+            return $id;
+        } catch (QueryException $e) {
+            usleep(50000);
+            $existing = DB::selectOne('SELECT id FROM citations WHERE doi = ?', [$doi]);
+            if ($existing) {
+                $this->citationCache[$cacheKey] = $existing->id;
+
+                return $existing->id;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Find or create a citation by plain text (non-DOI).
+     */
+    protected function findOrCreateCitationByText(string $citationText): ?int
+    {
+        $cacheKey = 'text:'.md5($citationText);
+
+        if (isset($this->citationCache[$cacheKey])) {
+            return $this->citationCache[$cacheKey];
+        }
+
+        $existing = DB::selectOne('SELECT id FROM citations WHERE citation_text = ?', [$citationText]);
+        if ($existing) {
+            $this->citationCache[$cacheKey] = $existing->id;
+
+            return $existing->id;
+        }
+
+        try {
+            $id = DB::table('citations')->insertGetId([
+                'citation_text' => $citationText,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $this->citationCache[$cacheKey] = $id;
+
+            return $id;
+        } catch (QueryException $e) {
+            usleep(50000);
+            $existing = DB::selectOne('SELECT id FROM citations WHERE citation_text = ?', [$citationText]);
+            if ($existing) {
+                $this->citationCache[$cacheKey] = $existing->id;
+
+                return $existing->id;
+            }
+            throw $e;
+        }
+    }
+
+    protected function findOrCreateOrganism(string $name): ?int
+    {
+        if (empty($name)) {
+            return null;
+        }
+
+        if (isset($this->organismCache[$name])) {
+            return $this->organismCache[$name];
+        }
+
+        $existing = DB::selectOne('SELECT id FROM organisms WHERE name = ?', [$name]);
+        if ($existing) {
+            $this->organismCache[$name] = $existing->id;
+
+            return $existing->id;
+        }
+
+        try {
+            $id = DB::table('organisms')->insertGetId([
+                'name' => $name,
+                'slug' => Str::slug($name),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $this->organismCache[$name] = $id;
+
+            return $id;
+        } catch (QueryException $e) {
+            usleep(50000);
+            $existing = DB::selectOne('SELECT id FROM organisms WHERE name = ?', [$name]);
+            if ($existing) {
+                $this->organismCache[$name] = $existing->id;
+
+                return $existing->id;
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Find or create a sample location. If an existing record matches by name
+     * but has no organism_id, the foreign key is adopted onto the existing record.
+     */
+    protected function findOrCreateSampleLocation(string $name, ?int $organismId = null): ?int
+    {
+        if (empty($name)) {
+            return null;
+        }
+
+        $name = Str::title($name);
+        $cacheKey = $organismId ? "{$name}_{$organismId}" : $name;
+
+        if (isset($this->sampleLocationCache[$cacheKey])) {
+            return $this->sampleLocationCache[$cacheKey];
+        }
+
+        if ($organismId) {
+            // First check for exact match (name + organism_id)
+            $existing = DB::selectOne(
+                'SELECT id FROM sample_locations WHERE name = ? AND organism_id = ?',
+                [$name, $organismId]
+            );
+            if ($existing) {
+                $this->sampleLocationCache[$cacheKey] = $existing->id;
+
+                return $existing->id;
+            }
+
+            // Check for existing record with same name but no organism_id — adopt it
+            $existingNoOrg = DB::selectOne(
+                'SELECT id FROM sample_locations WHERE name = ? AND organism_id IS NULL',
+                [$name]
+            );
+            if ($existingNoOrg) {
+                DB::table('sample_locations')
+                    ->where('id', $existingNoOrg->id)
+                    ->update(['organism_id' => $organismId, 'updated_at' => now()]);
+                $this->sampleLocationCache[$cacheKey] = $existingNoOrg->id;
+
+                return $existingNoOrg->id;
+            }
+        } else {
+            $existing = DB::selectOne('SELECT id FROM sample_locations WHERE name = ?', [$name]);
+            if ($existing) {
+                $this->sampleLocationCache[$cacheKey] = $existing->id;
+
+                return $existing->id;
+            }
+        }
+
+        try {
+            $id = DB::table('sample_locations')->insertGetId([
+                'name' => $name,
+                'slug' => Str::slug($name),
+                'organism_id' => $organismId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $this->sampleLocationCache[$cacheKey] = $id;
+
+            return $id;
+        } catch (QueryException $e) {
+            usleep(50000);
+            if ($organismId) {
+                $existing = DB::selectOne(
+                    'SELECT id FROM sample_locations WHERE name = ? AND organism_id = ?',
+                    [$name, $organismId]
+                );
+            } else {
+                $existing = DB::selectOne('SELECT id FROM sample_locations WHERE name = ?', [$name]);
+            }
+            if ($existing) {
+                $this->sampleLocationCache[$cacheKey] = $existing->id;
+
+                return $existing->id;
+            }
+            throw $e;
+        }
+    }
+
+    protected function findOrCreateGeoLocation(string $name): ?int
+    {
+        if (empty($name)) {
+            return null;
+        }
+
+        if (isset($this->geoLocationCache[$name])) {
+            return $this->geoLocationCache[$name];
+        }
+
+        $existing = DB::selectOne('SELECT id FROM geo_locations WHERE name = ?', [$name]);
+        if ($existing) {
+            $this->geoLocationCache[$name] = $existing->id;
+
+            return $existing->id;
+        }
+
+        try {
+            $id = DB::table('geo_locations')->insertGetId([
+                'name' => $name,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $this->geoLocationCache[$name] = $id;
+
+            return $id;
+        } catch (QueryException $e) {
+            usleep(50000);
+            $existing = DB::selectOne('SELECT id FROM geo_locations WHERE name = ?', [$name]);
+            if ($existing) {
+                $this->geoLocationCache[$name] = $existing->id;
+
+                return $existing->id;
+            }
+            throw $e;
+        }
+    }
+
+    protected function findOrCreateEcosystem(string $name, ?int $geoLocationId = null): ?int
+    {
+        if (empty($name)) {
+            return null;
+        }
+
+        $cacheKey = $geoLocationId ? "{$name}_{$geoLocationId}" : $name;
+
+        if (isset($this->ecosystemCache[$cacheKey])) {
+            return $this->ecosystemCache[$cacheKey];
+        }
+
+        if ($geoLocationId) {
+            $existing = DB::selectOne(
+                'SELECT id FROM ecosystems WHERE name = ? AND geo_location_id = ?',
+                [$name, $geoLocationId]
+            );
+            if ($existing) {
+                $this->ecosystemCache[$cacheKey] = $existing->id;
+
+                return $existing->id;
+            }
+        } else {
+            $existing = DB::selectOne('SELECT id FROM ecosystems WHERE name = ?', [$name]);
+            if ($existing) {
+                $this->ecosystemCache[$cacheKey] = $existing->id;
+
+                return $existing->id;
+            }
+        }
+
+        try {
+            $id = DB::table('ecosystems')->insertGetId([
+                'name' => $name,
+                'description' => 'Ecosystem imported from entry data',
+                'geo_location_id' => $geoLocationId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $this->ecosystemCache[$cacheKey] = $id;
+
+            return $id;
+        } catch (QueryException $e) {
+            usleep(50000);
+            if ($geoLocationId) {
+                $existing = DB::selectOne(
+                    'SELECT id FROM ecosystems WHERE name = ? AND geo_location_id = ?',
+                    [$name, $geoLocationId]
+                );
+            } else {
+                $existing = DB::selectOne('SELECT id FROM ecosystems WHERE name = ?', [$name]);
+            }
+            if ($existing) {
+                $this->ecosystemCache[$cacheKey] = $existing->id;
+
+                return $existing->id;
+            }
+            throw $e;
+        }
+    }
+
+    // ===========================
+    // Helper Methods
+    // ===========================
+
+    /**
+     * Extract DOI from a string (handles URLs and extra text).
+     */
+    protected function extractDoi(string $input): string
+    {
+        $pattern = '/(10\.\d{4,}(?:\.\d+)*\/\S+(?:(?!["&\'<>])\S))/i';
+        if (preg_match($pattern, $input, $matches)) {
+            return $matches[1];
+        }
+
+        return '';
+    }
+
+    /**
+     * Collect audit record for tracking changes.
+     */
+    protected function collectAudit(string $table, int $recordId, array $oldValues, array $newValues, string $event = 'updated'): void
+    {
         $changes = [];
         foreach ($newValues as $key => $newValue) {
             $oldValue = $oldValues[$key] ?? null;
-
-            // Special handling for JSON fields
-            if (($key === 'collection_ids' || $key === 'citation_ids') &&
-                 is_string($oldValue) && is_string($newValue)) {
-                // Decode JSON strings for comparison
-                $oldDecoded = json_decode($oldValue, true);
-                $newDecoded = json_decode($newValue, true);
-
-                // Sort arrays to ensure consistent comparison
-                if (is_array($oldDecoded)) {
-                    sort($oldDecoded);
-                }
-                if (is_array($newDecoded)) {
-                    sort($newDecoded);
-                }
-
-                if (json_encode($oldDecoded) !== json_encode($newDecoded)) {
-                    $changes[$key] = ['old' => $oldValue, 'new' => $newValue];
-                }
-            }
-            // Standard comparison for non-JSON fields
-            elseif ($oldValue !== $newValue) {
+            if ($oldValue !== $newValue) {
                 $changes[$key] = ['old' => $oldValue, 'new' => $newValue];
             }
         }
 
         if (empty($changes)) {
-            return; // No changes to audit
+            return;
         }
 
-        $auditRecords[] = [
+        $this->auditRecords[] = [
             'auditable_type' => 'App\\Models\\'.Str::studly(Str::singular($table)),
             'auditable_id' => $recordId,
             'user_type' => 'App\\Models\\User',
-            'user_id' => 11, // COCONUT curator user ID for batch processing
+            'user_id' => 11,
             'event' => $event,
             'old_values' => json_encode(array_map(fn ($change) => $change['old'], $changes)),
             'new_values' => json_encode(array_map(fn ($change) => $change['new'], $changes)),
             'url' => null,
             'ip_address' => null,
             'user_agent' => 'ImportEntriesReferencesAuto Command',
-            'tags' => 'enrichment,sequential-processing',
+            'tags' => 'enrichment,organism-metadata-import',
             'created_at' => now(),
             'updated_at' => now(),
         ];
     }
 
     /**
-     * Bulk insert all collected audit records
+     * Bulk insert collected audit records.
      */
-    private function insertAuditRecords(array $auditRecords): void
+    protected function insertAuditRecords(): void
     {
-        if (empty($auditRecords)) {
+        if (empty($this->auditRecords)) {
             return;
         }
 
-        // Count audits by type for logging
-        $countsByType = [];
-        foreach ($auditRecords as $record) {
-            $type = $record['auditable_type'];
-            $countsByType[$type] = ($countsByType[$type] ?? 0) + 1;
-        }
-
-        Log::info('Audit records by type: '.json_encode($countsByType));
-
         try {
-            // Use chunking to avoid hitting database limits
-            $chunks = array_chunk($auditRecords, 500);
+            $count = count($this->auditRecords);
+            $chunks = array_chunk($this->auditRecords, 500);
             foreach ($chunks as $chunk) {
                 DB::table('audits')->insert($chunk);
             }
-            Log::info('Inserted '.count($auditRecords).' audit records for sequential processing');
+            Log::info("Inserted {$count} audit records.");
         } catch (\Exception $e) {
             Log::error('Failed to insert audit records: '.$e->getMessage());
         }
+
+        // Free memory after flushing
+        $this->auditRecords = [];
     }
 }

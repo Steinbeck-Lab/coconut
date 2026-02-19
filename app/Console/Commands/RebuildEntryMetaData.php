@@ -140,22 +140,21 @@ class RebuildEntryMetaData extends Command
         $flatLocations = $this->flattenGroup($entry->location ?? '', 'location');
 
         $metaData = [
-
-            'new_molecule_data' => [
-                'canonical_smiles' => $entry->canonical_smiles ?? '',
-                'reference_id' => $entry->reference_id ?? '',
-                'name' => $entry->name ?? '',
-                'synonyms' => $synonyms,
-                'link' => $entry->link ?? '',
-                'mol_filename' => $entry->mol_filename ?? '',
-                'structural_comments' => $entry->structural_comments ?? '',
-                'mapping_status' => $mappingStatus,
-                'references' => [],
+            'm' => [
+                'smi' => $entry->canonical_smiles ?? '',
+                'rid' => $entry->reference_id ?? '',
+                'nm' => $entry->name ?? '',
+                'syn' => $synonyms,
+                'url' => $entry->link ?? '',
+                'mol' => $entry->mol_filename ?? '',
+                'cmt' => $entry->structural_comments ?? '',
+                'ms' => $mappingStatus,
+                'refs' => [],
                 'dois' => array_values(array_unique($flatDois)),
-                'organisms' => array_values(array_unique($flatOrganisms)),
-                'organism_parts' => array_values(array_unique($flatParts)),
-                'geo_locations' => array_values(array_unique($flatGeoLocations)),
-                'ecosystems' => array_values(array_unique($flatLocations)),
+                'orgs' => array_values(array_unique($flatOrganisms)),
+                'prts' => array_values(array_unique($flatParts)),
+                'geos' => array_values(array_unique($flatGeoLocations)),
+                'ecos' => array_values(array_unique($flatLocations)),
             ],
         ];
 
@@ -163,11 +162,11 @@ class RebuildEntryMetaData extends Command
 
         // if ($hasRelData) {
         if ($mappingStatus === 'ambiguous') {
-            $metaData['new_molecule_data']['references'] = $this->buildAmbiguousReferences($entry);
+            $metaData['m']['refs'] = $this->buildAmbiguousReferences($entry);
         } elseif ($mappingStatus === 'inferred') {
-            $metaData['new_molecule_data']['references'] = $this->buildInferredReferences($entry);
+            $metaData['m']['refs'] = $this->buildInferredReferences($entry);
         } else { // full
-            $metaData['new_molecule_data']['references'] = $this->buildFullReferences($entry);
+            $metaData['m']['refs'] = $this->buildFullReferences($entry);
         }
         // }
 
@@ -220,16 +219,16 @@ class RebuildEntryMetaData extends Command
             if ($referenceIndex === null) {
                 $references[] = [
                     'doi' => $doi,
-                    'organisms' => [],
+                    'orgs' => [],
                 ];
                 $referenceIndex = count($references) - 1;
             }
 
             if (! empty($organism)) {
                 $organismData = [
-                    'name' => $organism,
-                    'parts' => ! empty($parts) ? array_map('trim', explode('|', $parts)) : [],
-                    'locations' => [],
+                    'nm' => $organism,
+                    'prts' => ! empty($parts) ? array_map('trim', explode('|', $parts)) : [],
+                    'locs' => [],
                 ];
 
                 if (! empty($geoLocs)) {
@@ -243,15 +242,15 @@ class RebuildEntryMetaData extends Command
                                 $ecosystems = array_map('trim', explode(';', $locationsList[$locIndex]));
                             }
 
-                            $organismData['locations'][] = [
-                                'name' => $geoLocation,
-                                'ecosystems' => $ecosystems,
+                            $organismData['locs'][] = [
+                                'nm' => $geoLocation,
+                                'ecos' => $ecosystems,
                             ];
                         }
                     }
                 }
 
-                $references[$referenceIndex]['organisms'][] = $organismData;
+                $references[$referenceIndex]['orgs'][] = $organismData;
             }
         }
 
@@ -276,23 +275,23 @@ class RebuildEntryMetaData extends Command
             $locationsStructured = [];
             foreach ($geoLocs as $geo) {
                 $locationsStructured[] = [
-                    'name' => $geo,
-                    'ecosystems' => $ecosystems,
+                    'nm' => $geo,
+                    'ecos' => $ecosystems,
                 ];
             }
 
             $organismEntries = [];
             foreach ($organisms as $orgName) {
                 $organismEntries[] = [
-                    'name' => $orgName,
-                    'parts' => $parts,
-                    'locations' => $locationsStructured,
+                    'nm' => $orgName,
+                    'prts' => $parts,
+                    'locs' => $locationsStructured,
                 ];
             }
 
             return [[
                 'doi' => $dois[0] ?? '',
-                'organisms' => $organismEntries,
+                'orgs' => $organismEntries,
             ]];
         }
 
@@ -301,41 +300,30 @@ class RebuildEntryMetaData extends Command
             $locationsStructured = [];
             foreach ($geoLocs as $geo) {
                 $locationsStructured[] = [
-                    'name' => $geo,
-                    'ecosystems' => $ecosystems,
+                    'nm' => $geo,
+                    'ecos' => $ecosystems,
                 ];
             }
 
             $org = [
-                'name' => $organisms[0] ?? '',
-                'parts' => $parts,
-                'locations' => $locationsStructured,
+                'nm' => $organisms[0] ?? '',
+                'prts' => $parts,
+                'locs' => $locationsStructured,
             ];
 
             $refs = [];
             foreach ($dois as $doi) {
                 $refs[] = [
                     'doi' => $doi ?? '',
-                    'organisms' => [$org],
+                    'orgs' => [$org],
                 ];
             }
-
-            // no DOI, no organism
-            // if ($nDois === 0 && $nOrgs === 0) {
-            //     $refs[] = [
-            //         'doi' => '',
-            //         'organisms' => [
-            //             'name' => '',
-            //             'parts' => [],
-            //         ],
-            //     ];
-            // }
 
             return $refs;
         }
 
         // Fallback (should be rare): just list DOIs
-        return array_map(fn ($doi) => ['doi' => $doi, 'organisms' => []], $dois);
+        return array_map(fn ($doi) => ['doi' => $doi, 'orgs' => []], $dois);
     }
 
     /**
@@ -349,7 +337,7 @@ class RebuildEntryMetaData extends Command
         foreach ($dois as $doi) {
             $references[] = [
                 'doi' => $doi,
-                'organisms' => [],
+                'orgs' => [],
             ];
         }
 
