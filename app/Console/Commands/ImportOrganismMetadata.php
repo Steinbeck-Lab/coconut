@@ -144,22 +144,22 @@ class ImportOrganismMetadata extends Command
     protected function processEntry(object $entry): void
     {
         $metaData = json_decode($entry->meta_data, true);
-        if (! $metaData || ! isset($metaData['new_molecule_data'])) {
+        if (! $metaData || ! isset($metaData['m'])) {
             Log::warning("Entry {$entry->id} has no valid meta_data. Skipping.");
 
             return;
         }
 
-        $nmd = $metaData['new_molecule_data'];
-        $mappingStatus = $nmd['mapping_status'] ?? 'ambiguous';
-        $references = $nmd['references'] ?? [];
+        $nmd = $metaData['m'];
+        $mappingStatus = $nmd['ms'] ?? 'ambiguous';
+        $references = $nmd['refs'] ?? [];
 
         // Get flat arrays for aggregation (these go into root-level arrays)
         $flatDois = $nmd['dois'] ?? [];
-        $flatOrganisms = $nmd['organisms'] ?? [];
-        $flatParts = $nmd['organism_parts'] ?? [];
-        $flatGeoLocations = $nmd['geo_locations'] ?? [];
-        $flatEcosystems = $nmd['ecosystems'] ?? [];
+        $flatOrganisms = $nmd['orgs'] ?? [];
+        $flatParts = $nmd['prts'] ?? [];
+        $flatGeoLocations = $nmd['geos'] ?? [];
+        $flatEcosystems = $nmd['ecos'] ?? [];
 
         // Process each organism from the references or flat arrays
         $organismsToProcess = $this->extractOrganismsFromReferences($references, $flatOrganisms);
@@ -248,10 +248,10 @@ class ImportOrganismMetadata extends Command
         $this->linkMoleculeToCollection(
             $entry->molecule_id,
             $entry->collection_id,
-            $nmd['link'] ?? null,
-            $nmd['reference_id'] ?? null,
-            $nmd['mol_filename'] ?? null,
-            $nmd['structural_comments'] ?? null
+            $nmd['url'] ?? null,
+            $nmd['rid'] ?? null,
+            $nmd['mol'] ?? null,
+            $nmd['cmt'] ?? null
         );
 
         // After processing, set entry status to IMPORTED
@@ -267,11 +267,11 @@ class ImportOrganismMetadata extends Command
 
         // From structured references
         foreach ($references as $ref) {
-            if (isset($ref['organisms']) && is_array($ref['organisms'])) {
-                foreach ($ref['organisms'] as $org) {
-                    if (isset($org['name']) && ! empty($org['name'])) {
+            if (isset($ref['orgs']) && is_array($ref['orgs'])) {
+                foreach ($ref['orgs'] as $org) {
+                    if (isset($org['nm']) && ! empty($org['nm'])) {
                         // Sanitize UTF-8 immediately upon extraction
-                        $organisms[] = $this->sanitizeUtf8($org['name']);
+                        $organisms[] = $this->sanitizeUtf8($org['nm']);
                     }
                 }
             }
@@ -375,11 +375,11 @@ class ImportOrganismMetadata extends Command
         $geoLocations = [];
 
         foreach ($references as $ref) {
-            foreach (($ref['organisms'] ?? []) as $org) {
-                if (($org['name'] ?? '') === $organismName) {
-                    foreach (($org['locations'] ?? []) as $loc) {
-                        if (! empty($loc['name'])) {
-                            $geoLocations[] = $loc['name'];
+            foreach (($ref['orgs'] ?? []) as $org) {
+                if (($org['nm'] ?? '') === $organismName) {
+                    foreach (($org['locs'] ?? []) as $loc) {
+                        if (! empty($loc['nm'])) {
+                            $geoLocations[] = $loc['nm'];
                         }
                     }
                 }
@@ -398,12 +398,12 @@ class ImportOrganismMetadata extends Command
 
         foreach ($references as $ref) {
             $doi = $ref['doi'] ?? '';
-            $organisms = $ref['organisms'] ?? [];
+            $organisms = $ref['orgs'] ?? [];
 
             // Find organism data matching our organism name
             $matchingOrganism = null;
             foreach ($organisms as $org) {
-                if (isset($org['name']) && $org['name'] === $organismName) {
+                if (isset($org['nm']) && $org['nm'] === $organismName) {
                     $matchingOrganism = $org;
                     break;
                 }
@@ -422,18 +422,18 @@ class ImportOrganismMetadata extends Command
             ];
 
             // Get sample location IDs from parts
-            $parts = $matchingOrganism['parts'] ?? [];
+            $parts = $matchingOrganism['prts'] ?? [];
             $refEntry['smp_ids'] = $this->resolveSampleLocationIds($parts, $organismId);
 
             // Get locations with geo_location and ecosystems
-            $locations = $matchingOrganism['locations'] ?? [];
+            $locations = $matchingOrganism['locs'] ?? [];
             foreach ($locations as $loc) {
                 $geoLocationId = null;
-                if (! empty($loc['name'])) {
-                    $geoLocationId = $this->findOrCreateGeoLocation($loc['name']);
+                if (! empty($loc['nm'])) {
+                    $geoLocationId = $this->findOrCreateGeoLocation($loc['nm']);
                 }
 
-                $ecosystems = $loc['ecosystems'] ?? [];
+                $ecosystems = $loc['ecos'] ?? [];
                 $ecosystemIds = $this->resolveEcosystemIds($ecosystems, $geoLocationId);
 
                 $refEntry['locs'][] = [
@@ -494,7 +494,6 @@ class ImportOrganismMetadata extends Command
 
             $this->collectAudit('molecule_organism', $existing->id, $oldValues, $newValues);
         } else {
-
             // Insert new record
             try {
                 $newId = DB::table('molecule_organism')->insertGetId([
@@ -1350,16 +1349,6 @@ class ImportOrganismMetadata extends Command
 
         // Sanitize UTF-8 encoding FIRST
         $name = $this->sanitizeUtf8($name);
-
-        // Truncate safely using mb_substr to avoid cutting multi-byte sequences
-        $maxLength = 255;
-        if (mb_strlen($name, 'UTF-8') > $maxLength) {
-            $originalLength = mb_strlen($name, 'UTF-8');
-            $name = mb_substr($name, 0, $maxLength, 'UTF-8');
-            Log::warning("Ecosystem name truncated from {$originalLength} to {$maxLength} characters: ".mb_substr($name, 0, 50, 'UTF-8').'...');
-        }
-
-        // Log the sanitized name for debugging
 
         // If geo_location_id is provided, cache and search by name + geo_location_id
         $cacheKey = $geoLocationId ? "{$name}_{$geoLocationId}" : $name;
