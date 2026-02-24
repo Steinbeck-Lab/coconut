@@ -18,7 +18,7 @@ class ImportPubChemNamesAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:import-pubchem-data {collection_id? : The ID of the collection to process} {--retry-failed : Retry previously failed entries}';
+    protected $signature = 'coconut:import-pubchem-data {collection_id? : The ID of the collection to process} {--all : Process all collections} {--retry-failed : Retry previously failed entries}';
 
     /**
      * The console command description.
@@ -34,6 +34,12 @@ class ImportPubChemNamesAuto extends Command
     {
         $collection_id = $this->argument('collection_id');
         $retryFailed = $this->option('retry-failed');
+
+        if (! $collection_id && ! $this->option('all')) {
+            Log::error('Please specify either a collection_id or use --all flag');
+
+            return 1;
+        }
 
         if ($collection_id !== null) {
             $collection = Collection::find($collection_id);

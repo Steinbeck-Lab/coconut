@@ -15,7 +15,7 @@ class GenerateProperties extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:generate-properties-auto {collection_id?}';
+    protected $signature = 'coconut:generate-properties-auto {collection_id?} {--all : Process all collections}';
 
     /**
      * The console command description.
@@ -30,6 +30,12 @@ class GenerateProperties extends Command
     public function handle()
     {
         $collectionId = $this->argument('collection_id');
+
+        if (! $collectionId && ! $this->option('all')) {
+            Log::error('Please specify either a collection_id or use --all flag');
+
+            return 1;
+        }
 
         $outputTSV = 'properties'.($collectionId ? '_'.$collectionId : '').'.tsv';
         $scriptPath = app_path('Scripts/generate_properties.py');

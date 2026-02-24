@@ -16,7 +16,7 @@ class ClassifyAuto extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'coconut:npclassify {collection_id? : The ID of the collection to process}';
+    protected $signature = 'coconut:npclassify {collection_id? : The ID of the collection to process} {--all : Process all collections}';
 
     /**
      * The console command description.
@@ -29,6 +29,12 @@ class ClassifyAuto extends Command
     public function handle()
     {
         $collection_id = $this->argument('collection_id');
+
+        if (! $collection_id && ! $this->option('all')) {
+            Log::error('Please specify either a collection_id or use --all flag');
+
+            return 1;
+        }
 
         if ($collection_id !== null) {
             $collection = Collection::find($collection_id);
