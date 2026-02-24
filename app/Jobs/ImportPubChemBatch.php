@@ -39,7 +39,6 @@ class ImportPubChemBatch implements ShouldQueue
 
         $batchJobs = [];
         foreach ($molecules as $molecule) {
-            Log::info('Importing PubChem data for molecule ID: '.$molecule->id);
             array_push($batchJobs, new ImportPubChemAuto($molecule));
         }
         $this->batch()->add($batchJobs);
