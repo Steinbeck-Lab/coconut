@@ -9,7 +9,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
 class ImportPubChemBatch implements ShouldQueue
 {
@@ -39,7 +38,6 @@ class ImportPubChemBatch implements ShouldQueue
 
         $batchJobs = [];
         foreach ($molecules as $molecule) {
-            Log::info('Importing PubChem data for molecule ID: '.$molecule->id);
             array_push($batchJobs, new ImportPubChemAuto($molecule));
         }
         $this->batch()->add($batchJobs);

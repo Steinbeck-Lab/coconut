@@ -17,7 +17,7 @@ class FetchCASNumbersAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:fetch-cas-numbers {collection_id? : The ID of the collection to fetch CAS numbers for}';
+    protected $signature = 'coconut:fetch-cas-numbers {collection_id? : The ID of the collection to fetch CAS numbers for} {--all : Process all collections}';
 
     /**
      * The console command description.
@@ -39,6 +39,13 @@ class FetchCASNumbersAuto extends Command
     public function handle()
     {
         $collection_id = $this->argument('collection_id');
+
+        if (! $collection_id && ! $this->option('all')) {
+            Log::error('Please specify either a collection_id or use --all flag');
+            $this->error('Please specify either a collection_id or use --all flag');
+
+            return 1;
+        }
 
         if ($collection_id) {
             $collection = Collection::find($collection_id);
