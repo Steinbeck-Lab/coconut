@@ -16,7 +16,7 @@ class ClassifyAuto extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'coconut:npclassify {collection_id : The ID of the collection to process}';
+    protected $signature = 'coconut:npclassify {collection_id? : The ID of the collection to process}';
 
     /**
      * The console command description.
@@ -30,40 +30,60 @@ class ClassifyAuto extends Command
     {
         $collection_id = $this->argument('collection_id');
 
-        $collection = Collection::find($collection_id);
-        if (! $collection) {
-            Log::error("Collection with ID {$collection_id} not found.");
+        if ($collection_id !== null) {
+            $collection = Collection::find($collection_id);
+            if (! $collection) {
+                Log::error("Collection with ID {$collection_id} not found.");
 
-            return 1;
+                return 1;
+            }
         }
 
-        Log::info("Classifying molecules using NPClassifier for collection ID: {$collection_id}");
+        $collectionLabel = $collection_id !== null ? "collection ID: {$collection_id}" : 'all collections';
+
+        Log::info("Classifying molecules using NPClassifier for {$collectionLabel}");
 
         // Use raw query to avoid ambiguous column issues
-        $sql = '
-            SELECT DISTINCT molecules.id, molecules.canonical_smiles
-            FROM molecules
-            INNER JOIN entries ON entries.molecule_id = molecules.id
-            INNER JOIN properties ON properties.molecule_id = molecules.id
+        $conditions = '
+            WHERE molecules.active = true
+              AND properties.np_classifier_pathway IS NULL
+              AND properties.np_classifier_superclass IS NULL
+              AND properties.np_classifier_class IS NULL
+              AND properties.np_classifier_is_glycoside IS NULL
+        ';
+
+        $bindings = [];
+        if ($collection_id !== null) {
+            $conditions = '
             WHERE entries.collection_id = ?
               AND molecules.active = true
               AND properties.np_classifier_pathway IS NULL
               AND properties.np_classifier_superclass IS NULL
               AND properties.np_classifier_class IS NULL
               AND properties.np_classifier_is_glycoside IS NULL
+            ';
+            $bindings[] = $collection_id;
+        }
+
+        $sql = '
+            SELECT DISTINCT molecules.id, molecules.canonical_smiles
+            FROM molecules
+            INNER JOIN entries ON entries.molecule_id = molecules.id
+            INNER JOIN properties ON properties.molecule_id = molecules.id
+        '.$conditions.'
             ORDER BY molecules.id
         ';
 
-        $molecules = DB::select($sql, [$collection_id]);
+        $molecules = DB::select($sql, $bindings);
 
         $totalCount = count($molecules);
         if ($totalCount === 0) {
-            Log::info("No molecules found to classify in collection {$collection_id}.");
+            Log::info("No molecules found to classify in {$collectionLabel}.");
 
             return 0;
         }
 
-        Log::info("Starting NPClassifier for {$totalCount} molecules in collection {$collection_id}");
+        Log::info("Starting NPClassifier for {$totalCount} molecules in {$collectionLabel}");
 
         // Chunk the results manually
         $chunks = array_chunk($molecules, 1000);
@@ -72,23 +92,23 @@ class ClassifyAuto extends Command
             $moleculeIds = array_map(fn ($row) => $row->id, $chunk);
             $moleculeCount = count($moleculeIds);
 
-            Log::info("Processing batch of {$moleculeCount} molecules for classification in collection {$collection_id}");
+            Log::info("Processing batch of {$moleculeCount} molecules for classification in {$collectionLabel}");
 
             $batchJobs = [];
             $batchJobs[] = new ClassifyMoleculeBatch($moleculeIds);
 
             Bus::batch($batchJobs)
-                ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
-                    Log::error("NPClassifier batch failed for collection {$collection_id}: ".$e->getMessage());
+                ->catch(function (Batch $batch, Throwable $e) use ($collectionLabel) {
+                    Log::error("NPClassifier batch failed for {$collectionLabel}: ".$e->getMessage());
                 })
-                ->name("NPClassifier Batch Auto Collection {$collection_id}")
+                ->name('NPClassifier Batch Auto '.ucfirst($collectionLabel))
                 ->allowFailures()
                 ->onConnection('redis')
                 ->onQueue('default')
                 ->dispatch();
         }
 
-        Log::info("All classification jobs have been dispatched for collection {$collection_id}!");
+        Log::info("All classification jobs have been dispatched for {$collectionLabel}!");
 
         return 0;
     }

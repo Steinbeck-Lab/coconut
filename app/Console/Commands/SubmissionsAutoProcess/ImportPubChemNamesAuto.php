@@ -18,7 +18,7 @@ class ImportPubChemNamesAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:import-pubchem-data {collection_id : The ID of the collection to process} {--retry-failed : Retry previously failed entries}';
+    protected $signature = 'coconut:import-pubchem-data {collection_id? : The ID of the collection to process} {--retry-failed : Retry previously failed entries}';
 
     /**
      * The console command description.
@@ -35,15 +35,18 @@ class ImportPubChemNamesAuto extends Command
         $collection_id = $this->argument('collection_id');
         $retryFailed = $this->option('retry-failed');
 
-        $collection = Collection::find($collection_id);
-        if (! $collection) {
-            Log::error("Collection with ID {$collection_id} not found.");
+        if ($collection_id !== null) {
+            $collection = Collection::find($collection_id);
+            if (! $collection) {
+                Log::error("Collection with ID {$collection_id} not found.");
 
-            return 1;
+                return 1;
+            }
         }
+
         $query = Molecule::select('molecules.id')
             ->join('entries', 'entries.molecule_id', '=', 'molecules.id')
-            ->where('entries.collection_id', $collection_id)
+            ->when($collection_id !== null, fn ($q) => $q->where('entries.collection_id', $collection_id))
             ->where(function ($query) {
                 $query->whereNull('molecules.name')
                     ->orWhere('molecules.name', '=', '');
@@ -67,19 +70,21 @@ class ImportPubChemNamesAuto extends Command
         }
 
         // Count the total number of molecules to process
+        $collectionLabel = $collection_id !== null ? "collection {$collection_id}" : 'all collections';
+
         $totalCount = $query->count();
         if ($totalCount === 0) {
-            Log::info("No molecules found that require PubChem data import for collection {$collection_id}.");
+            Log::info("No molecules found that require PubChem data import for {$collectionLabel}.");
 
             return 0;
         }
 
-        Log::info("Starting PubChem data import for {$totalCount} molecules in collection {$collection_id}.");
+        Log::info("Starting PubChem data import for {$totalCount} molecules in {$collectionLabel}.");
 
         // Use chunk to process large sets of molecules
-        $query->chunkById(10000, function ($mols) use ($collection_id) {
+        $query->chunkById(10000, function ($mols) use ($collectionLabel) {
             $moleculeCount = count($mols);
-            Log::info("Processing batch of {$moleculeCount} molecules for collection {$collection_id}");
+            Log::info("Processing batch of {$moleculeCount} molecules for {$collectionLabel}");
 
             // Prepare batch jobs
             $batchJobs = [];
@@ -87,16 +92,16 @@ class ImportPubChemNamesAuto extends Command
 
             // Dispatch as a batch
             Bus::batch($batchJobs)
-                ->catch(function (Batch $batch, Throwable $e) use ($collection_id) {
-                    Log::error("PubChem import batch failed for collection {$collection_id}: ".$e->getMessage());
+                ->catch(function (Batch $batch, Throwable $e) use ($collectionLabel) {
+                    Log::error("PubChem import batch failed for {$collectionLabel}: ".$e->getMessage());
                 })
-                ->name("Import PubChem Auto Batch Collection {$collection_id}")
+                ->name('Import PubChem Auto Batch '.ucfirst($collectionLabel))
                 ->allowFailures()
                 ->onConnection('redis')
                 ->onQueue('default')
                 ->dispatch();
         });
 
-        Log::info("All PubChem import jobs dispatched for collection {$collection_id}!");
+        Log::info("All PubChem import jobs dispatched for {$collectionLabel}!");
     }
 }
