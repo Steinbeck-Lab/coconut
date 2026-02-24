@@ -106,7 +106,7 @@ class ImportPubChemNamesAuto extends Command
                 ->onConnection('redis')
                 ->onQueue('default')
                 ->dispatch();
-        });
+        }, 'molecules.id', 'id');
 
         Log::info("All PubChem import jobs dispatched for {$collectionLabel}!");
     }
