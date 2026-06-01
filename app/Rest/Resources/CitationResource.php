@@ -2,16 +2,18 @@
 
 namespace App\Rest\Resources;
 
+use App\Models\Citation;
 use App\Rest\Resource as RestResource;
+use Illuminate\Database\Eloquent\Model;
 
 class CitationResource extends RestResource
 {
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\Illuminate\Database\Eloquent\Model>
+     * @var class-string<Model>
      */
-    public static $model = \App\Models\Citation::class;
+    public static $model = Citation::class;
 
     /**
      * The exposed fields that could be provided

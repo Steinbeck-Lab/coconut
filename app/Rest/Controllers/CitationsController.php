@@ -3,6 +3,8 @@
 namespace App\Rest\Controllers;
 
 use App\Rest\Controller as RestController;
+use App\Rest\Resources\CitationResource;
+use Lomkit\Rest\Http\Resource;
 
 class CitationsController extends RestController
 {
@@ -11,5 +13,5 @@ class CitationsController extends RestController
      *
      * @var class-string<\Lomkit\Rest\Http\Resource>
      */
-    public static $resource = \App\Rest\Resources\CitationResource::class;
+    public static $resource = CitationResource::class;
 }

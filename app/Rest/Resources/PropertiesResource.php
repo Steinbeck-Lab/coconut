@@ -2,19 +2,22 @@
 
 namespace App\Rest\Resources;
 
+use App\Models\Properties;
 use App\Rest\Resource as RestResource;
+use Illuminate\Database\Eloquent\Model;
+use Lomkit\Rest\Concerns\Resource\DisableAuthorizations;
 use Lomkit\Rest\Relations\HasOne;
 
 class PropertiesResource extends RestResource
 {
-    use \Lomkit\Rest\Concerns\Resource\DisableAuthorizations;
+    use DisableAuthorizations;
 
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\Illuminate\Database\Eloquent\Model>
+     * @var class-string<Model>
      */
-    public static $model = \App\Models\Properties::class;
+    public static $model = Properties::class;
 
     /**
      * The exposed fields that could be provided
