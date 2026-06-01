@@ -96,7 +96,7 @@ class RebuildEntryMetaData extends Command
         $bar->start();
 
         $query->chunkById($chunkSize, function ($entries) use ($bar) {
-            /** @var \App\Models\Entry $entry */
+            /** @var Entry $entry */
             foreach ($entries as $entry) {
                 $this->rebuildEntryMetaData($entry);
                 $bar->advance();

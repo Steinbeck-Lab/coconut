@@ -141,6 +141,18 @@ document.addEventListener('alpine:init', function () {
                 this.close()
             },
 
+            handleClickOutside() {
+                if (this.hasOpenFilamentActions()) {
+                    return;
+                }
+
+                if (!this.isOpen) {
+                    return;
+                }
+
+                this.close()
+            },
+
             toggle() {
                 this.isOpen ? this.close() : this.open()
             },

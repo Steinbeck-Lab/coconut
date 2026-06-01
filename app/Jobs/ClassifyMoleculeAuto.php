@@ -151,7 +151,7 @@ class ClassifyMoleculeAuto implements ShouldQueue
     /**
      * Handle a job failure.
      */
-    public function failed(\Throwable $exception): void
+    public function failed(Throwable $exception): void
     {
         Log::info("ClassifyMoleculeAuto failed() method called for molecule {$this->molecule->id}: ".$exception->getMessage());
 

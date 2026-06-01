@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Filament\Traits\MutatesCollectionFormData;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -54,7 +55,7 @@ class Collection extends Model implements Auditable, HasMedia
     /**
      * Get the license of the project.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function license()
     {

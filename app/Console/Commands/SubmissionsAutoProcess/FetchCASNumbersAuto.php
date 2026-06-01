@@ -6,6 +6,7 @@ use App\Models\Collection;
 use App\Models\Molecule;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
@@ -256,7 +257,7 @@ class FetchCASNumbersAuto extends Command
     /**
      * Make actual HTTP request
      */
-    private function doActualRequest(string $url, array $params): ?\Illuminate\Http\Client\Response
+    private function doActualRequest(string $url, array $params): ?Response
     {
         $maxRetries = 3;
         $baseDelay = 1.0;

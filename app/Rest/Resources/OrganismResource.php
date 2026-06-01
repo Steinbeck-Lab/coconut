@@ -2,16 +2,18 @@
 
 namespace App\Rest\Resources;
 
+use App\Models\Organism;
 use App\Rest\Resource as RestResource;
+use Illuminate\Database\Eloquent\Model;
 
 class OrganismResource extends RestResource
 {
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\Illuminate\Database\Eloquent\Model>
+     * @var class-string<Model>
      */
-    public static $model = \App\Models\Organism::class;
+    public static $model = Organism::class;
 
     /**
      * The exposed fields that could be provided

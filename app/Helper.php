@@ -5,6 +5,8 @@ use App\Models\Citation;
 use App\Models\Molecule;
 use App\Models\User;
 use Filament\Forms\Components\KeyValue;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -27,7 +29,7 @@ function csp_nonce(): string
  *
  * @param  bool  $excludeCoconutCurator  Whether to exclude COCONUT Curator (id: 11)
  * @param  string  $returnType  Type of return: 'collection', 'array' (pluck name/id), or 'ids'
- * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection|array
+ * @return Illuminate\Database\Eloquent\Collection|Collection|array
  */
 function getCurators(bool $excludeCoconutCurator = false, string $returnType = 'collection')
 {
@@ -239,8 +241,8 @@ function changeAudit(array $data): array
         $changed_data = [];
 
         $changed_model = array_keys($data['old_values']) ? array_keys($data['old_values'])[0] : array_keys($data['new_values'])[0];
-        $changed_data['old_values'] = $data['old_values'][$changed_model] instanceof \Illuminate\Database\Eloquent\Model ? [$data['old_values'][$changed_model]->toArray()] : $data['old_values'][$changed_model];
-        $changed_data['new_values'] = $data['new_values'][$changed_model] instanceof \Illuminate\Database\Eloquent\Model ? [$data['new_values'][$changed_model]->toArray()] : $data['new_values'][$changed_model];
+        $changed_data['old_values'] = $data['old_values'][$changed_model] instanceof Model ? [$data['old_values'][$changed_model]->toArray()] : $data['old_values'][$changed_model];
+        $changed_data['new_values'] = $data['new_values'][$changed_model] instanceof Model ? [$data['new_values'][$changed_model]->toArray()] : $data['new_values'][$changed_model];
 
         if (! is_int($changed_data['old_values'])) {
             foreach ($changed_data as $key_type => $changed_data_values) {
@@ -593,7 +595,7 @@ function getCurationStatus($moleculeId, $command = null)
  * This centralizes the error handling, logging, status updates, and event dispatching.
  *
  * @param  string  $jobClass  The job class name (use self::class in the job)
- * @param  \Throwable  $exception  The exception that caused the failure
+ * @param  Throwable  $exception  The exception that caused the failure
  * @param  string  $stepName  The step name for this job (from $this->stepName)
  * @param  array  $contextData  Additional context data for the event
  * @param  string|null  $batchId  The batch ID if running in a batch
@@ -603,7 +605,7 @@ function getCurationStatus($moleculeId, $command = null)
  */
 function handleJobFailure(
     string $jobClass,
-    \Throwable $exception,
+    Throwable $exception,
     string $stepName,
     array $contextData = [],
     ?string $batchId = null,
