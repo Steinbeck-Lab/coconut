@@ -38,4 +38,11 @@ class CollectionFactory extends Factory
             'uuid' => $this->faker->uuid(),
         ];
     }
+
+    public function published(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'PUBLISHED',
+        ]);
+    }
 }
