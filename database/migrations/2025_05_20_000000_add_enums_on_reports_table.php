@@ -2,6 +2,7 @@
 
 use App\Enums\ReportCategory;
 use App\Enums\ReportStatus;
+use App\Models\Report;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -82,7 +83,7 @@ return new class extends Migration
         ];
 
         // Get all reports that need updating
-        $reports = \App\Models\Report::whereIn('status', array_keys($statusMapping))->get();
+        $reports = Report::whereIn('status', array_keys($statusMapping))->get();
 
         // Update each report individually to trigger auditing
         foreach ($reports as $report) {
@@ -103,7 +104,7 @@ return new class extends Migration
         ];
 
         // Get all reports that need updating
-        $reports = \App\Models\Report::whereIn('report_category', array_keys($categoryMapping))->get();
+        $reports = Report::whereIn('report_category', array_keys($categoryMapping))->get();
 
         // Update each report individually to trigger auditing
         foreach ($reports as $report) {
@@ -117,7 +118,7 @@ return new class extends Migration
     private function convertMolIdCsvToJson(): void
     {
         // Get all reports that have data in the mol_id_csv column
-        $reports = \App\Models\Report::whereNotNull('mol_id_csv')
+        $reports = Report::whereNotNull('mol_id_csv')
             ->where('mol_id_csv', '<>', '')
             ->get();
 
@@ -136,7 +137,7 @@ return new class extends Migration
         }
 
         // For reports with empty mol_id_csv, set to empty JSON array
-        \App\Models\Report::whereNull('mol_id_csv')
+        Report::whereNull('mol_id_csv')
             ->orWhere('mol_id_csv', '')
             ->update(['mol_id_csv' => json_encode([])]);
 
@@ -147,7 +148,7 @@ return new class extends Migration
     private function convertMolIdsToCSV(): void
     {
         // Get all reports that have JSON data
-        $reports = \App\Models\Report::whereNotNull('mol_id_csv')->get();
+        $reports = Report::whereNotNull('mol_id_csv')->get();
 
         foreach ($reports as $report) {
             try {
@@ -159,7 +160,7 @@ return new class extends Migration
                     $report->mol_id_csv = implode(',', $molIdsArray);
                     $report->save();
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // Log error but continue with other records
                 Log::error("Failed to convert mol_ids JSON to CSV for report ID {$report->id}: ".$e->getMessage());
             }
@@ -178,7 +179,7 @@ return new class extends Migration
         ];
 
         // Get all reports
-        $reports = \App\Models\Report::whereIn('report_category', array_keys($reverseMapping))->get();
+        $reports = Report::whereIn('report_category', array_keys($reverseMapping))->get();
 
         // Update each report individually to trigger auditing
         foreach ($reports as $report) {
