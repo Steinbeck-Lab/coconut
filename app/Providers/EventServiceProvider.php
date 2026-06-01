@@ -6,6 +6,8 @@ use App\Events\ImportedCSVProcessed;
 use App\Listeners\DeployEntryProcessingJobs;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
+use SocialiteProviders\Manager\SocialiteWasCalled;
+use SocialiteProviders\NFDIAAI\Provider;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -38,8 +40,8 @@ class EventServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
-        Event::listen(function (\SocialiteProviders\Manager\SocialiteWasCalled $event) {
-            $event->extendSocialite('regapp', \SocialiteProviders\NFDIAAI\Provider::class);
+        Event::listen(function (SocialiteWasCalled $event) {
+            $event->extendSocialite('regapp', Provider::class);
         });
     }
 

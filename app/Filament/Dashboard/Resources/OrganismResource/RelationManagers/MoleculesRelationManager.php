@@ -173,26 +173,31 @@ class MoleculesRelationManager extends RelationManager
                                         ->preload(),
                                 ])
                                 ->default(function ($livewire, Collection $filtered) {
-                                    $records = $livewire->getSelectedTableRecords();
-                                    foreach ($records as $record) {
-                                        $record->sampleLocations = $record->sampleLocations()->where('organism_id', $this->getOwnerRecord()->id)->get();
-                                        if ($record->sampleLocations->count() > 1) {
+                                    $organismId = $this->getOwnerRecord()->id;
+
+                                    foreach ($livewire->getSelectedTableRecords() as $record) {
+                                        if (! $record instanceof Molecule) {
+                                            continue;
+                                        }
+
+                                        if ($record->sampleLocations()->where('organism_id', $organismId)->count() > 1) {
                                             $filtered->push($record);
                                         }
                                     }
 
-                                    return $filtered->map(function ($record) {
-                                        $location_ids = [];
-                                        foreach ($record->sampleLocations as $location) {
-                                            array_push($location_ids, $location->id);
-                                        }
-
-                                        return [
-                                            'sampleLocations' => $location_ids,
-                                            'name' => $record->name,
-                                            'id' => $record->id,
-                                        ];
-                                    })->toArray();
+                                    return $filtered
+                                        ->ensure(Molecule::class)
+                                        ->map(function (Molecule $record) use ($organismId): array {
+                                            return [
+                                                'sampleLocations' => $record->sampleLocations()
+                                                    ->where('organism_id', $organismId)
+                                                    ->pluck('id')
+                                                    ->all(),
+                                                'name' => $record->name,
+                                                'id' => $record->id,
+                                            ];
+                                        })
+                                        ->all();
                                 })
                                 ->columns(3)
                                 ->reorderable(false)

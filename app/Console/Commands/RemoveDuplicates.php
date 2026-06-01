@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Molecule;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class RemoveDuplicates extends Command
@@ -85,7 +86,7 @@ class RemoveDuplicates extends Command
      * Resolves parent molecules by reassigning variants from duplicates to the main entry.
      *
      * @param  Molecule  $entry  The main molecule entry.
-     * @param  \Illuminate\Support\Collection  $duplicates  The duplicate molecules to resolve.
+     * @param  Collection  $duplicates  The duplicate molecules to resolve.
      */
     private function resolveParents($entry, $duplicates)
     {
@@ -109,7 +110,7 @@ class RemoveDuplicates extends Command
      * Merges data from duplicate molecules into the main entry.
      *
      * @param  Molecule  $entry  The main molecule entry.
-     * @param  \Illuminate\Support\Collection  $duplicates  The duplicate molecules to merge.
+     * @param  Collection  $duplicates  The duplicate molecules to merge.
      * @param  string  $type  Specifies the type of processing (flat, parent, or parents).
      */
     private function mergeData($entry, $duplicates, $type)

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Molecule;
+use Carbon\CarbonInterface;
 use Illuminate\Console\Command;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -84,7 +85,7 @@ class DedupeFixCollectionSourceLinks extends Command
             ->orderBy('id')
             ->chunk($batchSize, function ($collection_molecules) use (&$data, $db_links, &$childBatchCount, $progressBar, $totalBatches, $startTime) {
                 $this->info("\nProcessing batch {$childBatchCount} of {$totalBatches}");
-                $this->info('Time elapsed: '.$startTime->diffForHumans(now(), \Carbon\CarbonInterface::DIFF_ABSOLUTE));
+                $this->info('Time elapsed: '.$startTime->diffForHumans(now(), CarbonInterface::DIFF_ABSOLUTE));
 
                 foreach ($collection_molecules as $collection_molecule) {
                     // $collection_molecule->collection_id = 30;
@@ -150,7 +151,7 @@ class DedupeFixCollectionSourceLinks extends Command
         $progressBar->finish();
         $this->newLine();
 
-        $this->info("\nTotal time taken: ".$startTime->diffForHumans(now(), \Carbon\CarbonInterface::DIFF_ABSOLUTE));
+        $this->info("\nTotal time taken: ".$startTime->diffForHumans(now(), CarbonInterface::DIFF_ABSOLUTE));
         $this->info('Process completed!');
 
         // Process parent molecules
@@ -164,7 +165,7 @@ class DedupeFixCollectionSourceLinks extends Command
             ->orderBy('id')
             ->chunk($batchSize, function ($parent_molecules) use (&$data, &$parentBatchCount, $total_parent_molecules, $batchSize, $startTime) {
                 $this->info("\nstarted parent batch ".$parentBatchCount.' of '.ceil($total_parent_molecules / $batchSize));
-                $this->info('Time elapsed: '.$startTime->diffForHumans(now(), \Carbon\CarbonInterface::DIFF_ABSOLUTE));
+                $this->info('Time elapsed: '.$startTime->diffForHumans(now(), CarbonInterface::DIFF_ABSOLUTE));
 
                 $patents_pivot_rows = DB::table('collection_molecule')
                     ->selectRaw('collection_id, molecule_id, url, reference')

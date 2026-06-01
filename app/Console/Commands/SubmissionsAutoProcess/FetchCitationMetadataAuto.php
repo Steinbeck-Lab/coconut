@@ -7,7 +7,9 @@ use App\Models\Collection;
 use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 
 class FetchCitationMetadataAuto extends Command
 {
@@ -211,7 +213,7 @@ class FetchCitationMetadataAuto extends Command
     {
         $rateLimiterConfig = $this->getRateLimiterConfig($url);
         if ($rateLimiterConfig) {
-            $response = \Illuminate\Support\Facades\RateLimiter::attempt(
+            $response = RateLimiter::attempt(
                 $rateLimiterConfig['key'],
                 $rateLimiterConfig['limit'],
                 function () use ($url, $params, $rateLimiterConfig) {
@@ -222,7 +224,7 @@ class FetchCitationMetadataAuto extends Command
                 $rateLimiterConfig['duration']
             );
             if ($response === false) {
-                $waitTime = \Illuminate\Support\Facades\RateLimiter::availableIn($rateLimiterConfig['key']);
+                $waitTime = RateLimiter::availableIn($rateLimiterConfig['key']);
                 Log::warning("{$rateLimiterConfig['api_name']} rate limited (wait: {$waitTime}s). Skipping request for: {$url}");
 
                 return null;
@@ -245,7 +247,7 @@ class FetchCitationMetadataAuto extends Command
         $baseDelay = 1.0;
         for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
             try {
-                $response = \Illuminate\Support\Facades\Http::timeout(120)
+                $response = Http::timeout(120)
                     ->connectTimeout(60)
                     ->get($url, $params);
                 if ($response->successful()) {

@@ -4,6 +4,14 @@ use App\Http\Controllers\API\Auth\LoginController;
 use App\Http\Controllers\API\Auth\RegisterController;
 use App\Http\Controllers\API\Auth\VerificationController;
 use App\Http\Controllers\API\Schemas\Bioschemas\MolecularEntityController;
+use App\Http\Controllers\API\SearchController;
+use App\Rest\Controllers\CitationsController;
+use App\Rest\Controllers\CollectionsController;
+use App\Rest\Controllers\MoleculesController;
+use App\Rest\Controllers\OrganismsController;
+use App\Rest\Controllers\PropertiesController;
+use App\Rest\Controllers\ReportsController;
+use App\Rest\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 use Lomkit\Rest\Facades\Rest;
@@ -37,15 +45,15 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
-    Rest::resource('molecules', \App\Rest\Controllers\MoleculesController::class);
-    Rest::resource('collections', \App\Rest\Controllers\CollectionsController::class);
-    Rest::resource('citations', \App\Rest\Controllers\CitationsController::class);
-    Rest::resource('organisms', \App\Rest\Controllers\OrganismsController::class);
-    Rest::resource('users', \App\Rest\Controllers\UsersController::class);
-    Rest::resource('properties', \App\Rest\Controllers\PropertiesController::class);
-    Rest::resource('reports', \App\Rest\Controllers\ReportsController::class);
+    Rest::resource('molecules', MoleculesController::class);
+    Rest::resource('collections', CollectionsController::class);
+    Rest::resource('citations', CitationsController::class);
+    Rest::resource('organisms', OrganismsController::class);
+    Rest::resource('users', UsersController::class);
+    Rest::resource('properties', PropertiesController::class);
+    Rest::resource('reports', ReportsController::class);
 });
-Route::post('search', [\App\Http\Controllers\API\SearchController::class, 'search'])->name('api.search');
+Route::post('search', [SearchController::class, 'search'])->name('api.search');
 
 Route::prefix('schemas')->group(function () {
     Route::prefix('bioschemas')->group(function () {
