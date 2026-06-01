@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\SubmissionsAutoProcess;
 
+use App\Events\PostPublishJobFailed;
 use App\Models\Collection;
 use App\Models\Molecule;
 use App\Models\Ticker;
@@ -76,7 +77,7 @@ class PublishMoleculesAuto extends Command
                         updateCurationStatus($molecule->id, $this->stepName, 'failed', $e->getMessage());
 
                         // Dispatch event for job-level notification
-                        \App\Events\PostPublishJobFailed::dispatch(
+                        PostPublishJobFailed::dispatch(
                             'Publish Molecules Auto',
                             $e,
                             [

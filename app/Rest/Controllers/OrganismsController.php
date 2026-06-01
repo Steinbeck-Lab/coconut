@@ -3,6 +3,8 @@
 namespace App\Rest\Controllers;
 
 use App\Rest\Controller as RestController;
+use App\Rest\Resources\OrganismResource;
+use Lomkit\Rest\Http\Resource;
 
 class OrganismsController extends RestController
 {
@@ -11,5 +13,5 @@ class OrganismsController extends RestController
      *
      * @var class-string<\Lomkit\Rest\Http\Resource>
      */
-    public static $resource = \App\Rest\Resources\OrganismResource::class;
+    public static $resource = OrganismResource::class;
 }

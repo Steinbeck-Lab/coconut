@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Collection;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -38,7 +39,7 @@ class UpdateLinks extends Command
         $oldPrefix = $this->argument('old_link');
         $newPrefix = $this->argument('new_link');
 
-        $collection = \App\Models\Collection::find($collectionId);
+        $collection = Collection::find($collectionId);
         if (! $collection) {
             $this->error("Collection with ID {$collectionId} not found.");
 

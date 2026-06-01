@@ -181,7 +181,7 @@ class ProcessEntryBatch implements ShouldQueue
             $error_code = 7;
             $is_invalid = true;
             throw $e;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error("Batch {$this->batch_no}: An unexpected exception occurred: ".$e->getMessage().' - '.$canonical_smiles);
             $errors = [
                 'An unexpected exception occurred' => $e->getMessage().' - '.$canonical_smiles,
