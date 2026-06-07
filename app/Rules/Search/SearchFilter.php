@@ -16,7 +16,7 @@ class SearchFilter extends BaseSearchFilter
 
         $fieldsValidation = $isScoutMode ?
             Rule::in($this->resource->getScoutFields($request)) :
-            (new ResourceFieldOrNested())->setResource($this->resource);
+            (new ResourceFieldOrNested)->setResource($this->resource);
 
         $allowedOperators = $isScoutMode ?
             ['=', 'in', 'not in'] :
@@ -39,7 +39,7 @@ class SearchFilter extends BaseSearchFilter
                 'prohibited',
             ],
             $attribute.'.nested.*' => [
-                (new SearchFilter())->setResource($this->resource),
+                (new SearchFilter)->setResource($this->resource),
             ],
             $attribute.'.operator' => [
                 'string',

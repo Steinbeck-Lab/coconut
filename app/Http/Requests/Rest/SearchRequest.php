@@ -12,7 +12,7 @@ class SearchRequest extends LomkitSearchRequest
         $resource = $this->route()->controller::newResource();
 
         return [
-            'search' => (new Search())->setResource($resource),
+            'search' => (new Search)->setResource($resource),
         ];
     }
 }
