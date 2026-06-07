@@ -35,10 +35,18 @@ class GenerateBubbleFrequencyCharts extends Command
             $query1 .= $first_table == 'properties' ? 'JOIN molecules m ON f.molecule_id=m.id ' : '';
             $query1 .= "WHERE f.$first_column IS NOT NULL AND f.$first_column!='' ";
             $query1 .= $first_table == 'properties' ? 'AND m.active = TRUE AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE) ' : '';
-            $query2 = "SELECT DISTINCT s.$second_column col, COUNT(*) count FROM $second_table s ";
-            $query2 .= $second_table == 'properties' ? 'JOIN molecules m ON s.molecule_id=m.id ' : '';
-            $query2 .= "WHERE s.$second_column IS NOT NULL AND s.$second_column!='' ";
-            $query2 .= $second_table == 'properties' ? 'AND m.active = TRUE AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE) ' : '';
+            if ($second_column === 'np_classifier_class') {
+                $query2 = "SELECT cls.col, COUNT(*) count FROM $second_table s ";
+                $query2 .= $second_table == 'properties' ? 'JOIN molecules m ON s.molecule_id=m.id ' : '';
+                $query2 .= ", LATERAL jsonb_array_elements_text(s.$second_column) AS cls(col) ";
+                $query2 .= "WHERE s.$second_column IS NOT NULL ";
+                $query2 .= $second_table == 'properties' ? 'AND m.active = TRUE AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE) ' : '';
+            } else {
+                $query2 = "SELECT DISTINCT s.$second_column col, COUNT(*) count FROM $second_table s ";
+                $query2 .= $second_table == 'properties' ? 'JOIN molecules m ON s.molecule_id=m.id ' : '';
+                $query2 .= "WHERE s.$second_column IS NOT NULL AND s.$second_column!='' ";
+                $query2 .= $second_table == 'properties' ? 'AND m.active = TRUE AND NOT (m.is_parent = TRUE AND m.has_variants = TRUE) ' : '';
+            }
 
             $query1 .= 'GROUP BY 1';
             $query2 .= 'GROUP BY 1';
