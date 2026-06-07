@@ -3,6 +3,8 @@
 namespace App\Rest\Controllers;
 
 use App\Rest\Controller as RestController;
+use App\Rest\Resources\ReportResource;
+use Lomkit\Rest\Http\Resource;
 
 class ReportsController extends RestController
 {
@@ -11,5 +13,5 @@ class ReportsController extends RestController
      *
      * @var class-string<\Lomkit\Rest\Http\Resource>
      */
-    public static $resource = \App\Rest\Resources\ReportResource::class;
+    public static $resource = ReportResource::class;
 }

@@ -2,11 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\Citation;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Http;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Citation>
+ * @extends Factory<Citation>
  */
 class CitationFactory extends Factory
 {

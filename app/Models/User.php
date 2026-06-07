@@ -93,7 +93,7 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
     /**
      * Define the relationship with linked social accounts.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function linkedSocialAccounts()
     {

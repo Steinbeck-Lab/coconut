@@ -6,6 +6,7 @@ use App\Models\Collection;
 use App\Models\Molecule;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
@@ -17,7 +18,7 @@ class FetchCASNumbersAuto extends Command
      *
      * @var string
      */
-    protected $signature = 'coconut:fetch-cas-numbers {collection_id? : The ID of the collection to fetch CAS numbers for}';
+    protected $signature = 'coconut:fetch-cas-numbers {collection_id? : The ID of the collection to fetch CAS numbers for} {--all : Process all collections}';
 
     /**
      * The console command description.
@@ -39,6 +40,13 @@ class FetchCASNumbersAuto extends Command
     public function handle()
     {
         $collection_id = $this->argument('collection_id');
+
+        if (! $collection_id && ! $this->option('all')) {
+            Log::error('Please specify either a collection_id or use --all flag');
+            $this->error('Please specify either a collection_id or use --all flag');
+
+            return 1;
+        }
 
         if ($collection_id) {
             $collection = Collection::find($collection_id);
@@ -249,7 +257,7 @@ class FetchCASNumbersAuto extends Command
     /**
      * Make actual HTTP request
      */
-    private function doActualRequest(string $url, array $params): ?\Illuminate\Http\Client\Response
+    private function doActualRequest(string $url, array $params): ?Response
     {
         $maxRetries = 3;
         $baseDelay = 1.0;

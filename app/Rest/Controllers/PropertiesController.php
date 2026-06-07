@@ -3,6 +3,8 @@
 namespace App\Rest\Controllers;
 
 use App\Rest\Controller as RestController;
+use App\Rest\Resources\PropertiesResource;
+use Lomkit\Rest\Http\Resource;
 
 class PropertiesController extends RestController
 {
@@ -11,5 +13,5 @@ class PropertiesController extends RestController
      *
      * @var class-string<\Lomkit\Rest\Http\Resource>
      */
-    public static $resource = \App\Rest\Resources\PropertiesResource::class;
+    public static $resource = PropertiesResource::class;
 }

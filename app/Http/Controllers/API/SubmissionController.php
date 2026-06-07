@@ -10,6 +10,7 @@ use App\Models\Submission;
 use App\Models\User;
 use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 
 class SubmissionController extends Controller
@@ -17,7 +18,7 @@ class SubmissionController extends Controller
     /**
      * Report compounds on coconut
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function report(Request $request)
     {
@@ -69,7 +70,7 @@ class SubmissionController extends Controller
     /**
      * save the submission request for the curators to approve
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function submission(Request $request)
     {

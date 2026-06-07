@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\SubmissionsAutoProcess;
 
+use App\Events\PrePublishJobFailed;
 use App\Jobs\ProcessEntryBatch;
 use App\Models\Collection;
 use App\Models\Entry;
@@ -138,7 +139,7 @@ class ProcessEntriesAuto extends Command
 
                     $exception = new \Exception("Batch processing failed for collection ID {$collection->id}. {$batch->failedJobs} out of {$batch->totalJobs} jobs failed.");
 
-                    \App\Events\PrePublishJobFailed::dispatch(
+                    PrePublishJobFailed::dispatch(
                         'Validate Molecules - Batch Failed',
                         $exception,
                         $batchStats,

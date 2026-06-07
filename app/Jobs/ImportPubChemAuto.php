@@ -6,11 +6,14 @@ use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Redis\LimiterTimeoutException;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 
 class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
 {
@@ -29,6 +32,20 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
      * @var int
      */
     public $timeout = 120;
+
+    /**
+     * The number of times the job may be attempted.
+     *
+     * @var int
+     */
+    public $tries = 3;
+
+    /**
+     * The number of seconds to wait before retrying the job.
+     *
+     * @var array
+     */
+    public $backoff = [30, 60];
 
     /**
      * Create a new job instance.
@@ -76,6 +93,14 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
                     'batch_id' => $this->batch()?->id,
                 ]);
             }
+        } catch (ConnectionException $e) {
+            // Transient network error — release back to queue for retry
+            Log::warning('PubChem connection timeout, will retry', [
+                'molecule_id' => $this->molecule->id,
+                'attempt' => $this->attempts(),
+                'error_message' => $e->getMessage(),
+            ]);
+            throw $e;
         } catch (\Throwable $e) {
             // Only actual system errors should be treated as job failures
             updateCurationStatus($this->molecule->id, $this->stepName, 'failed', $e->getMessage());
@@ -122,14 +147,23 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
     }
 
     /**
-     * Make a throttled HTTP GET request and sleep for 200ms afterward.
+     * Make a throttled HTTP GET request, respecting a global 5 req/s limit
+     * enforced via Redis across all workers.
      */
     private function throttledGet(string $url)
     {
-        $response = Http::get($url);
-        usleep(200000); // Sleep for 200 milliseconds to limit to 5 requests per second
-
-        return $response;
+        while (true) {
+            try {
+                return Redis::throttle('pubchem-api')
+                    ->allow(5)
+                    ->every(1)
+                    ->block(0)
+                    ->then(fn () => Http::timeout(30)->connectTimeout(10)->get($url));
+            } catch (LimiterTimeoutException $e) {
+                // No slot available yet; wait 200ms before trying again
+                usleep(200000);
+            }
+        }
     }
 
     public function fetchIUPACNameFromPubChem()

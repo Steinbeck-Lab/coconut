@@ -3,6 +3,7 @@
 namespace App\Filament\Dashboard\Imports;
 
 use App\Events\ImportedCSVProcessed;
+use App\Models\Collection;
 use App\Models\Entry;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
@@ -83,40 +84,73 @@ class EntryImporter extends Importer
      */
     private function reconstructMetaData(): array
     {
+        $collection = Collection::find($this->options['collection_id']);
+        $hasMapping = (bool) optional($collection)->has_mapping;
+
+        $flatDois = $this->flattenGroup($this->data['doi'] ?? '', 'doi ');
+        $flatOrganisms = $this->flattenGroup($this->data['organism'] ?? '', 'organism');
+
+        $nDois = count($flatDois);
+        $nOrgs = count($flatOrganisms);
+
+        if ($hasMapping && $nDois == $nOrgs) {
+            $mappingStatus = 'full';
+        } else {
+            if ($nDois <= 1 || $nOrgs <= 1) {
+                $mappingStatus = 'inferred';
+            } else {
+                $mappingStatus = 'ambiguous';
+            }
+        }
+
+        $synonyms = $this->processSynonyms($this->data['synonyms'] ?? '');
+
+        $flatParts = $this->flattenGroup($this->data['organism_part'] ?? '', 'organism_part');
+        $flatGeoLocations = $this->flattenGroup($this->data['geo_location'] ?? '', 'geo_location');
+        $flatLocations = $this->flattenGroup($this->data['location'] ?? '', 'location');
+
         $metaData = [
-            'new_molecule_data' => [
-                'canonical_smiles' => $this->data['canonical_smiles'] ?? '',
-                'reference_id' => $this->data['reference_id'] ?? '',
-                'name' => $this->data['name'] ?? '',
-                'synonyms' => $this->processSynonyms($this->data['synonyms'] ?? ''),
-                'link' => $this->data['link'] ?? '',
-                'mol_filename' => $this->data['mol_filename'] ?? '',
-                'structural_comments' => $this->data['structural_comments'] ?? '',
-                'references' => [],
+            'm' => [
+                'smi' => $this->data['canonical_smiles'] ?? '',
+                'rid' => $this->data['reference_id'] ?? '',
+                'nm' => $this->data['name'] ?? '',
+                'syn' => $synonyms,
+                'url' => $this->data['link'] ?? '',
+                'mol' => $this->data['mol_filename'] ?? '',
+                'cmt' => $this->data['structural_comments'] ?? '',
+                'ms' => $mappingStatus,
+                'refs' => [],
+                'dois' => array_values(array_unique($flatDois)),
+                'orgs' => array_values(array_unique($flatOrganisms)),
+                'prts' => array_values(array_unique($flatParts)),
+                'geos' => array_values(array_unique($flatGeoLocations)),
+                'ecos' => array_values(array_unique($flatLocations)),
             ],
         ];
 
-        // Process relationships if they exist
-        if (! empty($this->data['doi']) || ! empty($this->data['organism'])) {
-            $metaData['new_molecule_data']['references'] = $this->buildReferences();
+        if ($mappingStatus === 'ambiguous') {
+            $metaData['m']['refs'] = $this->buildAmbiguousReferences();
+        } elseif ($mappingStatus === 'inferred') {
+            $metaData['m']['refs'] = $this->buildInferredReferences();
+        } else {
+            $metaData['m']['refs'] = $this->buildFullReferences();
         }
 
         return $metaData;
     }
 
     /**
-     * Build the references array from flattened relationship data
+     * FULL mapping: respect grouping semantics from CSV
+     * (groups separated by '##', pipe-separated values inside group)
      */
-    private function buildReferences(): array
+    private function buildFullReferences(): array
     {
-        // Split the flattened data by organism separator ##
         $dois = $this->splitAndClean($this->data['doi'] ?? '', '##');
         $organisms = $this->splitAndClean($this->data['organism'] ?? '', '##');
         $organismParts = $this->splitAndClean($this->data['organism_part'] ?? '', '##');
         $geoLocations = $this->splitAndClean($this->data['geo_location'] ?? '', '##');
         $locations = $this->splitAndClean($this->data['location'] ?? '', '##');
 
-        // Get the maximum count to handle all organisms
         $maxCount = max(
             count($dois),
             count($organisms),
@@ -126,7 +160,6 @@ class EntryImporter extends Importer
         );
 
         $references = [];
-        $processedDois = [];
 
         for ($i = 0; $i < $maxCount; $i++) {
             $doi = $dois[$i] ?? '';
@@ -135,7 +168,6 @@ class EntryImporter extends Importer
             $geoLocs = $geoLocations[$i] ?? '';
             $locs = $locations[$i] ?? '';
 
-            // Skip if no meaningful data
             if (empty($doi) && empty($organism)) {
                 continue;
             }
@@ -152,39 +184,38 @@ class EntryImporter extends Importer
             if ($referenceIndex === null) {
                 $references[] = [
                     'doi' => $doi,
-                    'organisms' => [],
+                    'orgs' => [],
                 ];
                 $referenceIndex = count($references) - 1;
             }
 
-            // Build organism data
             if (! empty($organism)) {
                 $organismData = [
-                    'name' => $organism,
-                    'parts' => ! empty($parts) ? explode('|', $parts) : [],
-                    'locations' => [],
+                    'nm' => $organism,
+                    'prts' => ! empty($parts) ? array_map('trim', explode('|', $parts)) : [],
+                    'locs' => [],
                 ];
 
-                // Build locations if they exist
                 if (! empty($geoLocs)) {
-                    $geoLocationsList = explode('|', $geoLocs);
-                    $locationsList = ! empty($locs) ? explode('|', $locs) : [];
+                    $geoLocationsList = array_map('trim', explode('|', $geoLocs));
+                    $locationsList = ! empty($locs) ? array_map('trim', explode('|', $locs)) : [];
 
                     foreach ($geoLocationsList as $locIndex => $geoLocation) {
                         if (! empty($geoLocation)) {
                             $ecosystems = [];
                             if (isset($locationsList[$locIndex]) && ! empty($locationsList[$locIndex])) {
-                                $ecosystems = explode(';', $locationsList[$locIndex]);
+                                $ecosystems = array_map('trim', explode(';', $locationsList[$locIndex]));
                             }
 
-                            $organismData['locations'][] = [
-                                'name' => $geoLocation,
-                                'ecosystems' => $ecosystems,
+                            $organismData['locs'][] = [
+                                'nm' => $geoLocation,
+                                'ecos' => $ecosystems,
                             ];
                         }
                     }
                 }
-                $references[$referenceIndex]['organisms'][] = $organismData;
+
+                $references[$referenceIndex]['orgs'][] = $organismData;
             }
         }
 
@@ -192,7 +223,94 @@ class EntryImporter extends Importer
     }
 
     /**
-     * Helper function to split and clean data
+     * INFERRED mapping: one side unambiguous (1 DOI or 1 organism)
+     */
+    private function buildInferredReferences(): array
+    {
+        $dois = $this->flattenGroup($this->data['doi'] ?? '', 'doi ');
+        $organisms = $this->flattenGroup($this->data['organism'] ?? '', 'organism');
+        $parts = $this->flattenGroup($this->data['organism_part'] ?? '', 'organism_part');
+        $geoLocs = $this->flattenGroup($this->data['geo_location'] ?? '', 'geo_location');
+        $ecosystems = $this->flattenGroup($this->data['location'] ?? '', 'location');
+        $nDois = count($dois);
+        $nOrgs = count($organisms);
+
+        // 1 DOI, many organisms
+        if ($nDois <= 1 && $nOrgs > 0) {
+            $locationsStructured = [];
+            foreach ($geoLocs as $geo) {
+                $locationsStructured[] = [
+                    'nm' => $geo,
+                    'ecos' => $ecosystems,
+                ];
+            }
+
+            $organismEntries = [];
+            foreach ($organisms as $orgName) {
+                $organismEntries[] = [
+                    'nm' => $orgName,
+                    'prts' => $parts,
+                    'locs' => $locationsStructured,
+                ];
+            }
+
+            return [[
+                'doi' => $dois[0] ?? '',
+                'orgs' => $organismEntries,
+            ]];
+        }
+
+        // Many DOIs, 1 organism
+        if ($nOrgs <= 1 && $nDois > 0) {
+            $locationsStructured = [];
+            foreach ($geoLocs as $geo) {
+                $locationsStructured[] = [
+                    'nm' => $geo,
+                    'ecos' => $ecosystems,
+                ];
+            }
+
+            $org = [
+                'nm' => $organisms[0] ?? '',
+                'prts' => $parts,
+                'locs' => $locationsStructured,
+            ];
+
+            $refs = [];
+            foreach ($dois as $doi) {
+                $refs[] = [
+                    'doi' => $doi ?? '',
+                    'orgs' => [$org],
+                ];
+            }
+
+            return $refs;
+        }
+
+        // Fallback: just list DOIs
+        return array_map(fn ($doi) => ['doi' => $doi, 'orgs' => []], $dois);
+    }
+
+    /**
+     * AMBIGUOUS mapping: DOIs only, everything else unresolvable
+     */
+    private function buildAmbiguousReferences(): array
+    {
+        $dois = $this->flattenGroup($this->data['doi'] ?? '', 'doi ');
+
+        $references = [];
+        foreach ($dois as $doi) {
+            $references[] = [
+                'doi' => $doi,
+                'orgs' => [],
+            ];
+        }
+
+        return $references;
+    }
+
+    /**
+     * Split and clean by a high-level separator (for grouped/full mapping).
      */
     private function splitAndClean(string $data, string $separator): array
     {
@@ -201,6 +319,37 @@ class EntryImporter extends Importer
         }
 
         return array_map('trim', explode($separator, $data));
+    }
+
+    /**
+     * Flatten groups + inner separators into a flat list.
+     * Treat "##", "|" and ";" as separators depending on data type.
+     */
+    private function flattenGroup(?string $data, string $dataType): array
+    {
+        if (empty($data)) {
+            return [''];
+        }
+
+        $parts = [];
+        if ($dataType == 'doi ' || $dataType == 'organism') {
+            $parts = preg_split('/(##)/', $data);
+        } elseif ($dataType == 'organism_part' || $dataType == 'geo_location') {
+            $parts = preg_split('/(##|\|)/', $data);
+        } elseif ($dataType == 'location') {
+            $parts = preg_split('/(##|\||;)/', $data);
+        }
+
+        $result = [];
+
+        foreach ($parts as $part) {
+            $part = trim($part);
+            if ($part !== '') {
+                $result[] = $part;
+            }
+        }
+
+        return $result;
     }
 
     /**

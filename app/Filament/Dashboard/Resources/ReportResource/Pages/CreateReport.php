@@ -10,6 +10,7 @@ use App\Models\Citation;
 use App\Models\Collection;
 use App\Models\Molecule;
 use App\Models\Organism;
+use App\Models\Report;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
 
@@ -203,7 +204,7 @@ class CreateReport extends CreateRecord
             }
         }
 
-        /** @var \App\Models\Report $record */
+        /** @var Report $record */
         $record = $this->record;
         ReportSubmitted::dispatch($record);
     }
