@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Closure;
 use Filament\Forms;
 use Filament\Forms\Components\Actions\Action;
 use Illuminate\Contracts\View\View;
@@ -79,13 +80,49 @@ class Organism extends Model implements Auditable
         return changeAudit($data);
     }
 
-    public static function getForm(): array
+    public static function validateNameForReportChange(string $name, array $linkedNames): ?string
     {
+        if (in_array($name, $linkedNames, true)) {
+            return 'This organism is already linked to this molecule.';
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<int, Closure>
+     */
+    public static function reportChangeNameRules(array $linkedNames = []): array
+    {
+        if ($linkedNames === []) {
+            return [];
+        }
+
         return [
-            Forms\Components\TextInput::make('name')
-                ->required()
-                ->unique(Organism::class, 'name')
-                ->maxLength(255)
+            function (string $attribute, mixed $value, Closure $fail) use ($linkedNames): void {
+                $message = static::validateNameForReportChange((string) $value, $linkedNames);
+
+                if ($message !== null) {
+                    $fail($message);
+                }
+            },
+        ];
+    }
+
+    public static function getForm(bool $requireUniqueName = true, array $excludedNames = []): array
+    {
+        $nameField = Forms\Components\TextInput::make('name')
+            ->required()
+            ->maxLength(255);
+
+        if ($requireUniqueName) {
+            $nameField->unique(Organism::class, 'name');
+        } else {
+            $nameField->rules(static::reportChangeNameRules($excludedNames));
+        }
+
+        return [
+            $nameField
             // ->suffixAction(
             //     Action::make('infoFromSources')
             //         ->icon('heroicon-m-clipboard')
