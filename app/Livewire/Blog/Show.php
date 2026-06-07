@@ -8,7 +8,7 @@ use Stephenjude\FilamentBlog\Models\Post;
 
 class Show extends Component
 {
-    public Post $post;
+    public ?Post $post = null;
 
     public function mount(string $slug): void
     {
@@ -22,12 +22,18 @@ class Show extends Component
 
     public function render()
     {
+        if ($this->post === null) {
+            abort(404);
+        }
+
+        $bannerUrl = $this->post->getAttribute('banner_url');
+
         return view('livewire.blog.show')
             ->layout('layouts.guest', [
                 'title' => $this->post->title,
                 'description' => $this->post->excerpt
                     ?: Str::limit(strip_tags((string) $this->post->content), 160),
-                'image' => $this->post->banner_url ?: null,
+                'image' => is_string($bannerUrl) && $bannerUrl !== '' ? $bannerUrl : null,
             ]);
     }
 }
