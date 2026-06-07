@@ -30,17 +30,31 @@
                     $currentMonthYear = now()->format('m-Y');
                 @endphp
 
-                @if ($collection->doi)
-                DOI: <a href="https://doi.org/{{$collection->doi}}" 
+                @php
+                    $displayDoi = $collection->is_latest
+                        ? ($collection->lineageRoot()->doi_base ?? $collection->doi)
+                        : $collection->doi;
+                @endphp
+                @if ($displayDoi)
+                DOI: <a href="https://doi.org/{{ $displayDoi }}"
                 class="mt-4 inline-block text-sm text-blue-600 underline">
-                    {{ $collection->doi }}
+                    {{ $displayDoi }}
                 </a><br/>
                 @endif
-                
-                <a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/collections/{{ $slug }}-{{ $currentMonthYear }}.zip" 
+
+                <a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/collections/{{ $slug }}-{{ $currentMonthYear }}.zip"
                 class="mt-4 inline-block text-sm text-blue-600 underline">
                     Download Collection (SDF) <span aria-hidden="true">→</span>
                 </a>
+
+                <livewire:collection-version-history
+                    :lineage-root-id="$collection->lineageRootId()"
+                    :selected-version="$version"
+                />
+                <livewire:collection-revoked-compounds
+                    :lineage-root-id="$collection->lineageRootId()"
+                    :filter-version="$version"
+                />
             </div>
         @elseif ($tagType == 'organisms' && $organisms)
             <div x-data="{ showAll: false }" class="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">

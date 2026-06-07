@@ -285,13 +285,23 @@ class SearchMolecule
     private function buildTagsStatement($offset)
     {
         if ($this->tagType == 'dataSource') {
-            $this->collection = Collection::where('title', $this->query)->first();
-            if ($this->collection) {
-                $query = $this->collection->molecules()
+            $matched = Collection::query()
+                ->where('title', $this->query)
+                ->where('is_latest', true)
+                ->first()
+                ?? Collection::where('title', $this->query)->first();
+            if ($matched) {
+                $latest = $matched->is_latest
+                    ? $matched
+                    : ($matched->lineageVersionsQuery()->where('is_latest', true)->first() ?? $matched);
+
+                $this->collection = $latest;
+
+                $query = $latest->molecules()
                     ->whereIn('molecules.id', function ($query) {
                         $query->select('molecule_id')
                             ->from('entries')
-                            ->where('collection_id', $this->collection->id)
+                            ->where('collection_id', $latest->id)
                             ->distinct();
                     });
 

@@ -46,6 +46,9 @@ class Search extends Component
     #[Url(as: 'status')]
     public $status = 'all';
 
+    #[Url(as: 'version')]
+    public ?int $version = null;
+
     public function placeholder()
     {
         return <<<'HTML'

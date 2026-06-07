@@ -7,20 +7,118 @@ trait HasDOI
     public function generateDOI($doiService)
     {
         $doi_host = config('doi.datacite.host');
-        if (! is_null($doi_host)) {
-            $identifier = $this->getIdentifier($this, 'identifier');
-            if ($this->doi == null) {
-                $url = 'https://coconut.naturalproducts.net/collections/'.$identifier;
-                $attributes = $this->getMetadata();
-                $attributes['url'] = $url;
-                $doiResponse = $doiService->createDOI($identifier, $attributes);
-                $this->doi = $doiResponse['data']['id'];
-                $this->datacite_schema = $doiResponse;
-                $this->save();
-            }
-
+        if (is_null($doi_host)) {
+            return;
         }
 
+        if ($this->doi !== null) {
+            return;
+        }
+
+        if ($this instanceof Collection && $this->identifier) {
+            $this->generateVersionedCollectionDois($doiService);
+
+            return;
+        }
+
+        $identifier = $this->getIdentifier($this, 'identifier');
+        $url = $this->collectionLandingUrl($identifier);
+        $attributes = $this->getMetadata();
+        $attributes['url'] = $url;
+        $doiResponse = $doiService->createDOI($identifier, $attributes);
+        $this->doi = $doiResponse['data']['id'];
+        $this->datacite_schema = $doiResponse;
+        $this->save();
+    }
+
+    public function generateVersionedCollectionDois($doiService): void
+    {
+        if (! ($this instanceof Collection)) {
+            return;
+        }
+
+        $doi_host = config('doi.datacite.host');
+        if (is_null($doi_host)) {
+            return;
+        }
+
+        $identifier = (string) $this->identifier;
+        $versionSuffix = $this->versionDoiSuffix();
+        $baseSuffix = $this->baseDoiSuffix();
+        $root = $this->lineageRoot();
+
+        if ($this->doi === null) {
+            $versionUrl = $this->collectionLandingUrl($identifier, $this->version);
+            $attributes = $this->getMetadata();
+            $attributes['url'] = $versionUrl;
+            if ($root->doi_base) {
+                $attributes['relatedIdentifiers'] = array_merge($attributes['relatedIdentifiers'] ?? [], [
+                    [
+                        'relatedIdentifier' => $root->doi_base,
+                        'relatedIdentifierType' => 'DOI',
+                        'relationType' => 'IsVersionOf',
+                    ],
+                ]);
+            }
+
+            $doiResponse = $doiService->createDoiWithSuffix($versionSuffix, $attributes);
+            $this->doi = $doiResponse['data']['id'];
+            $this->doi_suffix = $versionSuffix;
+            $this->datacite_schema = $doiResponse;
+            $this->save();
+        }
+
+        if ($root->doi_base === null) {
+            $baseUrl = $this->collectionLandingUrl($identifier);
+            $baseAttributes = $this->getMetadata();
+            $baseAttributes['url'] = $baseUrl;
+            $baseAttributes['titles'] = [
+                ['title' => $this->title.' (latest)'],
+            ];
+            $baseResponse = $doiService->createDoiWithSuffix($baseSuffix, $baseAttributes);
+            $root->doi_base = $baseResponse['data']['id'];
+            $root->save();
+        } else {
+            $this->updateBaseDoiLanding($doiService, $root);
+        }
+    }
+
+    public function updateBaseDoiLanding($doiService, ?Collection $root = null): void
+    {
+        if (! ($this instanceof Collection)) {
+            return;
+        }
+
+        $root = $root ?? $this->lineageRoot();
+        if (! $root->doi_base) {
+            return;
+        }
+
+        $identifier = (string) $this->identifier;
+        $baseUrl = $this->collectionLandingUrl($identifier);
+        $related = [
+            [
+                'relatedIdentifier' => $this->doi,
+                'relatedIdentifierType' => 'DOI',
+                'relationType' => 'HasVersion',
+            ],
+        ];
+
+        $doiService->updateDOI($root->doi_base, [
+            'url' => $baseUrl,
+            'relatedIdentifiers' => $related,
+        ]);
+    }
+
+    protected function collectionLandingUrl(string $identifier, ?int $version = null): string
+    {
+        $base = rtrim(config('app.url', 'https://coconut.naturalproducts.net'), '/');
+        $url = $base.'/collections/'.$identifier;
+        if ($version !== null && $version > 1) {
+            $url .= '?version='.$version;
+        }
+
+        return $url;
     }
 
     public function getIdentifier($model, $key)
@@ -70,7 +168,7 @@ trait HasDOI
                 'schemeUri' => 'https://spdx.org/licenses/',
             ],
         ];
-        $publicationYear = explode('-', $this->created_at)[0];
+        $publicationYear = explode('-', (string) $this->created_at)[0];
         $subjects = [
             ['subject' => 'Natural Product',
                 'subjectScheme' => 'NCI Thesaurus OBO Edition',
