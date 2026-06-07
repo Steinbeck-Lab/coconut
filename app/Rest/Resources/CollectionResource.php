@@ -48,7 +48,7 @@ class CollectionResource extends RestResource
 
     public function searchQuery(RestRequest $request, Builder $query): Builder
     {
-        return parent::searchQuery($request, $query)->published();
+        return parent::searchQuery($request, $query)->where('status', 'PUBLISHED');
     }
 
     /**
