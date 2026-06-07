@@ -18,18 +18,32 @@ class CollectionController extends Controller
         }
 
         $collection = Cache::flexible('collections.'.$id, [172800, 259200], function () use ($id) {
-            return Collection::where('identifier', $id)->first();
+            return Collection::query()
+                ->where('identifier', $id)
+                ->orderByDesc('is_latest')
+                ->orderByDesc('version')
+                ->first();
         });
 
         if (! $collection) {
             abort(404);
         }
 
+        $latest = $collection->is_latest
+            ? $collection
+            : ($collection->lineageVersionsQuery()->where('is_latest', true)->first() ?? $collection);
+
         $query = [
             'type' => 'tags',
-            'q' => str_replace(' ', '+', $collection->title),
+            'q' => str_replace(' ', '+', $latest->title),
             'tagType' => 'dataSource',
         ];
+
+        if ($request->has('version')) {
+            $query['version'] = (int) $request->query('version');
+        } elseif (! $collection->is_latest) {
+            $query['version'] = $collection->version;
+        }
 
         $baseUrl = config('app.url');
 
