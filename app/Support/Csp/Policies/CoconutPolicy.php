@@ -21,9 +21,8 @@ class CoconutPolicy implements Preset
             ->add(Directive::OBJECT, Keyword::NONE);
 
         // Form action - allow configured app hosts (HTTPS only)
-        $policy
-            ->add(Directive::FORM_ACTION, Keyword::SELF)
-            ->add(Directive::FORM_ACTION, $appOrigins);
+        $policy->add(Directive::FORM_ACTION, Keyword::SELF);
+        $this->addSources($policy, Directive::FORM_ACTION, $appOrigins);
 
         // Basic asset sources
         $policy
@@ -105,6 +104,20 @@ class CoconutPolicy implements Preset
     }
 
     /**
+     * @param  list<string|null>  $sources
+     */
+    private function addSources(Policy $policy, Directive $directive, array $sources): void
+    {
+        $filtered = array_values(array_filter($sources, fn ($source) => is_string($source) && $source !== ''));
+
+        if ($filtered === []) {
+            return;
+        }
+
+        $policy->add($directive, count($filtered) === 1 ? $filtered[0] : $filtered);
+    }
+
+    /**
      * @param  list<string>  $appOrigins
      */
     private function addUnifiedRules(Policy $policy, array $appOrigins): void
@@ -132,11 +145,10 @@ class CoconutPolicy implements Preset
             ->add(Directive::SCRIPT, ['https://cdnjs.cloudflare.com']);
 
         // Allow build assets from configured Coconut app hosts
-        $policy
-            ->add(Directive::FONT, $appOrigins)
-            ->add(Directive::STYLE, $appOrigins)
-            ->add(Directive::SCRIPT, $appOrigins)
-            ->add(Directive::IMG, $appOrigins);
+        $this->addSources($policy, Directive::FONT, $appOrigins);
+        $this->addSources($policy, Directive::STYLE, $appOrigins);
+        $this->addSources($policy, Directive::SCRIPT, $appOrigins);
+        $this->addSources($policy, Directive::IMG, $appOrigins);
 
         $policy = $this->addNonce($policy);
 
@@ -194,14 +206,19 @@ class CoconutPolicy implements Preset
         }
 
         // Connection sources - External APIs
+        $this->addSources($policy, Directive::CONNECT, [
+            ...$storageOrigins,
+            ...$appOrigins,
+            config('services.citation.europepmc_url'),
+            config('services.citation.crossref_url'),
+            config('services.citation.datacite_url'),
+            config('services.regapp.redirect'),
+            $this->originFromUrl(config('services.regapp.oidc_base_url')),
+            config('services.cheminf.api_url'),
+            $cheminfOrigin,
+        ]);
+
         $policy
-            ->add(Directive::CONNECT, array_filter([...$storageOrigins, ...$appOrigins]))
-            ->add(Directive::CONNECT, config('services.citation.europepmc_url'))
-            ->add(Directive::CONNECT, config('services.citation.crossref_url'))
-            ->add(Directive::CONNECT, config('services.citation.datacite_url'))
-            ->add(Directive::CONNECT, config('services.regapp.redirect'))
-            ->add(Directive::CONNECT, config('services.cheminf.api_url'))
-            ->add(Directive::CONNECT, array_filter([$cheminfOrigin]))
             ->add(Directive::CONNECT, '*.tawk.to')
             ->add(Directive::CONNECT, 'wss://*.tawk.to')
             ->add(Directive::CONNECT, 'https://cdn.jsdelivr.net')
@@ -217,15 +234,17 @@ class CoconutPolicy implements Preset
         $policy
             ->add(Directive::SCRIPT, '*.tawk.to')
             ->add(Directive::SCRIPT, 'https://embed.tawk.to')
-            ->add(Directive::SCRIPT, 'https://matomo.nfdi4chem.de/')
-            ->add(Directive::SCRIPT, $appOrigins);
+            ->add(Directive::SCRIPT, 'https://matomo.nfdi4chem.de/');
+
+        $this->addSources($policy, Directive::SCRIPT, $appOrigins);
 
         // Frame sources
         $policy
             ->add(Directive::FRAME, Keyword::SELF)
             ->add(Directive::FRAME, '*.tawk.to')
             ->add(Directive::FRAME, 'https://embed.tawk.to')
-            ->add(Directive::FRAME, $appOrigins)
             ->add(Directive::FRAME, 'data:');
+
+        $this->addSources($policy, Directive::FRAME, $appOrigins);
     }
 }
