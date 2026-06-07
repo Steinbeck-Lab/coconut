@@ -206,7 +206,7 @@
                                             </div>
                                             <div class="flex items-center md:ml-1">
                                                 <button type="submit"
-                                                    @click="window.location.href = '/search?q=' + encodeURIComponent(query) + '&tagType=citation&type=tags&activeTab=citation'"
+                                                    @click="window.location.href = '/search?q=' + encodeURIComponent(query) + '&tagType=citations&type=tags&activeTab=citations'"
                                                     class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3"><svg
                                                         xmlns="http://www.w3.org/2000/svg" fill="none"
                                                         viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
