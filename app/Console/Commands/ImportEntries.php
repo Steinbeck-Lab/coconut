@@ -34,9 +34,12 @@ class ImportEntries extends Command
         $collection_id = $this->argument('collection_id');
 
         if (! is_null($collection_id)) {
-            $collections = Collection::where('id', $collection_id)->get();
+            $collections = Collection::query()->where('id', $collection_id)->eligibleForLegacyPipeline()->get();
         } else {
-            $collections = Collection::where('status', 'DRAFT')->get();
+            $collections = Collection::query()
+                ->where('status', 'DRAFT')
+                ->eligibleForLegacyPipeline()
+                ->get();
         }
 
         foreach ($collections as $collection) {

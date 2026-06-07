@@ -38,6 +38,9 @@ class ProcessEntries extends Command
             $i = 0;
 
             $collection = Collection::whereId($collectionId['collection_id'])->first();
+            if (! $collection || $collection->isVersionMigrationActive()) {
+                continue;
+            }
             $collection->jobs_status = 'PROCESSING';
             $collection->job_info = 'Processing entries using ChEMBL Pipeline.';
             $collection->save();
