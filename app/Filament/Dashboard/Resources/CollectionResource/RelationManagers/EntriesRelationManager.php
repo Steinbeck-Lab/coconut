@@ -151,6 +151,10 @@ class EntriesRelationManager extends RelationManager
                     ->label('Reference ID')
                     ->searchable(),
                 TextColumn::make('status'),
+                TextColumn::make('is_archived')
+                    ->label('Archived')
+                    ->badge()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -165,11 +169,16 @@ class EntriesRelationManager extends RelationManager
             ->headerActions([
                 ImportAction::make()
                     ->importer(EntryImporter::class)
+                    ->hidden(fn () => $this->ownerRecord->status === 'SUPERSEDED')
                     ->options([
                         'collection_id' => $this->ownerRecord->id,
                     ]),
                 Action::make('process')
                     ->hidden(function () {
+                        if ($this->ownerRecord->isVersionMigrationActive()) {
+                            return true;
+                        }
+
                         return $this->ownerRecord->entries()->where('status', 'SUBMITTED')->count() < 1;
                     })
                     ->action(function () {
@@ -190,9 +199,11 @@ class EntriesRelationManager extends RelationManager
                 ViewAction::make()
                     ->iconButton(),
                 EditAction::make()
-                    ->iconButton(),
+                    ->iconButton()
+                    ->hidden(fn () => $this->ownerRecord->status === 'SUPERSEDED'),
                 DeleteAction::make()
-                    ->iconButton(),
+                    ->iconButton()
+                    ->hidden(fn () => $this->ownerRecord->status === 'SUPERSEDED'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

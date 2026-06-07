@@ -166,6 +166,18 @@ class CollectionResource extends Resource
                         TextEntry::make('identifier')
                             ->label('Identifier')
                             ->placeholder('No identifier'),
+                        TextEntry::make('version')
+                            ->label('Version'),
+                        TextEntry::make('is_latest')
+                            ->label('Latest')
+                            ->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No'),
+                        TextEntry::make('doi')
+                            ->label('Version DOI')
+                            ->placeholder('Not minted'),
+                        TextEntry::make('doi_base')
+                            ->label('Base DOI (latest)')
+                            ->state(fn (Collection $record) => $record->lineageRoot()->doi_base)
+                            ->placeholder('Not minted'),
                     ])
                     ->columns(2),
                 Section::make('Display Image')
@@ -217,6 +229,7 @@ class CollectionResource extends Resource
                         'EMBARGO' => 'warning',
                         'PUBLISHED' => 'success',
                         'REJECTED' => 'danger',
+                        'SUPERSEDED' => 'gray',
                         default => 'gray',
                     }),
             ])
