@@ -85,6 +85,37 @@ function doiRegxMatch($doi)
     return preg_match($doiRegex, $doi);
 }
 
+/**
+ * Normalize a DOI value for use in markdown email links.
+ *
+ * @return array{label: string, url: string}|null
+ */
+function normalizeDoiForLink(string $doi): ?array
+{
+    $doi = trim($doi);
+
+    if ($doi === '') {
+        return null;
+    }
+
+    $doi = preg_replace('#^https?://(dx\.)?doi\.org/#i', '', $doi);
+    $doi = preg_replace('#^doi\.org/#i', '', $doi);
+    $doi = preg_replace('#^doi:#i', '', $doi);
+    $doi = trim($doi);
+
+    $pattern = '/(10\.\d{4,}(?:\.\d+)*\/\S+(?:(?!["&\'<>])\S))/i';
+    if (! preg_match($pattern, $doi, $matches)) {
+        return null;
+    }
+
+    $bareDoi = $matches[1];
+
+    return [
+        'label' => $bareDoi,
+        'url' => 'https://doi.org/'.$bareDoi,
+    ];
+}
+
 function fetchDOICitation($doi)
 {
     $citationResponse = null;
