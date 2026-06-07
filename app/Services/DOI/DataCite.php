@@ -8,6 +8,10 @@ use GuzzleHttp\RequestOptions;
 
 class DataCite implements DOIService
 {
+    protected Client $client;
+
+    protected string $prefix;
+
     public function __construct()
     {
         $this->client = new Client([
@@ -20,9 +24,6 @@ class DataCite implements DOIService
         $this->prefix = Config::get('doi.'.Config::get('doi.default').'.prefix');
     }
 
-    /**
-     * Returns a list of DOIs
-     */
     public function getDOIs()
     {
         $prefix = Config::get('doi.'.Config::get('doi.default').'.prefix');
@@ -38,15 +39,23 @@ class DataCite implements DOIService
         return $response->getBody();
     }
 
+    /**
+     * @param  string  $identifier  Legacy: CNPC id or full suffix e.g. coconut.cnpc0070.v2
+     */
     public function createDOI($identifier, $metadata = [])
     {
-        $doi = $this->prefix.'/'.Config::get('app.name').'.'.$identifier;
-        $url = 'https://coconut.naturalproducts.net/collections/'.$identifier;
-        $suffix = Config::get('app.name').'.'.$identifier;
+        $suffix = $this->resolveSuffix($identifier);
+
+        return $this->createDoiWithSuffix($suffix, $metadata);
+    }
+
+    public function createDoiWithSuffix(string $suffix, array $metadata = []): array
+    {
+        $doi = $this->prefix.'/'.$suffix;
         $attributes = [
-            'doi' => $this->prefix.'/'.Config::get('app.name').'.'.$identifier,
+            'doi' => $doi,
             'prefix' => $this->prefix,
-            'suffix' => Config::get('app.name').'.'.$identifier,
+            'suffix' => $suffix,
             'publisher' => Config::get('app.name'),
             'publicationYear' => now()->format('Y'),
             'language' => 'en',
@@ -63,23 +72,12 @@ class DataCite implements DOIService
             ],
         ];
 
-        $response = $this->client->post('/dois',
-            [RequestOptions::JSON => $body]
-        );
-
-        $stream = $response->getBody();
-        $contents = $stream->getContents();
+        $response = $this->client->post('/dois', [RequestOptions::JSON => $body]);
+        $contents = $response->getBody()->getContents();
 
         return json_decode($contents, true);
     }
 
-    /**
-     * Update DataCite metadata based on DOI
-     *
-     * @param  string  $doi
-     * @param  array  $metadata
-     * @return array $contents
-     */
     public function updateDOI($doi, $metadata = [])
     {
         $attributes = [];
@@ -94,15 +92,10 @@ class DataCite implements DOIService
             ],
         ];
 
-        $response = $this->client->put('/dois/'.urlencode($doi),
-            [RequestOptions::JSON => $body]
-        );
+        $response = $this->client->put('/dois/'.urlencode($doi), [RequestOptions::JSON => $body]);
+        $contents = $response->getBody()->getContents();
 
-        $stream = $response->getBody();
-        $contents = $stream->getContents();
-        $contents = json_decode($contents, true);
-
-        return $contents;
+        return json_decode($contents, true);
     }
 
     public function deleteDOI($doi)
@@ -117,5 +110,14 @@ class DataCite implements DOIService
         $response = $this->client->get('/dois/'.urlencode($doi).'/activities');
 
         return $response->getBody();
+    }
+
+    protected function resolveSuffix(string $identifier): string
+    {
+        if (str_contains($identifier, '.')) {
+            return $identifier;
+        }
+
+        return Config::get('app.name').'.'.$identifier;
     }
 }

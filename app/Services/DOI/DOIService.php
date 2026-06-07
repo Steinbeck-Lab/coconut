@@ -8,9 +8,11 @@ interface DOIService
 
     public function createDOI($identifier, $attributes = []);
 
+    public function createDoiWithSuffix(string $suffix, array $metadata = []): array;
+
     public function getDOI($doi);
 
-    public function updateDOI($doi);
+    public function updateDOI($doi, $metadata = []);
 
     public function deleteDOI($doi);
 
