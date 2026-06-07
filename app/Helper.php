@@ -75,6 +75,7 @@ function getCollectionStatuses()
         'EMBARGO' => 'Embargo',
         'PUBLISHED' => 'Published',
         'REJECTED' => 'Rejected',
+        'SUPERSEDED' => 'Superseded',
     ];
 }
 

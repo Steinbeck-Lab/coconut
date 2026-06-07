@@ -19,6 +19,9 @@ class Entry extends Model implements Auditable
         'meta_data' => 'array',
         'synonyms' => 'array',
         'cm_data' => 'array',
+        'has_rdkit_smiles_change' => 'boolean',
+        'rdkit_restandardized_at' => 'datetime',
+        'is_archived' => 'boolean',
     ];
 
     /**
@@ -44,8 +47,11 @@ class Entry extends Model implements Auditable
         'has_stereocenters',
         'is_invalid',
         'cm_data',
+        'has_rdkit_smiles_change',
+        'rdkit_restandardized_at',
         'submission_type',
         'meta_data',
+        'is_archived',
     ];
 
     /**
