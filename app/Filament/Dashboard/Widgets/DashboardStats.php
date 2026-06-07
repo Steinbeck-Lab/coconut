@@ -24,7 +24,7 @@ class DashboardStats extends BaseWidget
         });
 
         $totalCollections = Cache::flexible('stats.collections', [172800, 259200], function () {
-            return DB::table('collections')->selectRaw('count(*)')->whereRaw("status = 'PUBLISHED'")->get()[0]->count;
+            return DB::table('collections')->selectRaw('count(*)')->whereRaw("status = 'PUBLISHED'")->where('is_latest', true)->get()[0]->count;
         });
 
         $uniqueOrganisms = Cache::flexible('stats.organisms', [172800, 259200], function () {

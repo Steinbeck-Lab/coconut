@@ -41,6 +41,7 @@ class CollectionList extends Component
         // $search = strtolower($this->query ?? '');
         $query = Collection::query()
             ->where('status', 'PUBLISHED')
+            ->where('is_latest', true)
             ->where(function ($query) use ($search) {
                 $query->whereRaw('LOWER(title) ILIKE ?', ['%'.$search.'%'])
                     ->orWhereRaw('LOWER(description) ILIKE ?', ['%'.$search.'%']);

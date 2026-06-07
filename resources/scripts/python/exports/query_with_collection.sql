@@ -77,7 +77,7 @@ molecule_collections AS (
     INNER JOIN 
         collection_molecule cm ON m.id = cm.molecule_id
     INNER JOIN 
-        collections c ON cm.collection_id = c.id
+        collections c ON cm.collection_id = c.id AND c.is_latest = TRUE
     WHERE 
         m.identifier IS NOT NULL 
         AND m.active = TRUE 

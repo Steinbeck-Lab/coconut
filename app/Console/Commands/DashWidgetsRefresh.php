@@ -36,6 +36,7 @@ class DashWidgetsRefresh extends Command
             return DB::table('collections')
                 ->selectRaw('count(*) as count')
                 ->where('status', 'PUBLISHED')
+                ->where('is_latest', true)
                 ->get()[0]->count;
         });
         $this->info('Cache for collections refreshed.');
