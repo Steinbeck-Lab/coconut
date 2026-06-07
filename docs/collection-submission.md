@@ -82,3 +82,13 @@ After creating an empty collection, an **"Entries"** pane becomes available at t
 9. **Publish the Compounds:**
     - If at least one compound passed the process, you will see the **"Publish"** button. Clicking this will publish the compounds that passed processing.
     > **Info:** After publishing, the collection status changes from **"DRAFT"** to **"PUBLISHED."** Only the compounds with status **"PASSED"** will be visible to everyone on the COCONUT platform.
+
+## Importing a new version of an existing collection
+
+For published collections, curators can release an updated dataset without losing audit history:
+
+1. Open the latest published collection and choose **Create new version**.
+2. Import the new CSV into the new DRAFT version (same CNPC identifier; new internal version row).
+3. Use **Preview migration** to review dropped, retained, and new compound counts (comparison uses standardized isomeric canonical SMILES after CM pre-processing).
+4. Run **Process new version** to validate entries, migrate live data to the new version, revoke compounds dropped exclusively from this source, and archive the previous version (entries kept read-only for audit).
+5. Version DOIs follow `10.71606/coconut.cnpc####.vN`; the base DOI `10.71606/coconut.cnpc####` always resolves to the latest release on the public collection page.
