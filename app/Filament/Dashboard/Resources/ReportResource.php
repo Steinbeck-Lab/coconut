@@ -542,7 +542,10 @@ class ReportResource extends Resource
                                             ->multiple()
                                             ->options(function (Get $get, ?Report $record): array {
                                                 $molecule = static::resolveMolecule($record, $get);
-                                                $synonyms = array_merge($molecule?->synonyms ?? [], $get('existing_synonyms') ?? []);
+                                                $synonyms = array_merge(
+                                                    $molecule === null ? [] : $molecule->synonyms,
+                                                    $get('existing_synonyms') ?? [],
+                                                );
 
                                                 return static::valueKeyedOptions($synonyms);
                                             })
@@ -598,7 +601,7 @@ class ReportResource extends Resource
                                             ->options(function (Get $get, ?Report $record): array {
                                                 $molecule = static::resolveMolecule($record, $get);
                                                 $cas = array_merge(
-                                                    array_values($molecule?->cas ?? []),
+                                                    array_values($molecule === null ? [] : $molecule->cas),
                                                     $get('existing_cas') ?? [],
                                                 );
 
@@ -1655,16 +1658,6 @@ class ReportResource extends Resource
 
             if (is_array($molIds) && count($molIds) > 0) {
                 return $molIds[0];
-            }
-
-            if (is_string($molIds)) {
-                $decoded = json_decode($molIds, true);
-
-                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                    return $decoded[0] ?? null;
-                }
-
-                return $molIds;
             }
         }
 
