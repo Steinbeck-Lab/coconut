@@ -576,7 +576,9 @@ def main():
         sdf_filenames["light_sdf"]     # e.g. coconut_sdf_2d_lite-03-2025.sdf
     )
 
-    # Now we can safely remove the CSV files (since we've read them into SDF)
+    # Zip CSV exports for S3/Zenodo downloads, then remove the uncompressed files
+    zip_file(csv_with_collection)
+    zip_file(csv_without_collection)
     cleanup_files(csv_with_collection, csv_without_collection)
 
     # Zip the 2D SDF files, remove originals
