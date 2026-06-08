@@ -2,16 +2,18 @@
 
 namespace App\Rest\Resources;
 
+use App\Models\Collection;
 use App\Rest\Resource as RestResource;
+use Illuminate\Database\Eloquent\Model;
 
 class CollectionResource extends RestResource
 {
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\Illuminate\Database\Eloquent\Model>
+     * @var class-string<Model>
      */
-    public static $model = \App\Models\Collection::class;
+    public static $model = Collection::class;
 
     /**
      * The exposed fields that could be provided
