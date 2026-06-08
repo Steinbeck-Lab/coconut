@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 use Livewire\Attributes\Lazy;
@@ -73,6 +74,24 @@ class MoleculeDetails extends Component
 
             return $valueA - $valueB;
         })->values(); // This resets the array keys to sequential integers starting from 0
+    }
+
+    /**
+     * Organism rows prepared for the compound page table (Alpine.js).
+     *
+     * @return Collection<int, array{name: string, rank: string|null, iri: string|null, searchUrl: string}>
+     */
+    public function getOrganismRowsProperty()
+    {
+        return $this->sortedOrganisms
+            ->filter()
+            ->map(fn ($organism) => [
+                'name' => $organism->name,
+                'rank' => $organism->rank,
+                'iri' => $organism->iri,
+                'searchUrl' => '/search?type=tags&q='.urlencode($organism->name).'&tagType=organisms',
+            ])
+            ->values();
     }
 
     public function rendered()

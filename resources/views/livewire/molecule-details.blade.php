@@ -182,71 +182,112 @@
                         <section class="space-y-6 lg:col-span-2 lg:col-start-1 order-2 lg:order-1">
                             @if ($sortedOrganisms && count($sortedOrganisms) > 0)
                             <section>
-                                <div class="bg-white border border-gray-200 shadow-sm rounded-xl" x-data="{ showAll: false, searchTerm: '' }">
-                                    <div class="px-4 py-5 sm:px-6">
-                                        <h2 id="applicant-information-title"
+                                <div class="bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden"
+                                    x-data="{
+                                        showAll: false,
+                                        searchTerm: '',
+                                        organisms: @js($this->organismRows),
+                                        get filteredOrganisms() {
+                                            const term = this.searchTerm.trim().toLowerCase();
+                                            if (term === '') {
+                                                return this.organisms;
+                                            }
+                                            return this.organisms.filter((organism) =>
+                                                organism.name.toLowerCase().includes(term) ||
+                                                (organism.rank && organism.rank.toLowerCase().includes(term))
+                                            );
+                                        },
+                                        get visibleOrganisms() {
+                                            return this.showAll
+                                                ? this.filteredOrganisms
+                                                : this.filteredOrganisms.slice(0, 10);
+                                        }
+                                    }">
+                                    <div class="px-4 py-5 sm:px-6 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                                        <h2 id="organisms-title"
                                             class="text-lg font-medium leading-6 text-gray-900">
                                             Organisms ({{ count($sortedOrganisms) }})
                                         </h2>
+                                        <p class="text-sm text-gray-500" x-show="searchTerm.trim() !== ''"
+                                            x-text="`${filteredOrganisms.length} of ${organisms.length} shown`"></p>
                                     </div>
                                     <div class="border-t border-gray-100">
-                                        <div class="no-scrollbar px-4 py-4 lg:px-8 min-w-0">
+                                        <div class="px-4 py-4 lg:px-6 min-w-0">
                                             @if (count($sortedOrganisms) > 5)
-                                            <!-- Search Bar -->
-                                            <div class="mb-4">
+                                            <div class="mb-4 relative">
+                                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                                    <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                                                    </svg>
+                                                </div>
                                                 <input type="text" x-model="searchTerm"
-                                                    placeholder="Search organisms..."
-                                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-secondary-dark focus:ring-secondary-dark sm:text-sm" />
+                                                    placeholder="Search by name or rank..."
+                                                    class="block w-full rounded-lg border-gray-300 pl-10 shadow-sm focus:border-secondary-dark focus:ring-secondary-dark sm:text-sm" />
                                             </div>
                                             @endif
-                                            <ul role="list" class="mt-2 leading-8">
-                                                @foreach ($sortedOrganisms as $index => $organism)
-                                                @if ($organism != '')
-                                                <li class="inline"
-                                                    x-show="(showAll || {{ $index }} < 10) && (searchTerm === '' || '{{ strtolower($organism->name) }}'.includes(searchTerm.toLowerCase()))">
-                                                    <span
-                                                        class="isolate inline-flex rounded-md shadow-sm mb-2">
-                                                        <a href="/search?type=tags&amp;q={{ urlencode($organism->name) }}&amp;tagType=organisms"
-                                                            target="_blank"
-                                                            class="relative inline-flex items-center rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 organism">
-                                                            {{ $organism->name }}&nbsp;
-                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                fill="none" viewBox="0 0 24 24"
-                                                                stroke-width="1.5" stroke="currentColor"
-                                                                class="size-4">
-                                                                <path stroke-linecap="round"
-                                                                    stroke-linejoin="round"
-                                                                    d="m9 9 6-6m0 0 6 6m-6-6v12a6 6 0 0 1-12 0v-3" />
-                                                            </svg>
-                                                        </a>
-                                                        <a href="{{ urldecode($organism->iri) }}"
-                                                            target="_blank"
-                                                            class="relative -ml-px inline-flex items-center rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10 capitalize">
-                                                            {{ $organism->rank }}&nbsp;
-                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                fill="none" viewBox="0 0 24 24"
-                                                                stroke-width="1.5" stroke="currentColor"
-                                                                class="size-4">
-                                                                <path stroke-linecap="round"
-                                                                    stroke-linejoin="round"
-                                                                    d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                                                            </svg>
-                                                        </a>
-                                                    </span>
-                                                </li>
-                                                @endif
-                                                @endforeach
-                                            </ul>
+
+                                            <div class="overflow-x-auto rounded-lg border border-gray-200">
+                                                <table class="min-w-full divide-y divide-gray-200">
+                                                    <thead class="bg-gray-50">
+                                                        <tr>
+                                                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Organism</th>
+                                                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Taxonomic rank</th>
+                                                            <th scope="col" class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">Reference</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="divide-y divide-gray-100 bg-white">
+                                                        <template x-for="(organism, index) in visibleOrganisms" :key="`${organism.name}-${index}`">
+                                                            <tr class="hover:bg-gray-50/80 transition-colors">
+                                                                <td class="px-4 py-3 text-sm text-gray-900">
+                                                                    <a :href="organism.searchUrl" target="_blank"
+                                                                        class="font-medium hover:text-secondary-dark hover:underline"
+                                                                        x-text="organism.name"></a>
+                                                                </td>
+                                                                <td class="px-4 py-3 text-sm">
+                                                                    <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium capitalize text-slate-700"
+                                                                        x-text="organism.rank || '—'"></span>
+                                                                </td>
+                                                                <td class="px-4 py-3 text-sm text-right whitespace-nowrap">
+                                                                    <template x-if="organism.iri">
+                                                                        <a :href="organism.iri" target="_blank"
+                                                                            class="inline-flex items-center gap-1 text-secondary-dark hover:underline text-xs font-medium">
+                                                                            View taxonomy
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-3.5">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                                                            </svg>
+                                                                        </a>
+                                                                    </template>
+                                                                    <template x-if="!organism.iri">
+                                                                        <span class="text-gray-400">—</span>
+                                                                    </template>
+                                                                </td>
+                                                            </tr>
+                                                        </template>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                            <p x-show="filteredOrganisms.length === 0"
+                                                class="mt-4 text-center text-sm text-gray-500">
+                                                No organisms match your search.
+                                            </p>
+
                                             @if (count($sortedOrganisms) > 10)
-                                            <div class="mt-4">
-                                                <button @click="showAll = true" x-show="!showAll"
-                                                    class="text-base font-semibold leading-7 text-secondary-dark text-sm">
-                                                    View More ↓
-                                                </button>
-                                                <button @click="showAll = false" x-show="showAll"
-                                                    class="text-base font-semibold leading-7 text-secondary-dark  text-sm">
-                                                    View Less ↑
-                                                </button>
+                                            <div class="mt-4 flex items-center justify-between">
+                                                <p class="text-sm text-gray-500"
+                                                    x-show="!showAll && filteredOrganisms.length > 10"
+                                                    x-text="`Showing 10 of ${filteredOrganisms.length}`"></p>
+                                                <div class="ml-auto">
+                                                    <button @click="showAll = true"
+                                                        x-show="!showAll && filteredOrganisms.length > 10"
+                                                        class="text-sm font-semibold text-secondary-dark hover:underline">
+                                                        Show all
+                                                    </button>
+                                                    <button @click="showAll = false" x-show="showAll"
+                                                        class="text-sm font-semibold text-secondary-dark hover:underline">
+                                                        Show less
+                                                    </button>
+                                                </div>
                                             </div>
                                             @endif
                                         </div>
