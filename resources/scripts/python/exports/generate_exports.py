@@ -654,5 +654,19 @@ def main():
 
     print("All files have been successfully uploaded to S3.")
 
+    # 9. Publish to Zenodo (optional; configured via ZENODO_* env variables)
+    try:
+        from publish_zenodo import publish_monthly_release
+
+        publish_monthly_release(
+            env_vars=env_vars,
+            backup_path=backup_path,
+            month_year=timestamp,
+            full_dump_path=full_dump_path if os.path.exists(full_dump_path) else None,
+            db_params=db_params,
+        )
+    except ImportError as exc:
+        print(f"Zenodo publish skipped (publish_zenodo module unavailable): {exc}")
+
 if __name__ == "__main__":
     main()
