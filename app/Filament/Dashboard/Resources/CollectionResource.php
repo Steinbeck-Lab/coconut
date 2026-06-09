@@ -112,6 +112,7 @@ class CollectionResource extends Resource
                         ->schema([
                             FileUpload::make('image')
                                 ->label('Collection Image')
+                                ->disk(config('filesystems.default', env('FILESYSTEM_DISK', 'local')))
                                 ->image()
                                 ->directory('collections')
                                 ->visibility('public')
@@ -174,7 +175,7 @@ class CollectionResource extends Resource
                             ->label('Collection Image')
                             ->visibility('public')
                             ->size(200)
-                            ->state(fn ($record) => $record->image ? 'https://s3.uni-jena.de/coconut/'.$record->image : null),
+                            ->state(fn ($record) => $record->image_url),
                     ]),
                 Section::make('Distribution')
                     ->schema([

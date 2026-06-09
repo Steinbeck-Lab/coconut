@@ -22,7 +22,7 @@
                                     class="border relative flex h-80 w-full flex-col overflow-hidden rounded-lg p-6 hover:opacity-75 xl:w-auto mb-10">
                                     @if ($collection['image'] && $collection['image'] != '')
                                         <span aria-hidden="true" class="absolute inset-0">
-                                            <img src="https://s3.uni-jena.de/coconut/{{ $collection['image'] }}"
+                                            <img src="{{ $collection['image_url'] }}"
                                                 alt="" class="h-full w-full object-cover object-center">
                                         </span>
                                     @endif

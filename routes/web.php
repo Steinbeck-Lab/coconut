@@ -48,5 +48,6 @@ Route::get('compound/coconut_id/{id}', MoleculeController::class)->name('old_com
 Route::get('compounds/{id}', MoleculeController::class)->name('compound');
 
 Route::get('collections/{id}', CollectionController::class)->name('collection');
+Route::get('collections/{id}/image', [CollectionController::class, 'image'])->name('collection.image');
 
 Route::get('/search', Search::class)->name('browse');

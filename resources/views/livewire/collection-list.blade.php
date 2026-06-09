@@ -50,7 +50,7 @@
             <a href="search?type=tags&amp;q={{ $collection->title }}&amp;tagType=dataSource" class="group relative flex h-80 flex-col overflow-hidden rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-lg hover:border-gray-300 transition-all duration-200">
                 @if($collection['image'] && $collection['image'] != '')
                     <span aria-hidden="true" class="absolute inset-0">
-                        <img src="https://s3.uni-jena.de/coconut/{{ $collection->image }}" alt="" class="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-300">
+                        <img src="{{ $collection->image_url }}" alt="" class="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-300">
                     </span>
                 @endif
                 <span aria-hidden="true" class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-gray-900/90 to-transparent"></span>

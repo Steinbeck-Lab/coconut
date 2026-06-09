@@ -28,6 +28,10 @@ class Collection extends Model implements Auditable, HasMedia
     use MutatesCollectionFormData;
     use \OwenIt\Auditing\Auditable;
 
+    protected $appends = [
+        'image_url',
+    ];
+
     protected static function booted()
     {
         static::creating(fn ($collection) => $collection->uuid = Str::uuid());
@@ -51,6 +55,15 @@ class Collection extends Model implements Auditable, HasMedia
         'release_date',
         'datacite_schema',
     ];
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if (! $this->image || ! $this->identifier) {
+            return null;
+        }
+
+        return route('collection.image', $this->identifier);
+    }
 
     /**
      * Get the license of the project.

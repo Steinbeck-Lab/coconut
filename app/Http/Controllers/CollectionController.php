@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Collection;
 use Cache;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CollectionController extends Controller
 {
@@ -34,5 +35,24 @@ class CollectionController extends Controller
         $baseUrl = config('app.url');
 
         return redirect()->to($baseUrl.'/search?'.http_build_query($query));
+    }
+
+    public function image(Request $request, $id)
+    {
+        if (! str_starts_with($id, 'CNPC')) {
+            abort(404);
+        }
+
+        $collection = Cache::flexible('collections.'.$id, [172800, 259200], function () use ($id) {
+            return Collection::where('identifier', $id)->first();
+        });
+
+        if (! $collection || ! $collection->image) {
+            abort(404);
+        }
+
+        $disk = config('filesystems.default', env('FILESYSTEM_DISK', 'local'));
+
+        return Storage::disk($disk)->response($collection->image);
     }
 }
