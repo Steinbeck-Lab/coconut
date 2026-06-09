@@ -37,7 +37,8 @@ class CoconutPolicy implements Preset
             ->add(Directive::FONT, ['https://fonts.bunny.net'])
             ->add(Directive::SCRIPT, ['https://matomo.nfdi4chem.de', 'https://cdn.jsdelivr.net', 'https://unpkg.com'])
             ->add(Directive::CONNECT, ['https://matomo.nfdi4chem.de', 'https://unpkg.com'])
-            ->add(Directive::IMG, 'https://matomo.nfdi4chem.de');
+            ->add(Directive::IMG, 'https://matomo.nfdi4chem.de')
+            ->add(Directive::IMG, 'https://unpkg.com');
 
         // Add Coconut-specific external sources
         $this->addCoconutSources($policy);

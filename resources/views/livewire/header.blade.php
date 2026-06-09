@@ -1,4 +1,4 @@
-    <header class="absolute inset-x-0 @if(config('app.env') === 'development') top-14 @else top-0 @endif" x-data="{ open: false }">
+    <header class="absolute inset-x-0 z-50 @if(config('app.env') === 'development') top-14 @else top-0 @endif" x-data="{ open: false }">
         <nav class="flex items-center justify-between p-6 lg:px-8 max-w-4xl lg:max-w-7xl mx-auto" aria-label="Global">
             <div class="flex lg:flex-1">
                 <div class="-m-1.5 p-1.5">
@@ -74,6 +74,14 @@
                                     </a>
                                 </li>
                                 <li>
+                                    <a class="text-slate-800 hover:bg-slate-50 flex items-center p-2" href="/globe">
+                                        <div class="flex items-center justify-center bg-white rounded shadow-sm h-7 w-7 shrink-0 mr-3">
+                                        <x-heroicon-o-globe-alt />
+                                        </div>
+                                        <span class="whitespace-nowrap">World map</span>
+                                    </a>
+                                </li>
+                                <li>
                                     <a class="text-slate-800 hover:bg-slate-50 flex items-center p-2" href="/stats" target="_blank">
                                         <div class="flex items-center justify-center bg-white rounded shadow-sm h-7 w-7 shrink-0 mr-3">
                                         <x-heroicon-o-chart-pie />
@@ -145,6 +153,8 @@
                                 us</a>
                             <a href="/download"
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Download</a>
+                            <a href="/globe"
+                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">World map</a>
                             <a href="/stats"
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Statistics</a>
                             <a target="_blank" href="https://kuma.nfdi4chem.de/status/coconut"

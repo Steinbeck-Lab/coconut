@@ -7,6 +7,7 @@ use App\Http\Controllers\MoleculeController;
 use App\Livewire\About;
 use App\Livewire\CollectionList;
 use App\Livewire\Download;
+use App\Livewire\GeoGlobe;
 use App\Livewire\Guides;
 use App\Livewire\Policy;
 use App\Livewire\Search;
@@ -40,6 +41,7 @@ Route::get('/guidelines', Guides::class);
 Route::get('/about', About::class);
 Route::get('/download', Download::class);
 Route::get('/stats', Stats::class);
+Route::get('/globe', GeoGlobe::class)->name('globe');
 
 Route::get('/collections', CollectionList::class)->name('collections.index');
 
