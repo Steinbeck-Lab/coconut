@@ -112,7 +112,7 @@ class CollectionResource extends Resource
                         ->schema([
                             FileUpload::make('image')
                                 ->label('Collection Image')
-                                ->disk(config('filesystems.default', env('FILESYSTEM_DISK', 'local')))
+                                ->disk(config('filesystems.default'))
                                 ->image()
                                 ->directory('collections')
                                 ->visibility('public')

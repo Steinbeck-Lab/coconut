@@ -51,7 +51,7 @@ class CollectionController extends Controller
             abort(404);
         }
 
-        $disk = config('filesystems.default', env('FILESYSTEM_DISK', 'local'));
+        $disk = config('filesystems.default');
 
         return Storage::disk($disk)->response($collection->image);
     }
