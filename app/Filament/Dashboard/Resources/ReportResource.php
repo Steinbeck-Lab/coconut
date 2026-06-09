@@ -24,6 +24,7 @@ use App\Models\Organism;
 use App\Models\Report;
 use App\Models\ReportUser;
 use App\Models\User;
+use App\Services\GeoLocationService;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
@@ -1545,7 +1546,7 @@ class ReportResource extends Resource
                 if (! empty(self::$overall_changes['geo_location_changes']['add'])) {
                     $geoLocations = explode(',', self::$overall_changes['geo_location_changes']['add']);
                     foreach ($geoLocations as $newLocation) {
-                        $geo_location = GeoLocation::firstOrCreate(['name' => $newLocation]);
+                        $geo_location = app(GeoLocationService::class)->findOrCreate(trim($newLocation));
                         $molecule->auditAttach('geo_locations', $geo_location);
                     }
                 }
