@@ -68,4 +68,10 @@ return [
         'cas_key' => env('CAS_KEY'),
     ],
 
+    'nominatim' => [
+        'url' => env('NOMINATIM_URL', 'https://nominatim.openstreetmap.org'),
+        'user_agent' => env('NOMINATIM_USER_AGENT', 'COCONUT/1.0 (contact@nfdi4chem.de)'),
+        'delay_ms' => env('NOMINATIM_DELAY_MS', 1100),
+    ],
+
 ];
