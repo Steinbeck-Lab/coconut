@@ -373,15 +373,17 @@ class SearchMolecule
                 $sql .= ' OR ';
             }
 
-            $andConditions = explode(' ', trim($orCondition));
+            $filterTokens = parseFilterQueryTokens(trim($orCondition), $filterMap);
             $sql .= '(';
 
-            foreach ($andConditions as $innerIndex => $andCondition) {
+            foreach ($filterTokens as $innerIndex => [$filterKey, $filterValue]) {
                 if ($innerIndex > 0) {
                     $sql .= ' AND ';
                 }
 
-                [$filterKey, $filterValue] = explode(':', $andCondition);
+                if (! isset($filterMap[$filterKey])) {
+                    continue;
+                }
 
                 if (str_contains($filterValue, '..')) {
                     [$start, $end] = explode('..', $filterValue);
@@ -397,7 +399,7 @@ class SearchMolecule
                     $sql .= "({$filterMap[$filterKey]} @> ?)";
                     $params[] = json_encode($dbs);
                 } else {
-                    $filterValue = str_replace('+', ' ', $filterValue);
+                    $filterValue = normalizeFilterTextValue($filterValue);
                     $sql .= "(LOWER(REGEXP_REPLACE({$filterMap[$filterKey]}, '\\s+', '-', 'g'))::TEXT ILIKE ?)";
                     $params[] = '%'.$filterValue.'%';
                 }
