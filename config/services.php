@@ -84,6 +84,8 @@ return [
             env('ORGANISM_TAXONOMY_APPLY_CURATION_ON_MISS', true),
             FILTER_VALIDATE_BOOL,
         ),
+        'tree_cache_store' => env('ORGANISM_TAXONOMY_TREE_CACHE_STORE', 'file'),
+        'tree_cache_hours' => max(1, (int) env('ORGANISM_TAXONOMY_TREE_CACHE_HOURS', 2)),
     ],
 
 ];

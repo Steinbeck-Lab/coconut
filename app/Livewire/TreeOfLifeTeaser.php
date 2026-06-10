@@ -4,7 +4,7 @@ namespace App\Livewire;
 
 use App\Services\OrganismTaxonomy\OrganismTaxonomyStats;
 use App\Services\OrganismTaxonomy\OrganismTaxonomyTreeBuilder;
-use Illuminate\Support\Facades\Cache;
+use App\Services\OrganismTaxonomy\OrganismTaxonomyTreeCache;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
 
@@ -22,9 +22,12 @@ class TreeOfLifeTeaser extends Component
         HTML;
     }
 
-    public function render(OrganismTaxonomyTreeBuilder $builder, OrganismTaxonomyStats $stats)
-    {
-        $payload = Cache::flexible('tree-of-life.taxonomy', [3600, 7200], fn (): array => $builder->build());
+    public function render(
+        OrganismTaxonomyTreeBuilder $builder,
+        OrganismTaxonomyTreeCache $treeCache,
+        OrganismTaxonomyStats $stats,
+    ) {
+        $payload = $treeCache->get($builder);
         $kingdoms = $builder->childDistribution($payload['tree']);
         $totalMolecules = $stats->uniqueMoleculesWithOrganisms();
         $maxCount = max(1, collect($kingdoms)->max('molecule_count') ?? 1);

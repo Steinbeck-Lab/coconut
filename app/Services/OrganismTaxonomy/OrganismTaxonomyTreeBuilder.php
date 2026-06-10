@@ -107,14 +107,44 @@ class OrganismTaxonomyTreeBuilder
      */
     public function organismsUnderNode(array $node, int $limit = 50): Collection
     {
-        $organisms = collect();
+        $nodeId = (string) ($node['id'] ?? 'root');
 
-        $this->collectOrganisms($node, $organisms);
+        if ($nodeId === 'root') {
+            return Organism::query()
+                ->where('molecule_count', '>', 0)
+                ->orderByDesc('molecule_count')
+                ->limit($limit)
+                ->get(['id', 'name', 'molecule_count'])
+                ->map(static fn (Organism $organism): array => [
+                    'id' => $organism->id,
+                    'name' => $organism->name,
+                    'molecule_count' => (int) $organism->molecule_count,
+                ]);
+        }
 
-        return $organisms
-            ->sortByDesc('molecule_count')
-            ->take($limit)
-            ->values();
+        $matches = collect();
+
+        foreach (Organism::query()
+            ->where('molecule_count', '>', 0)
+            ->select(['id', 'name', 'molecule_count', 'taxonomy'])
+            ->orderByDesc('molecule_count')
+            ->cursor() as $organism) {
+            if (! $this->organismBelongsToNode($organism, $nodeId)) {
+                continue;
+            }
+
+            $matches->push([
+                'id' => $organism->id,
+                'name' => $organism->name,
+                'molecule_count' => (int) $organism->molecule_count,
+            ]);
+
+            if ($matches->count() >= $limit) {
+                break;
+            }
+        }
+
+        return $matches->values();
     }
 
     /**
@@ -125,11 +155,9 @@ class OrganismTaxonomyTreeBuilder
         $lineage = $organism->taxonomy['lineage'] ?? null;
 
         if (! is_array($lineage) || $lineage === []) {
-            $path = [
+            $this->insertAlongPath($node, [
                 ['rank' => 'group', 'name' => 'Unclassified sources'],
-                ['rank' => 'source', 'name' => $organism->name],
-            ];
-            $this->insertAlongPath($node, $path, $organism);
+            ], $organism);
 
             return;
         }
@@ -142,7 +170,6 @@ class OrganismTaxonomyTreeBuilder
             ];
         }
 
-        $path[] = ['rank' => 'source', 'name' => $organism->name];
         $this->insertAlongPath($node, $path, $organism);
     }
 
@@ -189,12 +216,6 @@ class OrganismTaxonomyTreeBuilder
         $node['organism_count'] = (int) $node['organism_count'] + 1;
 
         if ($path === []) {
-            $node['organisms'][] = [
-                'id' => $organism->id,
-                'name' => $organism->name,
-                'molecule_count' => (int) $organism->molecule_count,
-            ];
-
             return;
         }
 
@@ -232,7 +253,6 @@ class OrganismTaxonomyTreeBuilder
             'name' => $name,
             'molecule_count' => 0,
             'organism_count' => 0,
-            'organisms' => [],
             'children' => [],
         ];
     }
@@ -265,24 +285,10 @@ class OrganismTaxonomyTreeBuilder
      */
     private function indexNode(array $node, array $breadcrumb, array &$index): void
     {
-        $entry = [
+        $index[$node['id']] = [
             'id' => $node['id'],
-            'rank' => $node['rank'],
-            'name' => $node['name'],
-            'molecule_count' => $node['molecule_count'],
-            'organism_count' => $node['organism_count'],
             'breadcrumb' => $breadcrumb,
-            'children' => array_map(static fn (array $child): array => [
-                'id' => $child['id'],
-                'name' => $child['name'],
-                'rank' => $child['rank'],
-                'molecule_count' => $child['molecule_count'],
-                'organism_count' => $child['organism_count'],
-            ], $node['children']),
-            'organisms' => $node['organisms'],
         ];
-
-        $index[$node['id']] = $entry;
 
         foreach ($node['children'] as $child) {
             $this->indexNode(
@@ -338,18 +344,40 @@ class OrganismTaxonomyTreeBuilder
         return null;
     }
 
-    /**
-     * @param  array<string, mixed>  $node
-     * @param  Collection<int, array{id: int, name: string, molecule_count: int}>  $organisms
-     */
-    private function collectOrganisms(array $node, Collection $organisms): void
+    private function organismBelongsToNode(Organism $organism, string $nodeId): bool
     {
-        foreach ($node['organisms'] as $organism) {
-            $organisms->push($organism);
+        return in_array($nodeId, $this->nodeIdsForOrganism($organism), true);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function nodeIdsForOrganism(Organism $organism): array
+    {
+        $ids = ['root'];
+        $parentId = 'root';
+
+        $lineage = $organism->taxonomy['lineage'] ?? null;
+
+        if (! is_array($lineage) || $lineage === []) {
+            $path = [
+                ['rank' => 'group', 'name' => 'Unclassified sources'],
+            ];
+        } else {
+            $path = $this->normalizeLineage($lineage);
+
+            if ($path === []) {
+                $path = [
+                    ['rank' => 'group', 'name' => 'Unclassified sources'],
+                ];
+            }
         }
 
-        foreach ($node['children'] as $child) {
-            $this->collectOrganisms($child, $organisms);
+        foreach ($path as $segment) {
+            $parentId = $this->segmentId($parentId, $segment['rank'], $segment['name']);
+            $ids[] = $parentId;
         }
+
+        return $ids;
     }
 }

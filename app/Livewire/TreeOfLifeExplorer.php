@@ -4,8 +4,9 @@ namespace App\Livewire;
 
 use App\Services\OrganismTaxonomy\OrganismTaxonomyStats;
 use App\Services\OrganismTaxonomy\OrganismTaxonomyTreeBuilder;
-use Illuminate\Support\Facades\Cache;
+use App\Services\OrganismTaxonomy\OrganismTaxonomyTreeCache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -19,25 +20,14 @@ class TreeOfLifeExplorer extends Component
     #[Url(as: 'rank')]
     public string $distributionRank = 'children';
 
-    /** @var array<string, mixed> */
-    public array $tree = [];
-
-    /** @var array<string, array<string, mixed>> */
-    public array $index = [];
-
     public int $totalMoleculesWithOrganisms = 0;
 
     public int $classifiedOrganisms = 0;
 
     public int $totalSourceOrganisms = 0;
 
-    public function mount(OrganismTaxonomyTreeBuilder $builder, OrganismTaxonomyStats $stats): void
+    public function mount(OrganismTaxonomyStats $stats): void
     {
-        $payload = Cache::flexible('tree-of-life.taxonomy', [3600, 7200], fn (): array => $builder->build());
-
-        $this->tree = $payload['tree'];
-        $this->index = $payload['index'];
-
         $this->totalSourceOrganisms = (int) DB::table('organisms')
             ->where('molecule_count', '>', 0)
             ->count();
@@ -66,9 +56,15 @@ class TreeOfLifeExplorer extends Component
         }
     }
 
-    public function render(OrganismTaxonomyTreeBuilder $builder)
-    {
-        $selectedNode = $builder->findNode($this->tree, $this->selectedNodeId);
+    public function render(
+        OrganismTaxonomyTreeBuilder $builder,
+        OrganismTaxonomyTreeCache $treeCache,
+    ): View {
+        $payload = $treeCache->get($builder);
+        $tree = $payload['tree'];
+        $index = $payload['index'];
+
+        $selectedNode = $builder->findNode($tree, $this->selectedNodeId);
 
         $distribution = $this->distributionRank === 'children' && ($selectedNode['children'] ?? []) !== []
             ? $builder->childDistribution($selectedNode)
@@ -81,12 +77,13 @@ class TreeOfLifeExplorer extends Component
         $treemapItems = $this->buildTreemapItems($distribution);
 
         return view('livewire.tree-of-life-explorer', [
+            'tree' => $tree,
             'selectedNode' => $selectedNode,
             'distribution' => $distribution,
             'treemapItems' => $treemapItems,
             'organisms' => $organisms,
             'breadcrumb' => $this->selectedNodeId !== null
-                ? ($this->index[$this->selectedNodeId]['breadcrumb'] ?? [])
+                ? ($index[$this->selectedNodeId]['breadcrumb'] ?? [])
                 : [],
             'classifiedPercent' => $this->totalSourceOrganisms > 0
                 ? round(($this->classifiedOrganisms / $this->totalSourceOrganisms) * 100, 1)
