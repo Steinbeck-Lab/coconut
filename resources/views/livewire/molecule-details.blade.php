@@ -186,21 +186,30 @@
                                     x-data="{
                                         showAll: false,
                                         searchTerm: '',
+                                        expandedId: null,
                                         organisms: @js($this->organismRows),
-                                        get filteredOrganisms() {
+                                        matchesRow(organism) {
                                             const term = this.searchTerm.trim().toLowerCase();
                                             if (term === '') {
-                                                return this.organisms;
+                                                return true;
                                             }
-                                            return this.organisms.filter((organism) =>
-                                                organism.name.toLowerCase().includes(term) ||
-                                                (organism.rank && organism.rank.toLowerCase().includes(term))
-                                            );
+                                            return organism.name.toLowerCase().includes(term) ||
+                                                (organism.rank && organism.rank.toLowerCase().includes(term)) ||
+                                                (organism.biologicalGroup && organism.biologicalGroup.toLowerCase().includes(term));
+                                        },
+                                        get filteredOrganisms() {
+                                            return this.organisms.filter((organism) => this.matchesRow(organism));
                                         },
                                         get visibleOrganisms() {
                                             return this.showAll
                                                 ? this.filteredOrganisms
                                                 : this.filteredOrganisms.slice(0, 10);
+                                        },
+                                        isVisible(organismId) {
+                                            return this.visibleOrganisms.some((organism) => organism.id === organismId);
+                                        },
+                                        toggleExpand(organismId) {
+                                            this.expandedId = this.expandedId === organismId ? null : organismId;
                                         }
                                     }">
                                     <div class="px-4 py-5 sm:px-6 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
@@ -221,7 +230,7 @@
                                                     </svg>
                                                 </div>
                                                 <input type="text" x-model="searchTerm"
-                                                    placeholder="Search by name or rank..."
+                                                    placeholder="Search by name, rank, or source type..."
                                                     class="block w-full rounded-lg border-gray-300 pl-10 shadow-sm focus:border-secondary-dark focus:ring-secondary-dark sm:text-sm" />
                                             </div>
                                             @endif
@@ -230,39 +239,89 @@
                                                 <table class="min-w-full divide-y divide-gray-200">
                                                     <thead class="bg-gray-50">
                                                         <tr>
+                                                            <th scope="col" class="w-10 px-3 py-3"><span class="sr-only">Expand</span></th>
                                                             <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Organism</th>
                                                             <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Taxonomic rank</th>
+                                                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Source type</th>
                                                             <th scope="col" class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">Reference</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody class="divide-y divide-gray-100 bg-white">
-                                                        <template x-for="(organism, index) in visibleOrganisms" :key="`${organism.name}-${index}`">
-                                                            <tr class="hover:bg-gray-50/80 transition-colors">
+                                                        @foreach ($sortedOrganisms as $organism)
+                                                            @if (! $organism)
+                                                                @continue
+                                                            @endif
+                                                            @php
+                                                                $organismTaxonomy = $this->taxonomyForOrganism($organism);
+                                                                $organismIri = $organism->iri;
+                                                                $organismSearchUrl = '/search?type=tags&q='.urlencode($organism->name).'&tagType=organisms';
+                                                            @endphp
+                                                            <tr
+                                                                x-show="isVisible({{ $organism->id }})"
+                                                                @click="toggleExpand({{ $organism->id }})"
+                                                                :class="expandedId === {{ $organism->id }} ? 'bg-emerald-50/50' : ''"
+                                                                class="cursor-pointer hover:bg-gray-50/80 transition-colors">
+                                                                <td class="px-3 py-3 text-gray-400">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                                                        class="size-4 transition-transform duration-150"
+                                                                        :class="expandedId === {{ $organism->id }} ? 'rotate-90 text-emerald-700' : ''">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                                                                    </svg>
+                                                                </td>
                                                                 <td class="px-4 py-3 text-sm text-gray-900">
-                                                                    <a :href="organism.searchUrl" target="_blank"
-                                                                        class="font-medium hover:text-secondary-dark hover:underline"
-                                                                        x-text="organism.name"></a>
+                                                                    <a href="{{ $organismSearchUrl }}" target="_blank" @click.stop
+                                                                        class="font-medium hover:text-secondary-dark hover:underline">
+                                                                        {{ $organism->name }}
+                                                                    </a>
                                                                 </td>
                                                                 <td class="px-4 py-3 text-sm">
-                                                                    <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium capitalize text-slate-700"
-                                                                        x-text="organism.rank || '—'"></span>
+                                                                    @if ($organism->rank)
+                                                                        <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium capitalize text-slate-700">
+                                                                            {{ $organism->rank }}
+                                                                        </span>
+                                                                    @else
+                                                                        <span class="text-gray-400">—</span>
+                                                                    @endif
+                                                                </td>
+                                                                <td class="px-4 py-3 text-sm">
+                                                                    @if ($organismTaxonomy['biological_group_label'] ?? null)
+                                                                        <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
+                                                                            {{ $organismTaxonomy['biological_group_label'] }}
+                                                                        </span>
+                                                                    @else
+                                                                        <span class="text-gray-400">—</span>
+                                                                    @endif
                                                                 </td>
                                                                 <td class="px-4 py-3 text-sm text-right whitespace-nowrap">
-                                                                    <template x-if="organism.iri">
-                                                                        <a :href="organism.iri" target="_blank"
+                                                                    @if ($organismIri)
+                                                                        <a href="{{ $organismIri }}" target="_blank" @click.stop
                                                                             class="inline-flex items-center gap-1 text-secondary-dark hover:underline text-xs font-medium">
-                                                                            View taxonomy
+                                                                            NCBI / OLS
                                                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-3.5">
                                                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                                                                             </svg>
                                                                         </a>
-                                                                    </template>
-                                                                    <template x-if="!organism.iri">
+                                                                    @elseif ($organismTaxonomy)
+                                                                        <span class="text-xs text-gray-500">GNF profile</span>
+                                                                    @else
                                                                         <span class="text-gray-400">—</span>
-                                                                    </template>
+                                                                    @endif
                                                                 </td>
                                                             </tr>
-                                                        </template>
+                                                            <tr x-show="isVisible({{ $organism->id }}) && expandedId === {{ $organism->id }}" x-cloak>
+                                                                <td colspan="5" class="bg-gray-50/80 px-4 py-4 sm:px-6">
+                                                                    @if ($organismTaxonomy)
+                                                                        <x-organism-taxonomy-card
+                                                                            :taxonomy="$organismTaxonomy"
+                                                                            :organism-name="$organism->name" />
+                                                                    @else
+                                                                        <p class="text-sm text-gray-500">
+                                                                            Taxonomy has not been enriched for this organism yet.
+                                                                        </p>
+                                                                    @endif
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
                                                     </tbody>
                                                 </table>
                                             </div>

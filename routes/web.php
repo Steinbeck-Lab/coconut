@@ -12,6 +12,7 @@ use App\Livewire\Policy;
 use App\Livewire\Search;
 use App\Livewire\Stats;
 use App\Livewire\Terms;
+use App\Livewire\TreeOfLifeExplorer;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,6 +41,7 @@ Route::get('/guidelines', Guides::class);
 Route::get('/about', About::class);
 Route::get('/download', Download::class);
 Route::get('/stats', Stats::class);
+Route::get('/tree-of-life', TreeOfLifeExplorer::class)->name('tree-of-life');
 
 Route::get('/collections', CollectionList::class)->name('collections.index');
 

@@ -2,7 +2,9 @@
 
 namespace App\Livewire;
 
+use App\Models\Organism;
 use App\Models\User;
+use App\Services\OrganismTaxonomy\OrganismTaxonomyPresenter;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
@@ -17,6 +19,13 @@ class MoleculeDetails extends Component
     public $sortedOrganisms;
 
     public $curationStatus;
+
+    private OrganismTaxonomyPresenter $organismTaxonomyPresenter;
+
+    public function boot(OrganismTaxonomyPresenter $organismTaxonomyPresenter): void
+    {
+        $this->organismTaxonomyPresenter = $organismTaxonomyPresenter;
+    }
 
     public function mount($molecule)
     {
@@ -79,19 +88,46 @@ class MoleculeDetails extends Component
     /**
      * Organism rows prepared for the compound page table (Alpine.js).
      *
-     * @return Collection<int, array{name: string, rank: string|null, iri: string|null, searchUrl: string}>
+     * @return Collection<int, array{
+     *     id: int,
+     *     name: string,
+     *     rank: string|null,
+     *     iri: string|null,
+     *     searchUrl: string,
+     *     biologicalGroup: string|null,
+     *     hasTaxonomy: bool
+     * }>
      */
-    public function getOrganismRowsProperty()
+    public function getOrganismRowsProperty(): Collection
     {
         return $this->sortedOrganisms
             ->filter()
-            ->map(fn ($organism) => [
-                'name' => $organism->name,
-                'rank' => $organism->rank,
-                'iri' => $organism->iri,
-                'searchUrl' => '/search?type=tags&q='.urlencode($organism->name).'&tagType=organisms',
-            ])
+            ->map(function ($organism) {
+                $taxonomy = $this->organismTaxonomyPresenter->forOrganism($organism);
+
+                return [
+                    'id' => $organism->id,
+                    'name' => $organism->name,
+                    'rank' => $organism->rank,
+                    'iri' => $organism->iri,
+                    'searchUrl' => '/search?type=tags&q='.urlencode($organism->name).'&tagType=organisms',
+                    'biologicalGroup' => $taxonomy['biological_group_label'] ?? null,
+                    'hasTaxonomy' => $taxonomy !== null,
+                ];
+            })
             ->values();
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function taxonomyForOrganism(?Organism $organism): ?array
+    {
+        if ($organism === null) {
+            return null;
+        }
+
+        return $this->organismTaxonomyPresenter->forOrganism($organism);
     }
 
     public function rendered()

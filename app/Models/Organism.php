@@ -6,6 +6,7 @@ use Closure;
 use Filament\Forms;
 use Filament\Forms\Components\Actions\Action;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -19,6 +20,8 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property string $name
  * @property string|null $iri
  * @property string|null $rank
+ * @property array<string, mixed>|null $taxonomy
+ * @property Carbon|null $taxonomy_fetched_at
  * @property int|null $molecule_count
  * @property string|null $slug
  * @property Carbon|null $created_at
@@ -38,9 +41,35 @@ class Organism extends Model implements Auditable
         'name',
         'iri',
         'rank',
+        'taxonomy',
+        'taxonomy_fetched_at',
         'molecule_count',
         'slug',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'taxonomy' => 'array',
+            'taxonomy_fetched_at' => 'datetime',
+        ];
+    }
+
+    public function scopeNeedingTaxonomyEnrichment(Builder $query): Builder
+    {
+        return $query->where(function (Builder $builder): void {
+            $builder->whereNull('iri')
+                ->orWhereNull('taxonomy')
+                ->orWhereNull('taxonomy_fetched_at');
+        });
+    }
+
+    public function hasExactTaxonomyEnrichment(): bool
+    {
+        return is_array($this->taxonomy)
+            && ($this->taxonomy['match_type'] ?? null) === 'Exact'
+            && $this->taxonomy_fetched_at !== null;
+    }
 
     public function molecules(): BelongsToMany
     {
@@ -70,9 +99,9 @@ class Organism extends Model implements Auditable
         return $this->hasMany(SampleLocation::class);
     }
 
-    public function getIriAttribute($value)
+    public function getIriAttribute(?string $value): ?string
     {
-        return urldecode($value);
+        return $value !== null ? urldecode($value) : null;
     }
 
     public function transformAudit(array $data): array
