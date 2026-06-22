@@ -70,7 +70,7 @@ class Classify extends Command
                     $canonical_smiles = $mol->canonical_smiles;
 
                     // Build endpoints.
-                    $apiUrl = 'https://npclassifier.gnps2.org/classify?smiles=';
+                    $apiUrl = config('services.npclassifier.url').'?smiles=';
                     $endpoint = $apiUrl.urlencode($canonical_smiles);
 
                     // Log the start of processing for this molecule.
