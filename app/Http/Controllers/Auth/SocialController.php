@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\LinkedSocialAccount;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\AbstractProvider;
 use Laravel\Socialite\Two\InvalidStateException;
 
 class SocialController extends Controller
@@ -24,19 +27,19 @@ class SocialController extends Controller
     /**
      * Obtain the user information from GitHub.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function handleProviderCallback($service)
     {
         try {
             $providerUser = Socialite::driver($service)->user();
         } catch (InvalidStateException $e) {
-            /** @var \Laravel\Socialite\Two\AbstractProvider $driver */
+            /** @var AbstractProvider $driver */
             $driver = Socialite::driver($service);
             $providerUser = $driver->stateless()->user();
         }
 
-        $linkedSocialAccount = \App\Models\LinkedSocialAccount::where('provider_name', $service)
+        $linkedSocialAccount = LinkedSocialAccount::where('provider_name', $service)
             ->where('provider_id', $providerUser->getId())
             ->first();
 

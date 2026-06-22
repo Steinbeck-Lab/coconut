@@ -4,22 +4,25 @@ namespace App\Rest\Resources;
 
 use App\Enums\ReportCategory;
 use App\Enums\ReportStatus;
+use App\Models\Report;
 use App\Rest\Resource as RestResource;
 use Illuminate\Database\Eloquent\Model;
+use Lomkit\Rest\Http\Requests\MutateRequest;
+use Lomkit\Rest\Http\Requests\RestRequest;
 
 class ReportResource extends RestResource
 {
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\Illuminate\Database\Eloquent\Model>
+     * @var class-string<Model>
      */
-    public static $model = \App\Models\Report::class;
+    public static $model = Report::class;
 
     /**
      * The exposed fields that could be provided
      */
-    public function fields(\Lomkit\Rest\Http\Requests\RestRequest $request): array
+    public function fields(RestRequest $request): array
     {
         return [
             'title',
@@ -33,7 +36,7 @@ class ReportResource extends RestResource
     /**
      * The exposed relations that could be provided
      */
-    public function relations(\Lomkit\Rest\Http\Requests\RestRequest $request): array
+    public function relations(RestRequest $request): array
     {
         return [];
     }
@@ -41,7 +44,7 @@ class ReportResource extends RestResource
     /**
      * The exposed scopes that could be provided
      */
-    public function scopes(\Lomkit\Rest\Http\Requests\RestRequest $request): array
+    public function scopes(RestRequest $request): array
     {
         return [];
     }
@@ -49,7 +52,7 @@ class ReportResource extends RestResource
     /**
      * The exposed limits that could be provided
      */
-    public function limits(\Lomkit\Rest\Http\Requests\RestRequest $request): array
+    public function limits(RestRequest $request): array
     {
         return [
             10,
@@ -61,7 +64,7 @@ class ReportResource extends RestResource
     /**
      * The actions that should be linked
      */
-    public function actions(\Lomkit\Rest\Http\Requests\RestRequest $request): array
+    public function actions(RestRequest $request): array
     {
         return [];
     }
@@ -69,12 +72,12 @@ class ReportResource extends RestResource
     /**
      * The instructions that should be linked
      */
-    public function instructions(\Lomkit\Rest\Http\Requests\RestRequest $request): array
+    public function instructions(RestRequest $request): array
     {
         return [];
     }
 
-    public function rules(\Lomkit\Rest\Http\Requests\RestRequest $request)
+    public function rules(RestRequest $request)
     {
         return [
             'title' => 'required',
@@ -84,7 +87,7 @@ class ReportResource extends RestResource
     /**
      * Add create-specific validation rules
      */
-    public function createRules(\Lomkit\Rest\Http\Requests\RestRequest $request)
+    public function createRules(RestRequest $request)
     {
         return [
             'suggested_changes.new_molecule_data.canonical_smiles' => 'required',
@@ -96,7 +99,7 @@ class ReportResource extends RestResource
     /**
      * Set default values before mutating the model
      */
-    public function mutating(\Lomkit\Rest\Http\Requests\MutateRequest $request, array $requestBody, \Illuminate\Database\Eloquent\Model $model): void
+    public function mutating(MutateRequest $request, array $requestBody, Model $model): void
     {
         // Set default values for new records
         if ($requestBody['operation'] === 'create') {

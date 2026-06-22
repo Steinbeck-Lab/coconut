@@ -32,7 +32,7 @@ class PublishMolecules extends Command
         $collection_id = $this->argument('collection_id') ?? null;
 
         // Decide which query to build based on whether collection_id is null
-        if (! is_null($collection_id)) {
+        if ($collection_id !== null) {
             // Attempt to find the specified collection
             $collection = Collection::find($collection_id);
 
@@ -48,6 +48,7 @@ class PublishMolecules extends Command
         } else {
             // Process all molecules in the database
             $query = Molecule::query();
+            $collection = null;
         }
 
         // Use chunk to process large sets of molecules
@@ -64,8 +65,8 @@ class PublishMolecules extends Command
                     ]);
             });
 
-        if ($collection_id) {
-            $collection->update([ // @phpstan-ignore-line
+        if ($collection !== null) {
+            $collection->update([
                 'status' => 'PUBLISHED',
             ]);
         }
