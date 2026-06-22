@@ -28,7 +28,7 @@ class CoconutPolicy implements Preset
         $policy
             ->add(Directive::SCRIPT, Keyword::SELF)
             ->add(Directive::STYLE, Keyword::SELF)
-            ->add(Directive::FONT, [Keyword::SELF, 'data:'])
+            ->add(Directive::FONT, [Keyword::SELF, 'data:', 'https://fonts.scalar.com'])
             ->add(Directive::CONNECT, Keyword::SELF);
 
         // Third-party services
@@ -36,7 +36,7 @@ class CoconutPolicy implements Preset
             ->add(Directive::STYLE, ['https://fonts.googleapis.com', 'https://unpkg.com', 'https://cdn.jsdelivr.net', 'https://fonts.bunny.net'])
             ->add(Directive::FONT, ['https://fonts.bunny.net'])
             ->add(Directive::SCRIPT, ['https://matomo.nfdi4chem.de', 'https://cdn.jsdelivr.net', 'https://unpkg.com'])
-            ->add(Directive::CONNECT, ['https://matomo.nfdi4chem.de', 'https://unpkg.com'])
+            ->add(Directive::CONNECT, ['https://matomo.nfdi4chem.de', 'https://unpkg.com', 'https://fonts.scalar.com'])
             ->add(Directive::IMG, 'https://matomo.nfdi4chem.de');
 
         // Add Coconut-specific external sources

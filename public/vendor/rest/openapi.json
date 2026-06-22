@@ -1,11 +1,11 @@
 {
     "openapi": "3.1.0",
     "info": {
-        "title": "COCONUT",
+        "title": "Laravel",
         "summary": "COlleCtion of Open NatUral producTs",
         "description": "A comprehensive platform facilitating natural product research by providing data, tools, and services for deposition, curation, and reuse.",
         "contact": {
-            "name": "COCONUT",
+            "name": "Laravel",
             "url": "https:\/\/coconut.naturalproducts.net\/",
             "email": "info.coconut@uni-jena.de"
         },
@@ -629,10 +629,10 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Est consectetur labore ut.",
-                                        "description": "Distinctio assumenda eum itaque veritatis in aut. Rem aut exercitationem occaecati rerum quo. Illo veritatis aut non non. Quia ipsum doloribus fugiat vel corrupti fugit quasi.",
-                                        "url": "http:\/\/crooks.com\/",
-                                        "identifier": null
+                                        "title": "Alias eos provident aperiam animi.",
+                                        "description": "Veritatis mollitia nesciunt et omnis magni. Quas est iusto natus repudiandae dolore cupiditate ratione. Enim adipisci dolores ipsa ut magnam. Ratione qui qui vel quisquam architecto.",
+                                        "url": "http:\/\/www.jaskolski.net\/quod-voluptates-tempore-qui-culpa-dolor-nobis",
+                                        "identifier": "Tempora placeat assumenda dolor at."
                                     },
                                     "meta": []
                                 }
@@ -674,9 +674,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Et alias rerum incidunt et.",
-                                        "description": "Libero nesciunt placeat magnam sint. Ut in voluptas consequatur. Laborum aspernatur sint ut optio. Voluptatem illo distinctio culpa laborum.",
-                                        "url": "http:\/\/kutch.com\/ab-voluptatem-consequatur-minus-voluptas-repudiandae-perferendis",
+                                        "title": "Quos voluptatem voluptas in nemo eveniet.",
+                                        "description": "Quam est maxime nihil ut reiciendis rerum. Et et facilis et ea debitis maiores voluptate. Eum saepe ipsam libero dolor.",
+                                        "url": "https:\/\/www.green.com\/aperiam-voluptatum-dolor-fugit-similique-possimus-aut-aut",
                                         "identifier": null
                                     },
                                     "meta": []
@@ -946,9 +946,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1016\/j.bbrep.2025.102032~58",
-                                        "title": "RNA signaling in medicinal plants: An overlooked mechanism for phytochemical regulation.",
-                                        "authors": "Alum EU, Udechukwu CD, Obasi DC.",
+                                        "doi": "10.1007\/s11013-026-09992-1~86",
+                                        "title": "W\u00e8r\u00e8 and the Ontological Politics of Global Mental Health: Distributed Cognition in Yor\u00f9b\u00e1 Traditional Medicine.",
+                                        "authors": "Jegede O.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -991,9 +991,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1039\/b700306b~29",
-                                        "title": "Natural product isolation.",
-                                        "authors": "Sticher O.",
+                                        "doi": "10.1021\/acs.jnatprod.6c00295~37",
+                                        "title": "Systematic Assessment of the Impact of Targeted Selection Methods and Environment-Mimicking Culture Conditions on Fungal Natural Product Libraries.",
+                                        "authors": "Ness M, Wendt KL, Peramuna T, Tillery DI, Murray JE, Cichewicz RH, McCall LI.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -1568,8 +1568,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Annabel Medhurst",
-                                        "email": "veum.adolphus@example.com"
+                                        "name": "Prof. Payton Wiza Sr.",
+                                        "email": "cronin.matilde@example.com"
                                     },
                                     "meta": []
                                 }
@@ -1611,8 +1611,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Dr. Gonzalo Simonis II",
-                                        "email": "ssimonis@example.net"
+                                        "name": "Lloyd Wuckert",
+                                        "email": "vtreutel@example.org"
                                     },
                                     "meta": []
                                 }
@@ -2535,7 +2535,8 @@
                                             "title",
                                             "evidence",
                                             "comment",
-                                            "suggested_changes"
+                                            "suggested_changes",
+                                            "mol_ids"
                                         ],
                                         "scout_fields": [],
                                         "limits": [
@@ -2654,6 +2655,11 @@
                                             "field": "suggested_changes",
                                             "operator": "=",
                                             "value": ""
+                                        },
+                                        {
+                                            "field": "mol_ids",
+                                            "operator": "=",
+                                            "value": ""
                                         }
                                     ],
                                     "sorts": [
@@ -2667,6 +2673,10 @@
                                         },
                                         {
                                             "field": "comment",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "mol_ids",
                                             "direction": "desc"
                                         }
                                     ],
@@ -2682,6 +2692,9 @@
                                         },
                                         {
                                             "field": "suggested_changes"
+                                        },
+                                        {
+                                            "field": "mol_ids"
                                         }
                                     ],
                                     "includes": [],
@@ -2742,7 +2755,8 @@
                                             "title": "",
                                             "evidence": "",
                                             "comment": "",
-                                            "suggested_changes": ""
+                                            "suggested_changes": "",
+                                            "mol_ids": ""
                                         },
                                         "relations": []
                                     }
@@ -3035,7 +3049,7 @@
                             }
                         }
                     },
-                    "\"500\"": {
+                    "500": {
                         "description": "Server Error",
                         "content": {
                             "application\/json": {
@@ -3062,6 +3076,75 @@
                         }
                     }
                 }
+            }
+        },
+        "\/api\/auth\/verify\/{user_id}": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Email verification endpoint",
+                "responses": {
+                    "default": {
+                        "description": "Email verification successful and redirected",
+                        "headers": {
+                            "Location": {
+                                "description": "URL to redirect to",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Http-Response-Code": {
+                                "description": "HTTP Response Code",
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid\/Expired URL provided"
+                    }
+                },
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "user": {
+                                    "id": "example_user_id",
+                                    "name": "example_name",
+                                    "email": "example_email",
+                                    "password": "example_password"
+                                },
+                                "signature": "example_signature"
+                            }
+                        }
+                    },
+                    "description": "User object and Request Signature"
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/auth\/email\/resend": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Resend email verification endpoint",
+                "responses": {
+                    "default": {
+                        "description": "Email verification link sent to your email address"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         }
     },

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Documentation\Schemas\Responses;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Features;
 use Lomkit\Rest\Documentation\Schemas\Example;
@@ -13,7 +14,6 @@ use Lomkit\Rest\Documentation\Schemas\Parameter;
 use Lomkit\Rest\Documentation\Schemas\Path;
 use Lomkit\Rest\Documentation\Schemas\RequestBody;
 use Lomkit\Rest\Documentation\Schemas\Response;
-use Lomkit\Rest\Documentation\Schemas\Responses;
 use Lomkit\Rest\Documentation\Schemas\SchemaConcrete;
 use Lomkit\Rest\Facades\Rest;
 
@@ -312,7 +312,7 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                                     ])
                                             )
                                             ->withOthers([
-                                                json_encode('500') => (new Response)
+                                                '500' => (new Response)
                                                     ->withDescription('Server Error')
                                                     ->withContent([
                                                         'application/json' => (new MediaType)
@@ -422,7 +422,7 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                                     ->withDescription('Email verification successful and redirected')
                                             )
                                             ->withOthers([
-                                                json_encode('401') => (new Response)
+                                                '401' => (new Response)
                                                     ->withDescription('Invalid/Expired URL provided')
                                                     ->generate(),
                                             ])
