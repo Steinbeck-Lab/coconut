@@ -56,7 +56,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="text-slate-800 hover:bg-slate-50 flex items-center p-2" href="https://coconut.naturalproducts.net/api-documentation" target="_blank">
+                                    <a class="text-slate-800 hover:bg-slate-50 flex items-center p-2" href="{{ url('/api-documentation') }}" target="_blank">
                                         <div class="flex items-center justify-center bg-white rounded shadow-sm h-7 w-7 shrink-0 mr-3">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9.75 16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z" />
@@ -82,6 +82,16 @@
                                     </a>
                                 </li>
                                 <li>
+                                    <a class="text-slate-800 hover:bg-slate-50 flex items-center p-2" href="/tree-of-life">
+                                        <div class="flex items-center justify-center bg-white rounded shadow-sm h-7 w-7 shrink-0 mr-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c4.97 0 9 3.582 9 8 0 1.06-.27 2.07-.75 2.97M12 3C7.03 3 3 6.582 3 11c0 1.06.27 2.07.75 2.97M12 3v18M3 11h18" />
+                                            </svg>
+                                        </div>
+                                        <span class="whitespace-nowrap">Tree of life</span>
+                                    </a>
+                                </li>
+                                <li>
                                     <a class="text-slate-800 hover:bg-slate-50 flex items-center p-2" href="/stats" target="_blank">
                                         <div class="flex items-center justify-center bg-white rounded shadow-sm h-7 w-7 shrink-0 mr-3">
                                         <x-heroicon-o-chart-pie />
@@ -98,6 +108,9 @@
                                     </a>
                                 </li>
                             </ul>
+                        </li>
+                        <li class="p-4 lg:px-8">
+                            <a class="text-slate-800 hover:text-slate-900" href="/blog">Blog</a>
                         </li>
                         <li class="p-4 lg:px-8">
                             <a class="text-slate-800 hover:text-slate-900" href="/about">About us</a>
@@ -144,10 +157,14 @@
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Collections</a>
                             <a href="https://steinbeck-lab.github.io/coconut/introduction.html"
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Documentation</a>
+                            <a href="/tree-of-life"
+                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Tree of life</a>
                             <a href="/api-documentation"
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">REST API</a>
                             <a href="https://github.com/Steinbeck-Lab/coconut"
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Codebase</a>
+                            <a href="/blog"
+                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Blog</a>
                             <a href="/about"
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">About
                                 us</a>

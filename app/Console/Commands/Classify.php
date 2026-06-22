@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Collection;
 use App\Models\Molecule;
 use App\Models\Properties;
+use App\Support\NpClassifierResults;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -16,7 +17,7 @@ class Classify extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'coconut:npclassify-old {collection_id?}';
+    protected $signature = 'coconut:npclassify-old {collection_id?} {--force : Re-classify molecules that already have NP Classifier data}';
 
     /**
      * The console command description.
@@ -61,16 +62,32 @@ class Classify extends Command
         $progressBar = $this->output->createProgressBar($totalCount);
         $progressBar->start();
 
+        $force = $this->option('force');
+
         // Process molecules in chunks.
         $query->select(['molecules.id', 'molecules.canonical_smiles'])
-            ->chunk(100, function ($mols) use ($progressBar) {
+            ->when(! $force, function ($q) {
+                $q->whereHas('properties', function ($propertiesQuery) {
+                    $propertiesQuery->whereNull('np_classifier_pathway');
+                });
+            })
+            ->when($force, function ($q) {
+                $q->whereHas('properties', function ($propertiesQuery) {
+                    $propertiesQuery->where(function ($classified) {
+                        $classified->whereNotNull('np_classifier_pathway')
+                            ->orWhereNotNull('np_classifier_superclass')
+                            ->orWhereNotNull('np_classifier_class');
+                    });
+                });
+            })
+            ->chunk(100, function ($mols) use ($progressBar, $force) {
                 $data = [];
                 foreach ($mols as $mol) {
                     $id = $mol->id;
                     $canonical_smiles = $mol->canonical_smiles;
 
                     // Build endpoints.
-                    $apiUrl = 'https://npclassifier.gnps2.org/classify?smiles=';
+                    $apiUrl = config('services.npclassifier.url').'?smiles=';
                     $endpoint = $apiUrl.urlencode($canonical_smiles);
 
                     // Log the start of processing for this molecule.
@@ -88,7 +105,7 @@ class Classify extends Command
                 }
 
                 // Insert the data in one transaction.
-                $this->insertBatch($data);
+                $this->insertBatch($data, $force);
             });
 
         $progressBar->finish();
@@ -143,28 +160,20 @@ class Classify extends Command
      *
      * @return void
      */
-    private function insertBatch(array $data)
+    private function insertBatch(array $data, bool $force = false)
     {
-        DB::transaction(function () use ($data) {
+        DB::transaction(function () use ($data, $force) {
             foreach ($data as $row) {
-                $properties = Properties::where('molecule_id', $row['id'])->whereNull('np_classifier_pathway')->first();
+                $query = Properties::where('molecule_id', $row['id']);
+
+                if (! $force) {
+                    $query->whereNull('np_classifier_pathway');
+                }
+
+                $properties = $query->first();
+
                 if ($properties) {
-                    $properties['np_classifier_pathway'] = (isset($row['pathway_results'][0]) && ! empty($row['pathway_results'][0]))
-                        ? $row['pathway_results'][0]
-                        : null;
-
-                    $properties['np_classifier_superclass'] = (isset($row['superclass_results'][0]) && ! empty($row['superclass_results'][0]))
-                        ? $row['superclass_results'][0]
-                        : null;
-
-                    $properties['np_classifier_class'] = (isset($row['class_results'][0]) && ! empty($row['class_results'][0]))
-                        ? $row['class_results'][0]
-                        : null;
-
-                    $properties['np_classifier_is_glycoside'] = (isset($row['isglycoside']) && $row['isglycoside'] !== '')
-                        ? filter_var($row['isglycoside'], FILTER_VALIDATE_BOOLEAN)
-                        : null;
-
+                    $properties->fill(NpClassifierResults::fromApiResponse($row));
                     $properties->save();
                 }
             }

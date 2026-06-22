@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="CLI Arguments" tests="10" assertions="34" errors="0" failures="0" skipped="0" time="0.397393">
+    <testsuite name="Tests\Unit\NominatimGeocoderTest" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/NominatimGeocoderTest.php" tests="3" assertions="10" errors="0" failures="0" skipped="0" time="0.203306">
+      <testcase name="test_returns_null_when_nominatim_has_no_results" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/NominatimGeocoderTest.php" line="60" class="Tests\Unit\NominatimGeocoderTest" classname="Tests.Unit.NominatimGeocoderTest" assertions="1" time="0.149161"/>
+      <testcase name="test_skips_geocoding_for_placeholder_names" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/NominatimGeocoderTest.php" line="49" class="Tests\Unit\NominatimGeocoderTest" classname="Tests.Unit.NominatimGeocoderTest" assertions="2" time="0.025583"/>
+      <testcase name="test_geocodes_location_from_nominatim_response" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/NominatimGeocoderTest.php" line="21" class="Tests\Unit\NominatimGeocoderTest" classname="Tests.Unit.NominatimGeocoderTest" assertions="7" time="0.028562"/>
+    </testsuite>
+    <testsuite name="Tests\Unit\GeoLocationCountryExtractorTest" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/GeoLocationCountryExtractorTest.php" tests="7" assertions="24" errors="0" failures="0" skipped="0" time="0.194087">
+      <testcase name="test_extracts_mexico_from_parentheses_state" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/GeoLocationCountryExtractorTest.php" line="48" class="Tests\Unit\GeoLocationCountryExtractorTest" classname="Tests.Unit.GeoLocationCountryExtractorTest" assertions="5" time="0.042925"/>
+      <testcase name="test_extracts_usa_alias_with_county" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/GeoLocationCountryExtractorTest.php" line="38" class="Tests\Unit\GeoLocationCountryExtractorTest" classname="Tests.Unit.GeoLocationCountryExtractorTest" assertions="4" time="0.025486"/>
+      <testcase name="test_extracts_country_from_india_segment" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/GeoLocationCountryExtractorTest.php" line="29" class="Tests\Unit\GeoLocationCountryExtractorTest" classname="Tests.Unit.GeoLocationCountryExtractorTest" assertions="3" time="0.024048"/>
+      <testcase name="test_returns_null_for_marine_region_without_country" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/GeoLocationCountryExtractorTest.php" line="69" class="Tests\Unit\GeoLocationCountryExtractorTest" classname="Tests.Unit.GeoLocationCountryExtractorTest" assertions="1" time="0.024345"/>
+      <testcase name="test_should_skip_geocoding_for_placeholder_names" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/GeoLocationCountryExtractorTest.php" line="74" class="Tests\Unit\GeoLocationCountryExtractorTest" classname="Tests.Unit.GeoLocationCountryExtractorTest" assertions="3" time="0.025166"/>
+      <testcase name="test_extracts_country_from_last_comma_segment" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/GeoLocationCountryExtractorTest.php" line="19" class="Tests\Unit\GeoLocationCountryExtractorTest" classname="Tests.Unit.GeoLocationCountryExtractorTest" assertions="4" time="0.025987"/>
+      <testcase name="test_extracts_whole_name_country" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/GeoLocationCountryExtractorTest.php" line="59" class="Tests\Unit\GeoLocationCountryExtractorTest" classname="Tests.Unit.GeoLocationCountryExtractorTest" assertions="4" time="0.026132"/>
+    </testsuite>
+  </testsuite>
+</testsuites>

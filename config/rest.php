@@ -67,11 +67,11 @@ return [
             'title' => config('app.name'),
             'summary' => 'COlleCtion of Open NatUral producTs',
             'description' => 'A comprehensive platform facilitating natural product research by providing data, tools, and services for deposition, curation, and reuse.',
-            'termsOfService' => 'https://coconut.naturalproducts.net/terms',
+            'termsOfService' => rtrim(config('app.url'), '/').'/terms',
             'contact' => [
                 'name' => config('app.name'),
                 'email' => 'info.coconut@uni-jena.de',
-                'url' => 'https://coconut.naturalproducts.net/',
+                'url' => rtrim(config('app.url'), '/').'/',
             ],
             'license' => [
                 'url' => null,

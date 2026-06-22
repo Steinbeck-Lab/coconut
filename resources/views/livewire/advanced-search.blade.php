@@ -4,34 +4,61 @@
     schema: @entangle('schema'),
     searchParams: @entangle('searchParams'),
     queryString: '',
+    slugify(text) {
+        return text.toString().toLowerCase().trim().replace(/\s+/g, '-');
+    },
+    parseFilterTokens(condition, knownKeys) {
+        const sortedKeys = [...knownKeys].sort((a, b) => b.length - a.length);
+        const escaped = sortedKeys.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+        const pattern = new RegExp('\\b(' + escaped.join('|') + '):', 'g');
+        const positions = [];
+        let match;
+        while ((match = pattern.exec(condition)) !== null) {
+            positions.push({ key: match[1], end: match.index + match[0].length, index: match.index });
+        }
+        return positions.map((pos, i) => {
+            const valueStart = pos.end;
+            const valueEnd = i + 1 < positions.length ? positions[i + 1].index : condition.length;
+            return [pos.key, condition.substring(valueStart, valueEnd).trim()];
+        });
+    },
+    resolveSelectValue(config, rawValue) {
+        const normalized = this.slugify(rawValue.replace(/\+/g, ' '));
+        return config.unique_values?.find(v => this.slugify(v) === normalized) ?? rawValue.replace(/\+/g, ' ');
+    },
+    parseQueryIntoParams(query) {
+        const knownKeys = Object.keys(this.schema);
+        if (knownKeys.length === 0) {
+            return;
+        }
+        this.parseFilterTokens(query, knownKeys).forEach(([key, value]) => {
+            const config = this.schema[key];
+            if (!config) {
+                return;
+            }
+            if (config.type === 'range' && value.includes('..')) {
+                const [min, max] = value.split('..').map(Number);
+                this.searchParams[key] = { min, max };
+            } else if (config.type === 'select') {
+                const values = value.includes('|') ? value.split('|') : [value];
+                this.searchParams[key] = values.map(v => this.resolveSelectValue(config, v));
+            } else if (config.type === 'boolean') {
+                this.searchParams[key] = value === 'true';
+            } else {
+                this.searchParams[key] = value.replace(/\+/g, ' ');
+            }
+        });
+    },
     init() {
-        // Parse URL and prefill searchParams
         const url = new URL(window.location.href);
         const type = url.searchParams.get('type');
         const query = url.searchParams.get('q');
 
         if (type === 'filters' && query) {
             this.queryString = decodeURIComponent(query);
-
-            // Parse the query string to populate searchParams
-            const parts = this.queryString.split(' ');
-            parts.forEach(part => {
-                const [key, value] = part.split(':');
-                const config = this.schema[key];
-
-                if (config) {
-                    if (config.type === 'range' && value.includes('..')) {
-                        const [min, max] = value.split('..').map(Number);
-                        this.searchParams[key] = { min, max };
-                    } else if (config.type === 'select' && value.includes('|')) {
-                        this.searchParams[key] = value.split('|');
-                    } else if (config.type === 'boolean') {
-                        this.searchParams[key] = value === 'true';
-                    } else {
-                        this.searchParams[key] = value.replace(/\+/g, ' ');
-                    }
-                }
-            });
+            const tryParse = () => this.parseQueryIntoParams(this.queryString);
+            tryParse();
+            this.$watch('schema', tryParse);
         }
     },
     updateQueryString() {
@@ -46,14 +73,14 @@
                     }
                 } else if (config.type === 'select' && Array.isArray(value)) {
                     if (value.length > 0) {
-                        parts.push(`${key}:${value.join('|').replace(/ /g, '+')}`);
+                        parts.push(`${key}:${value.map(v => this.slugify(v)).join('|')}`);
                     }
                 } else if (config.type === 'boolean') {
                     if (value !== 'undefined') {
                         parts.push(`${key}:${value}`);
                     }
                 } else if (value && value !== config.default) {
-                    parts.push(`${key}:${value}.replace(/ /g, '+')`);
+                    parts.push(`${key}:${this.slugify(value)}`);
                 }
             }
         }
