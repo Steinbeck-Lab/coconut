@@ -24,6 +24,30 @@ function csp_nonce(): string
 }
 
 /**
+ * Public base URL for objects on the configured S3/Ceph disk.
+ */
+function public_storage_url(?string $path = null): string
+{
+    $base = rtrim((string) config('filesystems.disks.s3.url'), '/');
+
+    if ($path === null || $path === '') {
+        return $base;
+    }
+
+    return $base.'/'.ltrim($path, '/');
+}
+
+/**
+ * Public base URL for COCONUT release downloads on object storage.
+ */
+function public_downloads_url(string $path): string
+{
+    $base = rtrim((string) config('filesystems.disks.s3.downloads_url'), '/');
+
+    return $base.'/'.ltrim($path, '/');
+}
+
+/**
  * Get all curator users.
  * This centralizes curator fetching logic that may change in the future.
  *
