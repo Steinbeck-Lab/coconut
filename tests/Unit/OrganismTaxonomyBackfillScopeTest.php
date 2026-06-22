@@ -31,6 +31,7 @@ class OrganismTaxonomyBackfillScopeTest extends TestCase
             'molecule_count' => 3,
             'taxonomy' => ['match_type' => 'Fuzzy'],
             'taxonomy_fetched_at' => now(),
+            'iri' => urlencode('http://purl.obolibrary.org/obo/NCBITaxon_3'),
         ]);
 
         $ids = Organism::query()->needingTaxonomyEnrichment()->pluck('id')->all();
