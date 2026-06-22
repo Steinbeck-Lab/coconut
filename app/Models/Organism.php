@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Closure;
 use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Notifications\Notification;
@@ -97,105 +98,141 @@ class Organism extends Model implements Auditable
         return changeAudit($data);
     }
 
-    public static function getForm(): array
+    public static function validateNameForReportChange(string $name, array $linkedNames): ?string
     {
+        if (in_array($name, $linkedNames, true)) {
+            return 'This organism is already linked to this molecule.';
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<int, Closure>
+     */
+    public static function reportChangeNameRules(array $linkedNames = []): array
+    {
+        if ($linkedNames === []) {
+            return [];
+        }
+
         return [
-            Forms\Components\TextInput::make('name')
-                ->label('Organism Name')
-                ->placeholder('e.g., Homo sapiens, Escherichia coli')
-                ->required()
-                ->unique(Organism::class, 'name', ignoreRecord: true)
-                ->maxLength(255)
-                ->helperText('Enter the scientific name of the organism (genus and species)')
-                ->hintActions([
-                    Action::make('searchGoogle')
-                        ->label('Google')
-                        ->icon('heroicon-m-globe-alt')
-                        ->color('gray')
-                        ->size('xs')
-                        ->url(fn ($state) => $state ? 'https://www.google.com/search?q='.urlencode($state) : null, shouldOpenInNewTab: true)
-                        ->visible(fn ($state) => filled($state)),
-                    Action::make('searchScholar')
-                        ->label('Scholar')
-                        ->icon('heroicon-m-academic-cap')
-                        ->color('gray')
-                        ->size('xs')
-                        ->url(fn ($state) => $state ? 'https://scholar.google.com/scholar?q='.urlencode($state) : null, shouldOpenInNewTab: true)
-                        ->visible(fn ($state) => filled($state)),
-                ])
-                ->live(onBlur: true)
-                ->suffixAction(
-                    fn (?string $state): Action => Action::make('lookupOrganism')
-                        ->icon('heroicon-m-magnifying-glass')
-                        ->label('Search')
-                        ->tooltip('Search taxonomic databases for this organism')
-                        ->form(function () use ($state) {
-                            $name = trim($state ?? '');
-                            if (empty($name)) {
-                                return [
-                                    Forms\Components\Placeholder::make('empty')
-                                        ->content('Please enter an organism name first')
-                                        ->columnSpanFull(),
-                                ];
-                            }
+            function (string $attribute, mixed $value, Closure $fail) use ($linkedNames): void {
+                $message = static::validateNameForReportChange((string) $value, $linkedNames);
 
-                            $results = self::searchAllSources($name);
+                if ($message !== null) {
+                    $fail($message);
+                }
+            },
+        ];
+    }
 
-                            if (empty($results)) {
-                                return [
-                                    Forms\Components\Placeholder::make('no_results')
-                                        ->content("No taxonomic data found for: {$name}")
-                                        ->columnSpanFull(),
-                                ];
-                            }
-
+    public static function getForm(bool $requireUniqueName = true, array $excludedNames = []): array
+    {
+        $nameField = Forms\Components\TextInput::make('name')
+            ->label('Organism Name')
+            ->placeholder('e.g., Homo sapiens, Escherichia coli')
+            ->required()
+            ->maxLength(255)
+            ->helperText('Enter the scientific name of the organism (genus and species)')
+            ->hintActions([
+                Action::make('searchGoogle')
+                    ->label('Google')
+                    ->icon('heroicon-m-globe-alt')
+                    ->color('gray')
+                    ->size('xs')
+                    ->url(fn ($state) => $state ? 'https://www.google.com/search?q='.urlencode($state) : null, shouldOpenInNewTab: true)
+                    ->visible(fn ($state) => filled($state)),
+                Action::make('searchScholar')
+                    ->label('Scholar')
+                    ->icon('heroicon-m-academic-cap')
+                    ->color('gray')
+                    ->size('xs')
+                    ->url(fn ($state) => $state ? 'https://scholar.google.com/scholar?q='.urlencode($state) : null, shouldOpenInNewTab: true)
+                    ->visible(fn ($state) => filled($state)),
+            ])
+            ->live(onBlur: true)
+            ->suffixAction(
+                fn (?string $state): Action => Action::make('lookupOrganism')
+                    ->icon('heroicon-m-magnifying-glass')
+                    ->label('Search')
+                    ->tooltip('Search taxonomic databases for this organism')
+                    ->form(function () use ($state) {
+                        $name = trim($state ?? '');
+                        if (empty($name)) {
                             return [
-                                Forms\Components\Radio::make('selected_result')
-                                    ->label('Select a result')
-                                    ->options(collect($results)->mapWithKeys(function ($result, $index) {
-                                        $label = "{$result['name']} ({$result['rank']})";
-
-                                        return [$index => $label];
-                                    })->toArray())
-                                    ->descriptions(collect($results)->mapWithKeys(function ($result, $index) {
-                                        $desc = $result['source'];
-                                        if ($result['iri']) {
-                                            $desc .= ' • '.Str::limit($result['iri'], 50);
-                                        }
-
-                                        return [$index => $desc];
-                                    })->toArray())
-                                    ->required()
+                                Forms\Components\Placeholder::make('empty')
+                                    ->content('Please enter an organism name first')
                                     ->columnSpanFull(),
-                                Forms\Components\Hidden::make('results_data')
-                                    ->default(json_encode($results)),
                             ];
-                        })
-                        ->modalHeading('Taxonomy Search Results')
-                        ->modalDescription(fn () => 'Results for: '.trim($state ?? ''))
-                        ->modalSubmitActionLabel('Use Selected')
-                        ->modalWidth('lg')
-                        ->action(function (array $data, Set $set) {
-                            if (! isset($data['selected_result']) || ! isset($data['results_data'])) {
-                                return;
-                            }
+                        }
 
-                            $results = json_decode($data['results_data'], true);
-                            $selected = $results[$data['selected_result']] ?? null;
+                        $results = self::searchAllSources($name);
 
-                            if ($selected) {
-                                $set('iri', $selected['iri']);
-                                $set('rank', $selected['rank']);
+                        if (empty($results)) {
+                            return [
+                                Forms\Components\Placeholder::make('no_results')
+                                    ->content("No taxonomic data found for: {$name}")
+                                    ->columnSpanFull(),
+                            ];
+                        }
 
-                                Notification::make()
-                                    ->title('Organism data applied!')
-                                    ->body("Applied: {$selected['name']} ({$selected['rank']}) from {$selected['source']}")
-                                    ->success()
-                                    ->send();
-                            }
-                        })
-                )
-                ->columnSpanFull(),
+                        return [
+                            Forms\Components\Radio::make('selected_result')
+                                ->label('Select a result')
+                                ->options(collect($results)->mapWithKeys(function ($result, $index) {
+                                    $label = "{$result['name']} ({$result['rank']})";
+
+                                    return [$index => $label];
+                                })->toArray())
+                                ->descriptions(collect($results)->mapWithKeys(function ($result, $index) {
+                                    $desc = $result['source'];
+                                    if ($result['iri']) {
+                                        $desc .= ' • '.Str::limit($result['iri'], 50);
+                                    }
+
+                                    return [$index => $desc];
+                                })->toArray())
+                                ->required()
+                                ->columnSpanFull(),
+                            Forms\Components\Hidden::make('results_data')
+                                ->default(json_encode($results)),
+                        ];
+                    })
+                    ->modalHeading('Taxonomy Search Results')
+                    ->modalDescription(fn () => 'Results for: '.trim($state ?? ''))
+                    ->modalSubmitActionLabel('Use Selected')
+                    ->modalWidth('lg')
+                    ->action(function (array $data, Set $set) {
+                        if (! isset($data['selected_result']) || ! isset($data['results_data'])) {
+                            return;
+                        }
+
+                        $results = json_decode($data['results_data'], true);
+                        $selected = $results[$data['selected_result']] ?? null;
+
+                        if ($selected) {
+                            $set('iri', $selected['iri']);
+                            $set('rank', $selected['rank']);
+
+                            Notification::make()
+                                ->title('Organism data applied!')
+                                ->body("Applied: {$selected['name']} ({$selected['rank']}) from {$selected['source']}")
+                                ->success()
+                                ->send();
+                        }
+                    })
+            )
+            ->columnSpanFull();
+
+        if ($requireUniqueName) {
+            $nameField->unique(Organism::class, 'name', ignoreRecord: true);
+        } else {
+            $nameField->rules(static::reportChangeNameRules($excludedNames));
+        }
+
+        return [
+            $nameField,
 
             Forms\Components\ToggleButtons::make('rank')
                 ->label('Taxonomic Rank')
