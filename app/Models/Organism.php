@@ -2,13 +2,19 @@
 
 namespace App\Models;
 
+use Filament\Actions\Action;
 use Filament\Forms;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Utilities\Set;
+use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use OwenIt\Auditing\Contracts\Auditable;
 
 /**
@@ -48,7 +54,7 @@ class Organism extends Model implements Auditable
 
         static::saving(function ($organism) {
             if ($organism->name && ! $organism->slug) {
-                $organism->slug = \Illuminate\Support\Str::slug($organism->name);
+                $organism->slug = Str::slug($organism->name);
             }
         });
     }
@@ -102,14 +108,14 @@ class Organism extends Model implements Auditable
                 ->maxLength(255)
                 ->helperText('Enter the scientific name of the organism (genus and species)')
                 ->hintActions([
-                    \Filament\Actions\Action::make('searchGoogle')
+                    Action::make('searchGoogle')
                         ->label('Google')
                         ->icon('heroicon-m-globe-alt')
                         ->color('gray')
                         ->size('xs')
                         ->url(fn ($state) => $state ? 'https://www.google.com/search?q='.urlencode($state) : null, shouldOpenInNewTab: true)
                         ->visible(fn ($state) => filled($state)),
-                    \Filament\Actions\Action::make('searchScholar')
+                    Action::make('searchScholar')
                         ->label('Scholar')
                         ->icon('heroicon-m-academic-cap')
                         ->color('gray')
@@ -119,7 +125,7 @@ class Organism extends Model implements Auditable
                 ])
                 ->live(onBlur: true)
                 ->suffixAction(
-                    fn (?string $state): \Filament\Actions\Action => \Filament\Actions\Action::make('lookupOrganism')
+                    fn (?string $state): Action => Action::make('lookupOrganism')
                         ->icon('heroicon-m-magnifying-glass')
                         ->label('Search')
                         ->tooltip('Search taxonomic databases for this organism')
@@ -154,7 +160,7 @@ class Organism extends Model implements Auditable
                                     ->descriptions(collect($results)->mapWithKeys(function ($result, $index) {
                                         $desc = $result['source'];
                                         if ($result['iri']) {
-                                            $desc .= ' • '.\Illuminate\Support\Str::limit($result['iri'], 50);
+                                            $desc .= ' • '.Str::limit($result['iri'], 50);
                                         }
 
                                         return [$index => $desc];
@@ -169,7 +175,7 @@ class Organism extends Model implements Auditable
                         ->modalDescription(fn () => 'Results for: '.trim($state ?? ''))
                         ->modalSubmitActionLabel('Use Selected')
                         ->modalWidth('lg')
-                        ->action(function (array $data, \Filament\Schemas\Components\Utilities\Set $set) {
+                        ->action(function (array $data, Set $set) {
                             if (! isset($data['selected_result']) || ! isset($data['results_data'])) {
                                 return;
                             }
@@ -181,7 +187,7 @@ class Organism extends Model implements Auditable
                                 $set('iri', $selected['iri']);
                                 $set('rank', $selected['rank']);
 
-                                \Filament\Notifications\Notification::make()
+                                Notification::make()
                                     ->title('Organism data applied!')
                                     ->body("Applied: {$selected['name']} ({$selected['rank']}) from {$selected['source']}")
                                     ->success()
@@ -233,7 +239,7 @@ class Organism extends Model implements Auditable
         $name = ucfirst(strtolower(trim($name)));
         $genus = explode(' ', $name)[0];
 
-        $client = new \GuzzleHttp\Client([
+        $client = new Client([
             'base_uri' => 'https://www.ebi.ac.uk/ols4/api/v2/',
         ]);
 
@@ -248,7 +254,7 @@ class Organism extends Model implements Auditable
                 $results = array_merge($results, $genusResults);
             }
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('OLS search error: '.$e->getMessage());
+            Log::error('OLS search error: '.$e->getMessage());
         }
 
         // Search Global Names Finder
@@ -256,7 +262,7 @@ class Organism extends Model implements Auditable
             $gnfResults = self::searchGNF($name);
             $results = array_merge($results, $gnfResults);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('GNF search error: '.$e->getMessage());
+            Log::error('GNF search error: '.$e->getMessage());
         }
 
         // Remove duplicates based on IRI
@@ -364,7 +370,7 @@ class Organism extends Model implements Auditable
         $results = [];
 
         try {
-            $client = new \GuzzleHttp\Client;
+            $client = new Client;
             $response = $client->post('https://finder.globalnames.org/api/v1/find', [
                 'json' => [
                     'text' => $name,

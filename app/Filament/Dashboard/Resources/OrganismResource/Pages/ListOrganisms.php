@@ -41,7 +41,7 @@ class ListOrganisms extends ListRecords
                     $q->whereNull('rank')->orWhere('rank', '');
                 }))
                 ->favorite()
-                ->badge(Organism::query()->where(function ($q) {
+                ->badge((string) Organism::query()->where(function ($q) {
                     $q->whereNull('rank')->orWhere('rank', '');
                 })->count())
                 ->preserveAll(),
