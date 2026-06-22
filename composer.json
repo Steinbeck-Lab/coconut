@@ -48,6 +48,7 @@
         "spatie/laravel-permission": "^6.10.1",
         "spatie/schema-org": "^3.23",
         "stechstudio/filament-impersonate": "^4.0",
+        "stephenjude/filament-blog": "^5.0",
         "stephenjude/filament-debugger": "^4.0",
         "tapp/filament-auditing": "^4.0",
         "tecnickcom/tc-lib-pdf": "^8.0.82"

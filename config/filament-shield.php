@@ -1,16 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Filament\Dashboard\Resources\Blog\AuthorResource;
+use App\Filament\Dashboard\Resources\Blog\CategoryResource;
+use App\Filament\Dashboard\Resources\Blog\PostResource;
+use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
+use Filament\Pages\Dashboard;
+use Filament\Widgets\AccountWidget;
+use Filament\Widgets\FilamentInfoWidget;
+
 return [
+
     'shield_resource' => [
-        'should_register_navigation' => true,
         'slug' => 'shield/roles',
-        'navigation_sort' => -1,
-        'navigation_badge' => true,
-        'navigation_group' => true,
-        'is_globally_searchable' => false,
         'show_model_path' => true,
-        'is_scoped_to_tenant' => true,
+        'cluster' => null,
+        'tabs' => [
+            'pages' => true,
+            'widgets' => true,
+            'resources' => true,
+            'custom_permissions' => false,
+        ],
     ],
+
+    'tenant_model' => null,
 
     'auth_provider_model' => 'App\\Models\\User',
 
@@ -18,7 +32,7 @@ return [
         'enabled' => true,
         'name' => 'super_admin',
         'define_via_gate' => false,
-        'intercept_gate' => 'before', // after
+        'intercept_gate' => 'before',
     ],
 
     'panel_user' => [
@@ -26,51 +40,72 @@ return [
         'name' => 'panel_user',
     ],
 
-    'permission_prefixes' => [
-        'resource' => [
-            'view',
-            'view_any',
+    'permissions' => [
+        'separator' => ':',
+        'case' => 'pascal',
+        'generate' => true,
+    ],
+
+    'policies' => [
+        'path' => app_path('Policies'),
+        'merge' => true,
+        'generate' => true,
+        'methods' => [
+            'viewAny', 'view', 'create', 'update', 'delete', 'deleteAny', 'restore',
+            'forceDelete', 'forceDeleteAny', 'restoreAny', 'replicate', 'reorder',
+        ],
+        'single_parameter_methods' => [
+            'viewAny',
             'create',
-            'update',
-            'restore',
-            'restore_any',
-            'replicate',
+            'deleteAny',
+            'forceDeleteAny',
+            'restoreAny',
             'reorder',
-            'delete',
-            'delete_any',
-            'force_delete',
-            'force_delete_any',
         ],
-
-        'page' => 'page',
-        'widget' => 'widget',
     ],
 
-    'entities' => [
-        'pages' => true,
-        'widgets' => true,
-        'resources' => true,
-        'custom_permissions' => false,
+    'localization' => [
+        'enabled' => false,
+        'key' => 'filament-shield::filament-shield.resource_permission_prefixes_labels',
     ],
 
-    'generator' => [
-        'option' => 'policies_and_permissions',
-        'policy_directory' => 'Policies',
-    ],
-
-    'exclude' => [
-        'enabled' => true,
-
-        'pages' => [
-            // 'Dashboard',
+    'resources' => [
+        'subject' => 'model',
+        'manage' => [
+            RoleResource::class => [
+                'viewAny',
+                'view',
+                'create',
+                'update',
+                'delete',
+            ],
         ],
-
-        'widgets' => [
-            'AccountWidget', 'FilamentInfoWidget',
+        'exclude' => [
+            // Blog is authorized via BlogPlugin on the dashboard panel.
+            PostResource::class,
+            CategoryResource::class,
+            AuthorResource::class,
         ],
-
-        'resources' => [],
     ],
+
+    'pages' => [
+        'subject' => 'class',
+        'prefix' => 'view',
+        'exclude' => [
+            Dashboard::class,
+        ],
+    ],
+
+    'widgets' => [
+        'subject' => 'class',
+        'prefix' => 'view',
+        'exclude' => [
+            AccountWidget::class,
+            FilamentInfoWidget::class,
+        ],
+    ],
+
+    'custom_permissions' => [],
 
     'discovery' => [
         'discover_all_resources' => true,
@@ -78,8 +113,6 @@ return [
         'discover_all_pages' => false,
     ],
 
-    'register_role_policy' => [
-        'enabled' => false,
-    ],
+    'register_role_policy' => false,
 
 ];
