@@ -6,6 +6,7 @@ use App\Models\Citation;
 use App\Models\Collection;
 use App\Models\Molecule;
 use App\Models\Organism;
+use App\Support\NpClassifierResults;
 use Illuminate\Database\QueryException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -424,7 +425,16 @@ class SearchMolecule
                     $params[] = json_encode($dbs);
                 } else {
                     $filterValue = str_replace('+', ' ', $filterValue);
-                    $sql .= "(LOWER(REGEXP_REPLACE({$filterMap[$filterKey]}, '\\s+', '-', 'g'))::TEXT ILIKE ?)";
+                    $jsonbArrayFilters = NpClassifierResults::jsonbArrayFilterColumns();
+                    if (isset($jsonbArrayFilters[$filterKey])) {
+                        $column = $filterMap[$filterKey];
+                        $sql .= "(EXISTS (
+                            SELECT 1 FROM jsonb_array_elements_text({$column}) AS elem
+                            WHERE LOWER(REGEXP_REPLACE(elem, '\\s+', '-', 'g')) ILIKE ?
+                        ))";
+                    } else {
+                        $sql .= "(LOWER(REGEXP_REPLACE({$filterMap[$filterKey]}, '\\s+', '-', 'g'))::TEXT ILIKE ?)";
+                    }
                     $params[] = '%'.$filterValue.'%';
                 }
             }
