@@ -31,13 +31,9 @@ class JetstreamServiceProvider extends ServiceProvider
      */
     protected function configurePermissions(): void
     {
+        // Sanctum PAT abilities are scoped to read only. REST authorization uses Spatie via policies.
         Jetstream::defaultApiTokenPermissions(['read']);
 
-        Jetstream::permissions([
-            'create',
-            'read',
-            'update',
-            'delete',
-        ]);
+        Jetstream::permissions(['read']);
     }
 }

@@ -1,5 +1,25 @@
 <?php
 
+$s3BaseUrl = rtrim(env('AWS_URL', 'https://s3.uni-jena.de'), '/');
+$s3Bucket = env('AWS_BUCKET', 'coconut');
+$s3UsePathStyle = filter_var(env('AWS_USE_PATH_STYLE_ENDPOINT', true), FILTER_VALIDATE_BOOLEAN);
+$s3PublicUrl = $s3UsePathStyle ? $s3BaseUrl.'/'.$s3Bucket : $s3BaseUrl;
+$s3DownloadsUrl = rtrim(env('AWS_DOWNLOADS_URL', 'https://coconut.s3.uni-jena.de/prod/downloads'), '/');
+$s3Endpoint = env('AWS_ENDPOINT', 'https://s3.uni-jena.de');
+
+$s3Disk = [
+    'driver' => 's3',
+    'key' => env('AWS_ACCESS_KEY_ID'),
+    'secret' => env('AWS_SECRET_ACCESS_KEY'),
+    'region' => env('AWS_DEFAULT_REGION'),
+    'bucket' => $s3Bucket,
+    'url' => $s3PublicUrl,
+    'downloads_url' => $s3DownloadsUrl,
+    'endpoint' => $s3Endpoint,
+    'use_path_style_endpoint' => $s3UsePathStyle,
+    'throw' => false,
+];
+
 return [
 
     /*
@@ -44,33 +64,9 @@ return [
             'throw' => false,
         ],
 
-        's3' => [
-            'driver' => 's3',
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_BUCKET'),
-            'url' => env('AWS_USE_PATH_STYLE_ENDPOINT', false)
-                ? env('AWS_URL').'/'.env('AWS_BUCKET')
-                : env('AWS_URL'),
-            'endpoint' => env('AWS_ENDPOINT'),
-            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'throw' => false,
-        ],
+        's3' => $s3Disk,
 
-        'ceph' => [
-            'driver' => 's3',
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_BUCKET'),
-            'url' => env('AWS_USE_PATH_STYLE_ENDPOINT', false)
-                ? env('AWS_URL').'/'.env('AWS_BUCKET')
-                : env('AWS_URL'),
-            'endpoint' => env('AWS_ENDPOINT'),
-            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'throw' => false,
-        ],
+        'ceph' => $s3Disk,
 
     ],
 

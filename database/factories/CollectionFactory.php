@@ -27,7 +27,7 @@ class CollectionFactory extends Factory
             'slug' => $slug,
             'doi' => $this->faker->optional()->url(),
             'description' => $this->faker->paragraph(),
-            'status' => $this->faker->randomElement(['DRAFT']),
+            'status' => 'DRAFT',
             'release_date' => $this->faker->optional()->dateTimeBetween('now', '+1 year'),
             'comments' => $this->faker->optional()->paragraph(),
             'url' => $this->faker->url(),
