@@ -60,7 +60,7 @@ class ClassifyMoleculeAuto implements ShouldQueue
             $canonical_smiles = $this->molecule->canonical_smiles;
 
             // Build endpoint
-            $apiUrl = 'https://npclassifier.gnps2.org/classify?smiles=';
+            $apiUrl = config('services.npclassifier.url').'?smiles=';
             $endpoint = $apiUrl.urlencode($canonical_smiles);
 
             // Fetch classification data from API

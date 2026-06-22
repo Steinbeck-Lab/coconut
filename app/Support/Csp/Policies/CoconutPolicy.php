@@ -12,17 +12,17 @@ class CoconutPolicy implements Preset
 {
     public function configure(Policy $policy): void
     {
+        $appOrigins = $this->configuredAppOrigins();
+
         // Core security directives
         $policy
             ->add(Directive::BASE, Keyword::SELF)
             ->add(Directive::DEFAULT, Keyword::SELF)
             ->add(Directive::OBJECT, Keyword::NONE);
 
-        // Form action - allow both dev and prod domains (HTTPS only)
-        $policy
-            ->add(Directive::FORM_ACTION, Keyword::SELF)
-            ->add(Directive::FORM_ACTION, 'https://dev.coconut.naturalproducts.net')
-            ->add(Directive::FORM_ACTION, 'https://coconut.naturalproducts.net');
+        // Form action - allow configured app hosts (HTTPS only)
+        $policy->add(Directive::FORM_ACTION, Keyword::SELF);
+        $this->addSources($policy, Directive::FORM_ACTION, $appOrigins);
 
         // Basic asset sources
         $policy
@@ -40,13 +40,87 @@ class CoconutPolicy implements Preset
             ->add(Directive::IMG, 'https://matomo.nfdi4chem.de');
 
         // Add Coconut-specific external sources
-        $this->addCoconutSources($policy);
+        $this->addCoconutSources($policy, $appOrigins);
 
         // Unified rules for all environments
-        $this->addUnifiedRules($policy);
+        $this->addUnifiedRules($policy, $appOrigins);
     }
 
-    private function addUnifiedRules(Policy $policy): void
+    /**
+     * @return list<string>
+     */
+    private function configuredAppOrigins(): array
+    {
+        return $this->originsFromUrls([
+            config('app.url'),
+            config('services.coconut.public_url'),
+        ]);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function configuredStorageOrigins(): array
+    {
+        return $this->originsFromUrls([
+            config('filesystems.disks.s3.url'),
+            config('filesystems.disks.s3.downloads_url'),
+            config('filesystems.disks.s3.endpoint'),
+        ]);
+    }
+
+    /**
+     * @param  list<string|null>  $urls
+     * @return list<string>
+     */
+    private function originsFromUrls(array $urls): array
+    {
+        $origins = [];
+
+        foreach ($urls as $url) {
+            if ($origin = $this->originFromUrl($url)) {
+                $origins[] = $origin;
+            }
+        }
+
+        return array_values(array_unique($origins));
+    }
+
+    private function originFromUrl(?string $url): ?string
+    {
+        if (! $url) {
+            return null;
+        }
+
+        $parts = parse_url($url);
+
+        if (! isset($parts['scheme'], $parts['host'])) {
+            return null;
+        }
+
+        $port = isset($parts['port']) ? ':'.$parts['port'] : '';
+
+        return $parts['scheme'].'://'.$parts['host'].$port;
+    }
+
+    /**
+     * @param  list<string|null>  $sources
+     */
+    private function addSources(Policy $policy, Directive $directive, array $sources): void
+    {
+        $filtered = array_values(array_filter($sources, fn ($source) => is_string($source) && $source !== ''));
+
+        if ($filtered === []) {
+            return;
+        }
+
+        $policy->add($directive, count($filtered) === 1 ? $filtered[0] : $filtered);
+    }
+
+    /**
+     * @param  list<string>  $appOrigins
+     */
+    private function addUnifiedRules(Policy $policy, array $appOrigins): void
     {
         // Development server support (for local development with Vite)
         // Only add localhost sources in non-production environments
@@ -70,12 +144,11 @@ class CoconutPolicy implements Preset
             ->add(Directive::SCRIPT, ['https://code.jquery.com'])
             ->add(Directive::SCRIPT, ['https://cdnjs.cloudflare.com']);
 
-        // Allow build assets from Coconut domains (production and dev)
-        $policy
-            ->add(Directive::FONT, ['https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net'])
-            ->add(Directive::STYLE, ['https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net'])
-            ->add(Directive::SCRIPT, ['https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net'])
-            ->add(Directive::IMG, ['https://coconut.naturalproducts.net', 'https://dev.coconut.naturalproducts.net']);
+        // Allow build assets from configured Coconut app hosts
+        $this->addSources($policy, Directive::FONT, $appOrigins);
+        $this->addSources($policy, Directive::STYLE, $appOrigins);
+        $this->addSources($policy, Directive::SCRIPT, $appOrigins);
+        $this->addSources($policy, Directive::IMG, $appOrigins);
 
         $policy = $this->addNonce($policy);
 
@@ -104,21 +177,24 @@ class CoconutPolicy implements Preset
 
     /**
      * Add Coconut-specific external sources.
-     * For runtime-configurable sources, use config/csp.php with CSP_ADDITIONAL_* env variables.
+     *
+     * @param  list<string>  $appOrigins
      */
-    private function addCoconutSources(Policy $policy): void
+    private function addCoconutSources(Policy $policy, array $appOrigins): void
     {
+        $storageOrigins = $this->configuredStorageOrigins();
+        $avatarOrigin = $this->originFromUrl(config('services.avatars.url'));
+        $cheminfOrigin = $this->originFromUrl(rtrim((string) config('services.cheminf.api_url'), '/'));
+
         // Image sources
         $policy
             ->add(Directive::IMG, Keyword::SELF)
             ->add(Directive::IMG, 'data:')
             ->add(Directive::IMG, 'blob:')
-            ->add(Directive::IMG, 'https://ui-avatars.com')
-            ->add(Directive::IMG, 'https://s3.uni-jena.de')
+            ->add(Directive::IMG, array_filter([$avatarOrigin, ...$storageOrigins, ...$appOrigins]))
             ->add(Directive::IMG, 'https://www.nfdi4chem.de')
             ->add(Directive::IMG, 'https://upload.wikimedia.org')
             ->add(Directive::IMG, 'https://*.naturalproducts.net')
-            ->add(Directive::IMG, 'https://coconut.naturalproducts.net')
             ->add(Directive::IMG, 'https://github.com')
             ->add(Directive::IMG, 'https://raw.githubusercontent.com')
             ->add(Directive::IMG, 'https://www.gstatic.com')
@@ -130,15 +206,19 @@ class CoconutPolicy implements Preset
         }
 
         // Connection sources - External APIs
+        $this->addSources($policy, Directive::CONNECT, [
+            ...$storageOrigins,
+            ...$appOrigins,
+            config('services.citation.europepmc_url'),
+            config('services.citation.crossref_url'),
+            config('services.citation.datacite_url'),
+            config('services.regapp.redirect'),
+            $this->originFromUrl(config('services.regapp.oidc_base_url')),
+            config('services.cheminf.api_url'),
+            $cheminfOrigin,
+        ]);
+
         $policy
-            ->add(Directive::CONNECT, config('filesystems.disks.s3.endpoint') ?: 'https://s3.uni-jena.de')
-            ->add(Directive::CONNECT, config('services.citation.europepmc_url') ?: 'https://www.ebi.ac.uk/europepmc/webservices/rest/search')
-            ->add(Directive::CONNECT, config('services.citation.crossref_url') ?: 'https://api.crossref.org/works/')
-            ->add(Directive::CONNECT, config('services.citation.datacite_url') ?: 'https://api.datacite.org/dois/')
-            ->add(Directive::CONNECT, config('services.regapp.redirect') ?: 'https://coconut.naturalproducts.net')
-            ->add(Directive::CONNECT, config('services.cheminf.api_url') ?: 'https://*.naturalproducts.net')
-            ->add(Directive::CONNECT, 'https://coconut.naturalproducts.net')
-            ->add(Directive::CONNECT, 'https://dev.coconut.naturalproducts.net')
             ->add(Directive::CONNECT, '*.tawk.to')
             ->add(Directive::CONNECT, 'wss://*.tawk.to')
             ->add(Directive::CONNECT, 'https://cdn.jsdelivr.net')
@@ -154,16 +234,17 @@ class CoconutPolicy implements Preset
         $policy
             ->add(Directive::SCRIPT, '*.tawk.to')
             ->add(Directive::SCRIPT, 'https://embed.tawk.to')
-            ->add(Directive::SCRIPT, 'https://matomo.nfdi4chem.de/')
-            ->add(Directive::SCRIPT, 'https://dev.coconut.naturalproducts.net');
+            ->add(Directive::SCRIPT, 'https://matomo.nfdi4chem.de/');
+
+        $this->addSources($policy, Directive::SCRIPT, $appOrigins);
 
         // Frame sources
         $policy
             ->add(Directive::FRAME, Keyword::SELF)
             ->add(Directive::FRAME, '*.tawk.to')
             ->add(Directive::FRAME, 'https://embed.tawk.to')
-            ->add(Directive::FRAME, 'https://coconut.naturalproducts.net')
-            ->add(Directive::FRAME, 'https://dev.coconut.naturalproducts.net')
             ->add(Directive::FRAME, 'data:');
+
+        $this->addSources($policy, Directive::FRAME, $appOrigins);
     }
 }
