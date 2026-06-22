@@ -14,6 +14,7 @@ use App\Livewire\Policy;
 use App\Livewire\Search;
 use App\Livewire\Stats;
 use App\Livewire\Terms;
+use App\Livewire\TreeOfLifeExplorer;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -44,6 +45,7 @@ Route::get('/blog', BlogIndex::class)->name('blog.index');
 Route::get('/blog/{slug}', BlogShow::class)->name('blog.show');
 Route::get('/download', Download::class);
 Route::get('/stats', Stats::class);
+Route::get('/tree-of-life', TreeOfLifeExplorer::class)->name('tree-of-life');
 
 Route::get('/collections', CollectionList::class)->name('collections.index');
 

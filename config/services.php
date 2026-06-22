@@ -93,4 +93,24 @@ return [
         'cas_key' => env('CAS_KEY'),
     ],
 
+    'organism_taxonomy' => [
+        'ols_base_uri' => env('ORGANISM_TAXONOMY_OLS_BASE_URI', 'https://www.ebi.ac.uk/ols4/api/v2/'),
+        'gnf_finder_url' => env('ORGANISM_TAXONOMY_GNF_FINDER_URL', 'https://finder.globalnames.org/api/v1/find'),
+        'gnf_verifier_url' => env('ORGANISM_TAXONOMY_GNF_VERIFIER_URL', 'https://verifier.globalnames.org/api/v1/verifications'),
+        'throttle_ms' => (int) env('ORGANISM_TAXONOMY_THROTTLE_MS', 200),
+        'http_timeout' => (int) env('ORGANISM_TAXONOMY_HTTP_TIMEOUT', 30),
+        'require_exact_gnf_match' => filter_var(
+            env('ORGANISM_TAXONOMY_REQUIRE_EXACT_MATCH', true),
+            FILTER_VALIDATE_BOOL,
+        ),
+        'batch_size' => max(1, (int) env('ORGANISM_TAXONOMY_BATCH_SIZE', 25)),
+        'parallel_requests' => max(1, (int) env('ORGANISM_TAXONOMY_PARALLEL_REQUESTS', 4)),
+        'apply_curation_on_miss' => filter_var(
+            env('ORGANISM_TAXONOMY_APPLY_CURATION_ON_MISS', true),
+            FILTER_VALIDATE_BOOL,
+        ),
+        'tree_cache_store' => env('ORGANISM_TAXONOMY_TREE_CACHE_STORE', 'file'),
+        'tree_cache_hours' => max(1, (int) env('ORGANISM_TAXONOMY_TREE_CACHE_HOURS', 2)),
+    ],
+
 ];

@@ -10,24 +10,24 @@ use App\Filament\Dashboard\Resources\OrganismResource\RelationManagers\Molecules
 use App\Filament\Dashboard\Resources\OrganismResource\RelationManagers\SampleLocationsRelationManager;
 use App\Filament\Dashboard\Resources\OrganismResource\Widgets\OrganismStats;
 use App\Forms\Components\OrganismsTable;
+use App\Livewire\OrganismTaxonomyPanel;
 use App\Models\Organism;
 use Archilex\AdvancedTables\Filters\AdvancedFilter;
-use Exception;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class OrganismResource extends Resource
@@ -44,19 +44,40 @@ class OrganismResource extends Resource
     {
         return $schema
             ->components([
-                Section::make('Organism Information')
-                    ->description('Enter the organism details below')
-                    ->schema(Organism::getForm()),
-
-                Section::make('Similar Organisms')
-                    ->description('View similar organisms in the database')
+                Grid::make()
                     ->schema([
-                        OrganismsTable::make('Custom Table'),
+                        Group::make()
+                            ->schema([
+                                Section::make('')
+                                    ->schema(Organism::getForm()),
+                                Section::make('Taxonomic classification')
+                                    ->description('Verified lineage and database links from Global Names (useful for interpreting metabolite origin).')
+                                    ->schema([
+                                        Livewire::make(OrganismTaxonomyPanel::class)
+                                            ->key(fn (?Organism $record): string => 'organism-taxonomy-'.($record === null ? 'new' : $record->id))
+                                            ->data(fn (?Organism $record): array => [
+                                                'organismId' => $record === null ? 0 : $record->id,
+                                            ]),
+                                    ])
+                                    ->hidden(fn (?string $operation): bool => $operation === 'create'),
+                            ])
+                            ->columnSpan(1),
+                        Group::make()
+                            ->schema([
+                                Section::make('')
+                                    ->schema([
+                                        OrganismsTable::make('Custom Table'),
+                                        // \Livewire\Livewire::mount('similar-organisms', ['organismId' => function ($get) {
+                                        //     return $get('name');
+                                        // }]),
+                                    ]),
+                            ])
+                            ->hidden(function ($operation) {
+                                return $operation === 'create';
+                            })
+                            ->columnSpan(1),
                     ])
-                    ->hidden(function ($operation) {
-                        return $operation === 'create';
-                    })
-                    ->collapsible(),
+                    ->columns(2),  // Defines the number of columns in the grid
             ]);
     }
 
@@ -72,6 +93,13 @@ class OrganismResource extends Resource
                 TextColumn::make('molecule_count')
                     ->label('Molecules')
                     ->sortable(),
+                TextColumn::make('taxonomy.biological_group')
+                    ->label('Group')
+                    ->toggleable(),
+                TextColumn::make('taxonomy_fetched_at')
+                    ->label('Taxonomy updated')
+                    ->dateTime()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -140,131 +168,5 @@ class OrganismResource extends Resource
         return Cache::flexible('stats.organisms', [172800, 259200], function () {
             return DB::table('organisms')->selectRaw('count(*)')->get()[0]->count;
         });
-    }
-
-    protected static function getGNFMatches($name, $organism)
-    {
-        $data = [
-            'text' => $name,
-            'bytesOffset' => false,
-            'returnContent' => false,
-            'uniqueNames' => true,
-            'ambiguousNames' => true,
-            'noBayes' => false,
-            'oddsDetails' => false,
-            'language' => 'eng',
-            'wordsAround' => 2,
-            'verification' => true,
-            'allMatches' => true,
-        ];
-
-        $client = new Client;
-        $url = config('services.globalnames.url');
-
-        $response = $client->post($url, [
-            'json' => $data,
-        ]);
-
-        $responseBody = json_decode($response->getBody(), true);
-
-        return $responseBody;
-
-        // if (isset($responseBody['names']) && count($responseBody['names']) > 0) {
-        //     $r_name = $responseBody['names'][0];
-        //     $matchType = $r_name['verification']['matchType'];
-        //     if ($matchType == 'Exact' || $matchType == 'Fuzzy') {
-        //         $iri = $r_name['verification']['bestResult']['outlink'] ?? $r_name['verification']['bestResult']['dataSourceTitleShort'];
-        //         $ranks = $r_name['verification']['bestResult']['classificationRanks'] ?? null;
-        //         $ranks = rtrim($ranks, '|');
-        //         $ranks = explode('|', $ranks);
-        //         $rank = end($ranks);
-        //         if ($matchType == 'Fuzzy') {
-        //             $rank = $rank . ' (fuzzy)';
-        //         }
-        //         return [$name, $iri, $organism, $rank];
-        //     } elseif ($matchType == 'PartialFuzzy' || $matchType == 'PartialExact') {
-        //         $iri = $r_name['verification']['bestResult']['dataSourceTitleShort'];
-        //         if (isset($r_name['verification']['bestResult']['classificationRanks'])) {
-        //             $ranks = rtrim($r_name['verification']['bestResult']['classificationRanks'], '|') ?? null;
-        //             $paths = rtrim($r_name['verification']['bestResult']['classificationPath'], '|') ?? null;
-        //             $ids = rtrim($r_name['verification']['bestResult']['classificationIds'], '|') ?? null;
-        //             $ranks = explode('|', $ranks);
-        //             $ranksLength = count($ranks);
-        //             if ($ranksLength > 0) {
-        //                 $parentRank = $ranks[$ranksLength - 2];
-        //                 $parentName = $paths[$ranksLength - 2];
-        //                 $parentId = $ids[$ranksLength - 2];
-
-        //                 return [$name, $iri, $organism, $parentRank];
-        //             }
-        //         }
-        //     }
-        // } else {
-        //     Self::error("Could not map: $name");
-        // }
-    }
-
-    protected static function updateOrganismModel($name, $iri, $organism = null, $rank = null)
-    {
-        if (! $organism) {
-            $organism = Organism::where('name', $name)->first();
-        }
-
-        if ($organism) {
-            $organism->name = $name;
-            $organism->iri = $iri;
-            $organism->rank = $rank;
-            // Auto-generate slug if not exists
-            if (! $organism->slug) {
-                $organism->slug = Str::slug($name);
-            }
-            $organism->save();
-        } else {
-            Log::error("Organism not found in the database: $name");
-        }
-    }
-
-    protected static function getOLSIRI($name, $rank)
-    {
-        $client = new Client([
-            'base_uri' => config('services.ols.base_url').'/v2/',
-        ]);
-
-        try {
-            $response = $client->get('entities', [
-                'query' => [
-                    'search' => $name,
-                    'ontologyId' => 'ncbitaxon',
-                    'exactMatch' => true,
-                    'type' => 'class',
-                ],
-            ]);
-
-            $data = json_decode($response->getBody(), true);
-
-            if (isset($data['elements']) && count($data['elements']) > 0) {
-
-                $element = $data['elements'][0];
-                if (isset($element['iri'], $element['ontologyId']) && $element['isObsolete'] === false) {
-                    if ($rank && $rank == 'species') {
-                        if (isset($element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank']) && $element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank'] == 'http://purl.obolibrary.org/obo/NCBITaxon_species') {
-                            return urlencode($element['iri']);
-                        }
-                    } elseif ($rank && $rank == 'genus') {
-                        if (isset($element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank']) && $element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank'] == 'http://purl.obolibrary.org/obo/NCBITaxon_genus') {
-                            return urlencode($element['iri']);
-                        }
-                    } elseif ($rank && $rank == 'family') {
-                        if (isset($element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank']) && $element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank'] == 'http://purl.obolibrary.org/obo/NCBITaxon_family') {
-                            return urlencode($element['iri']);
-                        }
-                    }
-                }
-            }
-        } catch (Exception $e) {
-            Log::error("Error fetching IRI for $name: ".$e->getMessage());
-        }
-
-        return null;
     }
 }

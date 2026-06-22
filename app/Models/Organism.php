@@ -8,6 +8,7 @@ use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Set;
 use GuzzleHttp\Client;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -23,6 +24,8 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property string $name
  * @property string|null $iri
  * @property string|null $rank
+ * @property array<string, mixed>|null $taxonomy
+ * @property Carbon|null $taxonomy_fetched_at
  * @property int|null $molecule_count
  * @property string|null $slug
  * @property Carbon|null $created_at
@@ -42,9 +45,19 @@ class Organism extends Model implements Auditable
         'name',
         'iri',
         'rank',
+        'taxonomy',
+        'taxonomy_fetched_at',
         'molecule_count',
         'slug',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'taxonomy' => 'array',
+            'taxonomy_fetched_at' => 'datetime',
+        ];
+    }
 
     /**
      * Boot the model and add event listeners.
@@ -58,6 +71,22 @@ class Organism extends Model implements Auditable
                 $organism->slug = Str::slug($organism->name);
             }
         });
+    }
+
+    public function scopeNeedingTaxonomyEnrichment(Builder $query): Builder
+    {
+        return $query->where(function (Builder $builder): void {
+            $builder->whereNull('iri')
+                ->orWhereNull('taxonomy')
+                ->orWhereNull('taxonomy_fetched_at');
+        });
+    }
+
+    public function hasExactTaxonomyEnrichment(): bool
+    {
+        return is_array($this->taxonomy)
+            && ($this->taxonomy['match_type'] ?? null) === 'Exact'
+            && $this->taxonomy_fetched_at !== null;
     }
 
     public function molecules(): BelongsToMany

@@ -335,7 +335,7 @@
                     </p>
                 </a>
                 <!-- Unique Organisms Section -->
-                <div class="bg-gray-900 py-6 px-10">
+                <a href="/tree-of-life" class="bg-gray-900 py-6 px-10 hover:bg-gray-800 transition-colors">
                     <p class="text-sm font-medium leading-6 text-gray-400">
                         <svg fill="currentColor" class="w-5 h-5 inline" version="1.1" id="Layer_1"
                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -401,7 +401,7 @@
                             {{ $uniqueOrganisms }}
                         </span>
                     </p>
-                </div>
+                </a>
                 <!-- Citations Mapped Section -->
                 <div class="bg-gray-900 py-6 px-10">
                     <p class="text-sm font-medium leading-6 text-gray-400">
@@ -452,6 +452,7 @@
             </div>
         </div>
     </div>
+    <livewire:tree-of-life-teaser />
     <livewire:recent-molecules lazy />
     <livewire:compound-classes lazy="on-load" />
     <livewire:data-sources lazy="on-load" />
