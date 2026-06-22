@@ -45,6 +45,8 @@ class GenerateSwaggerDocs extends Command
 
         $jsonData = json_decode(File::get($jsonFilePath), true);
 
+        $this->removeInvalidResponseStatusCodes($jsonData);
+
         // Add security to non-public paths
         if (isset($jsonData['paths'])) {
             foreach ($jsonData['paths'] as $pathKey => &$path) {
@@ -94,5 +96,31 @@ class GenerateSwaggerDocs extends Command
         $updatedJsonContents = json_encode($jsonData, JSON_PRETTY_PRINT);
 
         File::put($jsonFilePath, $updatedJsonContents);
+    }
+
+    /**
+     * Remove response keys mangled by Lomkit's array_merge (e.g. "0", "\"500\"").
+     */
+    private function removeInvalidResponseStatusCodes(array &$jsonData): void
+    {
+        foreach ($jsonData['paths'] ?? [] as &$path) {
+            foreach ($path as &$operation) {
+                if (! is_array($operation) || ! isset($operation['responses'])) {
+                    continue;
+                }
+
+                foreach (array_keys($operation['responses']) as $statusCode) {
+                    if ($statusCode === 'default') {
+                        continue;
+                    }
+
+                    if (! ctype_digit((string) $statusCode)) {
+                        unset($operation['responses'][$statusCode]);
+                    }
+                }
+            }
+        }
+
+        unset($path, $operation);
     }
 }

@@ -46,7 +46,7 @@
                                     {{ now()->format('F Y') }}
                                     {{-- - <a
                                         class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
-                                        href="https://coconut.s3.uni-jena.de/prod/downloads/2025-02/release.md">release
+                                        href="{{ public_downloads_url('2025-02/release.md') }}">release
                                         notes</a> --}}
                                 </time>
                                 <p class="mt-2 line-clamp-3 text-sm leading-6 text-gray-900 font-bold">COCONUT data is
@@ -65,11 +65,11 @@
                                     Natural Products - SDF
                                 </div>
                                 <div class="mt-1 border-b border-gray-200 pb-2">
-                                    <div><a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/coconut_sdf_2d_lite-{{ $currentMonthYear }}.zip"
+                                    <div><a href="{{ public_downloads_url($currentYearMonth.'/coconut_sdf_2d_lite-'.$currentMonthYear.'.zip') }}"
                                             class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
                                             (coconut_sdf_2d_lite-{{ $currentMonthYear }}.zip / 287.6 MB) <span aria-hidden="true">→</span></a></div>
                                     <div>
-                                        <a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/coconut_sdf_2d-{{ $currentMonthYear }}.zip"
+                                        <a href="{{ public_downloads_url($currentYearMonth.'/coconut_sdf_2d-'.$currentMonthYear.'.zip') }}"
                                             class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
                                             (coconut_sdf_2d-{{ $currentMonthYear }}.zip / 691.7 MB) <span
                                                 aria-hidden="true">→</span></a>
@@ -80,7 +80,7 @@
                                 </div>
                                 <div class="mt-1 border-b border-gray-200 pb-2">
                                     
-                                    <div><a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/coconut_sdf_3d-{{ $currentMonthYear }}.zip"
+                                    <div><a href="{{ public_downloads_url($currentYearMonth.'/coconut_sdf_3d-'.$currentMonthYear.'.zip') }}"
                                             class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
                                             (coconut_sdf_3d-{{ $currentMonthYear }}.zip / 305.3 MB) <span aria-hidden="true">→</span></a></div>
                                     <small>Note: Coordinates are not minimised</small>
@@ -91,7 +91,7 @@
                                     Complete (active/inactive) COCONUT dataset
                                 </div>
                                 <div class="mt-1 flex border-b border-gray-200 pb-2">
-                                    <a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/coconut-dump-{{ $currentMonthYear }}.sql"
+                                    <a href="{{ public_downloads_url($currentYearMonth.'/coconut-dump-'.$currentMonthYear.'.sql') }}"
                                         class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
                                         (coconut-dump-{{ $currentMonthYear }}.sql / 31.91 GB)<span aria-hidden="true">→</span></a>
                                 </div>
@@ -101,11 +101,11 @@
                                     Natural Products - CSV format
                                 </div>
                                 <div class="mt-1 border-b border-gray-200 pb-2">
-                                    <div><a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/coconut_csv_lite-{{ $currentMonthYear }}.zip"
+                                    <div><a href="{{ public_downloads_url($currentYearMonth.'/coconut_csv_lite-'.$currentMonthYear.'.zip') }}"
                                             class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
                                             (coconut_csv_lite-{{ $currentMonthYear }}.zip / 191 MB) <span aria-hidden="true">→</span></a></div>
                                     <div>
-                                        <a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/coconut_csv-{{ $currentMonthYear }}.zip"
+                                        <a href="{{ public_downloads_url($currentYearMonth.'/coconut_csv-'.$currentMonthYear.'.zip') }}"
                                             class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Download
                                             (coconut_csv-{{ $currentMonthYear }}.zip / 207.9 MB) <span
                                                 aria-hidden="true">→</span></a>
@@ -174,7 +174,7 @@
                                         <p
                                             class="line-clamp-1 text-ellipsis overflow-hidden ... mt-5 text-sm leading-6 text-gray-600">
                                         <div class="tooltip"><a
-                                                href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/MORTAR/Fragments_Ertl_algorithm.csv"
+                                                href="{{ public_downloads_url('2024-08/MORTAR/Fragments_Ertl_algorithm.csv') }}"
                                                 class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
                                                 Fragments_Ertl_algorithm.csv <span aria-hidden="true">→</span></a>
                                             <span class="tooltiptext">Download generalized Ertl algorithm functional
@@ -190,7 +190,7 @@
                                     <div class="mt-1 border-gray-200 pb-2">
                                         <p class="line-clamp-1 mt-5 text-sm leading-6 text-gray-600">
                                         <div class="tooltip"><a
-                                                href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/MORTAR/Items_Ertl_algorithm.csv"
+                                                href="{{ public_downloads_url('2024-08/MORTAR/Items_Ertl_algorithm.csv') }}"
                                                 class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
                                                 Items_Ertl_algorithm.csv <span aria-hidden="true">→</span></a>
                                             <span class="tooltiptext">Download COCONUT
@@ -207,7 +207,7 @@
                                     <div class="mt-1 border-gray-200 pb-2">
                                         <p class="line-clamp-1 mt-5 text-sm leading-6 text-gray-600">
                                         <div class="tooltip"><a
-                                                href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/MORTAR/Fragments_Scaffold_Generator.csv"
+                                                href="{{ public_downloads_url('2024-08/MORTAR/Fragments_Scaffold_Generator.csv') }}"
                                                 class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
                                                 Fragments_Scaffold_Generator.csv <span aria-hidden="true">→</span></a>
                                             <span class="tooltiptext">Download molecular
@@ -223,7 +223,7 @@
                                     <div class="mt-1 border-gray-200 pb-2">
                                         <p class="line-clamp-1 mt-5 text-sm leading-6 text-gray-600">
                                         <div class="tooltip"><a
-                                                href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/MORTAR/Items_Scaffold_Generator.csv"
+                                                href="{{ public_downloads_url('2024-08/MORTAR/Items_Scaffold_Generator.csv') }}"
                                                 class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
                                                 Items_Scaffold_Generator.csv <span aria-hidden="true">→</span></a>
                                             <span class="tooltiptext">Download COCONUT
@@ -239,7 +239,7 @@
                                     <div class="mt-1 border-gray-200 pb-2">
                                         <p class="line-clamp-1 mt-5 text-sm leading-6 text-gray-600">
                                         <div class="tooltip"><a
-                                                href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/MORTAR/Fragments_Scaffold_Generator_Scafold_tree.csv"
+                                                href="{{ public_downloads_url('2024-08/MORTAR/Fragments_Scaffold_Generator_Scafold_tree.csv') }}"
                                                 class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
                                                 Fragments_Scaffold_Generator_Scafold_tree.csv <span
                                                     aria-hidden="true">→</span></a>
@@ -258,7 +258,7 @@
                                     <div class="mt-1 border-gray-200 pb-2">
                                         <p class="line-clamp-1 mt-5 text-sm leading-6 text-gray-600">
                                         <div class="tooltip"><a
-                                                href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/MORTAR/Items_Scaffold_Generator_Scaffold_tree.csv"
+                                                href="{{ public_downloads_url('2024-08/MORTAR/Items_Scaffold_Generator_Scaffold_tree.csv') }}"
                                                 class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
                                                 Items_Scaffold_Generator_Scafold_tree.csv <span
                                                     aria-hidden="true">→</span></a>
@@ -327,7 +327,7 @@
                             <div class="mt-6 flex border-t border-gray-200 pt-6">
                                 <div class="relative flex items-center gap-x-4">
                                     <div class="tooltip"><a
-                                            href="https://coconut.s3.uni-jena.de/prod/downloads/2024-08/DD/COCONUT_2024_08_DrugDiscovery.tsv.zip"
+                                            href="{{ public_downloads_url('2024-08/DD/COCONUT_2024_08_DrugDiscovery.tsv.zip') }}"
                                             class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
                                             Download <span aria-hidden="true">→</span></a>
                                         <span class="tooltiptext">A text file containing the latest COCONUT IDs,
@@ -369,7 +369,7 @@
                             <div class="mt-6 flex border-t border-gray-200 pt-6">
                                 <div class="relative flex items-center gap-x-4">
                                     <div class="text-sm leading-6">
-                                        <a href="https://coconut.s3.uni-jena.de/prod/downloads/2024-10/CD/CompoundDiscovererCOCONUT_%202.csv.zip"
+                                        <a href="{{ public_downloads_url('2024-10/CD/CompoundDiscovererCOCONUT_%202.csv.zip') }}"
                                             class="text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
                                             CompoundDiscovererCOCONUT_ 2.csv (Sept 2024)<span
                                                 aria-hidden="true">→</span></a>

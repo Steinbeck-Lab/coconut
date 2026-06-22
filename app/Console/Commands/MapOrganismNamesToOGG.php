@@ -6,6 +6,7 @@ use App\Models\Organism;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class MapOrganismNamesToOGG extends Command
 {
@@ -19,7 +20,7 @@ class MapOrganismNamesToOGG extends Command
     {
         parent::__construct();
         $this->client = new Client([
-            'base_uri' => 'https://www.ebi.ac.uk/ols4/api/v2/',
+            'base_uri' => config('services.ols.base_url').'/v2/',
         ]);
     }
 
@@ -54,7 +55,7 @@ class MapOrganismNamesToOGG extends Command
                         } else {
                             $data = $this->getOLSIRI(explode(' ', $name)[0], 'family');
                             if ($data) {
-                                $this->updateOrganismModel($name, $data, $organism, 'genus');
+                                $this->updateOrganismModel($name, $data, $organism, 'family');
                                 $this->info("Mapped and updated: $name");
                             } else {
                                 $this->getGNFMatches($name, $organism);
@@ -84,7 +85,7 @@ class MapOrganismNamesToOGG extends Command
         ];
 
         $client = new Client;
-        $url = 'https://finder.globalnames.org/api/v1/find';
+        $url = config('services.globalnames.url');
 
         $response = $client->post($url, [
             'json' => $data,
@@ -155,7 +156,7 @@ class MapOrganismNamesToOGG extends Command
             if (isset($data['elements']) && count($data['elements']) > 0) {
 
                 $element = $data['elements'][0];
-                if (isset($element['iri'], $element['ontologyId']) && $element['isObsolete'] === 'false') {
+                if (isset($element['iri'], $element['ontologyId']) && $element['isObsolete'] === false) {
                     if ($rank && $rank == 'species') {
                         if (isset($element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank']) && $element['http://purl.obolibrary.org/obo/ncbitaxon#has_rank'] == 'http://purl.obolibrary.org/obo/NCBITaxon_species') {
                             return urlencode($element['iri']);
@@ -188,6 +189,10 @@ class MapOrganismNamesToOGG extends Command
         if ($organism) {
             $organism->iri = $iri;
             $organism->rank = $rank;
+            // Auto-generate slug if not exists
+            if (! $organism->slug) {
+                $organism->slug = Str::slug($name);
+            }
             $organism->save();
         } else {
             $this->error("Organism not found in the database: $name");
