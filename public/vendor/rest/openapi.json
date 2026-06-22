@@ -661,10 +661,10 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Vero velit sint aut voluptatum.",
-                                        "description": "Saepe omnis ut corrupti placeat iure provident. Accusamus dolorem tenetur consequuntur sed. Aut sunt voluptates incidunt qui omnis.",
-                                        "url": "http:\/\/tillman.info\/dolorem-assumenda-dolores-ad-odio.html",
-                                        "identifier": null
+                                        "title": "Qui et ut voluptas.",
+                                        "description": "Commodi nostrum quisquam ea ad. Ea et perferendis iusto alias atque. Ullam nam cumque et quis autem consequatur repellat.",
+                                        "url": "http:\/\/haag.com\/",
+                                        "identifier": "Amet consequuntur possimus aut ut eius."
                                     },
                                     "meta": []
                                 }
@@ -706,10 +706,10 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Enim ratione enim accusantium quia.",
-                                        "description": "Temporibus sit eum qui sint sequi ratione dolorem. Esse eum cupiditate quis quasi cum et. Qui eius voluptas amet autem accusamus.",
-                                        "url": "https:\/\/www.grady.net\/id-commodi-ratione-aut-iste-ducimus-mollitia-aut-eos",
-                                        "identifier": "Sint et repudiandae et earum et itaque ratione."
+                                        "title": "Aut tenetur dolore consequatur dolores omnis.",
+                                        "description": "Hic incidunt et non esse eligendi. Sed non cupiditate vel facilis delectus. Nobis voluptatem rem sed itaque qui voluptatem.",
+                                        "url": "http:\/\/weissnat.com\/est-est-expedita-sit-nisi",
+                                        "identifier": null
                                     },
                                     "meta": []
                                 }
@@ -978,9 +978,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1038\/s41598-026-45889-0~78",
-                                        "title": "The impact of herbal medicine development on the population health in China.",
-                                        "authors": "Wang Y, Zheng X, Masron TA.",
+                                        "doi": "10.2174\/0113895575524414260612093913~17",
+                                        "title": "Bioprospecting of Natural Products as Sources of New Multitarget Therapies.",
+                                        "authors": "Iriti M.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -1023,9 +1023,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1016\/j.jaim.2026.101328~60",
-                                        "title": "The Delhi Declaration on Traditional Medicine: Outcome of the Second WHO Global Summit on Traditional Medicine (2025).",
-                                        "authors": null,
+                                        "doi": "10.3390\/plants15020181~77",
+                                        "title": "Editorial-Medicinal Plants: Advances in Phytochemistry and Ethnobotany II.",
+                                        "authors": "Boylan F, Silveira D.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -1600,8 +1600,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Grayce Bauch",
-                                        "email": "pabernathy@example.org"
+                                        "name": "Dr. Anibal Gutkowski MD",
+                                        "email": "pedro.breitenberg@example.net"
                                     },
                                     "meta": []
                                 }
@@ -1643,8 +1643,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Cathy Boyer",
-                                        "email": "hand.octavia@example.com"
+                                        "name": "Dayna Kub",
+                                        "email": "noemi.turner@example.org"
                                     },
                                     "meta": []
                                 }
@@ -3081,7 +3081,7 @@
                             }
                         }
                     },
-                    "\"500\"": {
+                    "500": {
                         "description": "Server Error",
                         "content": {
                             "application\/json": {
@@ -3134,7 +3134,7 @@
                             }
                         }
                     },
-                    "\"401\"": {
+                    "401": {
                         "description": "Invalid\/Expired URL provided"
                     }
                 },

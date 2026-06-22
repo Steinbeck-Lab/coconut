@@ -35,8 +35,17 @@ POST /api/auth/login
 ```
 
 :::info
-The token is of **Bearer** type. This has to be supplied in the headers of the requests. In case you are using the [swagger UI of the API](https://coconut.naturalproducts.net/api-documentation), click on the **Authorize** button and provide the token as per the instruction.
+The token is of **Bearer** type. This has to be supplied in the headers of the requests. In case you are using the [interactive API documentation](https://coconut.naturalproducts.net/api-documentation), open **Authentication** and provide the token as per the instruction.
 :::
+
+### Personal Access Tokens
+
+Verified users can create long-lived **Personal Access Tokens** from the web application: account menu → **Personal Access Tokens** (`/user/api-tokens`). Use the token in the `Authorization` header as `Bearer <token>`.
+
+- Sanctum token abilities are limited to **read** at the token layer.
+- What you can do on the API (search, mutate, delete, and so on) is controlled by **Spatie permissions** on your user account, enforced through Lomkit policies—not by the token ability checkboxes.
+- Login and register responses return a separate short-lived `auth_token`; personal access tokens are intended for scripts and integrations you name and manage yourself.
+
 ### Logout
 ```
 GET /api/auth/logout
