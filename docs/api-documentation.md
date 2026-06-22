@@ -35,7 +35,7 @@ POST /api/auth/login
 ```
 
 :::info
-The token is of **Bearer** type. This has to be supplied in the headers of the requests. In case you are using the [swagger UI of the API](https://coconut.naturalproducts.net/api-documentation), click on the **Authorize** button and provide the token as per the instruction.
+The token is of **Bearer** type. This has to be supplied in the headers of the requests. In case you are using the [interactive API documentation](https://coconut.naturalproducts.net/api-documentation), open **Authentication** and provide the token as per the instruction.
 :::
 
 ### Personal Access Tokens
