@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Support\NpClassifierResults;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -99,16 +100,26 @@ class GeneratePropertiesJson extends Command
                 // For boolean types, set true and false as possible values
                 $columnData['values'] = [true, false];
             } elseif ($type === 'select') {
-                // For text or JSONB types, fetch unique values
-                $uniqueValues = DB::table($tableName)
-                    ->select($column)
-                    ->distinct()
-                    ->pluck($column)
-                    ->filter()
-                    ->values()
-                    ->toArray();
+                if ($dbType === 'jsonb' && in_array($column, NpClassifierResults::jsonbArrayPropertyColumns(), true)) {
+                    $rows = DB::select("
+                        SELECT DISTINCT value
+                        FROM {$tableName},
+                        LATERAL jsonb_array_elements_text({$column}) AS value
+                        WHERE {$column} IS NOT NULL
+                        ORDER BY value
+                    ");
+                    $columnData['unique_values'] = array_map(static fn ($row) => $row->value, $rows);
+                } else {
+                    $uniqueValues = DB::table($tableName)
+                        ->select($column)
+                        ->distinct()
+                        ->pluck($column)
+                        ->filter()
+                        ->values()
+                        ->toArray();
 
-                $columnData['unique_values'] = $uniqueValues;
+                    $columnData['unique_values'] = $uniqueValues;
+                }
             }
 
             // Determine the key for the JSON output
