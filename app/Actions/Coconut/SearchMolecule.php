@@ -121,9 +121,9 @@ class SearchMolecule
             return 'parttialinchikey';
         }
 
-        // Check for molecular formula (must match pattern and not contain SMILES-specific characters)
-        // Molecular formulas contain only element symbols and numbers (e.g., C6H12O6, H2O)
-        if (preg_match('/^([A-Z][a-z]?\d*)+$/', $query) && ! preg_match('/[()@\[\]\/\\\\=#\-+]/', $query)) {
+        // Molecular formulas use condensed notation (e.g., C6H12O6, H2O), not SMILES chains
+        // like C1CCCCC1 or CCO where the same element appears in consecutive tokens.
+        if ($this->looksLikeMolecularFormula($query)) {
             return 'molecularformula';
         }
 
@@ -138,6 +138,32 @@ class SearchMolecule
         }
 
         return 'text';
+    }
+
+    /**
+     * True when the query looks like a Hill-order molecular formula, not a SMILES string.
+     */
+    private function looksLikeMolecularFormula(string $query): bool
+    {
+        if (! preg_match('/^([A-Z][a-z]?\d*)+$/', $query) || preg_match('/[()@\[\]\/\\\\=#\-+]/', $query)) {
+            return false;
+        }
+
+        preg_match_all('/[A-Z][a-z]?\d*/', $query, $matches);
+
+        $previousElement = null;
+        foreach ($matches[0] as $token) {
+            preg_match('/^([A-Z][a-z]?)/', $token, $elementMatch);
+            $element = $elementMatch[1];
+
+            if ($element === $previousElement) {
+                return false;
+            }
+
+            $previousElement = $element;
+        }
+
+        return true;
     }
 
     /**
