@@ -2,11 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\Collection;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Collection>
+ * @extends Factory<Collection>
  */
 class CollectionFactory extends Factory
 {
@@ -26,7 +27,7 @@ class CollectionFactory extends Factory
             'slug' => $slug,
             'doi' => $this->faker->optional()->url(),
             'description' => $this->faker->paragraph(),
-            'status' => $this->faker->randomElement(['DRAFT']),
+            'status' => 'DRAFT',
             'release_date' => $this->faker->optional()->dateTimeBetween('now', '+1 year'),
             'comments' => $this->faker->optional()->paragraph(),
             'url' => $this->faker->url(),
@@ -36,5 +37,12 @@ class CollectionFactory extends Factory
             'owner_id' => null,
             'uuid' => $this->faker->uuid(),
         ];
+    }
+
+    public function published(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'PUBLISHED',
+        ]);
     }
 }

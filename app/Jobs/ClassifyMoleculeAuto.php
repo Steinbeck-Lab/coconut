@@ -64,7 +64,7 @@ class ClassifyMoleculeAuto implements ShouldQueue
             $canonical_smiles = $this->molecule->canonical_smiles;
 
             // Build endpoint
-            $apiUrl = 'https://npclassifier.gnps2.org/classify?smiles=';
+            $apiUrl = config('services.npclassifier.url').'?smiles=';
             $endpoint = $apiUrl.urlencode($canonical_smiles);
 
             // Fetch classification data from API
@@ -146,7 +146,7 @@ class ClassifyMoleculeAuto implements ShouldQueue
     /**
      * Handle a job failure.
      */
-    public function failed(\Throwable $exception): void
+    public function failed(Throwable $exception): void
     {
         Log::info("ClassifyMoleculeAuto failed() method called for molecule {$this->molecule->id}: ".$exception->getMessage());
 

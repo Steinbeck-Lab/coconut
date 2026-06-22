@@ -19,7 +19,7 @@ class MapOrganismNamesToOGG extends Command
     {
         parent::__construct();
         $this->client = new Client([
-            'base_uri' => 'https://www.ebi.ac.uk/ols4/api/v2/',
+            'base_uri' => config('services.ols.base_url').'/v2/',
         ]);
     }
 
@@ -84,7 +84,7 @@ class MapOrganismNamesToOGG extends Command
         ];
 
         $client = new Client;
-        $url = 'https://finder.globalnames.org/api/v1/find';
+        $url = config('services.globalnames.url');
 
         $response = $client->post($url, [
             'json' => $data,

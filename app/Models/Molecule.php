@@ -135,6 +135,24 @@ class Molecule extends Model implements Auditable
     }
 
     /**
+     * Get sample locations linked to the molecule via the molecule_organism pivot.
+     */
+    public function sampleLocations(): BelongsToMany
+    {
+        return $this->belongsToMany(SampleLocation::class, 'molecule_organism', 'molecule_id', 'sample_location_id')
+            ->using(MoleculeOrganism::class)
+            ->withPivot([
+                'organism_id',
+                'geo_location_id',
+                'ecosystem_id',
+                'collection_ids',
+                'citation_ids',
+                'metadata',
+            ])
+            ->withTimestamps();
+    }
+
+    /**
      * Get all of the geo-locations for the molecule.
      */
     public function geo_locations(): BelongsToMany
@@ -300,7 +318,7 @@ class Molecule extends Model implements Auditable
                 ->email('info.coconut@uni-jena.de');
 
             $coconut = Schema::Organization();
-            $coconut->url('https://coconut.naturalproducts.net/')
+            $coconut->url(url('/'))
                 ->name('COCONUT - COlleCtion of Open Natural prodUcTs')
                 ->contactPoint($contactPoint);
 

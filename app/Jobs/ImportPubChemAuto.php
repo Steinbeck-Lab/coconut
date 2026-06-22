@@ -6,7 +6,9 @@ use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Redis\LimiterTimeoutException;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
@@ -91,7 +93,7 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
                     'batch_id' => $this->batch()?->id,
                 ]);
             }
-        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+        } catch (ConnectionException $e) {
             // Transient network error — release back to queue for retry
             Log::warning('PubChem connection timeout, will retry', [
                 'molecule_id' => $this->molecule->id,
@@ -157,7 +159,7 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
                     ->every(1)
                     ->block(0)
                     ->then(fn () => Http::timeout(30)->connectTimeout(10)->get($url));
-            } catch (\Illuminate\Contracts\Redis\LimiterTimeoutException $e) {
+            } catch (LimiterTimeoutException $e) {
                 // No slot available yet; wait 200ms before trying again
                 usleep(200000);
             }
@@ -166,7 +168,7 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
 
     public function fetchIUPACNameFromPubChem()
     {
-        $smilesURL = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/cids/TXT?smiles='.urlencode($this->molecule->canonical_smiles);
+        $smilesURL = config('services.pubchem.base_url').'/compound/smiles/cids/TXT?smiles='.urlencode($this->molecule->canonical_smiles);
         $cidResponse = $this->throttledGet($smilesURL);
 
         if (! $cidResponse->successful()) {
@@ -178,7 +180,7 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
         $cid = $cidResponse->body();
         if ($cid && trim($cid) != '0') {
             $cid = trim(preg_replace('/\s+/', ' ', $cid));
-            $cidPropsURL = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/'.$cid.'/json';
+            $cidPropsURL = config('services.pubchem.base_url').'/compound/cid/'.$cid.'/json';
             $dataResponse = $this->throttledGet($cidPropsURL);
 
             if (! $dataResponse->successful()) {
@@ -227,7 +229,7 @@ class ImportPubChemAuto implements ShouldBeUnique, ShouldQueue
     {
         if ($cid && trim($cid) != '0') {
             $cid = trim(preg_replace('/\s+/', ' ', $cid));
-            $synonymsURL = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/'.$cid.'/synonyms/txt';
+            $synonymsURL = config('services.pubchem.base_url').'/compound/cid/'.$cid.'/synonyms/txt';
 
             $maxRetries = 3;
             $backoffSeconds = 2;
