@@ -1,11 +1,11 @@
 {
     "openapi": "3.1.0",
     "info": {
-        "title": "Laravel",
+        "title": "COCONUT",
         "summary": "COlleCtion of Open NatUral producTs",
         "description": "A comprehensive platform facilitating natural product research by providing data, tools, and services for deposition, curation, and reuse.",
         "contact": {
-            "name": "Laravel",
+            "name": "COCONUT",
             "url": "https:\/\/coconut.naturalproducts.net\/",
             "email": "info.coconut@uni-jena.de"
         },
@@ -47,6 +47,7 @@
                                             "name_trust_level",
                                             "annotation_level",
                                             "variants_count",
+                                            "organism_count",
                                             "status",
                                             "active",
                                             "has_variants",
@@ -73,6 +74,17 @@
                                                     "prohibited_on_update": false
                                                 },
                                                 "name": "HasOne"
+                                            },
+                                            {
+                                                "resource": "App\\Rest\\Resources\\OrganismResource",
+                                                "relation": "organisms",
+                                                "constraints": {
+                                                    "required_on_creation": false,
+                                                    "prohibited_on_creation": false,
+                                                    "required_on_update": false,
+                                                    "prohibited_on_update": false
+                                                },
+                                                "name": "BelongsToMany"
                                             }
                                         ],
                                         "rules": {
@@ -225,6 +237,11 @@
                                             "value": ""
                                         },
                                         {
+                                            "field": "organism_count",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
                                             "field": "status",
                                             "operator": "=",
                                             "value": ""
@@ -314,6 +331,10 @@
                                             "direction": "desc"
                                         },
                                         {
+                                            "field": "organism_count",
+                                            "direction": "desc"
+                                        },
+                                        {
                                             "field": "status",
                                             "direction": "desc"
                                         },
@@ -383,6 +404,9 @@
                                             "field": "variants_count"
                                         },
                                         {
+                                            "field": "organism_count"
+                                        },
+                                        {
                                             "field": "status"
                                         },
                                         {
@@ -407,6 +431,9 @@
                                     "includes": [
                                         {
                                             "relation": "properties"
+                                        },
+                                        {
+                                            "relation": "organisms"
                                         }
                                     ],
                                     "aggregates": [],
@@ -476,6 +503,7 @@
                                             "name_trust_level": "",
                                             "annotation_level": "",
                                             "variants_count": "",
+                                            "organism_count": "",
                                             "status": "",
                                             "active": "",
                                             "has_variants": "",
@@ -486,6 +514,10 @@
                                         },
                                         "relations": {
                                             "properties": {
+                                                "operation": "update",
+                                                "key": 1
+                                            },
+                                            "organisms": {
                                                 "operation": "update",
                                                 "key": 1
                                             }
@@ -629,10 +661,10 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Alias eos provident aperiam animi.",
-                                        "description": "Veritatis mollitia nesciunt et omnis magni. Quas est iusto natus repudiandae dolore cupiditate ratione. Enim adipisci dolores ipsa ut magnam. Ratione qui qui vel quisquam architecto.",
-                                        "url": "http:\/\/www.jaskolski.net\/quod-voluptates-tempore-qui-culpa-dolor-nobis",
-                                        "identifier": "Tempora placeat assumenda dolor at."
+                                        "title": "Qui et ut voluptas.",
+                                        "description": "Commodi nostrum quisquam ea ad. Ea et perferendis iusto alias atque. Ullam nam cumque et quis autem consequatur repellat.",
+                                        "url": "http:\/\/haag.com\/",
+                                        "identifier": "Amet consequuntur possimus aut ut eius."
                                     },
                                     "meta": []
                                 }
@@ -674,9 +706,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Quos voluptatem voluptas in nemo eveniet.",
-                                        "description": "Quam est maxime nihil ut reiciendis rerum. Et et facilis et ea debitis maiores voluptate. Eum saepe ipsam libero dolor.",
-                                        "url": "https:\/\/www.green.com\/aperiam-voluptatum-dolor-fugit-similique-possimus-aut-aut",
+                                        "title": "Aut tenetur dolore consequatur dolores omnis.",
+                                        "description": "Hic incidunt et non esse eligendi. Sed non cupiditate vel facilis delectus. Nobis voluptatem rem sed itaque qui voluptatem.",
+                                        "url": "http:\/\/weissnat.com\/est-est-expedita-sit-nisi",
                                         "identifier": null
                                     },
                                     "meta": []
@@ -946,9 +978,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1007\/s11013-026-09992-1~86",
-                                        "title": "W\u00e8r\u00e8 and the Ontological Politics of Global Mental Health: Distributed Cognition in Yor\u00f9b\u00e1 Traditional Medicine.",
-                                        "authors": "Jegede O.",
+                                        "doi": "10.2174\/0113895575524414260612093913~17",
+                                        "title": "Bioprospecting of Natural Products as Sources of New Multitarget Therapies.",
+                                        "authors": "Iriti M.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -991,9 +1023,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1021\/acs.jnatprod.6c00295~37",
-                                        "title": "Systematic Assessment of the Impact of Targeted Selection Methods and Environment-Mimicking Culture Conditions on Fungal Natural Product Libraries.",
-                                        "authors": "Ness M, Wendt KL, Peramuna T, Tillery DI, Murray JE, Cichewicz RH, McCall LI.",
+                                        "doi": "10.3390\/plants15020181~77",
+                                        "title": "Editorial-Medicinal Plants: Advances in Phytochemistry and Ethnobotany II.",
+                                        "authors": "Boylan F, Silveira D.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -1568,8 +1600,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Prof. Payton Wiza Sr.",
-                                        "email": "cronin.matilde@example.com"
+                                        "name": "Dr. Anibal Gutkowski MD",
+                                        "email": "pedro.breitenberg@example.net"
                                     },
                                     "meta": []
                                 }
@@ -1611,8 +1643,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Lloyd Wuckert",
-                                        "email": "vtreutel@example.org"
+                                        "name": "Dayna Kub",
+                                        "email": "noemi.turner@example.org"
                                     },
                                     "meta": []
                                 }

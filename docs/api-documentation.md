@@ -102,7 +102,7 @@ Search Molecules using various attributes. There are two tables invovled in this
 
 #### Searchable fields
 ::: info molecules
-'standard_inchi', 'standard_inchi_key', 'canonical_smiles',  'sugar_free_smiles', 'identifier', 'name', 'cas', 'iupac_name', 'murko_framework', 'structural_comments', 'name_trust_level', 'annotation_level', 'variants_count', 'status', 'active', 'has_variants', 'has_stereo', 'is_tautomer', 'is_parent', 'is_placeholder'
+'standard_inchi', 'standard_inchi_key', 'canonical_smiles',  'sugar_free_smiles', 'identifier', 'name', 'cas', 'iupac_name', 'murko_framework', 'structural_comments', 'name_trust_level', 'annotation_level', 'variants_count', 'organism_count', 'status', 'active', 'has_variants', 'has_stereo', 'is_tautomer', 'is_parent', 'is_placeholder'
 :::
 ::: info properties
 'total_atom_count', 'heavy_atom_count', 'molecular_weight', 'exact_molecular_weight', 'molecular_formula', 'alogp', 'topological_polar_surface_area', 'rotatable_bond_count', 'hydrogen_bond_acceptors', 'hydrogen_bond_donors', 'hydrogen_bond_acceptors_lipinski', 'hydrogen_bond_donors_lipinski', 'lipinski_rule_of_five_violations', 'aromatic_rings_count', 'qed_drug_likeliness', 'formal_charge', 'fractioncsp3', 'number_of_minimal_rings', 'van_der_walls_volume', 'contains_sugar', 'contains_ring_sugars', 'contains_linear_sugars', 'murcko_framework', 'np_likeness', 'chemical_class', 'chemical_sub_class', 'chemical_super_class', 'direct_parent_classification', 'np_classifier_pathway', 'np_classifier_superclass', 'np_classifier_class', 'np_classifier_is_glycoside'
@@ -111,6 +111,36 @@ Search Molecules using various attributes. There are two tables invovled in this
 ::: warning Note
 The fields in the *molecules* table can be accessed directly with their column names. The fields in the *properties* table are to be accessed prefixing them with the table name. Ex: **properties.field-name**.
 :::
+
+#### Includable relations
+::: info relations
+'properties', 'organisms'
+:::
+
+Use the `includes` array in the search request to load related records. For example, to include organisms reported for a molecule:
+
+**Request Body Example with organisms (application/json):**
+```json
+{
+  "search": {
+    "filters": [
+      {
+        "field": "identifier",
+        "operator": "=",
+        "value": "CNP0228556.0"
+      }
+    ],
+    "includes": [
+      {
+        "relation": "organisms"
+      }
+    ]
+  }
+}
+```
+
+Each included organism exposes: `name`, `iri`, `rank`, `molecule_count`.
+
 
 **Request Body Example (application/json):**
 ```json
