@@ -93,4 +93,15 @@ return [
         'cas_key' => env('CAS_KEY'),
     ],
 
+    'zenodo' => [
+        'enabled' => (bool) env('ZENODO_ENABLED', false),
+        'access_token' => env('ZENODO_ACCESS_TOKEN'),
+        'latest_deposition_id' => env('ZENODO_LATEST_DEPOSITION_ID'),
+        'concept_doi' => env('ZENODO_CONCEPT_DOI', '10.5281/zenodo.13382750'),
+        'api_url' => env('ZENODO_API_URL', 'https://zenodo.org/api'),
+        'auto_publish' => (bool) env('ZENODO_AUTO_PUBLISH', false),
+        'dry_run' => (bool) env('ZENODO_DRY_RUN', false),
+        'release_notes' => env('ZENODO_RELEASE_NOTES'),
+    ],
+
 ];
