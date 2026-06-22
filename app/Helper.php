@@ -600,6 +600,42 @@ function getFilterMap()
     ];
 }
 
+/**
+ * Parse a filter query AND-condition into [key, value] token pairs.
+ * Uses known filter keys so multi-word values with spaces are not split.
+ */
+function parseFilterQueryTokens(string $condition, array $filterMap): array
+{
+    $keys = array_keys($filterMap);
+    usort($keys, fn ($a, $b) => strlen($b) <=> strlen($a));
+    $pattern = '/\b('.implode('|', array_map('preg_quote', $keys)).'):/';
+
+    if (! preg_match_all($pattern, $condition, $matches, PREG_OFFSET_CAPTURE)) {
+        return [];
+    }
+
+    $tokens = [];
+    $count = count($matches[0]);
+
+    for ($i = 0; $i < $count; $i++) {
+        $key = $matches[1][$i][0];
+        $valueStart = $matches[0][$i][1] + strlen($matches[0][$i][0]);
+        $valueEnd = ($i + 1 < $count) ? $matches[0][$i + 1][1] : strlen($condition);
+        $value = trim(substr($condition, $valueStart, $valueEnd - $valueStart));
+        $tokens[] = [$key, $value];
+    }
+
+    return $tokens;
+}
+
+/**
+ * Normalize a text filter value to match DB-side hyphen normalization.
+ */
+function normalizeFilterTextValue(string $filterValue): string
+{
+    return mb_strtolower(preg_replace('/\s+/', '-', str_replace('+', ' ', trim($filterValue))));
+}
+
 function updateCurationStatus($moleculeId, $command, $status, $errorMessage = null)
 {
     $molecule = Molecule::find($moleculeId);

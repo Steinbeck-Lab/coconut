@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="/Users/vcnainala/Development/nfdi4chem/coconut/phpunit.xml" tests="8" assertions="16" errors="0" failures="0" skipped="0" time="0.001567">
+    <testsuite name="Unit" tests="8" assertions="16" errors="0" failures="0" skipped="0" time="0.001567">
+      <testsuite name="Tests\Unit\ParseFilterQueryTokensTest" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/ParseFilterQueryTokensTest.php" tests="8" assertions="16" errors="0" failures="0" skipped="0" time="0.001567">
+        <testcase name="test_parses_multi_word_superclass_value" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/ParseFilterQueryTokensTest.php" line="24" class="Tests\Unit\ParseFilterQueryTokensTest" classname="Tests.Unit.ParseFilterQueryTokensTest" assertions="1" time="0.001032"/>
+        <testcase name="test_normalizes_text_filter_values_to_hyphenated_lowercase" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/ParseFilterQueryTokensTest.php" line="74" class="Tests\Unit\ParseFilterQueryTokensTest" classname="Tests.Unit.ParseFilterQueryTokensTest" assertions="4" time="0.000077"/>
+        <testcase name="test_parses_or_groups_separately" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/ParseFilterQueryTokensTest.php" line="42" class="Tests\Unit\ParseFilterQueryTokensTest" classname="Tests.Unit.ParseFilterQueryTokensTest" assertions="2" time="0.000079"/>
+        <testcase name="test_preserves_ds_value_with_plus_and_pipe" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/ParseFilterQueryTokensTest.php" line="53" class="Tests\Unit\ParseFilterQueryTokensTest" classname="Tests.Unit.ParseFilterQueryTokensTest" assertions="1" time="0.000064"/>
+        <testcase name="test_prefers_longer_filter_keys" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/ParseFilterQueryTokensTest.php" line="60" class="Tests\Unit\ParseFilterQueryTokensTest" classname="Tests.Unit.ParseFilterQueryTokensTest" assertions="1" time="0.000064"/>
+        <testcase name="test_parses_multi_word_class_value" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/ParseFilterQueryTokensTest.php" line="17" class="Tests\Unit\ParseFilterQueryTokensTest" classname="Tests.Unit.ParseFilterQueryTokensTest" assertions="1" time="0.000061"/>
+        <testcase name="test_returns_empty_array_for_unknown_keys" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/ParseFilterQueryTokensTest.php" line="67" class="Tests\Unit\ParseFilterQueryTokensTest" classname="Tests.Unit.ParseFilterQueryTokensTest" assertions="1" time="0.000061"/>
+        <testcase name="test_parses_combined_and_filters" file="/Users/vcnainala/Development/nfdi4chem/coconut/tests/Unit/ParseFilterQueryTokensTest.php" line="31" class="Tests\Unit\ParseFilterQueryTokensTest" classname="Tests.Unit.ParseFilterQueryTokensTest" assertions="5" time="0.000129"/>
+      </testsuite>
+    </testsuite>
+  </testsuite>
+</testsuites>
