@@ -16,7 +16,10 @@ class ClassifyAuto extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'coconut:npclassify {collection_id? : The ID of the collection to process} {--all : Process all collections}';
+    protected $signature = 'coconut:npclassify
+                            {collection_id? : The ID of the collection to process}
+                            {--all : Process all collections}
+                            {--force : Re-classify molecules that already have NP Classifier data}';
 
     /**
      * The console command description.
@@ -29,6 +32,7 @@ class ClassifyAuto extends Command
     public function handle()
     {
         $collection_id = $this->argument('collection_id');
+        $force = $this->option('force');
 
         if (! $collection_id && ! $this->option('all')) {
             Log::error('Please specify either a collection_id or use --all flag');
@@ -47,27 +51,45 @@ class ClassifyAuto extends Command
 
         $collectionLabel = $collection_id !== null ? "collection ID: {$collection_id}" : 'all collections';
 
-        Log::info("Classifying molecules using NPClassifier for {$collectionLabel}");
+        Log::info("Classifying molecules using NPClassifier for {$collectionLabel}".($force ? ' (force re-classify)' : ''));
 
-        // Use raw query to avoid ambiguous column issues
-        $conditions = '
+        if ($force) {
+            $conditions = '
+            WHERE molecules.active = true
+              AND (
+                properties.np_classifier_pathway IS NOT NULL
+                OR properties.np_classifier_superclass IS NOT NULL
+                OR properties.np_classifier_class IS NOT NULL
+              )
+        ';
+        } else {
+            $conditions = '
             WHERE molecules.active = true
               AND properties.np_classifier_pathway IS NULL
               AND properties.np_classifier_superclass IS NULL
               AND properties.np_classifier_class IS NULL
               AND properties.np_classifier_is_glycoside IS NULL
         ';
+        }
 
         $bindings = [];
         if ($collection_id !== null) {
-            $conditions = '
-            WHERE entries.collection_id = ?
-              AND molecules.active = true
-              AND properties.np_classifier_pathway IS NULL
+            $classifiedClause = $force
+                ? '(
+                properties.np_classifier_pathway IS NOT NULL
+                OR properties.np_classifier_superclass IS NOT NULL
+                OR properties.np_classifier_class IS NOT NULL
+              )'
+                : 'properties.np_classifier_pathway IS NULL
               AND properties.np_classifier_superclass IS NULL
               AND properties.np_classifier_class IS NULL
-              AND properties.np_classifier_is_glycoside IS NULL
-            ';
+              AND properties.np_classifier_is_glycoside IS NULL';
+
+            $conditions = "
+            WHERE entries.collection_id = ?
+              AND molecules.active = true
+              AND {$classifiedClause}
+            ";
             $bindings[] = $collection_id;
         }
 
@@ -101,7 +123,7 @@ class ClassifyAuto extends Command
             Log::info("Processing batch of {$moleculeCount} molecules for classification in {$collectionLabel}");
 
             $batchJobs = [];
-            $batchJobs[] = new ClassifyMoleculeBatch($moleculeIds);
+            $batchJobs[] = new ClassifyMoleculeBatch($moleculeIds, $force);
 
             Bus::batch($batchJobs)
                 ->catch(function (Batch $batch, Throwable $e) use ($collectionLabel) {
