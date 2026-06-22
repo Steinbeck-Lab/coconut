@@ -996,6 +996,15 @@ class ReportResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('id')
+                    ->label('No.')
+                    ->sortable()
+                    ->alignCenter()
+                    ->width('80px'),
+                TextColumn::make('created_at')
+                    ->label('Date')
+                    ->dateTime('M d, Y')
+                    ->sortable(),
                 TextColumn::make('title')
                     ->wrap()
                     ->width('400px')
