@@ -233,8 +233,7 @@ class ReportResource extends Resource
                                         } else {
                                             return [
                                                 Textarea::make('reason')
-                                                    ->required()
-                                                    ->helperText(new HtmlString('<span style="color:red">Make sure you manually made all the changes requested before approving. This will only change the status of the report.</span>')),
+                                                    ->required(),
                                             ];
                                         }
                                     }
@@ -265,6 +264,9 @@ class ReportResource extends Resource
                                         $get('status') == ReportStatus::APPROVED->value ||
                                         $operation != 'edit';
                                 })
+                                ->modalHeading(fn (Report $record) => self::getApprovalModalContent($record)['heading'])
+                                ->modalDescription(fn (Report $record) => self::getApprovalModalContent($record)['description'])
+                                ->modalSubmitActionLabel(fn (Report $record) => self::getApprovalModalContent($record)['submit_label'])
                                 ->action(function (array $data, Report $record, $set, $livewire, $get): void {
                                     // Add this validation check before processing the approval
                                     if ($record['report_category'] === ReportCategory::SUBMISSION->value) {
@@ -994,6 +996,15 @@ class ReportResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('id')
+                    ->label('No.')
+                    ->sortable()
+                    ->alignCenter()
+                    ->width('80px'),
+                TextColumn::make('created_at')
+                    ->label('Date')
+                    ->dateTime('M d, Y')
+                    ->sortable(),
                 TextColumn::make('title')
                     ->wrap()
                     ->width('400px')
@@ -1176,6 +1187,113 @@ class ReportResource extends Resource
         }
 
         return parent::getEloquentQuery();
+    }
+
+    public static function isFinalApprovalReview(Report $record): bool
+    {
+        return $record['status'] == ReportStatus::PENDING_APPROVAL->value
+            || $record['status'] == ReportStatus::PENDING_REJECTION->value;
+    }
+
+    /**
+     * @return array{heading: string, description: string, submit_label: string}
+     */
+    public static function getApprovalModalContent(Report $record): array
+    {
+        $isFinalReview = self::isFinalApprovalReview($record);
+
+        if ($isFinalReview) {
+            return match ($record['report_category']) {
+                ReportCategory::SUBMISSION->value => [
+                    'heading' => 'Approve new molecule',
+                    'description' => 'Approving this report will create and submit the new molecule entry to COCONUT.',
+                    'submit_label' => 'Approve and create molecule',
+                ],
+                ReportCategory::UPDATE->value => [
+                    'heading' => 'Approve changes',
+                    'description' => 'Approving this report will apply the selected changes to the molecule in the database.',
+                    'submit_label' => 'Approve and apply changes',
+                ],
+                ReportCategory::REVOKE->value => $record['report_type'] === 'molecule'
+                    ? [
+                        'heading' => 'Revoke molecule',
+                        'description' => 'Approving this report will deactivate the molecule and mark it as REVOKED.',
+                        'submit_label' => 'Approve and revoke molecule',
+                    ]
+                    : [
+                        'heading' => 'Approve report',
+                        'description' => 'Approving this report will only change the status of the report. Make sure you have manually applied all requested changes before approving.',
+                        'submit_label' => 'Approve report',
+                    ],
+                default => [
+                    'heading' => 'Approve report',
+                    'description' => 'Approving this report will mark it as fully approved.',
+                    'submit_label' => 'Approve',
+                ],
+            };
+        }
+
+        return match ($record['report_category']) {
+            ReportCategory::SUBMISSION->value => [
+                'heading' => 'Approve for second review',
+                'description' => 'Approving this report will forward the new-molecule submission to a second curator. No molecule will be created yet.',
+                'submit_label' => 'Approve for second review',
+            ],
+            ReportCategory::UPDATE->value => [
+                'heading' => 'Approve for second review',
+                'description' => 'Approving this report will forward the selected changes to a second curator. No changes will be applied yet.',
+                'submit_label' => 'Approve for second review',
+            ],
+            ReportCategory::REVOKE->value => [
+                'heading' => 'Approve for second review',
+                'description' => $record['report_type'] === 'molecule'
+                    ? 'Approving this report will forward the revocation request to a second curator. The molecule will not be revoked yet.'
+                    : 'Approving this report will forward it to a second curator for final approval.',
+                'submit_label' => 'Approve for second review',
+            ],
+            default => [
+                'heading' => 'Approve for second review',
+                'description' => 'Approving this report will forward it to a second curator for final approval.',
+                'submit_label' => 'Approve for second review',
+            ],
+        };
+    }
+
+    /**
+     * @return array{title: string, body: string}
+     */
+    public static function getApprovalNotificationContent(Report $record, string $resultingStatus): array
+    {
+        if ($resultingStatus === ReportStatus::PENDING_APPROVAL->value) {
+            return [
+                'title' => 'Report approved for first review',
+                'body' => 'The report has been approved in first review and is awaiting a second curator.',
+            ];
+        }
+
+        return match ($record['report_category']) {
+            ReportCategory::SUBMISSION->value => [
+                'title' => 'New molecule approved',
+                'body' => 'The new molecule has been approved and an entry has been created.',
+            ],
+            ReportCategory::UPDATE->value => [
+                'title' => 'Changes approved',
+                'body' => 'The selected changes have been applied to the molecule.',
+            ],
+            ReportCategory::REVOKE->value => $record['report_type'] === 'molecule'
+                ? [
+                    'title' => 'Molecule revoked',
+                    'body' => 'The molecule has been revoked and deactivated.',
+                ]
+                : [
+                    'title' => 'Report approved',
+                    'body' => 'The report has been approved. Ensure any manual changes were applied.',
+                ],
+            default => [
+                'title' => 'Report fully approved',
+                'body' => 'The report has been fully approved.',
+            ],
+        };
     }
 
     public static function prepareApprovedChanges(Report $record, $livewire)
@@ -1432,16 +1550,11 @@ class ReportResource extends Resource
         ReportStatusChanged::dispatch($record);
 
         // Show appropriate notification based on action
-        if ($status == ReportStatus::PENDING_APPROVAL->value) {
+        if ($status == ReportStatus::PENDING_APPROVAL->value || $status == ReportStatus::APPROVED->value) {
+            $notification = self::getApprovalNotificationContent($record, $status);
             Notification::make()
-                ->title('Report approved for first review')
-                ->body('The report has been approved in first review and is now pending final approval.')
-                ->success()
-                ->send();
-        } elseif ($status == ReportStatus::APPROVED->value) {
-            Notification::make()
-                ->title('Report fully approved')
-                ->body('The report has been fully approved.')
+                ->title($notification['title'])
+                ->body($notification['body'])
                 ->success()
                 ->send();
         }

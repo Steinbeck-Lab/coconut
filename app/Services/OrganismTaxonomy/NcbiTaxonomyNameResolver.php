@@ -3,19 +3,18 @@
 namespace App\Services\OrganismTaxonomy;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class NcbiTaxonomyNameResolver
 {
-    private ClientInterface $client;
+    private Client $client;
 
     public function __construct(
         private readonly GnfTaxonomyParser $taxonomyParser = new GnfTaxonomyParser,
         private readonly OrganismNameNormalizer $nameNormalizer = new OrganismNameNormalizer,
-        ?ClientInterface $client = null,
+        ?Client $client = null,
     ) {
         $this->client = $client ?? new Client([
             'base_uri' => 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/',

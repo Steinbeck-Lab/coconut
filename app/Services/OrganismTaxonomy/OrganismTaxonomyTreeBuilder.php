@@ -35,8 +35,9 @@ class OrganismTaxonomyTreeBuilder
 
         $this->sortChildren($tree);
 
+        /** @var array<string, mixed> $index */
         $index = [];
-        $this->indexNode($tree, [], $index);
+        $index = $this->indexNode($tree, [], $index);
 
         return [
             'tree' => $tree,
@@ -80,9 +81,10 @@ class OrganismTaxonomyTreeBuilder
     public function distributionAtRank(array $node, string $rank): array
     {
         $rank = strtolower($rank);
+        /** @var array<string, mixed> $buckets */
         $buckets = [];
 
-        $this->collectRankBuckets($node, $rank, $buckets);
+        $buckets = $this->collectRankBuckets($node, $rank, $buckets);
 
         $distribution = [];
 
@@ -281,9 +283,10 @@ class OrganismTaxonomyTreeBuilder
     /**
      * @param  array<string, mixed>  $node
      * @param  list<array{rank: string, name: string}>  $breadcrumb
-     * @param  array<string, array<string, mixed>>  $index
+     * @param  array<string, mixed>  $index
+     * @return array<string, mixed>
      */
-    private function indexNode(array $node, array $breadcrumb, array &$index): void
+    private function indexNode(array $node, array $breadcrumb, array $index): array
     {
         $index[$node['id']] = [
             'id' => $node['id'],
@@ -291,19 +294,22 @@ class OrganismTaxonomyTreeBuilder
         ];
 
         foreach ($node['children'] as $child) {
-            $this->indexNode(
+            $index = $this->indexNode(
                 $child,
                 [...$breadcrumb, ['rank' => $child['rank'], 'name' => $child['name']]],
                 $index,
             );
         }
+
+        return $index;
     }
 
     /**
      * @param  array<string, mixed>  $node
-     * @param  array<string, array{molecule_count: int, organism_count: int, id: string, name: string}>  $buckets
+     * @param  array<string, mixed>  $buckets
+     * @return array<string, mixed>
      */
-    private function collectRankBuckets(array $node, string $targetRank, array &$buckets): void
+    private function collectRankBuckets(array $node, string $targetRank, array $buckets): array
     {
         $currentRank = strtolower((string) $node['rank']);
 
@@ -315,12 +321,14 @@ class OrganismTaxonomyTreeBuilder
                 'organism_count' => (int) $node['organism_count'],
             ];
 
-            return;
+            return $buckets;
         }
 
         foreach ($node['children'] as $child) {
-            $this->collectRankBuckets($child, $targetRank, $buckets);
+            $buckets = $this->collectRankBuckets($child, $targetRank, $buckets);
         }
+
+        return $buckets;
     }
 
     /**

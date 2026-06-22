@@ -175,6 +175,7 @@ class MapOrganismNamesToOGG extends Command
             $pending = collect();
 
             foreach ($organisms as $organism) {
+                /** @var Organism $organism */
                 if ($maxToProcess !== null && $processed >= $maxToProcess) {
                     return false;
                 }
@@ -313,6 +314,7 @@ class MapOrganismNamesToOGG extends Command
             &$processed,
         ) {
             foreach ($organisms as $organism) {
+                /** @var Organism $organism */
                 if ($maxToProcess !== null && $processed >= $maxToProcess) {
                     return false;
                 }
@@ -420,6 +422,7 @@ class MapOrganismNamesToOGG extends Command
             &$moleculeLinks,
         ) {
             foreach ($organisms as $organism) {
+                /** @var Organism $organism */
                 if ($maxRows !== null && $scanned >= $maxRows) {
                     return false;
                 }
@@ -517,6 +520,7 @@ class MapOrganismNamesToOGG extends Command
     ): array {
         $candidateMap = [];
 
+        /** @var Organism $organism */
         foreach ($organisms as $organism) {
             $candidateMap[$organism->id] = $applyCuration
                 ? $curationResolver->lookupCandidates($organism)
@@ -656,10 +660,6 @@ class MapOrganismNamesToOGG extends Command
         }
 
         if ($this->option('backfill')) {
-            if ($this->option('force')) {
-                return $query;
-            }
-
             // Avoid JSON operators in SQL (breaks on SQL_ASCII databases with Unicode taxonomy).
             return $query->where(function (Builder $builder): void {
                 $builder->needingTaxonomyEnrichment()
@@ -688,6 +688,7 @@ class MapOrganismNamesToOGG extends Command
             ->doesntHave('molecules')
             ->orderBy('id')
             ->chunkById(500, function ($organisms) use (&$deleted) {
+                /** @var Organism $organism */
                 foreach ($organisms as $organism) {
                     $organism->delete();
                     $deleted++;

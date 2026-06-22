@@ -11,7 +11,7 @@ use Livewire\Component;
 class OrganismTaxonomyPanel extends Component
 {
     #[Locked]
-    public int $organismId;
+    public int $organismId = 0;
 
     public function mount(int $organismId): void
     {

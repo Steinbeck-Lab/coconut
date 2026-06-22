@@ -74,9 +74,10 @@ class UpdateParentVariantsCounts extends Command
             ->update([
                 'variants_count' => 0,
                 'has_variants' => false,
+                'is_placeholder' => false,
             ]);
 
-        $this->info("Reset variants_count to 0 and has_variants to false for {$resetCount} parent molecules without variants.");
+        $this->info("Reset variants_count to 0, has_variants to false, and is_placeholder to false for {$resetCount} parent molecules without variants.");
 
         $this->info('Update process completed successfully.');
     }

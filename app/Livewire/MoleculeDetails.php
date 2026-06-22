@@ -20,17 +20,15 @@ class MoleculeDetails extends Component
 
     public $curationStatus;
 
-    private OrganismTaxonomyPresenter $organismTaxonomyPresenter;
-
-    public function boot(OrganismTaxonomyPresenter $organismTaxonomyPresenter): void
-    {
-        $this->organismTaxonomyPresenter = $organismTaxonomyPresenter;
-    }
-
     public function mount($molecule)
     {
         $this->molecule = $molecule;
         $this->sortOrganisms();
+    }
+
+    private function taxonomyPresenter(): OrganismTaxonomyPresenter
+    {
+        return app(OrganismTaxonomyPresenter::class);
     }
 
     /**
@@ -103,7 +101,7 @@ class MoleculeDetails extends Component
         return $this->sortedOrganisms
             ->filter()
             ->map(function ($organism) {
-                $taxonomy = $this->organismTaxonomyPresenter->forOrganism($organism);
+                $taxonomy = $this->taxonomyPresenter()->forOrganism($organism);
 
                 return [
                     'id' => $organism->id,
@@ -127,7 +125,7 @@ class MoleculeDetails extends Component
             return null;
         }
 
-        return $this->organismTaxonomyPresenter->forOrganism($organism);
+        return $this->taxonomyPresenter()->forOrganism($organism);
     }
 
     public function rendered()

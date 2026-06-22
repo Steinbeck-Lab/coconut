@@ -4,7 +4,6 @@ namespace App\Services\OrganismTaxonomy;
 
 use App\Models\Organism;
 use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Pool;
 use Illuminate\Support\Facades\Log;
@@ -20,9 +19,9 @@ class OrganismTaxonomyMapper
         'family' => 'http://purl.obolibrary.org/obo/NCBITaxon_family',
     ];
 
-    private ClientInterface $olsClient;
+    private Client $olsClient;
 
-    private ClientInterface $gnfClient;
+    private Client $gnfClient;
 
     /** @var array<string, array<int, array<string, mixed>>|null> */
     private array $olsElementsCache = [];
@@ -32,8 +31,8 @@ class OrganismTaxonomyMapper
         private readonly GnfTaxonomyParser $taxonomyParser = new GnfTaxonomyParser,
         private readonly ?GnfMatchGate $matchGate = null,
         private readonly ?OrganismCurationResolver $curationResolver = null,
-        ?ClientInterface $olsClient = null,
-        ?ClientInterface $gnfClient = null,
+        ?Client $olsClient = null,
+        ?Client $gnfClient = null,
     ) {
         $timeout = (int) config('services.organism_taxonomy.http_timeout', 30);
 
