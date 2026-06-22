@@ -27,6 +27,7 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Tapp\FilamentAuditing\RelationManagers\AuditsRelationManager;
 
 class OrganismResource extends Resource
@@ -158,7 +159,7 @@ class OrganismResource extends Resource
         ];
 
         $client = new Client;
-        $url = 'https://finder.globalnames.org/api/v1/find';
+        $url = config('services.globalnames.url');
 
         $response = $client->post($url, [
             'json' => $data,
@@ -215,7 +216,7 @@ class OrganismResource extends Resource
             $organism->rank = $rank;
             // Auto-generate slug if not exists
             if (! $organism->slug) {
-                $organism->slug = \Illuminate\Support\Str::slug($name);
+                $organism->slug = Str::slug($name);
             }
             $organism->save();
         } else {
@@ -226,7 +227,7 @@ class OrganismResource extends Resource
     protected static function getOLSIRI($name, $rank)
     {
         $client = new Client([
-            'base_uri' => 'https://www.ebi.ac.uk/ols4/api/v2/',
+            'base_uri' => config('services.ols.base_url').'/v2/',
         ]);
 
         try {

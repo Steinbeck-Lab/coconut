@@ -6,6 +6,7 @@ use App\Models\Organism;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class MapOrganismNamesToOGG extends Command
 {
@@ -19,7 +20,7 @@ class MapOrganismNamesToOGG extends Command
     {
         parent::__construct();
         $this->client = new Client([
-            'base_uri' => 'https://www.ebi.ac.uk/ols4/api/v2/',
+            'base_uri' => config('services.ols.base_url').'/v2/',
         ]);
     }
 
@@ -84,7 +85,7 @@ class MapOrganismNamesToOGG extends Command
         ];
 
         $client = new Client;
-        $url = 'https://finder.globalnames.org/api/v1/find';
+        $url = config('services.globalnames.url');
 
         $response = $client->post($url, [
             'json' => $data,
@@ -190,7 +191,7 @@ class MapOrganismNamesToOGG extends Command
             $organism->rank = $rank;
             // Auto-generate slug if not exists
             if (! $organism->slug) {
-                $organism->slug = \Illuminate\Support\Str::slug($name);
+                $organism->slug = Str::slug($name);
             }
             $organism->save();
         } else {

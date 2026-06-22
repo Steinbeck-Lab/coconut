@@ -47,6 +47,7 @@ return [
         'client_id' => env('NFDI_CLIENT_ID'),
         'client_secret' => env('NFDI_CLIENT_SECRET'),
         'redirect' => env('NFDI_REDIRECT_URL'),
+        'oidc_base_url' => rtrim(env('NFDI_OIDC_BASE_URL', 'https://regapp.nfdi-aai.de/oidc/realms/nfdi/protocol/openid-connect'), '/'),
     ],
 
     'cheminf' => [
@@ -55,9 +56,33 @@ return [
     ],
 
     'citation' => [
-        'europepmc_url' => env('EUROPEPMC_WS_API'),
-        'crossref_url' => env('CROSSREF_WS_API'),
-        'datacite_url' => env('DATACITE_WS_API'),
+        'europepmc_url' => env('EUROPEPMC_WS_API', 'https://www.ebi.ac.uk/europepmc/webservices/rest/search'),
+        'crossref_url' => env('CROSSREF_WS_API', 'https://api.crossref.org/works/'),
+        'datacite_url' => env('DATACITE_WS_API', 'https://api.datacite.org/dois/'),
+    ],
+
+    'coconut' => [
+        'public_url' => rtrim(env('COCONUT_PUBLIC_URL', 'https://coconut.naturalproducts.net'), '/'),
+    ],
+
+    'pubchem' => [
+        'base_url' => rtrim(env('PUBCHEM_API_BASE', 'https://pubchem.ncbi.nlm.nih.gov/rest/pug'), '/'),
+    ],
+
+    'npclassifier' => [
+        'url' => rtrim(env('NP_CLASSIFIER_URL', 'https://npclassifier.gnps2.org/classify'), '/'),
+    ],
+
+    'globalnames' => [
+        'url' => env('GLOBALNAMES_API_URL', 'https://finder.globalnames.org/api/v1/find'),
+    ],
+
+    'ols' => [
+        'base_url' => rtrim(env('OLS4_API_BASE', 'https://www.ebi.ac.uk/ols4/api'), '/'),
+    ],
+
+    'avatars' => [
+        'url' => rtrim(env('UI_AVATARS_URL', 'https://ui-avatars.com/api'), '/'),
     ],
 
     'tawk' => [

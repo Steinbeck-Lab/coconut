@@ -545,30 +545,45 @@
                                         </div>
                                         <div class="px-4 py-6 sm:px-6">
                                             <ul role="list" class="px-0">
+                                                @php
+                                                    $npPathways = \Illuminate\Support\Arr::wrap($molecule->properties?->np_classifier_pathway ?? []);
+                                                    $npSuperclasses = \Illuminate\Support\Arr::wrap($molecule->properties?->np_classifier_superclass ?? []);
+                                                    $npClasses = \Illuminate\Support\Arr::wrap($molecule->properties?->np_classifier_class ?? []);
+                                                @endphp
                                                 <li class="py-1 flex md:py-0"><span class="ml-3 text-base">
                                                         <b>Pathway</b>:
-                                                        <a class="hover:text-blue-600 hover:underline"
-                                                            target="_blank"
-                                                            href="../search?q=np_pathway%3A{{ $molecule->properties && $molecule->properties['np_classifier_pathway'] ? Str::slug($molecule->properties['np_classifier_pathway']) : '-' }}&amp;page=1&amp;type=filters">
-                                                            {{ $molecule->properties && $molecule->properties['np_classifier_pathway'] ? $molecule->properties['np_classifier_pathway'] : '-' }}
-                                                        </a>
+                                                        @forelse ($npPathways as $index => $pathway)
+                                                            @if ($index > 0)<span>, </span>@endif
+                                                            <a class="hover:text-blue-600 hover:underline"
+                                                                target="_blank"
+                                                                href="../search?q=np_pathway%3A{{ Str::slug($pathway) }}&amp;page=1&amp;type=filters">{{ $pathway }}</a>
+                                                        @empty
+                                                            -
+                                                        @endforelse
                                                     </span>
                                                 </li>
                                                 <li class="py-1 flex md:py-0"><span
                                                         class="ml-3 text-base"><b>Super Class</b>:
-                                                        <a class="hover:text-blue-600 hover:underline"
-                                                            target="_blank"
-                                                            href="../search?q=np_superclass%3A{{ $molecule->properties && $molecule->properties['np_classifier_superclass'] ? Str::slug($molecule->properties['np_classifier_superclass']) : '-' }}&amp;page=1&amp;type=filters">
-                                                            {{ $molecule->properties && $molecule->properties['np_classifier_superclass'] ? $molecule->properties['np_classifier_superclass'] : '-' }}</span>
-                                                    </a>
+                                                        @forelse ($npSuperclasses as $index => $superclass)
+                                                            @if ($index > 0)<span>, </span>@endif
+                                                            <a class="hover:text-blue-600 hover:underline"
+                                                                target="_blank"
+                                                                href="../search?q=np_superclass%3A{{ Str::slug($superclass) }}&amp;page=1&amp;type=filters">{{ $superclass }}</a>
+                                                        @empty
+                                                            -
+                                                        @endforelse
+                                                    </span>
                                                 </li>
                                                 <li class="py-1 flex md:py-0"><span
                                                         class="ml-3 text-base"><b>Class</b>:
-                                                        <a class="hover:text-blue-600 hover:underline"
-                                                            target="_blank"
-                                                            href="../search?q=np_class%3A{{ $molecule->properties && $molecule->properties['np_classifier_class'] ? Str::slug($molecule->properties['np_classifier_class']) : '-' }}&amp;page=1&amp;type=filters">
-                                                            {{ $molecule->properties && $molecule->properties['np_classifier_class'] ? $molecule->properties['np_classifier_class'] : '-' }}
-                                                        </a>
+                                                        @forelse ($npClasses as $index => $class)
+                                                            @if ($index > 0)<span>, </span>@endif
+                                                            <a class="hover:text-blue-600 hover:underline"
+                                                                target="_blank"
+                                                                href="../search?q=np_class%3A{{ Str::slug($class) }}&amp;page=1&amp;type=filters">{{ $class }}</a>
+                                                        @empty
+                                                            -
+                                                        @endforelse
                                                     </span>
                                                 </li>
                                                 <li class="py-1 flex md:py-0"><span class="ml-3 text-base"><b>Is
