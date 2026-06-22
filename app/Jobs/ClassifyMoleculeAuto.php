@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Properties;
+use App\Support\NpClassifierResults;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -19,6 +20,8 @@ class ClassifyMoleculeAuto implements ShouldQueue
 
     protected $molecule;
 
+    protected bool $force;
+
     /**
      * The step name for this job.
      */
@@ -32,9 +35,10 @@ class ClassifyMoleculeAuto implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($molecule)
+    public function __construct($molecule, bool $force = false)
     {
         $this->molecule = $molecule;
+        $this->force = $force;
     }
 
     /**
@@ -125,25 +129,16 @@ class ClassifyMoleculeAuto implements ShouldQueue
      */
     private function updateProperties(int $moleculeId, array $data): void
     {
-        $properties = Properties::where('molecule_id', $moleculeId)->whereNull('np_classifier_pathway')->first();
+        $query = Properties::where('molecule_id', $moleculeId);
+
+        if (! $this->force) {
+            $query->whereNull('np_classifier_pathway');
+        }
+
+        $properties = $query->first();
 
         if ($properties) {
-            $properties['np_classifier_pathway'] = (isset($data['pathway_results'][0]) && ! empty($data['pathway_results'][0]))
-                ? $data['pathway_results'][0]
-                : null;
-
-            $properties['np_classifier_superclass'] = (isset($data['superclass_results'][0]) && ! empty($data['superclass_results'][0]))
-                ? $data['superclass_results'][0]
-                : null;
-
-            $properties['np_classifier_class'] = (isset($data['class_results'][0]) && ! empty($data['class_results'][0]))
-                ? $data['class_results'][0]
-                : null;
-
-            $properties['np_classifier_is_glycoside'] = (isset($data['isglycoside']) && $data['isglycoside'] !== '')
-                ? filter_var($data['isglycoside'], FILTER_VALIDATE_BOOLEAN)
-                : null;
-
+            $properties->fill(NpClassifierResults::fromApiResponse($data));
             $properties->save();
         }
     }

@@ -110,6 +110,8 @@ Search Molecules using various attributes. There are two tables invovled in this
 
 ::: warning Note
 The fields in the *molecules* table can be accessed directly with their column names. The fields in the *properties* table are to be accessed prefixing them with the table name. Ex: **properties.field-name**.
+
+`np_classifier_pathway`, `np_classifier_superclass`, and `np_classifier_class` are JSON arrays of strings (one molecule may have multiple NP Classifier labels per level).
 :::
 
 #### Includable relations

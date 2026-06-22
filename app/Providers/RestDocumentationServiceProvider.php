@@ -223,11 +223,11 @@ class RestDocumentationServiceProvider extends ServiceProvider
                                             "  - Example: 1,1'-azonaphthalenes\n\n".
 
                                             "### Natural Product Classifications\n".
-                                            "* `np_pathway`: NP Classifier Pathway\n".
+                                            "* `np_pathway`: NP Classifier Pathway (molecule may have multiple; REST returns JSON arrays)\n".
                                             "  - Example: Amino acids and Peptides\n".
-                                            "* `np_superclass`: NP Classifier Superclass\n".
+                                            "* `np_superclass`: NP Classifier Superclass (JSON array in API responses)\n".
                                             "  - Example: Aminosugars and aminoglycosides\n".
-                                            "* `np_class`: NP Classifier Class\n".
+                                            "* `np_class`: NP Classifier Class (JSON array in API responses)\n".
                                             "  - Example: 2-arylbenzofurans\n".
                                             "* `np_glycoside`: NP Classifier Is Glycoside (true/false)\n\n".
 
