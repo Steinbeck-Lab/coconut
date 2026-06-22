@@ -33,7 +33,6 @@
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_DRIVER" value="array"/>
         <env name="DB_CONNECTION" value="pgsql" force="false"/>
-        <env name="DB_HOST" value="localhost" force="false"/>
         <env name="DB_PORT" value="5432" force="false"/>
         <env name="DB_DATABASE" value="testing" force="false"/>
         <env name="DB_USERNAME" value="sail" force="false"/>
