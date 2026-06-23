@@ -3,9 +3,9 @@
 namespace App\Jobs;
 
 use App\Models\Citation;
-use App\Models\GeoLocation;
 use App\Models\Molecule;
 use App\Models\Organism;
+use App\Services\GeoLocationService;
 use Exception;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -236,7 +236,7 @@ class ImportEntry implements ShouldBeUnique, ShouldQueue
         $locations = explode('|', $this->entry->locations);
         $i = 0;
         foreach ($geo_locations as $geo_location) {
-            $geolocationModel = GeoLocation::firstOrCreate(['name' => $geo_location]);
+            $geolocationModel = app(GeoLocationService::class)->findOrCreate($geo_location, allowGeocoding: false);
             $locationsNames = array_key_exists($i, $locations) ? $locations[$i] : '';
             $molecule->geo_locations()->syncWithoutDetaching([$geolocationModel->id => ['locations' => $locationsNames]]);
             $i = $i + 1;

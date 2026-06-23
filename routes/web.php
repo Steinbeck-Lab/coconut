@@ -9,6 +9,7 @@ use App\Livewire\Blog\Index as BlogIndex;
 use App\Livewire\Blog\Show as BlogShow;
 use App\Livewire\CollectionList;
 use App\Livewire\Download;
+use App\Livewire\GeoGlobe;
 use App\Livewire\Guides;
 use App\Livewire\Policy;
 use App\Livewire\Search;
@@ -45,6 +46,7 @@ Route::get('/blog', BlogIndex::class)->name('blog.index');
 Route::get('/blog/{slug}', BlogShow::class)->name('blog.show');
 Route::get('/download', Download::class);
 Route::get('/stats', Stats::class);
+Route::get('/globe', GeoGlobe::class)->name('globe');
 Route::get('/tree-of-life', TreeOfLifeExplorer::class)->name('tree-of-life');
 
 Route::get('/collections', CollectionList::class)->name('collections.index');

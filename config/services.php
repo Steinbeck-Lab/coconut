@@ -93,6 +93,12 @@ return [
         'cas_key' => env('CAS_KEY'),
     ],
 
+    'nominatim' => [
+        'url' => env('NOMINATIM_URL', 'https://nominatim.openstreetmap.org'),
+        'user_agent' => env('NOMINATIM_USER_AGENT', 'COCONUT/1.0 (contact@nfdi4chem.de)'),
+        'delay_ms' => env('NOMINATIM_DELAY_MS', 1100),
+    ],
+
     'organism_taxonomy' => [
         'ols_base_uri' => env('ORGANISM_TAXONOMY_OLS_BASE_URI', 'https://www.ebi.ac.uk/ols4/api/v2/'),
         'gnf_finder_url' => env('ORGANISM_TAXONOMY_GNF_FINDER_URL', 'https://finder.globalnames.org/api/v1/find'),
