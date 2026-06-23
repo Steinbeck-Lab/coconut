@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Entry;
+use App\Services\GeoLocationService;
 use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
@@ -1300,45 +1301,11 @@ class ImportOrganismMetadata extends Command
             return null;
         }
 
-        if (isset($this->geoLocationCache[$name])) {
-            return $this->geoLocationCache[$name];
-        }
-
-        $existing = DB::selectOne('SELECT id FROM geo_locations WHERE name = ?', [$name]);
-        if ($existing) {
-            $this->geoLocationCache[$name] = $existing->id;
-
-            return $existing->id;
-        }
-
-        try {
-            $id = DB::table('geo_locations')->insertGetId([
-                'name' => $name,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-            $this->geoLocationCache[$name] = $id;
-
-            return $id;
-        } catch (QueryException $e) {
-            if (! $this->isUniqueViolation($e)) {
-                Log::error('Unexpected DB error in geo_locations insert (not unique violation)', [
-                    'sqlstate' => $e->errorInfo[0] ?? null,
-                    'msg' => $e->getMessage(),
-                ]);
-                throw $e;
-            }
-
-            // Handle race condition - unique violation
-            usleep(50000);
-            $existing = DB::selectOne('SELECT id FROM geo_locations WHERE name = ?', [$name]);
-            if ($existing) {
-                $this->geoLocationCache[$name] = $existing->id;
-
-                return $existing->id;
-            }
-            throw $e;
-        }
+        return app(GeoLocationService::class)->findOrCreateId(
+            $name,
+            $this->geoLocationCache,
+            allowGeocoding: false,
+        );
     }
 
     protected function findOrCreateEcosystem(string $name, ?int $geoLocationId = null): ?int

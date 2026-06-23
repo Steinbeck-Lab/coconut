@@ -16,12 +16,15 @@ class ClassifyMoleculeBatch implements ShouldQueue
 
     protected $ids;
 
+    protected bool $force;
+
     /**
      * Create a new job instance.
      */
-    public function __construct($ids)
+    public function __construct($ids, bool $force = false)
     {
         $this->ids = $ids;
+        $this->force = $force;
     }
 
     /**
@@ -40,7 +43,7 @@ class ClassifyMoleculeBatch implements ShouldQueue
 
         $batchJobs = [];
         foreach ($molecules as $molecule) {
-            array_push($batchJobs, new ClassifyMoleculeAuto($molecule));
+            array_push($batchJobs, new ClassifyMoleculeAuto($molecule, $this->force));
         }
 
         if (! empty($batchJobs)) {

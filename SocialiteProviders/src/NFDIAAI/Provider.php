@@ -21,7 +21,7 @@ class Provider extends AbstractProvider
      */
     protected function getAuthUrl($state)
     {
-        return $this->buildAuthUrlFromBase('https://regapp.nfdi-aai.de/oidc/realms/nfdi/protocol/openid-connect/auth', $state);
+        return $this->buildAuthUrlFromBase(config('services.regapp.oidc_base_url').'/auth', $state);
     }
 
     /**
@@ -29,7 +29,7 @@ class Provider extends AbstractProvider
      */
     protected function getTokenUrl()
     {
-        return 'https://regapp.nfdi-aai.de/oidc/realms/nfdi/protocol/openid-connect/token';
+        return config('services.regapp.oidc_base_url').'/token';
     }
 
     /**
@@ -37,7 +37,7 @@ class Provider extends AbstractProvider
      */
     protected function getUserByToken($token)
     {
-        $response = $this->getHttpClient()->get('https://regapp.nfdi-aai.de/oidc/realms/nfdi/protocol/openid-connect/userinfo', [
+        $response = $this->getHttpClient()->get(config('services.regapp.oidc_base_url').'/userinfo', [
             RequestOptions::HEADERS => [
                 'Authorization' => 'Bearer '.$token,
             ],

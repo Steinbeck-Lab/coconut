@@ -4,11 +4,11 @@ namespace App\Jobs;
 
 use App\Models\Citation;
 use App\Models\Ecosystem;
-use App\Models\GeoLocation;
 use App\Models\Molecule;
 use App\Models\MoleculeOrganism;
 use App\Models\Organism;
 use App\Models\SampleLocation;
+use App\Services\GeoLocationService;
 use Exception;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -82,6 +82,11 @@ class ImportEntryAuto implements ShouldBeUnique, ShouldQueue
 
                     $this->attachCollection($molecule);
                 } else {
+                    if ($parent->is_placeholder) {
+                        $parent->is_placeholder = false;
+                        $parent->save();
+                    }
+
                     $this->entry->molecule_id = $parent->id;
                     $this->entry->save();
 
@@ -248,9 +253,10 @@ class ImportEntryAuto implements ShouldBeUnique, ShouldQueue
                 foreach ($organism['locations'] as $location) {
                     $geo_location_ids = []; // Reset for each location
 
-                    $geoLocationModel = GeoLocation::firstOrCreate([
-                        'name' => $location['name'],
-                    ]);
+                    $geoLocationModel = app(GeoLocationService::class)->findOrCreate(
+                        $location['name'],
+                        allowGeocoding: false,
+                    );
 
                     // Connect organism to geo location directly
                     // $organismModel->geoLocations()->syncWithoutDetaching([$geoLocationModel->id]);

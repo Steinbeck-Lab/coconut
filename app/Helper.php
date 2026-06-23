@@ -24,6 +24,30 @@ function csp_nonce(): string
 }
 
 /**
+ * Public base URL for objects on the configured S3/Ceph disk.
+ */
+function public_storage_url(?string $path = null): string
+{
+    $base = rtrim((string) config('filesystems.disks.s3.url'), '/');
+
+    if ($path === null || $path === '') {
+        return $base;
+    }
+
+    return $base.'/'.ltrim($path, '/');
+}
+
+/**
+ * Public base URL for COCONUT release downloads on object storage.
+ */
+function public_downloads_url(string $path): string
+{
+    $base = rtrim((string) config('filesystems.disks.s3.downloads_url'), '/');
+
+    return $base.'/'.ltrim($path, '/');
+}
+
+/**
  * Get all curator users.
  * This centralizes curator fetching logic that may change in the future.
  *
@@ -83,6 +107,37 @@ function doiRegxMatch($doi)
     $doiRegex = '/\b(10[.][0-9]{4,}(?:[.][0-9]+)*)\b/';
 
     return preg_match($doiRegex, $doi);
+}
+
+/**
+ * Normalize a DOI value for use in markdown email links.
+ *
+ * @return array{label: string, url: string}|null
+ */
+function normalizeDoiForLink(string $doi): ?array
+{
+    $doi = trim($doi);
+
+    if ($doi === '') {
+        return null;
+    }
+
+    $doi = preg_replace('#^https?://(dx\.)?doi\.org/#i', '', $doi);
+    $doi = preg_replace('#^doi\.org/#i', '', $doi);
+    $doi = preg_replace('#^doi:#i', '', $doi);
+    $doi = trim($doi);
+
+    $pattern = '/(10\.\d{4,}(?:\.\d+)*\/\S+(?:(?!["&\'<>])\S))/i';
+    if (! preg_match($pattern, $doi, $matches)) {
+        return null;
+    }
+
+    $bareDoi = $matches[1];
+
+    return [
+        'label' => $bareDoi,
+        'url' => 'https://doi.org/'.$bareDoi,
+    ];
 }
 
 function fetchDOICitation($doi)
@@ -543,6 +598,42 @@ function getFilterMap()
         'org' => 'organism',
         'cite' => 'ciatation',
     ];
+}
+
+/**
+ * Parse a filter query AND-condition into [key, value] token pairs.
+ * Uses known filter keys so multi-word values with spaces are not split.
+ */
+function parseFilterQueryTokens(string $condition, array $filterMap): array
+{
+    $keys = array_keys($filterMap);
+    usort($keys, fn ($a, $b) => strlen($b) <=> strlen($a));
+    $pattern = '/\b('.implode('|', array_map('preg_quote', $keys)).'):/';
+
+    if (! preg_match_all($pattern, $condition, $matches, PREG_OFFSET_CAPTURE)) {
+        return [];
+    }
+
+    $tokens = [];
+    $count = count($matches[0]);
+
+    for ($i = 0; $i < $count; $i++) {
+        $key = $matches[1][$i][0];
+        $valueStart = $matches[0][$i][1] + strlen($matches[0][$i][0]);
+        $valueEnd = ($i + 1 < $count) ? $matches[0][$i + 1][1] : strlen($condition);
+        $value = trim(substr($condition, $valueStart, $valueEnd - $valueStart));
+        $tokens[] = [$key, $value];
+    }
+
+    return $tokens;
+}
+
+/**
+ * Normalize a text filter value to match DB-side hyphen normalization.
+ */
+function normalizeFilterTextValue(string $filterValue): string
+{
+    return mb_strtolower(preg_replace('/\s+/', '-', str_replace('+', ' ', trim($filterValue))));
 }
 
 function updateCurationStatus($moleculeId, $command, $status, $errorMessage = null)
