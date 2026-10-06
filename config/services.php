@@ -91,6 +91,8 @@ return [
 
     'cas' => [
         'cas_key' => env('CAS_KEY'),
+        'base_url' => env('CAS_BASE_URL', 'https://commonchemistry.cas.org/direct-api'),
+        'origin' => env('CAS_ORIGIN', 'https://commonchemistry.cas.org/api-overview'),
     ],
 
     'nominatim' => [
