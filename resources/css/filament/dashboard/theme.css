@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import '../../../../vendor/filament/filament/resources/css/theme.css';
-@import '../../../../vendor/archilex/filament-filter-sets/resources/dist/advanced-tables.css';
+@import '../../../../vendor/archilex/filament-filter-sets/resources/css/plugin.css';
 @import '../../../../vendor/pxlrbt/filament-spotlight-pro/resources/spotlight.css';
 @plugin "@tailwindcss/forms";
 
