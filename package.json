@@ -36,5 +36,10 @@
     },
     "keywords": [],
     "author": "",
-    "license": "ISC"
+    "license": "ISC",
+    "overrides": {
+        "@tailwindcss/typography": {
+            "postcss-selector-parser": "^7.1.7"
+        }
+    }
 }
