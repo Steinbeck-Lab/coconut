@@ -17,7 +17,11 @@ FROM composer:${COMPOSER_VERSION} AS composer
 # =============================================================================
 # Main Application Stage
 # =============================================================================
-FROM dunglas/frankenphp:1-php8.4-bookworm
+FROM dunglas/frankenphp:1.13.2-php8.4-bookworm
+
+# Security guard: fail the build if the base image ships a PHP older than the
+# version fixed for CERT-EU advisory 2026-018 (CVE-2026-109618 / CVE-2026-109619)
+RUN php -r 'exit(version_compare(PHP_VERSION, "8.4.27", ">=") ? 0 : 1);'
 
 # Build arguments
 ARG WWWUSER=1000
@@ -94,11 +98,11 @@ ENV PATH="/app/cc/bin:$PATH"
 
 # Configure PHP - combine echo commands
 RUN { \
-        echo 'max_execution_time = 3600'; \
-        echo 'memory_limit = 4G'; \
-        echo 'upload_max_filesize = 100M'; \
-        echo 'post_max_size = 250M'; \
-        echo 'max_input_time = 3600'; \
+    echo 'max_execution_time = 3600'; \
+    echo 'memory_limit = 4G'; \
+    echo 'upload_max_filesize = 100M'; \
+    echo 'post_max_size = 250M'; \
+    echo 'max_input_time = 3600'; \
     } > /usr/local/etc/php/conf.d/docker-php-custom.ini
 
 # Install Node.js
@@ -107,7 +111,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
 
 # Create application user
 RUN groupadd --gid $WWWGROUP laravel \
-&& useradd --uid $WWWUSER --gid laravel --shell /bin/bash --create-home laravel
+    && useradd --uid $WWWUSER --gid laravel --shell /bin/bash --create-home laravel
 
 # Set working directory
 WORKDIR /app
