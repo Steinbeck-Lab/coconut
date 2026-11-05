@@ -6,7 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'Natural Products') - {{ config('app.name', 'COCONUT') }}</title>
+    <title>
+        @if (isset($title))
+            {{ $title }} - {{ config('app.name', 'COCONUT') }}
+        @else
+            @yield('title', 'Natural Products') - {{ config('app.name', 'COCONUT') }}
+        @endif
+    </title>
+
+    @isset($description)
+        <meta name="description" content="{{ $description }}">
+        <meta property="og:description" content="{{ $description }}">
+    @endisset
+    @isset($title)
+        <meta property="og:title" content="{{ $title }}">
+    @endisset
+    @isset($image)
+        <meta property="og:image" content="{{ $image }}">
+    @endisset
+    @stack('head')
 
     @section('meta')
         <!-- Meta Tags -->

@@ -47,6 +47,7 @@
                                             "name_trust_level",
                                             "annotation_level",
                                             "variants_count",
+                                            "organism_count",
                                             "status",
                                             "active",
                                             "has_variants",
@@ -73,6 +74,17 @@
                                                     "prohibited_on_update": false
                                                 },
                                                 "name": "HasOne"
+                                            },
+                                            {
+                                                "resource": "App\\Rest\\Resources\\OrganismResource",
+                                                "relation": "organisms",
+                                                "constraints": {
+                                                    "required_on_creation": false,
+                                                    "prohibited_on_creation": false,
+                                                    "required_on_update": false,
+                                                    "prohibited_on_update": false
+                                                },
+                                                "name": "BelongsToMany"
                                             }
                                         ],
                                         "rules": {
@@ -225,6 +237,11 @@
                                             "value": ""
                                         },
                                         {
+                                            "field": "organism_count",
+                                            "operator": "=",
+                                            "value": ""
+                                        },
+                                        {
                                             "field": "status",
                                             "operator": "=",
                                             "value": ""
@@ -314,6 +331,10 @@
                                             "direction": "desc"
                                         },
                                         {
+                                            "field": "organism_count",
+                                            "direction": "desc"
+                                        },
+                                        {
                                             "field": "status",
                                             "direction": "desc"
                                         },
@@ -383,6 +404,9 @@
                                             "field": "variants_count"
                                         },
                                         {
+                                            "field": "organism_count"
+                                        },
+                                        {
                                             "field": "status"
                                         },
                                         {
@@ -407,6 +431,9 @@
                                     "includes": [
                                         {
                                             "relation": "properties"
+                                        },
+                                        {
+                                            "relation": "organisms"
                                         }
                                     ],
                                     "aggregates": [],
@@ -476,6 +503,7 @@
                                             "name_trust_level": "",
                                             "annotation_level": "",
                                             "variants_count": "",
+                                            "organism_count": "",
                                             "status": "",
                                             "active": "",
                                             "has_variants": "",
@@ -486,6 +514,10 @@
                                         },
                                         "relations": {
                                             "properties": {
+                                                "operation": "update",
+                                                "key": 1
+                                            },
+                                            "organisms": {
                                                 "operation": "update",
                                                 "key": 1
                                             }
@@ -629,10 +661,10 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Est consectetur labore ut.",
-                                        "description": "Distinctio assumenda eum itaque veritatis in aut. Rem aut exercitationem occaecati rerum quo. Illo veritatis aut non non. Quia ipsum doloribus fugiat vel corrupti fugit quasi.",
-                                        "url": "http:\/\/crooks.com\/",
-                                        "identifier": null
+                                        "title": "Qui et ut voluptas.",
+                                        "description": "Commodi nostrum quisquam ea ad. Ea et perferendis iusto alias atque. Ullam nam cumque et quis autem consequatur repellat.",
+                                        "url": "http:\/\/haag.com\/",
+                                        "identifier": "Amet consequuntur possimus aut ut eius."
                                     },
                                     "meta": []
                                 }
@@ -674,9 +706,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "title": "Et alias rerum incidunt et.",
-                                        "description": "Libero nesciunt placeat magnam sint. Ut in voluptas consequatur. Laborum aspernatur sint ut optio. Voluptatem illo distinctio culpa laborum.",
-                                        "url": "http:\/\/kutch.com\/ab-voluptatem-consequatur-minus-voluptas-repudiandae-perferendis",
+                                        "title": "Aut tenetur dolore consequatur dolores omnis.",
+                                        "description": "Hic incidunt et non esse eligendi. Sed non cupiditate vel facilis delectus. Nobis voluptatem rem sed itaque qui voluptatem.",
+                                        "url": "http:\/\/weissnat.com\/est-est-expedita-sit-nisi",
                                         "identifier": null
                                     },
                                     "meta": []
@@ -946,9 +978,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1016\/j.bbrep.2025.102032~58",
-                                        "title": "RNA signaling in medicinal plants: An overlooked mechanism for phytochemical regulation.",
-                                        "authors": "Alum EU, Udechukwu CD, Obasi DC.",
+                                        "doi": "10.2174\/0113895575524414260612093913~17",
+                                        "title": "Bioprospecting of Natural Products as Sources of New Multitarget Therapies.",
+                                        "authors": "Iriti M.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -991,9 +1023,9 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "doi": "10.1039\/b700306b~29",
-                                        "title": "Natural product isolation.",
-                                        "authors": "Sticher O.",
+                                        "doi": "10.3390\/plants15020181~77",
+                                        "title": "Editorial-Medicinal Plants: Advances in Phytochemistry and Ethnobotany II.",
+                                        "authors": "Boylan F, Silveira D.",
                                         "citation_text": ""
                                     },
                                     "meta": []
@@ -1568,8 +1600,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Annabel Medhurst",
-                                        "email": "veum.adolphus@example.com"
+                                        "name": "Dr. Anibal Gutkowski MD",
+                                        "email": "pedro.breitenberg@example.net"
                                     },
                                     "meta": []
                                 }
@@ -1611,8 +1643,8 @@
                             "application\/json": {
                                 "example": {
                                     "data": {
-                                        "name": "Dr. Gonzalo Simonis II",
-                                        "email": "ssimonis@example.net"
+                                        "name": "Dayna Kub",
+                                        "email": "noemi.turner@example.org"
                                     },
                                     "meta": []
                                 }
@@ -2535,7 +2567,8 @@
                                             "title",
                                             "evidence",
                                             "comment",
-                                            "suggested_changes"
+                                            "suggested_changes",
+                                            "mol_ids"
                                         ],
                                         "scout_fields": [],
                                         "limits": [
@@ -2654,6 +2687,11 @@
                                             "field": "suggested_changes",
                                             "operator": "=",
                                             "value": ""
+                                        },
+                                        {
+                                            "field": "mol_ids",
+                                            "operator": "=",
+                                            "value": ""
                                         }
                                     ],
                                     "sorts": [
@@ -2667,6 +2705,10 @@
                                         },
                                         {
                                             "field": "comment",
+                                            "direction": "desc"
+                                        },
+                                        {
+                                            "field": "mol_ids",
                                             "direction": "desc"
                                         }
                                     ],
@@ -2682,6 +2724,9 @@
                                         },
                                         {
                                             "field": "suggested_changes"
+                                        },
+                                        {
+                                            "field": "mol_ids"
                                         }
                                     ],
                                     "includes": [],
@@ -2742,7 +2787,8 @@
                                             "title": "",
                                             "evidence": "",
                                             "comment": "",
-                                            "suggested_changes": ""
+                                            "suggested_changes": "",
+                                            "mol_ids": ""
                                         },
                                         "relations": []
                                     }
@@ -3035,7 +3081,7 @@
                             }
                         }
                     },
-                    "\"500\"": {
+                    "500": {
                         "description": "Server Error",
                         "content": {
                             "application\/json": {
@@ -3062,6 +3108,75 @@
                         }
                     }
                 }
+            }
+        },
+        "\/api\/auth\/verify\/{user_id}": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Email verification endpoint",
+                "responses": {
+                    "default": {
+                        "description": "Email verification successful and redirected",
+                        "headers": {
+                            "Location": {
+                                "description": "URL to redirect to",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Http-Response-Code": {
+                                "description": "HTTP Response Code",
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid\/Expired URL provided"
+                    }
+                },
+                "requestBody": {
+                    "content": {
+                        "application\/json": {
+                            "example": {
+                                "user": {
+                                    "id": "example_user_id",
+                                    "name": "example_name",
+                                    "email": "example_email",
+                                    "password": "example_password"
+                                },
+                                "signature": "example_signature"
+                            }
+                        }
+                    },
+                    "description": "User object and Request Signature"
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "\/api\/auth\/email\/resend": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Resend email verification endpoint",
+                "responses": {
+                    "default": {
+                        "description": "Email verification link sent to your email address"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
             }
         }
     },

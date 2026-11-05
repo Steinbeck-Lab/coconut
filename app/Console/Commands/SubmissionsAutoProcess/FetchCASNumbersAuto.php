@@ -10,6 +10,7 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 
 class FetchCASNumbersAuto extends Command
 {
@@ -32,13 +33,15 @@ class FetchCASNumbersAuto extends Command
      */
     private $batchSize = 100; // Number of molecules per batch
 
-    private $apiBaseUrl = 'https://commonchemistry.cas.org/api';
+    private string $apiBaseUrl = '';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
+        $this->apiBaseUrl = rtrim((string) config('services.cas.base_url'), '/');
+
         $collection_id = $this->argument('collection_id');
 
         if (! $collection_id && ! $this->option('all')) {
@@ -176,28 +179,47 @@ class FetchCASNumbersAuto extends Command
                 continue;
             }
 
-            $casNumber = $this->fetchCASFromCommonChemistryAPI($candidate, 'search');
-            Log::info("Received CAS number: {$casNumber}");
-            if ($casNumber) {
-                //  Get the details using this CAS number.
+            // A search can return several matches and the first is not always the right compound
+            // (e.g. a deuterated variant), so verify every candidate against the molecule.
+            $matches = [];
+            foreach ($this->searchCASNumbers($candidate) as $casNumber) {
                 $details = $this->fetchCASFromCommonChemistryAPI($casNumber, 'detail');
                 if (! $details) {
                     Log::warning("Failed to fetch details for CAS number: {$casNumber}");
 
                     continue;
                 }
-                // Use the SMILE (if not then use Canonical SMILE), InChI, InChIKey from details to verify if this is the correct molecule.
-                // First need to standardise the SMILES using CMS pre-processing pipeline.
+
                 $isTheCorrectMolecule = $this->verifyMoleculeIdentity($molecule, $details);
-                Log::info(sprintf('Is the correct molecule: %s', $isTheCorrectMolecule ? 'yes' : 'no'));
+                Log::info(sprintf('CAS %s is the correct molecule: %s', $casNumber, $isTheCorrectMolecule ? 'yes' : 'no'));
 
                 if ($isTheCorrectMolecule) {
-                    return $casNumber;
+                    $matches[] = $casNumber;
                 }
+            }
+
+            if (count($matches) === 1) {
+                return $matches[0];
+            }
+            if (count($matches) > 1) {
+                Log::warning('Ambiguous CAS match, not saving: '.implode(', ', $matches), ['molecule_id' => $molecule->id]);
             }
         }
 
         return null;
+    }
+
+    /**
+     * Search Common Chemistry and return all matching CAS numbers.
+     *
+     * @return string[]
+     */
+    private function searchCASNumbers(string $query): array
+    {
+        $response = $this->makeAPIRequest("{$this->apiBaseUrl}/search", ['q' => $query]);
+        $data = $response?->json();
+
+        return collect($data['results'] ?? [])->pluck('rn')->filter()->values()->all();
     }
 
     /**
@@ -217,11 +239,9 @@ class FetchCASNumbersAuto extends Command
 
         if ($searchType === 'detail') {
             return $this->extractDetailsFromResponse($response);
-        } else {
-            $extractedCAS = $this->extractCASFromResponse($response);
-
-            return $extractedCAS;
         }
+
+        return $this->extractCASFromResponse($response);
     }
 
     /**
@@ -267,6 +287,8 @@ class FetchCASNumbersAuto extends Command
                 $response = Http::timeout(120)
                     ->connectTimeout(60)
                     ->withHeaders([
+                        'accept' => 'application/json',
+                        'x-origin' => config('services.cas.origin'),
                         'X-API-KEY' => config('services.cas.cas_key'),
                     ])
                     ->get($url, $params);
@@ -275,7 +297,8 @@ class FetchCASNumbersAuto extends Command
                     return $response;
                 }
 
-                Log::warning("HTTP request failed for URL: {$url}, Status: ".$response->status()." (attempt $attempt/$maxRetries)");
+                // Never log request headers: they contain the API key.
+                Log::warning("HTTP request failed for URL: {$url}, Status: ".$response->status().', Body: '.Str::limit($response->body(), 500)." (attempt $attempt/$maxRetries)");
             } catch (\Exception $e) {
                 Log::warning("HTTP request exception (attempt $attempt/$maxRetries) for URL: {$url}, Error: ".$e->getMessage());
 
@@ -352,7 +375,7 @@ class FetchCASNumbersAuto extends Command
             'smile' => $data['smile'] ?? null,
             'canonical_smiles' => $data['canonicalSmile'] ?? null,
             'inchi' => $data['inchi'] ?? null,
-            'inchikey' => $data['inchikey'] ?? null,
+            'inchikey' => $data['inchiKey'] ?? null,
         ];
     }
 

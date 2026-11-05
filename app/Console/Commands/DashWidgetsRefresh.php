@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Collection;
+use App\Support\CollectionAnnotationScores;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -177,5 +178,8 @@ class DashWidgetsRefresh extends Command
         }
 
         $this->info('Processing collection wiget counts complete');
+
+        CollectionAnnotationScores::forget();
+        $this->info('Cache for collection annotation scores cleared.');
     }
 }

@@ -6,6 +6,7 @@ use App\Models\Molecule;
 use App\Rest\Resource as RestResource;
 use Illuminate\Database\Eloquent\Model;
 use Lomkit\Rest\Http\Requests\RestRequest;
+use Lomkit\Rest\Relations\BelongsToMany;
 use Lomkit\Rest\Relations\HasOne;
 
 class MoleculeResource extends RestResource
@@ -37,6 +38,7 @@ class MoleculeResource extends RestResource
             'name_trust_level',
             'annotation_level',
             'variants_count',
+            'organism_count',
 
             'status',
             'active',
@@ -55,6 +57,7 @@ class MoleculeResource extends RestResource
     {
         return [
             HasOne::make('properties', PropertiesResource::class),
+            BelongsToMany::make('organisms', OrganismResource::class),
         ];
     }
 

@@ -318,7 +318,7 @@ class Molecule extends Model implements Auditable
                 ->email('info.coconut@uni-jena.de');
 
             $coconut = Schema::Organization();
-            $coconut->url('https://coconut.naturalproducts.net/')
+            $coconut->url(url('/'))
                 ->name('COCONUT - COlleCtion of Open Natural prodUcTs')
                 ->contactPoint($contactPoint);
 

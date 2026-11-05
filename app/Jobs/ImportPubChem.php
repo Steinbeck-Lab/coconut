@@ -59,7 +59,7 @@ class ImportPubChem implements ShouldQueue
 
     public function fetchIUPACNameFromPubChem()
     {
-        $smilesURL = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/cids/TXT?smiles='
+        $smilesURL = config('services.pubchem.base_url').'/compound/smiles/cids/TXT?smiles='
             .urlencode($this->molecule->canonical_smiles);
         $cidResponse = $this->throttledGet($smilesURL);
 
@@ -71,7 +71,7 @@ class ImportPubChem implements ShouldQueue
 
         if ($cid && trim($cid) != '0') {
             $cid = trim(preg_replace('/\s+/', ' ', $cid));
-            $cidPropsURL = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/'.$cid.'/json';
+            $cidPropsURL = config('services.pubchem.base_url').'/compound/cid/'.$cid.'/json';
             $dataResponse = $this->throttledGet($cidPropsURL);
 
             if (! $dataResponse->successful()) {
@@ -112,7 +112,7 @@ class ImportPubChem implements ShouldQueue
     {
         if ($cid && trim($cid) != '0') {
             $cid = trim(preg_replace('/\s+/', ' ', $cid));
-            $synonymsURL = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/'.$cid.'/synonyms/txt';
+            $synonymsURL = config('services.pubchem.base_url').'/compound/cid/'.$cid.'/synonyms/txt';
 
             $maxRetries = 3;
             $backoffSeconds = 2;

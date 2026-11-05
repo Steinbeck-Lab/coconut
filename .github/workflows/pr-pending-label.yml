@@ -1,0 +1,151 @@
+# Sync the "PR pending" label on issues referenced by open pull requests.
+name: PR Pending Label
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, closed, synchronize]
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: read
+
+jobs:
+  sync-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync PR pending labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const LABEL = 'PR pending';
+            const ISSUE_REF_PATTERN = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi;
+
+            function extractIssueNumbers(body) {
+              const numbers = new Set();
+              if (!body) {
+                return numbers;
+              }
+
+              for (const match of body.matchAll(ISSUE_REF_PATTERN)) {
+                numbers.add(Number(match[1]));
+              }
+
+              return numbers;
+            }
+
+            async function getOpenPullRequestIssueNumbers() {
+              const issueNumbers = new Set();
+              let page = 1;
+
+              while (true) {
+                const { data: pulls } = await github.rest.pulls.list({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  state: 'open',
+                  per_page: 100,
+                  page,
+                });
+
+                if (pulls.length === 0) {
+                  break;
+                }
+
+                for (const pull of pulls) {
+                  for (const issueNumber of extractIssueNumbers(pull.body)) {
+                    issueNumbers.add(issueNumber);
+                  }
+                }
+
+                if (pulls.length < 100) {
+                  break;
+                }
+
+                page += 1;
+              }
+
+              return issueNumbers;
+            }
+
+            async function issueHasLabel(issueNumber) {
+              const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+              });
+
+              return labels.some((label) => label.name === LABEL);
+            }
+
+            async function setLabel(issueNumber, shouldHaveLabel) {
+              const hasLabel = await issueHasLabel(issueNumber);
+
+              if (shouldHaveLabel && !hasLabel) {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  labels: [LABEL],
+                });
+                core.info(`Added "${LABEL}" to #${issueNumber}`);
+                return;
+              }
+
+              if (!shouldHaveLabel && hasLabel) {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  name: LABEL,
+                });
+                core.info(`Removed "${LABEL}" from #${issueNumber}`);
+              }
+            }
+
+            const pendingIssueNumbers = await getOpenPullRequestIssueNumbers();
+            core.info(`Issues with open PRs: ${[...pendingIssueNumbers].sort((a, b) => a - b).join(', ') || '(none)'}`);
+
+            for (const issueNumber of pendingIssueNumbers) {
+              const { data: issue } = await github.rest.issues.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+              });
+
+              if (!issue.pull_request && issue.state === 'open') {
+                await setLabel(issueNumber, true);
+              }
+            }
+
+            let page = 1;
+
+            while (true) {
+              const { data: issues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: LABEL,
+                per_page: 100,
+                page,
+              });
+
+              if (issues.length === 0) {
+                break;
+              }
+
+              for (const issue of issues) {
+                if (issue.pull_request) {
+                  continue;
+                }
+
+                if (!pendingIssueNumbers.has(issue.number)) {
+                  await setLabel(issue.number, false);
+                }
+              }
+
+              if (issues.length < 100) {
+                break;
+              }
+
+              page += 1;
+            }

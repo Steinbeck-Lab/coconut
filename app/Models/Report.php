@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ReportStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -103,5 +104,44 @@ class Report extends Model implements Auditable
     public function transformAudit(array $data): array
     {
         return changeAudit($data);
+    }
+
+    /**
+     * Whether the given user may edit this report as an assigned curator
+     * (preserves the two-curator / four-eyes workflow).
+     */
+    public function assignedCuratorCanEdit(User $user): bool
+    {
+        if ($this->status === ReportStatus::SUBMITTED->value) {
+            if (! $this->curators()->wherePivot('curator_number', 1)->exists()) {
+                return true;
+            }
+
+            /** @var User|null $curator1 */
+            $curator1 = $this->curators()->wherePivot('curator_number', 1)->first();
+
+            return $curator1?->id === $user->id;
+        }
+
+        if ($this->status === ReportStatus::PENDING_APPROVAL->value
+            || $this->status === ReportStatus::PENDING_REJECTION->value) {
+            /** @var User|null $firstCurator */
+            $firstCurator = $this->curators()->wherePivot('curator_number', 1)->first();
+
+            if ($firstCurator?->id === $user->id) {
+                return false;
+            }
+
+            if (! $this->curators()->wherePivot('curator_number', 2)->exists()) {
+                return true;
+            }
+
+            /** @var User|null $curator2 */
+            $curator2 = $this->curators()->wherePivot('curator_number', 2)->first();
+
+            return $curator2?->id === $user->id;
+        }
+
+        return false;
     }
 }

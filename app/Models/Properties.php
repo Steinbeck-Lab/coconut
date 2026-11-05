@@ -61,9 +61,9 @@ class Properties extends Model implements Auditable
      * @var array
      */
     protected $casts = [
-        'pathway_results' => 'array',
-        'superclass_results' => 'array',
-        'class_results' => 'array',
+        'np_classifier_pathway' => 'array',
+        'np_classifier_superclass' => 'array',
+        'np_classifier_class' => 'array',
     ];
 
     /**

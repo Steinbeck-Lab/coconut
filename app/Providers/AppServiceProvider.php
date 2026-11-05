@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\Requests\Rest\SearchRequest as AppSearchRequest;
 use App\Models\Citation;
 use App\Models\Collection;
 use App\Models\GeoLocation;
@@ -22,13 +23,17 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Lomkit\Rest\Http\Requests\SearchRequest;
 
 class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
      */
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->app->extend(SearchRequest::class, fn ($resolved, $app) => $app->make(AppSearchRequest::class));
+    }
 
     /**
      * Bootstrap any application services.

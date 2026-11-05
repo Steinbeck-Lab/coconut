@@ -1,4 +1,4 @@
-    <header class="absolute inset-x-0 @if(config('app.env') === 'development') top-14 @else top-0 @endif" x-data="{ open: false }">
+    <header class="absolute inset-x-0 z-50 @if(config('app.env') === 'development') top-14 @else top-0 @endif" x-data="{ open: false }">
         <nav class="flex items-center justify-between p-6 lg:px-8 max-w-4xl lg:max-w-7xl mx-auto" aria-label="Global">
             <div class="flex lg:flex-1">
                 <div class="-m-1.5 p-1.5">
@@ -56,7 +56,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="text-slate-800 hover:bg-slate-50 flex items-center p-2" href="https://coconut.naturalproducts.net/api-documentation" target="_blank">
+                                    <a class="text-slate-800 hover:bg-slate-50 flex items-center p-2" href="{{ url('/api-documentation') }}" target="_blank">
                                         <div class="flex items-center justify-center bg-white rounded shadow-sm h-7 w-7 shrink-0 mr-3">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9.75 16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z" />
@@ -71,6 +71,24 @@
                                             <svg viewBox="0 0 24 24" aria-hidden="true" class="size-6 fill-slate-900"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.463 2 11.97c0 4.404 2.865 8.14 6.839 9.458.5.092.682-.216.682-.48 0-.236-.008-.864-.013-1.695-2.782.602-3.369-1.337-3.369-1.337-.454-1.151-1.11-1.458-1.11-1.458-.908-.618.069-.606.069-.606 1.003.07 1.531 1.027 1.531 1.027.892 1.524 2.341 1.084 2.91.828.092-.643.35-1.083.636-1.332-2.22-.251-4.555-1.107-4.555-4.927 0-1.088.39-1.979 1.029-2.675-.103-.252-.446-1.266.098-2.638 0 0 .84-.268 2.75 1.022A9.607 9.607 0 0 1 12 6.82c.85.004 1.705.114 2.504.336 1.909-1.29 2.747-1.022 2.747-1.022.546 1.372.202 2.386.1 2.638.64.696 1.028 1.587 1.028 2.675 0 3.83-2.339 4.673-4.566 4.92.359.307.678.915.678 1.846 0 1.332-.012 2.407-.012 2.734 0 .267.18.577.688.48 3.97-1.32 6.833-5.054 6.833-9.458C22 6.463 17.522 2 12 2Z"></path></svg>
                                         </div>
                                         <span class="whitespace-nowrap">Codebase</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="text-slate-800 hover:bg-slate-50 flex items-center p-2" href="/globe">
+                                        <div class="flex items-center justify-center bg-white rounded shadow-sm h-7 w-7 shrink-0 mr-3">
+                                        <x-heroicon-o-globe-alt />
+                                        </div>
+                                        <span class="whitespace-nowrap">World map</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="text-slate-800 hover:bg-slate-50 flex items-center p-2" href="/tree-of-life">
+                                        <div class="flex items-center justify-center bg-white rounded shadow-sm h-7 w-7 shrink-0 mr-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c4.97 0 9 3.582 9 8 0 1.06-.27 2.07-.75 2.97M12 3C7.03 3 3 6.582 3 11c0 1.06.27 2.07.75 2.97M12 3v18M3 11h18" />
+                                            </svg>
+                                        </div>
+                                        <span class="whitespace-nowrap">Tree of life</span>
                                     </a>
                                 </li>
                                 <li>
@@ -90,6 +108,9 @@
                                     </a>
                                 </li>
                             </ul>
+                        </li>
+                        <li class="p-4 lg:px-8">
+                            <a class="text-slate-800 hover:text-slate-900" href="/blog">Blog</a>
                         </li>
                         <li class="p-4 lg:px-8">
                             <a class="text-slate-800 hover:text-slate-900" href="/about">About us</a>
@@ -136,15 +157,21 @@
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Collections</a>
                             <a href="https://steinbeck-lab.github.io/coconut/introduction.html"
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Documentation</a>
+                            <a href="/tree-of-life"
+                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Tree of life</a>
                             <a href="/api-documentation"
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">REST API</a>
                             <a href="https://github.com/Steinbeck-Lab/coconut"
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Codebase</a>
+                            <a href="/blog"
+                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Blog</a>
                             <a href="/about"
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">About
                                 us</a>
                             <a href="/download"
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Download</a>
+                            <a href="/globe"
+                                class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">World map</a>
                             <a href="/stats"
                                 class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Statistics</a>
                             <a target="_blank" href="https://kuma.nfdi4chem.de/status/coconut"

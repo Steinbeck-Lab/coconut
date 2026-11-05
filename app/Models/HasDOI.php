@@ -10,7 +10,7 @@ trait HasDOI
         if (! is_null($doi_host)) {
             $identifier = $this->getIdentifier($this, 'identifier');
             if ($this->doi == null) {
-                $url = 'https://coconut.naturalproducts.net/collections/'.$identifier;
+                $url = url('/collections/'.$identifier);
                 $attributes = $this->getMetadata();
                 $attributes['url'] = $url;
                 $doiResponse = $doiService->createDOI($identifier, $attributes);

@@ -69,7 +69,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'https://coconut.naturalproducts.net/'),
+    'url' => env('APP_URL', 'http://localhost'),
 
     'asset_url' => env('ASSET_URL'),
 

@@ -21,7 +21,7 @@ class CollectionController extends Controller
             return Collection::where('identifier', $id)->first();
         });
 
-        if (! $collection) {
+        if (! $collection?->status || $collection->status !== 'PUBLISHED') {
             abort(404);
         }
 

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\SubmissionsAutoProcess;
 
+use App\Services\GeoLocationService;
 use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
@@ -1110,36 +1111,11 @@ class ImportEntriesReferencesAuto extends Command
             return null;
         }
 
-        if (isset($this->geoLocationCache[$name])) {
-            return $this->geoLocationCache[$name];
-        }
-
-        $existing = DB::selectOne('SELECT id FROM geo_locations WHERE name = ?', [$name]);
-        if ($existing) {
-            $this->geoLocationCache[$name] = $existing->id;
-
-            return $existing->id;
-        }
-
-        try {
-            $id = DB::table('geo_locations')->insertGetId([
-                'name' => $name,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-            $this->geoLocationCache[$name] = $id;
-
-            return $id;
-        } catch (QueryException $e) {
-            usleep(50000);
-            $existing = DB::selectOne('SELECT id FROM geo_locations WHERE name = ?', [$name]);
-            if ($existing) {
-                $this->geoLocationCache[$name] = $existing->id;
-
-                return $existing->id;
-            }
-            throw $e;
-        }
+        return app(GeoLocationService::class)->findOrCreateId(
+            $name,
+            $this->geoLocationCache,
+            allowGeocoding: false,
+        );
     }
 
     protected function findOrCreateEcosystem(string $name, ?int $geoLocationId = null): ?int

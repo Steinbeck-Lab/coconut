@@ -206,7 +206,7 @@
                                             </div>
                                             <div class="flex items-center md:ml-1">
                                                 <button type="submit"
-                                                    @click="window.location.href = '/search?q=' + encodeURIComponent(query) + '&tagType=citation&type=tags&activeTab=citation'"
+                                                    @click="window.location.href = '/search?q=' + encodeURIComponent(query) + '&tagType=citations&type=tags&activeTab=citations'"
                                                     class="rounded-md bg-secondary-dark px-3.5 py-1.5 text-base font-semibold leading-7 text-white shadow-sm hover:bg-secondary-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3"><svg
                                                         xmlns="http://www.w3.org/2000/svg" fill="none"
                                                         viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -335,7 +335,7 @@
                     </p>
                 </a>
                 <!-- Unique Organisms Section -->
-                <div class="bg-gray-900 py-6 px-10">
+                <a href="/tree-of-life" class="bg-gray-900 py-6 px-10 hover:bg-gray-800 transition-colors">
                     <p class="text-sm font-medium leading-6 text-gray-400">
                         <svg fill="currentColor" class="w-5 h-5 inline" version="1.1" id="Layer_1"
                             xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -401,7 +401,7 @@
                             {{ $uniqueOrganisms }}
                         </span>
                     </p>
-                </div>
+                </a>
                 <!-- Citations Mapped Section -->
                 <div class="bg-gray-900 py-6 px-10">
                     <p class="text-sm font-medium leading-6 text-gray-400">
@@ -443,7 +443,7 @@
                     <p class="mt-6 text-pretty text-lg/8 text-gray-300">COCONUT REST API provides real-time access to the current state of the database, ensuring that you are working with the most accurate and up-to-date information available.</p>
                     <div class="mt-10 flex items-center justify-center gap-x-6 lg:justify-start">
                     <a target="_blank" href="https://steinbeck-lab.github.io/coconut/api-documentation.html" class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Get started</a>
-                    <a target="_blank" href="https://coconut.naturalproducts.net/api-documentation" class="text-sm/6 font-semibold text-white">Learn more <span aria-hidden="true">→</span></a>
+                    <a target="_blank" href="{{ url('/api-documentation') }}" class="text-sm/6 font-semibold text-white">Learn more <span aria-hidden="true">→</span></a>
                     </div>
                 </div>
                 <div class="relative mt-16 h-80 lg:mt-8">
@@ -452,6 +452,7 @@
             </div>
         </div>
     </div>
+    <livewire:tree-of-life-teaser />
     <livewire:recent-molecules lazy />
     <livewire:compound-classes lazy="on-load" />
     <livewire:data-sources lazy="on-load" />
@@ -503,7 +504,7 @@
                         class="cursor-pointer inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none transition-colors">
                         Close
                     </button>
-                    <a href="https://coconut.s3.uni-jena.de/np-collection-example.csv" target="_blank"
+                    <a href="{{ public_storage_url('np-collection-example.csv') }}" target="_blank"
                         class="cursor-pointer inline-flex justify-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 focus:outline-none transition-colors">
                         Download CSV Template
                     </a>

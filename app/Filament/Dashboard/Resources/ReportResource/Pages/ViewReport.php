@@ -17,8 +17,8 @@ class ViewReport extends ViewRecord
             $molecule_data = $data['suggested_changes']['new_molecule_data'];
             $data = array_merge($data, [
                 'canonical_smiles' => $molecule_data['canonical_smiles'],
-                'reference_id' => $molecule_data['reference_id'],
-                'name' => $molecule_data['name'],
+                'reference_id' => $molecule_data['reference_id'] ?? null,
+                'name' => $molecule_data['name'] ?? null,
                 'link' => $molecule_data['link'] ?? null,
                 'mol_filename' => $molecule_data['mol_filename'] ?? null,
                 'structural_comments' => $molecule_data['structural_comments'] ?? null,

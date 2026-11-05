@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Molecule;
+use App\Support\NpClassifierResults;
 use DB;
 use Illuminate\Console\Command;
 use Log;
@@ -84,9 +85,9 @@ class ImportNPClassifierOutput extends Command
         DB::transaction(function () use ($data) {
             foreach ($data as $row) {
                 $properties = Molecule::where('identifier', $row['identifier'])->first()->properties()->get()[0];
-                $properties['np_classifier_pathway'] = $row['pathway_results'] == '' ? null : $row['pathway_results'];
-                $properties['np_classifier_superclass'] = $row['superclass_results'] == '' ? null : $row['superclass_results'];
-                $properties['np_classifier_class'] = $row['class_results'] == '' ? null : $row['class_results'];
+                $properties['np_classifier_pathway'] = NpClassifierResults::parseImportValue($row['pathway_results'] ?? null);
+                $properties['np_classifier_superclass'] = NpClassifierResults::parseImportValue($row['superclass_results'] ?? null);
+                $properties['np_classifier_class'] = NpClassifierResults::parseImportValue($row['class_results'] ?? null);
                 $properties['np_classifier_is_glycoside'] = $row['isglycoside'] == '' ? null : $row['isglycoside'];
                 $properties->save();
             }

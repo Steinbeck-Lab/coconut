@@ -44,48 +44,78 @@
 
                 <!-- Modal Body -->
                 <div class="p-0">
-                    @foreach ($entry_details as $entry)
+                    @foreach ($entry_details as $detail)
+                    @php $entry = $detail['entry']; @endphp
                     <table class="w-full mb-4">
                         <tbody class="divide-y divide-gray-200">
                             <tr>
                                 <td colspan="2" class="px-4 py-2 text-sm text-center text-gray-500">
                                     <livewire:molecule-depict2d :height="300" :molecule="$mol" :smiles="$entry->canonical_smiles"
                                         :name="$mol->name" :identifier="$mol->identifier" :options="false" lazy="on-load" />
-                                    <span class="break-all">{{$entry->canonical_smiles ?? '-'}}</span>
+                                    <span class="break-all">{{ $entry->canonical_smiles ?? '-' }}</span>
                                 </td>
                             </tr>
                             <tr>
+                                <td class="px-4 py-2 text-sm text-gray-900">Reference ID</td>
+                                <td class="px-4 py-2 text-sm text-gray-500">{{ $entry->reference_id ?? '-' }}</td>
+                            </tr>
+                            <tr>
                                 <td class="px-4 py-2 text-sm text-gray-900">Name</td>
-                                <td class="px-4 py-2 text-sm text-gray-500">{{$entry->name ?? '-'}}</td>
+                                <td class="px-4 py-2 text-sm text-gray-500">{{ $entry->name ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2 text-sm text-gray-900">Synonyms</td>
+                                <td class="px-4 py-2 text-sm text-gray-500">
+                                    @if (!empty($entry->synonyms))
+                                        {{ implode(', ', $entry->synonyms) }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
                             </tr>
                             <tr>
                                 <td class="px-4 py-2 text-sm text-gray-900">DOI</td>
-                                <td class="px-4 py-2 text-sm text-gray-500">{{$entry->doi ?? '-'}}</td>
+                                <td class="px-4 py-2">
+                                    <x-entry-field-groups :groups="$detail['doi']" link-prefix="https://doi.org/" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2 text-sm text-gray-900">Link</td>
+                                <td class="px-4 py-2">
+                                    <x-entry-field-groups :groups="$detail['link']" :link-as-url="true" />
+                                </td>
                             </tr>
                             <tr>
                                 <td class="px-4 py-2 text-sm text-gray-900">Organism</td>
-                                <td class="px-4 py-2 text-sm text-gray-500">{{$entry->organism ?? '-'}}</td>
+                                <td class="px-4 py-2">
+                                    <x-entry-field-groups :groups="$detail['organism']" />
+                                </td>
                             </tr>
                             <tr>
                                 <td class="px-4 py-2 text-sm text-gray-900">Organism Part</td>
-                                <td class="px-4 py-2 text-sm text-gray-500">{{$entry->organism_part ?? '-'}}</td>
+                                <td class="px-4 py-2">
+                                    <x-entry-field-groups :groups="$detail['organism_part']" />
+                                </td>
                             </tr>
-
                             <tr>
                                 <td class="px-4 py-2 text-sm text-gray-900">Geo Location</td>
-                                <td class="px-4 py-2 text-sm text-gray-500">{{$entry->geo_location ?? '-'}}</td>
+                                <td class="px-4 py-2">
+                                    <x-entry-field-groups :groups="$detail['geo_location']" />
+                                </td>
                             </tr>
                             <tr>
                                 <td class="px-4 py-2 text-sm text-gray-900">Location</td>
-                                <td class="px-4 py-2 text-sm text-gray-500">{{$entry->location ?? '-'}}</td>
+                                <td class="px-4 py-2">
+                                    <x-entry-field-groups :groups="$detail['location']" />
+                                </td>
                             </tr>
                             <tr>
                                 <td class="px-4 py-2 text-sm text-gray-900">Molecular Formula</td>
-                                <td class="px-4 py-2 text-sm text-gray-500">{{$entry->molecular_formula ?? '-'}}</td>
+                                <td class="px-4 py-2 text-sm text-gray-500">{{ $entry->molecular_formula ?? '-' }}</td>
                             </tr>
                             <tr>
                                 <td class="px-4 py-2 text-sm text-gray-900">Created at</td>
-                                <td class="px-4 py-2 text-sm text-gray-500">{{$entry->created_at ?? '-'}}</td>
+                                <td class="px-4 py-2 text-sm text-gray-500">{{ $entry->created_at ?? '-' }}</td>
                             </tr>
                         </tbody>
                     </table>
