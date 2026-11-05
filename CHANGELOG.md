@@ -6,6 +6,19 @@
 
 * NP Classifier pathway, superclass, and class are stored and exposed as JSON arrays so all API labels are retained (not only the first). Re-run `php artisan coconut:npclassify --all --force` after deploy to refresh existing molecules.
 
+## [1.2.1](https://github.com/Steinbeck-Lab/coconut/compare/v1.2.0...v1.2.1) (2026-11-05)
+
+
+### Bug Fixes
+
+* update package-lock.json dependencies to latest versions ([e9ef7ed](https://github.com/Steinbeck-Lab/coconut/commit/e9ef7edaaf8c22f6c48b5ff11734852f05bed8cb))
+
+
+### Miscellaneous Chores
+
+* add overrides for postcss-selector-parser in package.json ([e9ef7ed](https://github.com/Steinbeck-Lab/coconut/commit/e9ef7edaaf8c22f6c48b5ff11734852f05bed8cb))
+* enable image pull in GitHub workflows for dev and prod builds ([e9ef7ed](https://github.com/Steinbeck-Lab/coconut/commit/e9ef7edaaf8c22f6c48b5ff11734852f05bed8cb))
+
 ## [1.2.0](https://github.com/Steinbeck-Lab/coconut/compare/v1.1.0...v1.2.0) (2026-10-22)
 
 
