@@ -41,7 +41,7 @@ class DataCite implements DOIService
     public function createDOI($identifier, $metadata = [])
     {
         $doi = $this->prefix.'/'.Config::get('app.name').'.'.$identifier;
-        $url = 'https://coconut.naturalproducts.net/collections/'.$identifier;
+        $url = url('/collections/'.$identifier);
         $suffix = Config::get('app.name').'.'.$identifier;
         $attributes = [
             'doi' => $this->prefix.'/'.Config::get('app.name').'.'.$identifier,

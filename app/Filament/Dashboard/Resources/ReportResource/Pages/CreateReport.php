@@ -136,8 +136,8 @@ class CreateReport extends CreateRecord
             $suggested_changes = [
                 'new_molecule_data' => [
                     'canonical_smiles' => $data['canonical_smiles'],
-                    'reference_id' => $data['reference_id'],
-                    'name' => $data['name'],
+                    'reference_id' => $data['reference_id'] ?? null,
+                    'name' => $data['name'] ?? null,
                     'link' => $data['link'] ?? null,
                     'mol_filename' => $data['mol_filename'] ?? null,
                     'structural_comments' => $data['structural_comments'] ?? null,

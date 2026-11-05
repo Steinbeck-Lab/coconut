@@ -5,13 +5,17 @@ use App\Http\Controllers\Auth\SocialController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\MoleculeController;
 use App\Livewire\About;
+use App\Livewire\Blog\Index as BlogIndex;
+use App\Livewire\Blog\Show as BlogShow;
 use App\Livewire\CollectionList;
 use App\Livewire\Download;
+use App\Livewire\GeoGlobe;
 use App\Livewire\Guides;
 use App\Livewire\Policy;
 use App\Livewire\Search;
 use App\Livewire\Stats;
 use App\Livewire\Terms;
+use App\Livewire\TreeOfLifeExplorer;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -38,8 +42,12 @@ Route::get('/privacy-policy', Policy::class);
 Route::get('/terms-of-service', Terms::class);
 Route::get('/guidelines', Guides::class);
 Route::get('/about', About::class);
+Route::get('/blog', BlogIndex::class)->name('blog.index');
+Route::get('/blog/{slug}', BlogShow::class)->name('blog.show');
 Route::get('/download', Download::class);
 Route::get('/stats', Stats::class);
+Route::get('/globe', GeoGlobe::class)->name('globe');
+Route::get('/tree-of-life', TreeOfLifeExplorer::class)->name('tree-of-life');
 
 Route::get('/collections', CollectionList::class)->name('collections.index');
 

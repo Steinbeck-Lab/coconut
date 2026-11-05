@@ -2,7 +2,10 @@
 
 namespace App\Livewire;
 
+use App\Models\Organism;
 use App\Models\User;
+use App\Services\OrganismTaxonomy\OrganismTaxonomyPresenter;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 use Livewire\Attributes\Lazy;
@@ -21,6 +24,11 @@ class MoleculeDetails extends Component
     {
         $this->molecule = $molecule;
         $this->sortOrganisms();
+    }
+
+    private function taxonomyPresenter(): OrganismTaxonomyPresenter
+    {
+        return app(OrganismTaxonomyPresenter::class);
     }
 
     /**
@@ -73,6 +81,51 @@ class MoleculeDetails extends Component
 
             return $valueA - $valueB;
         })->values(); // This resets the array keys to sequential integers starting from 0
+    }
+
+    /**
+     * Organism rows prepared for the compound page table (Alpine.js).
+     *
+     * @return Collection<int, array{
+     *     id: int,
+     *     name: string,
+     *     rank: string|null,
+     *     iri: string|null,
+     *     searchUrl: string,
+     *     biologicalGroup: string|null,
+     *     hasTaxonomy: bool
+     * }>
+     */
+    public function getOrganismRowsProperty(): Collection
+    {
+        return $this->sortedOrganisms
+            ->filter()
+            ->map(function ($organism) {
+                $taxonomy = $this->taxonomyPresenter()->forOrganism($organism);
+
+                return [
+                    'id' => $organism->id,
+                    'name' => $organism->name,
+                    'rank' => $organism->rank,
+                    'iri' => $organism->iri,
+                    'searchUrl' => '/search?type=tags&q='.urlencode($organism->name).'&tagType=organisms',
+                    'biologicalGroup' => $taxonomy['biological_group_label'] ?? null,
+                    'hasTaxonomy' => $taxonomy !== null,
+                ];
+            })
+            ->values();
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function taxonomyForOrganism(?Organism $organism): ?array
+    {
+        if ($organism === null) {
+            return null;
+        }
+
+        return $this->taxonomyPresenter()->forOrganism($organism);
     }
 
     public function rendered()

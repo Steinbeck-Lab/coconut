@@ -37,7 +37,7 @@
                 </a><br/>
                 @endif
                 
-                <a href="https://coconut.s3.uni-jena.de/prod/downloads/{{ $currentYearMonth }}/collections/{{ $slug }}-{{ $currentMonthYear }}.zip" 
+                <a href="{{ public_downloads_url($currentYearMonth.'/collections/'.$slug.'-'.$currentMonthYear.'.zip') }}" 
                 class="mt-4 inline-block text-sm text-blue-600 underline">
                     Download Collection (SDF) <span aria-hidden="true">→</span>
                 </a>

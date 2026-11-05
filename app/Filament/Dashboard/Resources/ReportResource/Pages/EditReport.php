@@ -18,38 +18,26 @@ class EditReport extends EditRecord
             $molecule_data = $data['suggested_changes']['new_molecule_data'];
             $data = array_merge($data, [
                 'canonical_smiles' => $molecule_data['canonical_smiles'],
-                'reference_id' => $molecule_data['reference_id'],
-                'name' => $molecule_data['name'],
+                'reference_id' => $molecule_data['reference_id'] ?? null,
+                'name' => $molecule_data['name'] ?? null,
                 'link' => $molecule_data['link'] ?? null,
                 'mol_filename' => $molecule_data['mol_filename'] ?? null,
                 'structural_comments' => $molecule_data['structural_comments'] ?? null,
                 'references' => $molecule_data['references'] ?? [],
             ]);
         } elseif ($this->record['report_category'] === ReportCategory::UPDATE->value) {
-            // initiate the flags to show only the fields that need to be shown - overall changes are always from the initial suggestions
-            if (array_key_exists('geo_location_changes', $this->record['suggested_changes']['overall_changes'])) {
-                $data['show_geo_location_existing'] = $this->record['suggested_changes']['overall_changes']['geo_location_changes']['delete'] ? true : false;
-                $data['show_geo_location_new'] = $this->record['suggested_changes']['overall_changes']['geo_location_changes']['add'] ? true : false;
-            }
-            if (array_key_exists('synonym_changes', $this->record['suggested_changes']['overall_changes'])) {
-                $data['show_synonym_existing'] = $this->record['suggested_changes']['overall_changes']['synonym_changes']['delete'] ? true : false;
-                $data['show_synonym_new'] = $this->record['suggested_changes']['overall_changes']['synonym_changes']['add'] ? true : false;
-            }
-            if (array_key_exists('name_change', $this->record['suggested_changes']['overall_changes'])) {
-                $data['show_name_change'] = $this->record['suggested_changes']['overall_changes']['name_change'] ? true : false;
-            }
-            if (array_key_exists('cas_changes', $this->record['suggested_changes']['overall_changes'])) {
-                $data['show_cas_existing'] = $this->record['suggested_changes']['overall_changes']['cas_changes']['delete'] ? true : false;
-                $data['show_cas_new'] = $this->record['suggested_changes']['overall_changes']['cas_changes']['add'] ? true : false;
-            }
-            if (array_key_exists('organism_changes', $this->record['suggested_changes']['overall_changes'])) {
-                $data['show_organism_existing'] = $this->record['suggested_changes']['overall_changes']['organism_changes']['delete'] ? true : false;
-                $data['show_organism_new'] = $this->record['suggested_changes']['overall_changes']['organism_changes']['add'] ? true : false;
-            }
-            if (array_key_exists('citation_changes', $this->record['suggested_changes']['overall_changes'])) {
-                $data['show_citation_existing'] = $this->record['suggested_changes']['overall_changes']['citation_changes']['delete'] ? true : false;
-                $data['show_citation_new'] = $this->record['suggested_changes']['overall_changes']['citation_changes']['add'] ? true : false;
-            }
+            // Curators may edit all change fields, not only those the reporter requested (#738)
+            $data['show_geo_location_existing'] = true;
+            $data['show_geo_location_new'] = true;
+            $data['show_synonym_existing'] = true;
+            $data['show_synonym_new'] = true;
+            $data['show_name_change'] = true;
+            $data['show_cas_existing'] = true;
+            $data['show_cas_new'] = true;
+            $data['show_organism_existing'] = true;
+            $data['show_organism_new'] = true;
+            $data['show_citation_existing'] = true;
+            $data['show_citation_new'] = true;
 
             $curators_copy_changes = $this->record['suggested_changes']['curator'];
             $data['existing_geo_locations'] = $curators_copy_changes['existing_geo_locations'];
@@ -96,8 +84,8 @@ class EditReport extends EditRecord
         if ($this->record['report_category'] === ReportCategory::SUBMISSION->value) {
             $data['suggested_changes']['new_molecule_data'] = [
                 'canonical_smiles' => $data['canonical_smiles'],
-                'reference_id' => $data['reference_id'],
-                'name' => $data['name'],
+                'reference_id' => $data['reference_id'] ?? null,
+                'name' => $data['name'] ?? null,
                 'link' => $data['link'] ?? null,
                 'mol_filename' => $data['mol_filename'] ?? null,
                 'structural_comments' => $data['structural_comments'] ?? null,

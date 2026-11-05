@@ -1,4 +1,5 @@
 <div x-data="{
+    cheminfApiUrl: @js(rtrim(config('services.cheminf.api_url'), '/')),
     isOpen: false,
     mode: @entangle('mode'),
     searchType: 'exact',
@@ -244,7 +245,7 @@
                                                 <div class="border border-gray-200 rounded-md bg-white overflow-hidden">
                                                     <div class="cursor-pointer" @click="loadSearch(search)">
                                                         <div class="h-32 flex items-center justify-center bg-white p-2">
-                                                            <img :src="`https://api.cheminf.studio/latest/depict/2D?smiles=${search.q}&height=300&width=300&CIP=true&toolkit=cdk`"
+                                                            <img :src="`${cheminfApiUrl}/depict/2D?smiles=${search.q}&height=300&width=300&CIP=true&toolkit=cdk`"
                                                                 alt="Molecule Structure"
                                                                 class="object-contain h-full w-full">
                                                         </div>

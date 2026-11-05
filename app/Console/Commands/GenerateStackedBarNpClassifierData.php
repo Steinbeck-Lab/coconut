@@ -33,13 +33,15 @@ class GenerateStackedBarNpClassifierData extends Command
 
         // Execute the query from the user
         $results = DB::select('
-            select c.title, np_classifier_class, count(np_classifier_class) as count
+            select c.title, cls.value as np_classifier_class, count(*) as count
             from properties p
             join molecules m on p.molecule_id=m.id
             join collection_molecule cm on cm.molecule_id=m.id
             join collections c on cm.collection_id=c.id
-            GROUP by 1,2
-            order by 1,3 desc
+            cross join lateral jsonb_array_elements_text(p.np_classifier_class) as cls(value)
+            where p.np_classifier_class is not null
+            group by 1, 2
+            order by 1, 3 desc
         ');
 
         if (empty($results)) {

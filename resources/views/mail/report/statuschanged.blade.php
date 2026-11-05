@@ -72,7 +72,7 @@ The status of the {{ $readableCategory }} request has been changed. Please revie
 ## Compound Details
 @if ($event->report->molecules && $event->report->molecules->count() > 0)
 @foreach ($event->report->molecules as $molecule)
-**COCONUT ID:** [{{ $molecule->identifier }}]({{ config('app.url') }}/compound/{{ $molecule->identifier }})  
+**COCONUT ID:** [{{ $molecule->identifier }}]({{ route('compound', $molecule->identifier) }})  
 **Compound Name:** {{ $molecule->name ?? 'N/A' }}
 @endforeach
 @else
@@ -84,8 +84,10 @@ _No compound information available_
 @if ($event->report->evidence)
 **Evidence/Comment:** {{ $event->report->evidence }}  
 @endif
-@if ($event->report->doi)
-**DOI:** [{{ $event->report->doi }}](https://doi.org/{{ $event->report->doi }})  
+@if ($event->report->doi && ($doiLink = normalizeDoiForLink($event->report->doi)))
+**DOI:** [{{ $doiLink['label'] }}]({{ $doiLink['url'] }})  
+@elseif ($event->report->doi)
+**DOI:** {{ $event->report->doi }}  
 @endif
 @if ($event->report->comment)
 **Comment:** {{ $event->report->comment }}  

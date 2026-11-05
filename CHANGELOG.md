@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+* NP Classifier pathway, superclass, and class are stored and exposed as JSON arrays so all API labels are retained (not only the first). Re-run `php artisan coconut:npclassify --all --force` after deploy to refresh existing molecules.
+
 ## [1.2.0](https://github.com/Steinbeck-Lab/coconut/compare/v1.1.0...v1.2.0) (2026-10-22)
 
 

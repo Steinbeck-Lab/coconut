@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Enums\ReportStatus;
 use App\Models\Report;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -43,47 +42,9 @@ class ReportPolicy
      */
     public function update(User $user, Report $report): bool
     {
-        // Allow users with update_report permission in these cases:
-        if ($user->can('update_report')) {
-            // Case 1: Report is submitted
-            if ($report->status == ReportStatus::SUBMITTED->value) {
-                // Allow if no curator 1 is assigned yet
-                if (! $report->curators()->wherePivot('curator_number', 1)->exists()) {
-                    return true;
-                }
-
-                // Or if user is already assigned as curator 1
-                /** @var User|null $curator1 */
-                $curator1 = $report->curators()->wherePivot('curator_number', 1)->first();
-                if ($curator1?->id == $user->id) {
-                    return true;
-                }
-            }
-
-            // Case 2: Report is pending approval/rejection
-            if ($report->status == ReportStatus::PENDING_APPROVAL->value || $report->status == ReportStatus::PENDING_REJECTION->value) {
-                // Get the first curator ID
-                /** @var User|null $firstCurator */
-                $firstCurator = $report->curators()->wherePivot('curator_number', 1)->first();
-                $firstCuratorId = $firstCurator?->id;
-
-                // Don't allow if user was the first curator (enforce four-eyes principle)
-                if ($firstCuratorId == $user->id) {
-                    return false;
-                }
-
-                // Allow if no curator 2 is assigned yet
-                if (! $report->curators()->wherePivot('curator_number', 2)->exists()) {
-                    return true;
-                }
-
-                // Or if user is already assigned as curator 2
-                /** @var User|null $curator2 */
-                $curator2 = $report->curators()->wherePivot('curator_number', 2)->first();
-                if ($curator2?->id == $user->id) {
-                    return true;
-                }
-            }
+        if (($user->can('update_report') || $user->hasRole('curator'))
+            && $report->assignedCuratorCanEdit($user)) {
+            return true;
         }
 
         // Allow report creator to update only if status is null (report is being created)

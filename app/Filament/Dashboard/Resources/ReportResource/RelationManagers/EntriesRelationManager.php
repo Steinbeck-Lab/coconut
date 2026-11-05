@@ -2,6 +2,7 @@
 
 namespace App\Filament\Dashboard\Resources\ReportResource\RelationManagers;
 
+use App\Services\EntryFieldFormatter;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -81,14 +82,26 @@ class EntriesRelationManager extends RelationManager
                     ->schema([
                         TextEntry::make('reference_id'),
                         TextEntry::make('name'),
-                        TextEntry::make('doi'),
-                        TextEntry::make('link'),
-                        TextEntry::make('organism'),
-                        TextEntry::make('organism_part'),
+                        TextEntry::make('doi')
+                            ->html()
+                            ->formatStateUsing(fn (?string $state) => EntryFieldFormatter::toHtmlString($state, 'https://doi.org/')),
+                        TextEntry::make('link')
+                            ->html()
+                            ->formatStateUsing(fn (?string $state) => EntryFieldFormatter::toHtmlString($state, linkAsUrl: true)),
+                        TextEntry::make('organism')
+                            ->html()
+                            ->formatStateUsing(fn (?string $state) => EntryFieldFormatter::toHtmlString($state)),
+                        TextEntry::make('organism_part')
+                            ->html()
+                            ->formatStateUsing(fn (?string $state) => EntryFieldFormatter::toHtmlString($state)),
                         TextEntry::make('molecular_formula'),
                         TextEntry::make('structural_comments'),
-                        TextEntry::make('geo_location'),
-                        TextEntry::make('location'),
+                        TextEntry::make('geo_location')
+                            ->html()
+                            ->formatStateUsing(fn (?string $state) => EntryFieldFormatter::toHtmlString($state)),
+                        TextEntry::make('location')
+                            ->html()
+                            ->formatStateUsing(fn (?string $state) => EntryFieldFormatter::locationToHtmlString($state)),
                         TextEntry::make('errors'),
                     ]),
                 Section::make()

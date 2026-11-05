@@ -35,7 +35,7 @@ class TopContributors extends Widget
                     $contributorData[] = [
                         'user' => $user,
                         'contribution_count' => $contributor->contribution_count,
-                        'avatar_url' => $user->profile_photo_url ?? 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&color=7F9CF5&background=EBF4FF',
+                        'avatar_url' => $user->profile_photo_url ?? config('services.avatars.url').'?name='.urlencode($user->name).'&color=7F9CF5&background=EBF4FF',
                     ];
                 }
             }
