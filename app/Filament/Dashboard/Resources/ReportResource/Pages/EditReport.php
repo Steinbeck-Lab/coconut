@@ -18,8 +18,8 @@ class EditReport extends EditRecord
             $molecule_data = $data['suggested_changes']['new_molecule_data'];
             $data = array_merge($data, [
                 'canonical_smiles' => $molecule_data['canonical_smiles'],
-                'reference_id' => $molecule_data['reference_id'],
-                'name' => $molecule_data['name'],
+                'reference_id' => $molecule_data['reference_id'] ?? null,
+                'name' => $molecule_data['name'] ?? null,
                 'link' => $molecule_data['link'] ?? null,
                 'mol_filename' => $molecule_data['mol_filename'] ?? null,
                 'structural_comments' => $molecule_data['structural_comments'] ?? null,
@@ -84,8 +84,8 @@ class EditReport extends EditRecord
         if ($this->record['report_category'] === ReportCategory::SUBMISSION->value) {
             $data['suggested_changes']['new_molecule_data'] = [
                 'canonical_smiles' => $data['canonical_smiles'],
-                'reference_id' => $data['reference_id'],
-                'name' => $data['name'],
+                'reference_id' => $data['reference_id'] ?? null,
+                'name' => $data['name'] ?? null,
                 'link' => $data['link'] ?? null,
                 'mol_filename' => $data['mol_filename'] ?? null,
                 'structural_comments' => $data['structural_comments'] ?? null,
