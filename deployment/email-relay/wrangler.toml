@@ -1,0 +1,14 @@
+name = "coconut-email-relay"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+GITHUB_REPO = "Steinbeck-Lab/coconut"
+WORKFLOW_FILE = "email-to-issue.yml"
+WORKFLOW_REF = "main"
+# Optional comma-separated list of allowed senders, e.g. "alice@uni-jena.de,@uni-jena.de".
+# Leave empty to accept mail from anyone.
+ALLOWED_SENDERS = ""
+
+# Secret (set with `npx wrangler secret put GITHUB_TOKEN`):
+#   GITHUB_TOKEN - fine-grained PAT scoped to Steinbeck-Lab/coconut with "Actions: Read and write"

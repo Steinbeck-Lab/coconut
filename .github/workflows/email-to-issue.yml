@@ -1,0 +1,83 @@
+# Turns inbound emails into GitHub issues. Replies in an existing email thread
+# (matched by subject, ignoring "Re:"/"Fwd:" prefixes) are added as comments on
+# the open issue with that title instead of opening a new issue.
+#
+# Triggered by the Cloudflare Email Worker in deployment/email-relay, or manually
+# from the Actions tab for testing.
+
+name: Email to Issue
+
+on:
+  workflow_dispatch:
+    inputs:
+      subject:
+        description: Email subject
+        required: true
+      from_name:
+        description: Sender name
+        required: false
+      from_email:
+        description: Sender email address
+        required: false
+      body:
+        description: Email body (plain text, quoted history removed)
+        required: false
+
+concurrency:
+  group: email-to-issue
+  cancel-in-progress: false
+
+jobs:
+  email-to-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Comment on existing issue or create a new one
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const inputs = context.payload.inputs || {};
+
+            const normalizeSubject = (s) =>
+              (s || '')
+                .replace(/^\s*((re|fw|fwd|aw|wg|sv|antw)(\[\d+\])?\s*:\s*)+/i, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            const title = normalizeSubject(inputs.subject) || '(no subject)';
+
+            const sender = [inputs.from_name, inputs.from_email && `<${inputs.from_email}>`]
+              .filter(Boolean)
+              .join(' ');
+            const body = [
+              sender && `**From:** ${sender}`,
+              (inputs.body || '').trim() || '_(empty message)_',
+            ]
+              .filter(Boolean)
+              .join('\n\n');
+
+            const query = `repo:${owner}/${repo} is:issue is:open in:title "${title.replace(/"/g, '')}"`;
+            const { data: search } = await github.rest.search.issuesAndPullRequests({
+              q: query,
+              sort: 'created',
+              order: 'asc',
+              per_page: 50,
+            });
+            const existing = search.items.find(
+              (issue) => normalizeSubject(issue.title).toLowerCase() === title.toLowerCase()
+            );
+
+            if (existing) {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: existing.number,
+                body,
+              });
+              core.notice(`Added email as a comment on #${existing.number}`);
+            } else {
+              const { data: issue } = await github.rest.issues.create({ owner, repo, title, body });
+              core.notice(`Created issue #${issue.number}`);
+            }
