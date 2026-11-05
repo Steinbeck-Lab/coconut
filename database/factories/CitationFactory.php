@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Citation;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Http;
 
 /**
  * @extends Factory<Citation>
@@ -14,69 +13,34 @@ class CitationFactory extends Factory
     /**
      * Define the model's default state.
      *
-     * @return array
+     * @return array<string, mixed>
      */
-    public function definition()
+    public function definition(): array
     {
-        $keywords = [
-            'Herbal medicine',
-            'Secondary metabolites',
-            'Natural product chemistry',
-            'Medicinal plants',
-            'Ethnobotany',
-            'Traditional medicine',
-            'Natural product isolation',
-            'Pharmacognosy',
-            'Marine natural products',
-            'Bioprospecting',
-            'Natural product synthesis',
-        ];
-
-        $randomKeyword = $keywords[array_rand($keywords)];
-
-        // Fetch data from Europe PMC API
-        $response = Http::get('https://www.ebi.ac.uk/europepmc/webservices/rest/search', [
-            'query' => $randomKeyword,
-            'format' => 'json',
-            'pageSize' => 10,
+        $title = rtrim($this->faker->sentence(8), '.');
+        $journalTitle = $this->faker->randomElement([
+            'J Nat Prod',
+            'Phytochemistry',
+            'Mar Drugs',
+            'Molecules',
+            'Nat Prod Rep',
+            'J Ethnopharmacol',
         ]);
+        $pubYear = $this->faker->numberBetween(1990, (int) date('Y'));
+        $volume = $this->faker->numberBetween(1, 120);
+        $issue = $this->faker->numberBetween(1, 12);
+        $firstPage = $this->faker->numberBetween(1, 900);
+        $pageInfo = $firstPage.'-'.($firstPage + $this->faker->numberBetween(5, 30));
 
-        $randomIndex = rand(0, 10);
-
-        // Extract citation details from the response
-        $citationData = $response->json('resultList.result.'.$randomIndex);
-        $doi = $citationData['doi'] ?? null;
-
-        while (! $doi) {
-            if ($randomIndex == 0) {
-                $randomIndex = 10;
-            } else {
-                $randomIndex -= 1;
-            }
-            $citationData = $response->json('resultList.result.'.$randomIndex);
-            $doi = $citationData['doi'] ?? null;
-        }
-
-        // Extracting individual fields
-        $title = $citationData['title'] ?? null;
-        $authors = $citationData['authorString'] ?? null;
-        $journalTitle = $citationData['journalTitle'] ?? null;
-        $pubYear = $citationData['pubYear'] ?? null;
-        $volume = $citationData['volume'] ?? null;
-        $issue = $citationData['issue'] ?? null;
-        $pageInfo = $citationData['pageInfo'] ?? null;
-
-        // Construct citation text
-        $citationText = '';
-        if ($journalTitle && $title && $pubYear && $volume && $issue && $pageInfo) {
-            $citationText = "$journalTitle. $title. $pubYear; $volume($issue): $pageInfo";
-        }
+        $authors = collect(range(1, $this->faker->numberBetween(1, 5)))
+            ->map(fn () => $this->faker->lastName().' '.strtoupper($this->faker->randomLetter()))
+            ->implode(', ');
 
         return [
-            'doi' => $doi.'~'.rand(0, 100),
+            'doi' => '10.'.$this->faker->numberBetween(1000, 9999).'/'.$this->faker->unique()->bothify('???.####.#####'),
             'title' => $title,
             'authors' => $authors,
-            'citation_text' => $citationText,
+            'citation_text' => "$journalTitle. $title. $pubYear; $volume($issue): $pageInfo",
         ];
     }
 }
