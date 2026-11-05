@@ -98,11 +98,11 @@ ENV PATH="/app/cc/bin:$PATH"
 
 # Configure PHP - combine echo commands
 RUN { \
-        echo 'max_execution_time = 3600'; \
-        echo 'memory_limit = 4G'; \
-        echo 'upload_max_filesize = 100M'; \
-        echo 'post_max_size = 250M'; \
-        echo 'max_input_time = 3600'; \
+    echo 'max_execution_time = 3600'; \
+    echo 'memory_limit = 4G'; \
+    echo 'upload_max_filesize = 100M'; \
+    echo 'post_max_size = 250M'; \
+    echo 'max_input_time = 3600'; \
     } > /usr/local/etc/php/conf.d/docker-php-custom.ini
 
 # Install Node.js
@@ -111,7 +111,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
 
 # Create application user
 RUN groupadd --gid $WWWGROUP laravel \
-&& useradd --uid $WWWUSER --gid laravel --shell /bin/bash --create-home laravel
+    && useradd --uid $WWWUSER --gid laravel --shell /bin/bash --create-home laravel
 
 # Set working directory
 WORKDIR /app

@@ -53,8 +53,8 @@ RUN apt-get update \
 
 RUN setcap "cap_net_bind_service=+ep" /usr/bin/php8.4
 
-# Security guard: fail the build if PHP is older than the
-# version fixed for CERT-EU advisory 2026-018 (CVE-2026-109618 / CVE-2026-109619)
+# Security guard: fail the build if PHP is older than the version fixed for
+# CERT-EU advisory 2026-018 (CVE-2026-109618 / CVE-2026-109619)
 RUN php -r 'exit(version_compare(PHP_VERSION, "8.4.27", ">=") ? 0 : 1);'
 
 RUN groupadd --force -g $WWWGROUP sail
