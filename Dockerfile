@@ -131,6 +131,12 @@ RUN --mount=type=secret,id=composer_auth \
     --no-scripts \
     --audit
 
+# composer runs with --no-scripts above, so the "filament:upgrade" post-autoload-dump
+# hook never fires. Republish Filament (and plugin) assets from the installed vendor
+# packages so public/ can never drift from the Blade views (stale JS leaves
+# .fi-main-ctn stuck with the `inert` attribute).
+RUN php artisan filament:assets --ansi
+
 # Install npm dependencies and build frontend assets
 RUN npm ci --no-audit && npm run build
 
